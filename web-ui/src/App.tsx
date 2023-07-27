@@ -26,10 +26,10 @@ const AppBar = () => (
   <div class="navbar navbar-expand-md bg-primary navbar-dark">
     <div class="container">
       <a class="navbar-brand" href="#">
-        The Box
+        Ava
       </a>
 
-      <div class="navbar-collapse">
+      <div class="navbar-collapse d-print-none">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
             <Link class="nav-link" href="/">

@@ -1,7 +1,7 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 .message {
-  .role {
+  & .role {
     text-transform: capitalize;
     font-weight: 600;
   }
@@ -24,7 +24,7 @@
     }
   }
 
-  pre {
+  & pre {
     background: var(--bs-gray-200);
     padding: 1rem;
     border: 1px solid var(--bs-border-color);

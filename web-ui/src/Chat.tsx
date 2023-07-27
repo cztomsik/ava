@@ -8,7 +8,7 @@ export const Chat = ({ index }) => {
 
   return (
     <div class="row">
-      <div class="chats col-md-3">
+      <div class="chats col-md-3 d-print-none">
         <div class="group">
           <div>Today</div>
           <ul class="list-unstyled">
@@ -101,7 +101,7 @@ const ChatSession = () => {
         <ChatMessage {...m} />
       ))}
 
-      <form onSubmit={handleSubmit}>
+      <form class="d-print-none" onSubmit={handleSubmit}>
         <textarea
           class="form-control mb-2"
           rows={3}
@@ -124,7 +124,7 @@ const ChatSession = () => {
 }
 
 const ChatMessage = ({ role, content }) => (
-  <div class="message mb-4 role-${role}">
+  <div class={`message mb-4 role-${role}`}>
     <div class="role">{role}:</div>
     <div class="content">
       <Markdown input={"" + content} />
