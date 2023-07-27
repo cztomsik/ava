@@ -8,7 +8,7 @@ TBD
 - Bootstrap 5
 - Preact/Compat, Preact Router, Preact Signals
 
-## Code Conventions
+## Code Conventions
 
 - package.json shared for both client and server
 
@@ -21,11 +21,12 @@ TBD
 
 ```bash
 npm install
+npm run build
 ./llama.cpp/server -m ./wizardlm-13b-v1.2.ggmlv3.q4_0.bin -c 4096 -ngl 1
 npm run dev
 ```
 
-## Production Build (TODO)
+<!-- ## Production Build (TODO)
 
 ```bash
 # build
@@ -37,4 +38,4 @@ touch dist/.env
 
 # run
 node dist/server.js
-```
+``` -->
