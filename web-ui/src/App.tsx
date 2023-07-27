@@ -12,7 +12,7 @@ export const App = () => (
   <div>
     <AppBar />
 
-    <div class="container mt-4">
+    <div class="container my-4">
       <Router history={history as any}>
         <Route path="/:index?" component={Chat} />
         <Route path="/search" component={Search} />
