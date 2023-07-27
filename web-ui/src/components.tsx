@@ -1,3 +1,5 @@
+// TODO: introduce /components folder
+
 import { h } from "preact"
 import { useMemo } from "preact/hooks"
 import { exec, useRouter } from "preact-router"

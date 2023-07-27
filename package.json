@@ -5,10 +5,13 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild index=web-ui/src/index.tsx styles=web-ui/styles.css --bundle --outdir=./web-ui/dist",
-    "dev": "npm run build -- --sourcemap --servedir=./web-ui --serve=3000",
-    "check": "tsc --noEmit"
+    "postinstall": "git submodule update --init --recursive",
+    "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 main server",
+    "build-webapp": "esbuild index=web-ui/src/index.tsx styles=web-ui/styles.css --bundle --outdir=./web-ui/dist",
+    "build": "npm run build-llama.cpp && npm run build-webapp",
+    "dev": "npm run build-webapp -- --sourcemap --servedir=./web-ui --serve=3000",
+    "check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",

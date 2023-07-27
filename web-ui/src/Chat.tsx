@@ -103,6 +103,7 @@ const ChatSession = () => {
 
       <form class="d-print-none" onSubmit={handleSubmit}>
         <textarea
+          autofocus
           class="form-control mb-2"
           rows={3}
           placeholder="Ask anything..."
