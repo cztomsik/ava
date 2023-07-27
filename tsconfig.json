@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "jsx": "react",
+    "jsxFactory": "h"
+  },
+  "include": ["."],
+  "exclude": ["node_modules"]
+}
