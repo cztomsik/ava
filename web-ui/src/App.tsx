@@ -1,10 +1,7 @@
-import { h } from "preact"
 import { Router, Route } from "preact-router"
 import { createHashHistory } from "history"
-import { Chat } from "./Chat"
-import { Search } from "./Search"
-import { Help } from "./Help"
 import { Link } from "./components"
+import { Chat } from "./chat/Chat"
 
 export const history = createHashHistory()
 
@@ -15,8 +12,10 @@ export const App = () => (
     <div class="container my-4">
       <Router history={history as any}>
         <Route path="/:index?" component={Chat} />
-        <Route path="/search" component={Search} />
-        <Route path="/help" component={Help} />
+        <Route path="/wiki" component={TODO} />
+        <Route path="/files" component={TODO} />
+        <Route path="/playground" component={TODO} />
+        <Route path="/help" component={TODO} />
       </Router>
     </div>
   </div>
@@ -37,8 +36,18 @@ const AppBar = () => (
             </Link>
           </li>
           <li class="nav-item">
-            <Link class="nav-link" href="/search">
-              Search
+            <Link class="nav-link" href="/wiki">
+              Wiki
+            </Link>
+          </li>
+          <li class="nav-item">
+            <Link class="nav-link" href="/files">
+              Files
+            </Link>
+          </li>
+          <li class="nav-item">
+            <Link class="nav-link" href="/playground">
+              Playground
             </Link>
           </li>
           <li class="nav-item">
@@ -79,4 +88,11 @@ const AppBar = () => (
       </div>
     </div>
   </div>
+)
+
+const TODO = () => (
+  <>
+    <h2>TODO</h2>
+    <p>TODO</p>
+  </>
 )

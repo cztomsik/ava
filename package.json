@@ -1,15 +1,16 @@
 {
   "private": true,
-  "name": "the-box",
+  "name": "ava",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "app.js",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
     "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 main server",
-    "build-webapp": "esbuild index=web-ui/src/index.tsx styles=web-ui/styles.css --bundle --outdir=./web-ui/dist",
-    "build": "npm run build-llama.cpp && npm run build-webapp",
-    "dev": "npm run build-webapp -- --sourcemap --servedir=./web-ui --serve=3000",
+    "build": "npm run build-llama.cpp && vite build",
+    "dev": "vite",
+    "preview": "npm run build-llama.cpp && vite preview",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,8 +22,9 @@
     "printWidth": 120
   },
   "devDependencies": {
-    "esbuild": "^0.18.17",
-    "typescript": "^5.1.6"
+    "@preact/preset-vite": "^2.5.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
   },
   "dependencies": {
     "@preact/signals": "^1.1.5",

@@ -1,6 +1,5 @@
-import { h } from "preact"
 import { signal, useSignal } from "@preact/signals"
-import { Markdown } from "./components"
+import { Markdown } from "../components"
 import { useEffect } from "preact/hooks"
 
 export const Chat = ({ index }) => {
