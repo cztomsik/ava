@@ -22,6 +22,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
+  "include": ["./web-ui/src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
