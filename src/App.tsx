@@ -56,35 +56,6 @@ const AppBar = () => (
             </Link>
           </li>
         </ul>
-
-        <ul class="navbar-nav">
-          <li class="nav-item dropdown">
-            <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
-              User: John Doe
-            </button>
-
-            <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="#">
-                  Profile
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="#">
-                  Settings
-                </a>
-              </li>
-              <li>
-                <hr class="dropdown-divider" />
-              </li>
-              <li>
-                <a class="dropdown-item" href="#">
-                  Sign out
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ul>
       </div>
     </div>
   </div>
