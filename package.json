@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
-    "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 main server",
+    "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 server",
     "build": "bun run build-llama.cpp && bun build src/main.ts --compile --outfile ava",
     "dev": "bun run --watch src/main.ts",
     "check": "tsc --noEmit",

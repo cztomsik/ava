@@ -1,41 +1,31 @@
 # Ava
 
-TBD
+Air-gapped Virtual Assistant
 
 ## Tech stack
 
-- Node.js, Zig (TODO), C++, PostgreSQL (TODO)
-- Bootstrap 5
-- Preact/Compat, Preact Router, Preact Signals
-
-## Code Conventions
-
-- package.json shared for both client and server
-
-## Preparation
-
-- Download model from https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGML/blob/main/wizardlm-13b-v1.2.ggmlv3.q4_0.bin
-- Download Xcode developer tools
+- Bun, SQLite, Zig, C++
+- Preact, Preact Router, Preact Signals, Bootstrap 5, Goober
 
 ## Local Development
 
+Make sure you have:
+
+- [Bun](https://bun.sh)
+- [Zig](https://ziglang.org/download/)
+- Xcode developer tools
+- pkg-config (`brew install pkg-config`)
+- Download model from https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGML/blob/main/wizardlm-13b-v1.2.ggmlv3.q4_0.bin
+
 ```bash
-npm install
-npm run build
+bun install
 ./llama.cpp/server -m ./wizardlm-13b-v1.2.ggmlv3.q4_0.bin -c 4096 -ngl 1
-npm run dev
+bun run dev
 ```
 
-<!-- ## Production Build (TODO)
+## Production build
 
 ```bash
-# build
-npm install
-npm run build
-
-# configure
-touch dist/.env
-
-# run
-node dist/server.js
-``` -->
+bun build
+./ava
+```
