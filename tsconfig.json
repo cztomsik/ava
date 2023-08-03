@@ -4,14 +4,14 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-
-    /* Bundler mode */
+    "types": ["bun-types"],
+    "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["./web-ui/src"]
+  "include": ["src"]
 }

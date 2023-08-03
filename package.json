@@ -1,29 +1,20 @@
 {
   "private": true,
   "name": "ava",
-  "version": "1.0.0",
+  "module": "index.ts",
   "type": "module",
-  "description": "",
-  "main": "app.js",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
     "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 main server",
-    "build-webapp": "esbuild web-ui/src/main.tsx --bundle --outdir=web-ui/dist",
-    "build": "npm run build-llama.cpp && npm run build-webapp",
-    "dev": "npm run build-webapp -- --sourcemap --servedir=./web-ui --serve=3000",
+    "build": "bun run build-llama.cpp && bun build src/main.ts --compile --outfile ava",
+    "dev": "bun run --watch src/main.ts",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
   "prettier": {
     "semi": false,
     "arrowParens": "avoid",
     "printWidth": 120
-  },
-  "devDependencies": {
-    "esbuild": "^0.18.17",
-    "typescript": "^5.0.2"
   },
   "dependencies": {
     "@preact/signals": "^1.1.5",
@@ -32,5 +23,9 @@
     "markdown-it": "^13.0.1",
     "preact": "^10.16.0",
     "preact-router": "^4.1.2"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.0.2"
   }
 }
