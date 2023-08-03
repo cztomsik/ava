@@ -19,6 +19,7 @@
   "dependencies": {
     "@preact/signals": "^1.1.5",
     "bootstrap": "^5.3.1",
+    "goober": "^2.1.13",
     "history": "^5.3.0",
     "markdown-it": "^13.0.1",
     "preact": "^10.16.0",

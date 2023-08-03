@@ -8,7 +8,6 @@ const server = Bun.serve({
 
     switch (pathname) {
       case "/index.html":
-      case "/styles.css":
         return new Response(Bun.file(import.meta.dir + pathname))
       case "/bootstrap.css":
         return new Response(Bun.file(import.meta.dir + "/../node_modules/bootstrap/dist/css/bootstrap.min.css"))

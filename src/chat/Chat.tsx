@@ -1,51 +1,87 @@
 import { signal, useSignal } from "@preact/signals"
-import { Markdown } from "../components"
 import { useEffect } from "preact/hooks"
+import { css } from "goober"
+import { Markdown } from "../components"
+
+const styles = css`
+  .message {
+    & .role {
+      text-transform: capitalize;
+      font-weight: 600;
+    }
+
+    &.role-system {
+      color: var(--bs-secondary);
+
+      .role {
+        display: none;
+      }
+    }
+
+    &.role-user {
+      border-left: 4px solid var(--bs-primary);
+      padding-left: 1rem;
+      margin-left: -1rem;
+
+      .role {
+        color: var(--bs-primary);
+      }
+    }
+
+    & pre {
+      background: var(--bs-gray-200);
+      padding: 1rem;
+      border: 1px solid var(--bs-border-color);
+    }
+  }
+`
 
 export const Chat = ({ index }) => {
   // TODO: optionally load session from local storage by index
 
   return (
-    <div class="row">
-      <div class="chats col-md-3 d-print-none">
-        <div class="group">
-          <div>Today</div>
-          <ul class="list-unstyled">
-            <li>
-              <a class="active" href="#">
-                Poem about JavaScript
-              </a>
-            </li>
-            <li>
-              <a href="#">Invoke Clang from Zig</a>
-            </li>
-          </ul>
+    <div class={styles}>
+      <div class="row">
+        <div class="chats col-md-3 d-print-none">
+          <div class="group">
+            <div>Today</div>
+            <ul class="list-unstyled">
+              <li>
+                <a class="active" href="#">
+                  Poem about JavaScript
+                </a>
+              </li>
+              <li>
+                <a href="#">Invoke Clang from Zig</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <div>Yesterday</div>
+            <ul class="list-unstyled">
+              <li>
+                <a href="#">Trip to Italy</a>
+              </li>
+              <li>
+                <a href="#">Recipe for a cake</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <div>Previous 7 days</div>
+            <ul class="list-unstyled">
+              <li>
+                <a href="#">How to make a website</a>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div class="group">
-          <div>Yesterday</div>
-          <ul class="list-unstyled">
-            <li>
-              <a href="#">Trip to Italy</a>
-            </li>
-            <li>
-              <a href="#">Recipe for a cake</a>
-            </li>
-          </ul>
+        <div class="chat col-md-9">
+          <ChatSession />
         </div>
-
-        <div class="group">
-          <div>Previous 7 days</div>
-          <ul class="list-unstyled">
-            <li>
-              <a href="#">How to make a website</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="chat col-md-9">
-        <ChatSession />
       </div>
     </div>
   )
