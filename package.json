@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
-    "build-llama.cpp": "cd llama.cpp && make clean && make LLAMA_METAL=1 server",
-    "build": "bun run build-llama.cpp && bun build src/main.ts --compile --outfile ava",
-    "dev": "bun run --watch src/main.ts",
+    "build": "esbuild ./src/app/main.tsx --bundle --outdir=./src/app/dist",
+    "watch": "npm run build -- --sourcemap --watch",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,13 +19,12 @@
     "@preact/signals": "^1.1.5",
     "bootstrap": "^5.3.1",
     "goober": "^2.1.13",
-    "history": "^5.3.0",
     "markdown-it": "^13.0.1",
     "preact": "^10.16.0",
     "preact-router": "^4.1.2"
   },
   "devDependencies": {
-    "bun-types": "latest",
+    "esbuild": "^0.18.19",
     "typescript": "^5.0.2"
   }
 }

@@ -1,5 +1,5 @@
 .DS_Store
+/zig-cache/
+/zig-out/
 /node_modules/
-/.env
-/ava
-/ava.db
+/src/app/dist/

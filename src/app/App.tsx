@@ -1,16 +1,13 @@
 import { Router, Route } from "preact-router"
-import { createHashHistory } from "history"
 import { Link } from "./components"
 import { Chat } from "./chat/Chat"
-
-export const history = createHashHistory()
 
 export const App = () => (
   <div>
     <AppBar />
 
     <div class="container my-4">
-      <Router history={history as any}>
+      <Router>
         <Route path="/:index?" component={Chat} />
         <Route path="/wiki" component={TODO} />
         <Route path="/files" component={TODO} />

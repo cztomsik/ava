@@ -11,21 +11,22 @@ Air-gapped Virtual Assistant
 
 Make sure you have:
 
-- [Bun](https://bun.sh)
 - [Zig](https://ziglang.org/download/)
+- [Node.js](https://nodejs.org/)
 - Xcode developer tools
 - pkg-config (`brew install pkg-config`)
 - Download model from https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGML/blob/main/wizardlm-13b-v1.2.ggmlv3.q4_0.bin
 
 ```bash
-bun install
-./llama.cpp/server -m ./wizardlm-13b-v1.2.ggmlv3.q4_0.bin -c 4096 -ngl 1
-bun run dev
+npm install
+npm run watch
+zig build run
 ```
 
 ## Production build
 
 ```bash
-bun build
-./ava
+npm install
+npm run build
+zig build -Doptimize=ReleaseSafe
 ```
