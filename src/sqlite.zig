@@ -96,6 +96,10 @@ pub const Statement = opaque {
         const i: c_int = @intCast(index);
 
         try check(switch (@TypeOf(arg)) {
+            bool => c.sqlite3_bind_int(self.ptr(), i, if (arg) 1 else 0),
+            i32 => c.sqlite3_bind_int(self.ptr(), i, arg),
+            i64 => c.sqlite3_bind_int64(self.ptr(), i, arg),
+            f64 => c.sqlite3_bind_double(self.ptr(), i, arg),
             []const u8 => c.sqlite3_bind_text(self.ptr(), i, arg.ptr, @intCast(arg.len), null),
             else => @compileError("TODO"),
         });
@@ -129,6 +133,10 @@ pub const Statement = opaque {
         const i: c_int = @intCast(index);
 
         switch (T) {
+            bool => c.sqlite3_column_int(self.ptr(), i) != 0,
+            i32 => c.sqlite3_column_int(self.ptr(), i),
+            i64 => c.sqlite3_column_int64(self.ptr(), i),
+            f64 => c.sqlite3_column_double(self.ptr(), i),
             []const u8 => {
                 const len = c.sqlite3_column_bytes(self.ptr(), i);
                 const data = c.sqlite3_column_text(self.ptr(), i);
