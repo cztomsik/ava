@@ -1,12 +1,15 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const Server = @import("server.zig").Server;
+const db = @import("db.zig");
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
 
 pub fn main() !void {
     defer _ = gpa.deinit();
+
+    try db.init();
 
     var server = try Server.start(allocator, "127.0.0.1", 3000);
     defer server.deinit();
@@ -37,7 +40,7 @@ fn printBanner(address: std.net.Address) !void {
             "0.0.1",
             address,
             target,
-            "x.x.x",
+            try db.version(),
         },
     );
 }

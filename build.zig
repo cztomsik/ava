@@ -11,6 +11,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe.main_pkg_path = .{ .path = "." };
+    exe.linkSystemLibrary("sqlite3");
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);

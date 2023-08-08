@@ -27,6 +27,6 @@ zig build run
 
 ```bash
 npm install
-npm run build
+npm run build -- --minify
 zig build -Doptimize=ReleaseSafe
 ```
