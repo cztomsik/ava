@@ -5,6 +5,9 @@ const styles = css`
   backdrop-filter: blur(5px);
 `
 
+/**
+ * Simple wrapper for Bootstrap modals.
+ */
 export const Modal = ({ title, children, onClose }) => (
   <div class={`modal d-block ${styles}`}>
     <div class="modal-dialog">
