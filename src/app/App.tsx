@@ -1,9 +1,9 @@
 import { Router, Route } from "preact-router"
-import { Link } from "./components"
+import { ErrorBoundary, Link } from "./components"
 import { Chat } from "./chat/Chat"
 
 export const App = () => (
-  <div>
+  <ErrorBoundary>
     <AppBar />
 
     <div class="container my-4">
@@ -15,7 +15,7 @@ export const App = () => (
         <Route path="/help" component={TODO} />
       </Router>
     </div>
-  </div>
+  </ErrorBoundary>
 )
 
 const AppBar = () => (

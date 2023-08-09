@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
     "build": "esbuild ./src/app/main.tsx --bundle --outdir=./src/app/dist",
-    "watch": "npm run build -- --sourcemap --watch",
+    "watch": "npm run build -- --sourcemap=inline --watch",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
