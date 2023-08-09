@@ -189,18 +189,34 @@ async function* generate(prompt, signal?: AbortSignal) {
     signal,
   })
 
-  const reader = response.body.getReader()
-  const decoder = new TextDecoder()
   let content = ""
 
-  for (let res = await reader.read(); !res.done; res = await reader.read()) {
-    const data = JSON.parse(decoder.decode(res.value).replace(/^data:/, ""))
-
+  for await (const data of jsonLines(response.body.getReader())) {
     // strip the space which is always emitted at the beginning of the stream
     if (!content) {
       data.content = data.content.trimStart()
     }
 
     yield (content += data.content)
+  }
+}
+
+async function* jsonLines(reader: ReadableStreamDefaultReader<Uint8Array>) {
+  const decoder = new TextDecoder()
+  let buf = ""
+
+  while (true) {
+    const res = await reader.read()
+    if (res.done) break
+
+    buf += decoder.decode(res.value)
+
+    while (true) {
+      const index = buf.indexOf("\n")
+      if (index === -1) break
+
+      yield JSON.parse(buf.slice(0, index))
+      buf = buf.slice(index + 1)
+    }
   }
 }

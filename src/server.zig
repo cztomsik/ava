@@ -2,6 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const handleApiRequest = @import("api/router.zig").handler;
 
+/// A context for handling a request.
 pub const Context = struct {
     req: *std.http.Server.Request,
     res: *std.http.Server.Response,
@@ -19,27 +20,56 @@ pub const Context = struct {
         };
     }
 
+    /// Reads the request body as JSON.
+    pub fn readJson(self: *Context, comptime T: type) !T {
+        var reader = std.json.reader(self.res.allocator, self.res.reader());
+
+        return std.json.parseFromTokenSourceLeaky(
+            T,
+            self.res.allocator,
+            &reader,
+            .{},
+        );
+    }
+
+    pub fn sendChunk(self: *Context, chunk: []const u8) !void {
+        if (self.res.state == .waited) {
+            self.res.transfer_encoding = .chunked;
+            try self.res.do();
+        }
+
+        // Response.write() will always write all of the data when the transfer
+        // encoding is chunked
+        _ = try self.res.write(chunk);
+    }
+
+    /// Sends a chunk of JSON. The chunk always ends with a newline.
+    pub fn sendJson(self: *Context, body: anytype) !void {
+        if (self.res.state == .waited) {
+            try self.res.headers.append("Content-Type", "application/json");
+        }
+
+        var list = std.ArrayList(u8).init(self.res.allocator);
+        defer list.deinit();
+
+        try std.json.stringifyArbitraryDepth(self.res.allocator, body, .{}, list.writer());
+        try list.appendSlice("\r\n");
+        try self.sendChunk(list.items);
+    }
+
+    /// Sends a static resource. The resource is embedded in release builds.
     pub fn sendResource(self: *Context, comptime path: []const u8) !void {
         try self.res.headers.append("Content-Type", comptime mime(std.fs.path.extension(path)) ++ "; charset=utf-8");
 
-        try self.send(if (comptime builtin.mode != .Debug) @embedFile("../" ++ path) else blk: {
+        try self.sendChunk(if (comptime builtin.mode != .Debug) @embedFile("../" ++ path) else blk: {
             var f = try std.fs.cwd().openFile(path, .{});
             defer f.close();
             break :blk try f.readToEndAlloc(self.res.allocator, std.math.maxInt(usize));
         });
     }
-
-    pub fn send(self: *Context, body: anytype) !void {
-        self.res.transfer_encoding = .chunked;
-        try self.res.do();
-
-        var writer = self.res.writer();
-        try writer.print("{s}", .{body});
-
-        try self.res.finish();
-    }
 };
 
+/// An instance of our HTTP server.
 pub const Server = struct {
     http: std.http.Server,
     thread: std.Thread,
@@ -85,6 +115,7 @@ pub const Server = struct {
             defer std.log.debug("{s} {s} {}", .{ @tagName(ctx.req.method), ctx.path, @intFromEnum(ctx.res.status) });
 
             try handleRequest(&ctx);
+            try ctx.res.finish();
         }
     }
 
@@ -94,7 +125,7 @@ pub const Server = struct {
         }
 
         if (std.mem.endsWith(u8, ctx.path, ".map")) {
-            return ctx.send("{}");
+            return ctx.sendChunk("{}");
         }
 
         if (std.mem.eql(u8, ctx.path, "/favicon.ico")) {

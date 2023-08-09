@@ -1,7 +1,7 @@
 import { css } from "goober"
 
 const styles = css`
-  background: #eeed;
+  background: color-mix(in srgb, var(--bs-body-bg) 90%, transparent);
   backdrop-filter: blur(5px);
 `
 
