@@ -169,7 +169,7 @@ const ChatMessage = ({ role, content }) => (
 )
 
 async function* generate(prompt, signal?: AbortSignal) {
-  const response = await fetch("http://localhost:8080/completion", {
+  const response = await fetch("/api/completion", {
     method: "POST",
     body: JSON.stringify({
       prompt,

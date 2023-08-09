@@ -24,7 +24,7 @@ fn printBanner(address: std.net.Address) !void {
 
     const banner =
         \\
-        \\  /\ \  / /\             Free alpha version
+        \\  /\ \  / /\             Server running
         \\ /--\ \/ /--\  v{s}    http://{}
         \\ _____________________________________________
         \\
