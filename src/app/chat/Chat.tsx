@@ -36,8 +36,8 @@ const styles = css`
   }
 `
 
-export const Chat = ({ index }) => {
-  // TODO: optionally load session from local storage by index
+export const Chat = ({ id }) => {
+  // TODO: load by id
 
   return (
     <div class={styles}>
@@ -171,52 +171,30 @@ const ChatMessage = ({ role, content }) => (
 async function* generate(prompt, signal?: AbortSignal) {
   const response = await fetch("/api/completion", {
     method: "POST",
-    body: JSON.stringify({
-      prompt,
-      stream: true,
-      n_predict: 1024,
-      temperature: 0.7,
-      repeat_last_n: 256,
-      repeat_penalty: 1.18,
-      top_k: 40,
-      top_p: 0.5,
-    }),
+    body: JSON.stringify({ prompt }),
     headers: {
       Connection: "keep-alive",
       "Content-Type": "application/json",
-      Accept: "text/event-stream",
     },
     signal,
   })
 
   let content = ""
 
-  for await (const data of jsonLines(response.body.getReader())) {
-    // strip the space which is always emitted at the beginning of the stream
+  for await (let token of chunks(response.body.getReader())) {
+    // strip the initial space which is always emitted at the beginning of the stream
     if (!content) {
-      data.content = data.content.trimStart()
+      token = token.trimStart()
     }
 
-    yield (content += data.content)
+    yield (content += token)
   }
 }
 
-async function* jsonLines(reader: ReadableStreamDefaultReader<Uint8Array>) {
+async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
   const decoder = new TextDecoder()
-  let buf = ""
 
-  while (true) {
-    const res = await reader.read()
-    if (res.done) break
-
-    buf += decoder.decode(res.value)
-
-    while (true) {
-      const index = buf.indexOf("\n")
-      if (index === -1) break
-
-      yield JSON.parse(buf.slice(0, index))
-      buf = buf.slice(index + 1)
-    }
+  for (let res; !(res = await reader.read()).done; ) {
+    yield decoder.decode(res.value)
   }
 }

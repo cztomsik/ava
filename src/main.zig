@@ -2,6 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const Server = @import("server.zig").Server;
 const db = @import("db.zig");
+const llama = @import("llama.zig");
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
@@ -9,6 +10,7 @@ const allocator = gpa.allocator();
 pub fn main() !void {
     defer _ = gpa.deinit();
 
+    llama.init();
     try db.init();
 
     var server = try Server.start(allocator, "127.0.0.1", 3000);

@@ -115,6 +115,8 @@ pub const Server = struct {
             defer std.log.debug("{s} {s} {}", .{ @tagName(ctx.req.method), ctx.path, @intFromEnum(ctx.res.status) });
 
             try handleRequest(&ctx);
+
+            if (ctx.res.state == .waited) try ctx.res.do();
             try ctx.res.finish();
         }
     }
