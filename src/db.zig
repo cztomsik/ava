@@ -1,6 +1,6 @@
 const sqlite = @import("sqlite.zig");
 
-var db: *sqlite.SQLite3 = undefined;
+var db: sqlite.SQLite3 = undefined;
 
 pub fn init() !void {
     db = try sqlite.SQLite3.open("ava.db");

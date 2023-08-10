@@ -4,28 +4,27 @@ const c = @cImport(
     @cInclude("sqlite3.h"),
 );
 
-pub usingnamespace c;
-
-pub const SQLite3 = opaque {
-    fn ptr(self: *SQLite3) *c.sqlite3 {
-        return @ptrCast(self);
-    }
+/// A SQLite database connection.
+pub const SQLite3 = struct {
+    db: *c.sqlite3,
 
     /// Opens a database connection in read/write mode, creating the file if it
     /// doesn't exist. The connection is safe to use from multiple threads and
     /// will serialize access to the database.
-    pub fn open(filename: [*:0]const u8) !*SQLite3 {
+    pub fn open(filename: [*:0]const u8) !SQLite3 {
         const flags = c.SQLITE_OPEN_READWRITE | c.SQLITE_OPEN_CREATE | c.SQLITE_OPEN_FULLMUTEX;
 
         var db: ?*c.sqlite3 = null;
         try check(c.sqlite3_open_v2(filename, &db, flags, null));
 
-        return @ptrCast(db.?);
+        return .{
+            .db = db.?,
+        };
     }
 
     /// Closes the database connection.
     pub fn deinit(self: *SQLite3) !void {
-        try check(c.sqlite3_close(self.ptr()));
+        try check(c.sqlite3_close(self.db));
     }
 
     /// Executes the given SQL statement. This is a shorthand for preparing and
@@ -48,29 +47,30 @@ pub const SQLite3 = opaque {
     }
 
     /// Creates a prepared statement from the given SQL.
-    pub fn prepare(self: *SQLite3, sql: []const u8) !*Statement {
+    pub fn prepare(self: *SQLite3, sql: []const u8) !Statement {
         errdefer std.log.err("Failed to prepare SQL: {s}\n", .{sql});
 
         var stmt: ?*c.sqlite3_stmt = null;
-        try check(c.sqlite3_prepare_v2(self.ptr(), sql.ptr, @intCast(sql.len), &stmt, null));
+        try check(c.sqlite3_prepare_v2(self.db, sql.ptr, @intCast(sql.len), &stmt, null));
 
-        return @ptrCast(stmt.?);
+        return .{
+            .stmt = stmt.?,
+        };
     }
 };
 
-pub const Statement = opaque {
-    fn ptr(self: *Statement) *c.sqlite3_stmt {
-        return @ptrCast(self);
-    }
+/// A prepared statement.
+pub const Statement = struct {
+    stmt: *c.sqlite3_stmt,
 
     /// Deinitializes the prepared statement.
     pub fn deinit(self: *Statement) void {
-        _ = c.sqlite3_finalize(self.ptr());
+        _ = c.sqlite3_finalize(self.stmt);
     }
 
     /// Resets the prepared statement, allowing it to be executed again.
     pub fn reset(self: *Statement) !void {
-        try check(c.sqlite3_reset(self.ptr()));
+        try check(c.sqlite3_reset(self.stmt));
     }
 
     /// Executes the prepared statement with the given arguments.
@@ -96,11 +96,11 @@ pub const Statement = opaque {
         const i: c_int = @intCast(index);
 
         try check(switch (@TypeOf(arg)) {
-            bool => c.sqlite3_bind_int(self.ptr(), i, if (arg) 1 else 0),
-            i32 => c.sqlite3_bind_int(self.ptr(), i, arg),
-            i64 => c.sqlite3_bind_int64(self.ptr(), i, arg),
-            f64 => c.sqlite3_bind_double(self.ptr(), i, arg),
-            []const u8 => c.sqlite3_bind_text(self.ptr(), i, arg.ptr, @intCast(arg.len), null),
+            bool => c.sqlite3_bind_int(self.stmt, i, if (arg) 1 else 0),
+            i32 => c.sqlite3_bind_int(self.stmt, i, arg),
+            i64 => c.sqlite3_bind_int64(self.stmt, i, arg),
+            f64 => c.sqlite3_bind_double(self.stmt, i, arg),
+            []const u8 => c.sqlite3_bind_text(self.stmt, i, arg.ptr, @intCast(arg.len), null),
             else => @compileError("TODO"),
         });
     }
@@ -133,13 +133,13 @@ pub const Statement = opaque {
         const i: c_int = @intCast(index);
 
         switch (T) {
-            bool => c.sqlite3_column_int(self.ptr(), i) != 0,
-            i32 => c.sqlite3_column_int(self.ptr(), i),
-            i64 => c.sqlite3_column_int64(self.ptr(), i),
-            f64 => c.sqlite3_column_double(self.ptr(), i),
+            bool => c.sqlite3_column_int(self.stmt, i) != 0,
+            i32 => c.sqlite3_column_int(self.stmt, i),
+            i64 => c.sqlite3_column_int64(self.stmt, i),
+            f64 => c.sqlite3_column_double(self.stmt, i),
             []const u8 => {
-                const len = c.sqlite3_column_bytes(self.ptr(), i);
-                const data = c.sqlite3_column_text(self.ptr(), i);
+                const len = c.sqlite3_column_bytes(self.stmt, i);
+                const data = c.sqlite3_column_text(self.stmt, i);
                 return data[0..@intCast(len)];
             },
             else => @compileError("TODO"),
@@ -147,7 +147,7 @@ pub const Statement = opaque {
     }
 
     fn step(self: *Statement) !enum { row, done } {
-        const code = c.sqlite3_step(self.ptr());
+        const code = c.sqlite3_step(self.stmt);
 
         return switch (code) {
             c.SQLITE_ROW => return .row,
