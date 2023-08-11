@@ -1,7 +1,7 @@
 import { signal, useSignal } from "@preact/signals"
-import { useEffect } from "preact/hooks"
+import { Form } from "../_components"
+import { useGenerate } from "../_hooks"
 import { ChatMessage } from "./ChatMessage"
-import { Form } from "../components"
 
 export const Chat = ({ id }) => {
   // TODO: load by id
@@ -53,6 +53,7 @@ export const Chat = ({ id }) => {
 }
 
 const ChatSession = () => {
+  const { generate, loading, abort } = useGenerate()
   const text = useSignal("")
   const messages = useSignal([
     {
@@ -61,16 +62,8 @@ const ChatSession = () => {
         "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
     } as any,
   ])
-  const ctrl = useSignal(null)
-
-  // cancel any generation when the component is unmounted
-  useEffect(() => {
-    return () => ctrl.value?.abort()
-  }, [])
 
   const handleSubmit = async e => {
-    ctrl.value?.abort()
-
     const content = signal("")
 
     messages.value = [...messages.value, { role: "user", content: text.value.trim() }, { role: "assistant", content }]
@@ -81,14 +74,8 @@ const ChatSession = () => {
     )
     text.value = ""
 
-    ctrl.value = new AbortController()
-
-    try {
-      for await (const temp of generate(prompt.trimEnd(), ctrl.value.signal)) {
-        content.value = temp
-      }
-    } finally {
-      ctrl.value = null
+    for await (const temp of generate(prompt.trimEnd())) {
+      content.value = temp
     }
   }
 
@@ -110,46 +97,17 @@ const ChatSession = () => {
           onInput={e => (text.value = e.target.value)}
           onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
         ></textarea>
+
         <button type="submit" class="btn btn-primary me-2">
           Send
         </button>
-        {ctrl.value && (
-          <button type="button" class="btn btn-outline-danger" onClick={() => ctrl.value.abort()}>
+
+        {loading && (
+          <button type="button" class="btn btn-outline-danger" onClick={abort}>
             Stop generation
           </button>
         )}
       </Form>
     </div>
   )
-}
-
-async function* generate(prompt, signal?: AbortSignal) {
-  const response = await fetch("/api/completion", {
-    method: "POST",
-    body: JSON.stringify({ prompt }),
-    headers: {
-      Connection: "keep-alive",
-      "Content-Type": "application/json",
-    },
-    signal,
-  })
-
-  let content = ""
-
-  for await (let token of chunks(response.body.getReader())) {
-    // strip the initial space which is always emitted at the beginning of the stream
-    if (!content) {
-      token = token.trimStart()
-    }
-
-    yield (content += token)
-  }
-}
-
-async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
-  const decoder = new TextDecoder()
-
-  for (let res; !(res = await reader.read()).done; ) {
-    yield decoder.decode(res.value)
-  }
 }

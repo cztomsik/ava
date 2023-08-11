@@ -1,5 +1,5 @@
 import { css } from "goober"
-import { Markdown } from "../components"
+import { Markdown } from "../_components"
 
 const styles = css`
   .role {

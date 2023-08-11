@@ -1,5 +1,5 @@
 import { Router, Route } from "preact-router"
-import { ErrorBoundary, Link } from "./components"
+import { ErrorBoundary, Link } from "./_components"
 import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 
