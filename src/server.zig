@@ -104,22 +104,36 @@ pub const Server = struct {
             var req_arena = std.heap.ArenaAllocator.init(self.http.allocator);
             defer req_arena.deinit();
 
-            var res = try self.http.accept(.{
+            // TODO: maybe Context.init() could do most of this and then
+            //       we would only need to catch once?
+            var res = self.http.accept(.{
                 .allocator = req_arena.allocator(),
                 .header_strategy = .{ .dynamic = 10_000 },
-            });
+            }) catch |e| {
+                std.log.debug("accept: {}", .{e});
+                continue;
+            };
             defer res.deinit();
             defer _ = res.reset();
 
-            try res.wait();
+            res.wait() catch |e| {
+                std.log.debug("wait: {}", .{e});
+                continue;
+            };
 
             var ctx = try Context.init(&res.request, &res);
-            defer std.log.debug("{s} {s} {}", .{ @tagName(ctx.req.method), ctx.path, @intFromEnum(ctx.res.status) });
+            defer {
+                if (ctx.res.state == .waited) ctx.res.do() catch {};
+                ctx.res.finish() catch {};
+                std.log.debug("{s} {s} {}", .{ @tagName(ctx.req.method), ctx.path, @intFromEnum(ctx.res.status) });
+            }
 
-            try handleRequest(&ctx);
+            handleRequest(&ctx) catch |e| {
+                if (e == error.OutOfMemory) return e;
 
-            if (ctx.res.state == .waited) try ctx.res.do();
-            try ctx.res.finish();
+                std.log.debug("handleRequest: {}", .{e});
+                ctx.res.status = .internal_server_error;
+            };
         }
     }
 
