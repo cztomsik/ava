@@ -1,87 +1,52 @@
 import { signal, useSignal } from "@preact/signals"
 import { useEffect } from "preact/hooks"
-import { css } from "goober"
-import { Markdown } from "../components"
-
-const styles = css`
-  .message {
-    & .role {
-      text-transform: capitalize;
-      font-weight: 600;
-    }
-
-    &.role-system {
-      color: var(--bs-secondary);
-
-      .role {
-        display: none;
-      }
-    }
-
-    &.role-user {
-      border-left: 4px solid var(--bs-primary);
-      padding-left: 1rem;
-      margin-left: -1rem;
-
-      .role {
-        color: var(--bs-primary);
-      }
-    }
-
-    & pre {
-      background: var(--bs-gray-200);
-      padding: 1rem;
-      border: 1px solid var(--bs-border-color);
-    }
-  }
-`
+import { ChatMessage } from "./ChatMessage"
+import { Form } from "../components"
 
 export const Chat = ({ id }) => {
   // TODO: load by id
 
   return (
-    <div class={styles}>
-      <div class="row">
-        <div class="chats col-md-3 d-print-none">
-          <div class="group">
-            <div>Today</div>
-            <ul class="list-unstyled">
-              <li>
-                <a class="active" href="#">
-                  Poem about JavaScript
-                </a>
-              </li>
-              <li>
-                <a href="#">Invoke Clang from Zig</a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="group">
-            <div>Yesterday</div>
-            <ul class="list-unstyled">
-              <li>
-                <a href="#">Trip to Italy</a>
-              </li>
-              <li>
-                <a href="#">Recipe for a cake</a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="group">
-            <div>Previous 7 days</div>
-            <ul class="list-unstyled">
-              <li>
-                <a href="#">How to make a website</a>
-              </li>
-            </ul>
-          </div>
+    <div class="row">
+      <div class="chats col-md-3 d-print-none">
+        <div class="group">
+          <div>Today</div>
+          <ul class="list-unstyled">
+            <li>
+              <a class="active" href="#">
+                Poem about JavaScript
+              </a>
+            </li>
+            <li>
+              <a href="#">Invoke Clang from Zig</a>
+            </li>
+          </ul>
         </div>
 
-        <div class="chat col-md-9">
-          <ChatSession />
+        <div class="group">
+          <div>Yesterday</div>
+          <ul class="list-unstyled">
+            <li>
+              <a href="#">Trip to Italy</a>
+            </li>
+            <li>
+              <a href="#">Recipe for a cake</a>
+            </li>
+          </ul>
         </div>
+
+        <div class="group">
+          <div>Previous 7 days</div>
+          <ul class="list-unstyled">
+            <li>
+              <a href="#">How to make a website</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chat col-md-9">
+        <ChatSession />
       </div>
     </div>
   )
@@ -104,7 +69,6 @@ const ChatSession = () => {
   }, [])
 
   const handleSubmit = async e => {
-    e.preventDefault()
     ctrl.value?.abort()
 
     const content = signal("")
@@ -136,7 +100,7 @@ const ChatSession = () => {
         <ChatMessage {...m} />
       ))}
 
-      <form class="d-print-none" onSubmit={handleSubmit}>
+      <Form class="d-print-none" onSubmit={handleSubmit}>
         <textarea
           autofocus
           class="form-control mb-2"
@@ -154,19 +118,10 @@ const ChatSession = () => {
             Stop generation
           </button>
         )}
-      </form>
+      </Form>
     </div>
   )
 }
-
-const ChatMessage = ({ role, content }) => (
-  <div class={`message mb-4 role-${role}`}>
-    <div class="role">{role}:</div>
-    <div class="content">
-      <Markdown input={"" + content} />
-    </div>
-  </div>
-)
 
 async function* generate(prompt, signal?: AbortSignal) {
   const response = await fetch("/api/completion", {

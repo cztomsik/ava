@@ -33,6 +33,8 @@ const Completion = struct {
             return null;
         }
 
+        // TODO: multi-byte tokens (sample more)
+
         self.n_past = self.tokens.items.len;
         try self.tokens.append(token);
 

@@ -1,4 +1,5 @@
 export { ErrorBoundary } from "./ErrorBoundary"
+export { Form } from "./Form"
 export { Link } from "./Link"
 export { Markdown } from "./Markdown"
 export { Modal } from "./Modal"

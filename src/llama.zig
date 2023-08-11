@@ -38,7 +38,7 @@ pub const Context = struct {
         var params = c.llama_context_default_params();
         params.n_ctx = 2048;
 
-        if (builtin.os == .macos) {
+        if (builtin.os.tag == .macos) {
             params.n_gpu_layers = 1;
         }
 

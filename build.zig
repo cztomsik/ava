@@ -73,7 +73,7 @@ fn addLlama() !*std.Build.Step.Compile {
         try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
         try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
 
-        llama.addCSourceFiles(&.{"llama.cpp/ggml-metal.m"}, &.{"-std=c11"});
+        llama.addCSourceFiles(&.{"llama.cpp/ggml-metal.m"}, cflags.items);
         llama.linkFramework("Foundation");
         llama.linkFramework("Metal");
         llama.linkFramework("MetalKit");

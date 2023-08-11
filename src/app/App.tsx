@@ -1,6 +1,7 @@
 import { Router, Route } from "preact-router"
 import { ErrorBoundary, Link } from "./components"
 import { Chat } from "./chat/Chat"
+import { Playground } from "./playground/Playground"
 
 export const App = () => (
   <ErrorBoundary>
@@ -8,11 +9,8 @@ export const App = () => (
 
     <div class="container my-4">
       <Router>
-        <Route path="/:index?" component={Chat} />
-        <Route path="/wiki" component={TODO} />
-        <Route path="/files" component={TODO} />
-        <Route path="/playground" component={TODO} />
-        <Route path="/help" component={TODO} />
+        <Route path="/:id?" component={Chat} />
+        <Route path="/playground" component={Playground} />
       </Router>
     </div>
   </ErrorBoundary>
@@ -33,34 +31,12 @@ const AppBar = () => (
             </Link>
           </li>
           <li class="nav-item">
-            <Link class="nav-link" href="/wiki">
-              Wiki
-            </Link>
-          </li>
-          <li class="nav-item">
-            <Link class="nav-link" href="/files">
-              Files
-            </Link>
-          </li>
-          <li class="nav-item">
             <Link class="nav-link" href="/playground">
               Playground
-            </Link>
-          </li>
-          <li class="nav-item">
-            <Link class="nav-link" href="/help">
-              Help
             </Link>
           </li>
         </ul>
       </div>
     </div>
   </div>
-)
-
-const TODO = () => (
-  <>
-    <h2>TODO</h2>
-    <p>TODO</p>
-  </>
 )
