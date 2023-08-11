@@ -11,43 +11,47 @@ export const useGenerate = () => {
   }, [])
 
   const generate = useCallback(prompt => {
-    ctrl.value?.abort()
+    abort()
     ctrl.value = new AbortController()
 
     return generateCompletions(prompt, ctrl.value.signal, abort)
   }, [])
 
   // cancel any generation when the component is unmounted
-  useEffect(() => {
-    return () => ctrl.value?.abort()
-  }, [])
+  useEffect(() => () => ctrl.value?.abort(), [])
 
   return { generate, loading, abort } as const
 }
 
 async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: () => void) {
-  const response = await fetch("/api/completion", {
-    method: "POST",
-    body: JSON.stringify({ prompt }),
-    headers: {
-      Connection: "keep-alive",
-      "Content-Type": "application/json",
-    },
-    signal,
-  })
+  try {
+    const response = await fetch("/api/completion", {
+      method: "POST",
+      body: JSON.stringify({ prompt }),
+      headers: {
+        Connection: "keep-alive",
+        "Content-Type": "application/json",
+      },
+      signal,
+    })
 
-  let content = ""
+    let content = ""
 
-  for await (let token of chunks(response.body.getReader())) {
-    // strip the initial space which is always emitted at the beginning of the stream
-    if (!content) {
-      token = token.trimStart()
+    for await (let token of chunks(response.body.getReader())) {
+      // strip the initial space which is always emitted at the beginning of the stream
+      if (!content) {
+        token = token.trimStart()
+      }
+
+      yield (content += token)
     }
 
-    yield (content += token)
+    onComplete?.()
+  } catch (e) {
+    if (e.code !== DOMException.ABORT_ERR) {
+      throw e
+    }
   }
-
-  onComplete?.()
 }
 
 async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>) {

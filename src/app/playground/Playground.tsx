@@ -9,6 +9,8 @@ export const Playground = () => {
   const result = useSignal("")
 
   const handleSubmit = async () => {
+    result.value = ""
+
     for await (const res of generate(prompt.value)) {
       result.value = res
     }
