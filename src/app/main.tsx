@@ -1,3 +1,4 @@
+import "./custom.d.ts"
 import React, { render } from "preact"
 import { App } from "./App"
 

@@ -32,6 +32,8 @@ pub const Context = struct {
         );
     }
 
+    /// Sends a chunk of data. Automatically sets the transfer encoding to
+    /// chunked if it hasn't been set yet.
     pub fn sendChunk(self: *Context, chunk: []const u8) !void {
         if (self.res.state == .waited) {
             self.res.transfer_encoding = .chunked;
@@ -135,7 +137,7 @@ pub const Server = struct {
         }
 
         if (std.mem.eql(u8, ctx.path, "/app.js")) {
-            return ctx.sendResource("src/app/dist/main.js");
+            return ctx.sendResource("zig-out/js/main.js");
         }
 
         if (std.mem.eql(u8, ctx.path, "/bootstrap.min.css")) {
