@@ -24,6 +24,7 @@ const Completion = struct {
         self.ctx.deinit();
     }
 
+    /// Returns next token or null if we reached EOS.
     pub fn next(self: *Completion) !?[]const u8 {
         try self.ctx.eval(self.tokens.items[self.n_past..], self.n_past, 4);
 
