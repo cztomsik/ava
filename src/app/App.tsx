@@ -1,17 +1,21 @@
 import { Router, Route } from "preact-router"
-import { ErrorBoundary, Link } from "./_components"
+import { ErrorBoundary, Layout, Link } from "./_components"
 import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 
 export const App = () => (
   <ErrorBoundary>
-    <AppBar />
+    <div class="d-flex flex-column vh-100">
+      <AppBar />
 
-    <div class="container my-4">
-      <Router>
-        <Route path="/:id?" component={Chat} />
-        <Route path="/playground" component={Playground} />
-      </Router>
+      <div class="flex-fill overflow-y-auto">
+        <Layout class="container my-4">
+          <Router>
+            <Route path="/:id?" component={Chat} />
+            <Route path="/playground" component={Playground} />
+          </Router>
+        </Layout>
+      </div>
     </div>
   </ErrorBoundary>
 )

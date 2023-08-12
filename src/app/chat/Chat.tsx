@@ -7,8 +7,8 @@ export const Chat = ({ id }) => {
   // TODO: load by id
 
   return (
-    <div class="row">
-      <div class="chats col-md-3 d-print-none">
+    <>
+      <aside class="d-print-none">
         <div class="group">
           <div>Today</div>
           <ul class="list-unstyled">
@@ -22,7 +22,6 @@ export const Chat = ({ id }) => {
             </li>
           </ul>
         </div>
-
         <div class="group">
           <div>Yesterday</div>
           <ul class="list-unstyled">
@@ -34,7 +33,6 @@ export const Chat = ({ id }) => {
             </li>
           </ul>
         </div>
-
         <div class="group">
           <div>Previous 7 days</div>
           <ul class="list-unstyled">
@@ -42,13 +40,11 @@ export const Chat = ({ id }) => {
               <a href="#">How to make a website</a>
             </li>
           </ul>
-        </div>
-      </div>
+        </div>{" "}
+      </aside>
 
-      <div class="chat col-md-9">
-        <ChatSession />
-      </div>
-    </div>
+      <ChatSession />
+    </>
   )
 }
 
@@ -80,34 +76,40 @@ const ChatSession = () => {
   }
 
   return (
-    <div class="d-flex flex-column">
-      <h2 class="mb-4">New Chat</h2>
+    <>
+      <header>
+        <h2 class="mb-4">New Chat</h2>
+      </header>
 
-      {messages.value.map(m => (
-        <ChatMessage {...m} />
-      ))}
+      <main>
+        {messages.value.map(m => (
+          <ChatMessage {...m} />
+        ))}
+      </main>
 
-      <Form class="d-print-none" onSubmit={handleSubmit}>
-        <textarea
-          autofocus
-          class="form-control mb-2"
-          rows={3}
-          placeholder="Ask anything..."
-          value={text.value}
-          onInput={e => (text.value = e.target.value)}
-          onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
-        ></textarea>
+      <footer>
+        <Form class="d-print-none" onSubmit={handleSubmit}>
+          <textarea
+            autofocus
+            class="form-control mb-2"
+            rows={3}
+            placeholder="Ask anything..."
+            value={text.value}
+            onInput={e => (text.value = e.target.value)}
+            onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
+          ></textarea>
 
-        <button type="submit" class="btn btn-primary me-2">
-          Send
-        </button>
-
-        {loading && (
-          <button type="button" class="btn btn-outline-danger" onClick={abort}>
-            Stop generation
+          <button type="submit" class="btn btn-primary me-2">
+            Send
           </button>
-        )}
-      </Form>
-    </div>
+
+          {loading && (
+            <button type="button" class="btn btn-outline-danger" onClick={abort}>
+              Stop generation
+            </button>
+          )}
+        </Form>
+      </footer>
+    </>
   )
 }
