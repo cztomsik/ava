@@ -2,7 +2,7 @@ import { css } from "goober"
 
 const styles = css`
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "aside header"
@@ -11,6 +11,7 @@ const styles = css`
 
   & > aside {
     grid-area: aside;
+    min-width: 200px;
   }
 
   & > header {
