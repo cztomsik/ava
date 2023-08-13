@@ -147,7 +147,7 @@ pub const Context = struct {
 
     /// Prepares the context for inference.
     pub fn prepare(self: *Context, prompt: []const u8) !void {
-        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, 1024);
+        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)));
 
         // Find the common part and set n_past accordingly.
         var n_past: usize = 0;
@@ -168,13 +168,15 @@ pub const Context = struct {
     pub fn eval(self: *Context) !void {
         const toks = self.tokens.items[self.n_past..];
 
+        if (toks.len == 0) return;
+
         if (c.llama_eval(
             self.ptr,
             toks.ptr,
             @intCast(toks.len),
             @intCast(self.n_past),
             @intCast(self.n_threads),
-        ) > 0) {
+        ) != 0) {
             return error.FailedToEval;
         }
 
