@@ -6,61 +6,99 @@ const c = @cImport({
 });
 
 pub const Token = c.llama_token;
-pub const bos = c.llama_token_bos;
-pub const eos = c.llama_token_eos;
+pub const token_bos = c.llama_token_bos;
+pub const token_eos = c.llama_token_eos;
 
-pub fn init() void {
+pub fn init(allocator: std.mem.Allocator) void {
     c.llama_backend_init(false);
+    Pool.init(allocator);
 }
 
+/// A single-model, single-context, thread-safe pool.
+pub const Pool = struct {
+    var allocator: std.mem.Allocator = undefined;
+    var mutex = std.Thread.Mutex{};
+    var model: ?Model = null;
+    var context: ?Context = null;
+
+    /// Initializes the pool.
+    pub fn init(ally: std.mem.Allocator) void {
+        allocator = ally;
+    }
+
+    /// Returns a context for the given model. The context must be released
+    /// after use. This function is thread-safe. Fails if the context is already
+    /// in use.
+    pub fn get(model_path: []const u8) !*Context {
+        if (!mutex.tryLock()) return error.ContextBusy;
+
+        // Reset if the model has changed.
+        if (model != null and !std.mem.eql(u8, model.?.path, model_path)) {
+            context.?.deinit();
+            context = null;
+
+            model.?.deinit();
+            model = null;
+        }
+
+        if (model == null) {
+            model = try Model.loadFromFile(allocator, model_path);
+            context = try Context.init(
+                allocator,
+                &model.?,
+                4, // TODO: make this configurable (in global settings)
+            );
+        }
+
+        return &context.?;
+    }
+
+    /// Releases the context so that it can be used by other threads.
+    pub fn release(ctx: *Context) void {
+        if (ctx == &context.?) {
+            mutex.unlock();
+        }
+    }
+};
+
 pub const Model = struct {
+    allocator: std.mem.Allocator,
+    path: [:0]const u8,
     ptr: *c.llama_model,
 
     /// Loads a model from a file.
-    pub fn loadFromFile(path: [*:0]const u8) !Model {
+    pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
         var params = c.llama_context_default_params();
+        var path = try allocator.dupeZ(u8, model_path);
 
         return .{
-            .ptr = c.llama_load_model_from_file(path, params) orelse return error.InvalidModel,
+            .allocator = allocator,
+            .path = path,
+            .ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel,
         };
     }
 
     /// Deinitializes the model.
     pub fn deinit(self: *Model) void {
         c.llama_free_model(self.ptr);
-    }
-};
-
-pub const Context = struct {
-    ptr: *c.llama_context,
-
-    pub fn init(model: *Model) !Context {
-        var params = c.llama_context_default_params();
-        params.n_ctx = 2048;
-
-        if (builtin.os.tag == .macos) {
-            params.n_gpu_layers = 1;
-        }
-
-        return .{
-            .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
-        };
-    }
-
-    /// Deinitializes the context.
-    pub fn deinit(self: *Context) void {
-        c.llama_free(self.ptr);
+        self.allocator.free(self.path);
     }
 
     /// Returns a list of tokens for the given input.
-    pub fn tokenize(self: *Context, allocator: std.mem.Allocator, input: []const u8) !std.ArrayList(Token) {
-        var tokens = try std.ArrayList(Token).initCapacity(allocator, @intCast(c.llama_n_ctx(self.ptr)));
+    pub fn tokenize(self: *Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize) !std.ArrayList(Token) {
+        var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
         errdefer tokens.deinit();
 
         var c_input = try allocator.dupeZ(u8, input);
         defer allocator.free(c_input);
 
-        const n_tokens = c.llama_tokenize(self.ptr, c_input, tokens.items.ptr, @intCast(tokens.capacity), true);
+        const n_tokens = c.llama_tokenize_with_model(
+            self.ptr,
+            c_input,
+            tokens.items.ptr,
+            @intCast(max_tokens),
+            true,
+        );
 
         if (n_tokens >= 0) {
             tokens.items.len = @intCast(n_tokens);
@@ -71,26 +109,104 @@ pub const Context = struct {
         return tokens;
     }
 
-    /// Runs the inference using `n_past` tokens as KV-cache.
-    pub fn eval(self: *Context, tokens: []c.llama_token, n_past: usize, n_threads: usize) !void {
-        if (c.llama_eval(self.ptr, tokens.ptr, @intCast(tokens.len), @intCast(n_past), @intCast(n_threads)) > 0) {
-            return error.FailedToEval;
+    /// Returns the string representation of the token.
+    pub fn token_to_str(self: *Model, token: Token) []const u8 {
+        return std.mem.span(c.llama_token_to_str_with_model(self.ptr, token));
+    }
+};
+
+pub const Context = struct {
+    model: *Model,
+    ptr: *c.llama_context,
+    tokens: std.ArrayList(Token),
+    n_past: usize = 0,
+    n_threads: usize,
+
+    /// Initializes the context.
+    pub fn init(allocator: std.mem.Allocator, model: *Model, n_threads: usize) !Context {
+        var params = c.llama_context_default_params();
+        params.n_ctx = 2048; // TODO: make this configurable
+
+        if (builtin.os.tag == .macos) {
+            params.n_gpu_layers = 1;
         }
+
+        return .{
+            .model = model,
+            .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
+            .tokens = std.ArrayList(Token).init(allocator),
+            .n_threads = n_threads,
+        };
     }
 
-    /// Returns the string representation of the token.
-    pub fn token_to_str(self: *Context, token: Token) []const u8 {
-        return std.mem.span(c.llama_token_to_str(self.ptr, token));
+    /// Deinitializes the context.
+    pub fn deinit(self: *Context) void {
+        c.llama_free(self.ptr);
+        self.tokens.deinit();
+    }
+
+    /// Prepares the context for inference.
+    pub fn prepare(self: *Context, prompt: []const u8) !void {
+        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, 1024);
+
+        // Find the common part and set n_past accordingly.
+        var n_past: usize = 0;
+
+        for (0..@min(self.tokens.items.len, tokens.items.len)) |i| {
+            if (self.tokens.items[i] != tokens.items[i]) break;
+            n_past = i;
+        }
+
+        std.log.debug("n_past = {}\n", .{n_past});
+
+        self.tokens.deinit();
+        self.tokens = tokens;
+        self.n_past = n_past;
+    }
+
+    /// Runs the inference.
+    pub fn eval(self: *Context) !void {
+        const toks = self.tokens.items[self.n_past..];
+
+        if (c.llama_eval(
+            self.ptr,
+            toks.ptr,
+            @intCast(toks.len),
+            @intCast(self.n_past),
+            @intCast(self.n_threads),
+        ) > 0) {
+            return error.FailedToEval;
+        }
+
+        self.n_past = self.tokens.items.len;
+    }
+
+    /// Generates a token using the given sampler and appends it to the context.
+    pub fn generate(self: *Context, sampler: *Sampler) !?Token {
+        try self.eval();
+
+        const token = try sampler.sample(self) orelse return null;
+        try self.tokens.append(token);
+        return token;
     }
 };
 
 pub const Sampler = struct {
     candidates: std.ArrayList(c.llama_token_data),
+    params: Params,
+
+    pub const Params = struct {
+        top_k: u32 = 40,
+        top_p: f32 = 0.5,
+        temperature: f32 = 0.7,
+        stop_eos: bool = true,
+    };
 
     /// Initializes the sampler.
-    pub fn init(allocator: std.mem.Allocator) Sampler {
+    pub fn init(allocator: std.mem.Allocator, params: Params) Sampler {
         return .{
             .candidates = std.ArrayList(c.llama_token_data).init(allocator),
+            .params = params,
         };
     }
 
@@ -100,7 +216,7 @@ pub const Sampler = struct {
     }
 
     /// Samples a token from the context.
-    pub fn sample(self: *Sampler, ctx: *Context) !Token {
+    pub fn sample(self: *Sampler, ctx: *Context) !?Token {
         const logits = c.llama_get_logits(ctx.ptr);
         try self.candidates.resize(@intCast(c.llama_n_vocab(ctx.ptr)));
 
@@ -118,14 +234,20 @@ pub const Sampler = struct {
             .sorted = false,
         };
 
-        // if (self.temperature <= 0) {
-        return c.llama_sample_token_greedy(ctx.ptr, &candidates);
-        // }
+        if (self.params.temperature <= 0) {
+            return c.llama_sample_token_greedy(ctx.ptr, &candidates);
+        }
 
-        // c.llama_sample_top_k(ctx.ptr, &candidates, 40, 1);
-        // c.llama_sample_top_p(ctx.ptr, &candidates, 0.5, 1);
-        // c.llama_sample_temperature(ctx.ptr, &candidates, 0.7);
+        c.llama_sample_top_k(ctx.ptr, &candidates, @intCast(self.params.top_k), 1);
+        c.llama_sample_top_p(ctx.ptr, &candidates, self.params.top_p, 1);
+        c.llama_sample_temperature(ctx.ptr, &candidates, self.params.temperature);
 
-        // return c.llama_sample_token(ctx.ptr, &candidates);
+        const res = c.llama_sample_token(ctx.ptr, &candidates);
+
+        if (self.params.stop_eos and res == token_eos()) {
+            return null;
+        }
+
+        return res;
     }
 };

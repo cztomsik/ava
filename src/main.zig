@@ -10,7 +10,7 @@ const allocator = gpa.allocator();
 pub fn main() !void {
     defer _ = gpa.deinit();
 
-    llama.init();
+    llama.init(allocator);
     try db.init();
 
     var server = try Server.start(allocator, "127.0.0.1", 3000);

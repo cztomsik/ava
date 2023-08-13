@@ -27,7 +27,10 @@ async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: (
   try {
     const response = await fetch("/api/completion", {
       method: "POST",
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({
+        model: "/Users/cztomsik/Downloads/wizardlm-13b-v1.2.ggmlv3.q4_0.bin",
+        prompt,
+      }),
       headers: {
         Connection: "keep-alive",
         "Content-Type": "application/json",

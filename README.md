@@ -1,6 +1,6 @@
 # Ava
 
-Air-gapped Virtual Assistant
+Air-gapped Virtual Assistant / Personal language server
 
 ## Tech stack
 
