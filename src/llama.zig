@@ -69,6 +69,8 @@ pub const Model = struct {
     /// Loads a model from a file.
     pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
         var params = c.llama_context_default_params();
+        params.n_ctx = 2048; // TODO: make this configurable
+
         var path = try allocator.dupeZ(u8, model_path);
 
         return .{
@@ -125,7 +127,6 @@ pub const Context = struct {
     /// Initializes the context.
     pub fn init(allocator: std.mem.Allocator, model: *Model, n_threads: usize) !Context {
         var params = c.llama_context_default_params();
-        params.n_ctx = 2048; // TODO: make this configurable
 
         if (builtin.os.tag == .macos) {
             params.n_gpu_layers = 1;
@@ -185,6 +186,19 @@ pub const Context = struct {
 
     /// Generates a token using the given sampler and appends it to the context.
     pub fn generate(self: *Context, sampler: *Sampler) !?Token {
+        if (self.n_past >= c.llama_n_ctx(self.ptr)) {
+            // Truncate input if it's too long but keep some empty space for
+            // new tokens.
+            const cutoff: usize = @intCast(@divTrunc(c.llama_n_ctx(self.ptr), 2));
+            for (self.tokens.items[cutoff..], 0..) |t, i| {
+                self.tokens.items[i] = t;
+            }
+            self.tokens.items.len = cutoff;
+            self.n_past = cutoff;
+
+            std.log.debug("truncated input to {}", .{cutoff});
+        }
+
         try self.eval();
 
         const token = try sampler.sample(self) orelse return null;
