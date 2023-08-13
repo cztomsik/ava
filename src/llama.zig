@@ -64,6 +64,7 @@ pub const Pool = struct {
 pub const Model = struct {
     allocator: std.mem.Allocator,
     path: [:0]const u8,
+    params: c.llama_context_params,
     ptr: *c.llama_model,
 
     /// Loads a model from a file.
@@ -71,11 +72,16 @@ pub const Model = struct {
         var params = c.llama_context_default_params();
         params.n_ctx = 2048; // TODO: make this configurable
 
+        if (builtin.os.tag == .macos) {
+            params.n_gpu_layers = 1;
+        }
+
         var path = try allocator.dupeZ(u8, model_path);
 
         return .{
             .allocator = allocator,
             .path = path,
+            .params = params,
             .ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel,
         };
     }
@@ -126,15 +132,9 @@ pub const Context = struct {
 
     /// Initializes the context.
     pub fn init(allocator: std.mem.Allocator, model: *Model, n_threads: usize) !Context {
-        var params = c.llama_context_default_params();
-
-        if (builtin.os.tag == .macos) {
-            params.n_gpu_layers = 1;
-        }
-
         return .{
             .model = model,
-            .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
+            .ptr = c.llama_new_context_with_model(model.ptr, model.params) orelse return error.UnexpectedError,
             .tokens = std.ArrayList(Token).init(allocator),
             .n_threads = n_threads,
         };
@@ -158,7 +158,7 @@ pub const Context = struct {
             n_past = i;
         }
 
-        std.log.debug("n_past = {}", .{n_past});
+        std.log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
 
         self.tokens.deinit();
         self.tokens = tokens;
@@ -186,7 +186,7 @@ pub const Context = struct {
 
     /// Generates a token using the given sampler and appends it to the context.
     pub fn generate(self: *Context, sampler: *Sampler) !?Token {
-        if (self.n_past >= c.llama_n_ctx(self.ptr)) {
+        if (self.tokens.items.len >= c.llama_n_ctx(self.ptr)) {
             // Truncate input if it's too long but keep some empty space for
             // new tokens.
             const cutoff: usize = @intCast(@divTrunc(c.llama_n_ctx(self.ptr), 2));
