@@ -157,7 +157,7 @@ pub const Context = struct {
             n_past = i;
         }
 
-        std.log.debug("n_past = {}\n", .{n_past});
+        std.log.debug("n_past = {}", .{n_past});
 
         self.tokens.deinit();
         self.tokens = tokens;

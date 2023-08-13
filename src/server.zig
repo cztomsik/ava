@@ -4,20 +4,38 @@ const handleApiRequest = @import("api/router.zig").handler;
 
 /// A context for handling a request.
 pub const Context = struct {
-    req: *std.http.Server.Request,
-    res: *std.http.Server.Response,
+    arena: std.heap.ArenaAllocator,
+    res: std.http.Server.Response,
     path: []const u8,
     query: ?[]const u8,
 
-    pub fn init(req: *std.http.Server.Request, res: *std.http.Server.Response) !Context {
-        const uri = try std.Uri.parseWithoutScheme(req.target);
+    pub fn init(http: *std.http.Server) !Context {
+        var arena = std.heap.ArenaAllocator.init(http.allocator);
+        errdefer arena.deinit();
+
+        var res = try http.accept(.{
+            .allocator = arena.allocator(),
+            .header_strategy = .{ .dynamic = 10_000 },
+        });
+        try res.headers.append("Connection", "close");
+        try res.wait();
+
+        const uri = try std.Uri.parseWithoutScheme(res.request.target);
 
         return .{
-            .req = req,
+            .arena = arena,
             .res = res,
+
+            // TODO: check lifetime, maybe we need to dupe this?
             .path = uri.path,
             .query = uri.query,
         };
+    }
+
+    pub fn deinit(self: *Context) void {
+        _ = self.res.reset();
+        self.res.deinit();
+        self.arena.deinit();
     }
 
     /// Reads the request body as JSON.
@@ -101,31 +119,13 @@ pub const Server = struct {
 
     fn run(self: *Server) !void {
         while (true) {
-            var req_arena = std.heap.ArenaAllocator.init(self.http.allocator);
-            defer req_arena.deinit();
+            var ctx = try Context.init(&self.http);
+            defer ctx.deinit();
 
-            // TODO: maybe Context.init() could do most of this and then
-            //       we would only need to catch once?
-            var res = self.http.accept(.{
-                .allocator = req_arena.allocator(),
-                .header_strategy = .{ .dynamic = 10_000 },
-            }) catch |e| {
-                std.log.debug("accept: {}", .{e});
-                continue;
-            };
-            defer res.deinit();
-            defer _ = res.reset();
-
-            res.wait() catch |e| {
-                std.log.debug("wait: {}", .{e});
-                continue;
-            };
-
-            var ctx = try Context.init(&res.request, &res);
             defer {
                 if (ctx.res.state == .waited) ctx.res.do() catch {};
                 ctx.res.finish() catch {};
-                std.log.debug("{s} {s} {}", .{ @tagName(ctx.req.method), ctx.path, @intFromEnum(ctx.res.status) });
+                std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.path, @intFromEnum(ctx.res.status) });
             }
 
             handleRequest(&ctx) catch |e| {
