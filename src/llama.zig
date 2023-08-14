@@ -71,6 +71,7 @@ pub const Model = struct {
     pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
         var params = c.llama_context_default_params();
         params.n_ctx = 2048; // TODO: make this configurable
+        params.n_batch = 512; // TODO: @min(512, xxx)
 
         if (builtin.os.tag == .macos) {
             params.n_gpu_layers = 1;
@@ -167,21 +168,26 @@ pub const Context = struct {
 
     /// Runs the inference.
     pub fn eval(self: *Context) !void {
-        const toks = self.tokens.items[self.n_past..];
+        while (self.n_past < self.tokens.items.len) {
+            const toks = self.tokens.items[self.n_past..];
 
-        if (toks.len == 0) return;
+            const n_eval = @min(
+                @as(usize, @intCast(self.model.params.n_batch)),
+                self.tokens.items.len - self.n_past,
+            );
 
-        if (c.llama_eval(
-            self.ptr,
-            toks.ptr,
-            @intCast(toks.len),
-            @intCast(self.n_past),
-            @intCast(self.n_threads),
-        ) != 0) {
-            return error.FailedToEval;
+            if (c.llama_eval(
+                self.ptr,
+                toks.ptr,
+                @intCast(n_eval),
+                @intCast(self.n_past),
+                @intCast(self.n_threads),
+            ) != 0) {
+                return error.FailedToEval;
+            }
+
+            self.n_past += n_eval;
         }
-
-        self.n_past = self.tokens.items.len;
     }
 
     /// Generates a token using the given sampler and appends it to the context.
@@ -194,7 +200,7 @@ pub const Context = struct {
                 self.tokens.items[i] = t;
             }
             self.tokens.items.len = cutoff;
-            self.n_past = cutoff;
+            self.n_past = 0;
 
             std.log.debug("truncated input to {}", .{cutoff});
         }
