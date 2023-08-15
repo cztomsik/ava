@@ -60,6 +60,26 @@ export const examples = [
   },
 
   {
+    title: "Summarize",
+    description: "Summarize text",
+    prompt: dedent`
+      User: I need to summarize the following text:
+      {{text}}
+      Assistant: Here is the short summary as requested:
+    `,
+  },
+
+  {
+    title: "Buy or Sell",
+    description: "Stock market advice",
+    prompt: dedent`
+      User: Given the following text about a stock, should I buy or sell?
+      {{text}}
+      Assistant: Based on the given text, it is difficult to provide a definitive answer. However, given that investor's risk tolerance is high, I would suggest
+    `,
+  },
+
+  {
     title: "Regex",
     description: "Regex tester",
     prompt: dedent`
