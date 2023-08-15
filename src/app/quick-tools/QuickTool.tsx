@@ -1,6 +1,9 @@
-import { Button, Form } from "../_components"
+import { Button, Form, Grid, PageContent, PageHeader } from "../_components"
+import { examples } from "./examples"
 
-export const QuickTool = ({ spec }) => {
+export const QuickTool = ({ params: { id } }) => {
+  const spec = examples[id]
+
   const VAR = /\{\{(\w+)\}\}/g
   const variableNames = spec.prompt.match(VAR)?.map(v => v.slice(2, -2)) ?? []
 
@@ -8,32 +11,31 @@ export const QuickTool = ({ spec }) => {
 
   return (
     <>
-      <header>
-        <h2>{spec.title}</h2>
+      <PageHeader title={spec.title} description={spec.description} />
+      <PageContent>
+        <div class="row">
+          <div class="col">
+            <Form class="" onSubmit={() => alert("TODO")}>
+              <Grid class="mb-4" cols="auto 2fr">
+                {variableNames.map((name, i) => (
+                  <>
+                    <label class="text-capitalize align-self-center">{name}</label>
+                    <input type="text" class="col form-control" />
+                  </>
+                ))}
+              </Grid>
 
-        <p class="text-secondary">{spec.description}</p>
-      </header>
+              <Button type="submit" primary>
+                Generate
+              </Button>
+            </Form>
+          </div>
 
-      <main class="row">
-        <div class="col">
-          <Form class="card p-4" onSubmit={() => alert("TODO")}>
-            {variableNames.map((name, i) => (
-              <div class="form-floating mb-3" key={name}>
-                <input type="text" class="form-control" />
-                <label>{name.toUpperCase()}</label>
-              </div>
-            ))}
-
-            <Button type="submit" primary>
-              Generate
-            </Button>
-          </Form>
+          <div class="col overflow-hidden">
+            <pre class="card p-3">{result}</pre>
+          </div>
         </div>
-
-        <div class="col">
-          <pre class="card p-3">{result}</pre>
-        </div>
-      </main>
+      </PageContent>
     </>
   )
 }

@@ -2,6 +2,12 @@ import { dedent } from "../_util"
 
 export const examples = [
   {
+    title: "Write E-mail",
+    description: "Write e-mail",
+    prompt: "User: I need to write an e-mail to {{name}} about {{about}} because {{reason}}",
+  },
+
+  {
     title: "Regex",
     description: "Regex tester",
     prompt: dedent`

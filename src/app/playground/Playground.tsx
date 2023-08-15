@@ -33,7 +33,9 @@ export const Playground = () => {
           <div class="row mb-2">
             <div class="col">
               <select class="form-select mb-2">
-                <option selected>Text</option>
+                <option selected class="text-secondary">
+                  Load from ...
+                </option>
               </select>
 
               <textarea

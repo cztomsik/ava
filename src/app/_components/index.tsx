@@ -1,6 +1,7 @@
 export { Button } from "./Button"
 export { ErrorBoundary } from "./ErrorBoundary"
 export { Form } from "./Form"
+export { Grid } from "./Grid"
 export { Layout } from "./Layout"
 export { Link } from "wouter-preact"
 export { Markdown } from "./Markdown"
