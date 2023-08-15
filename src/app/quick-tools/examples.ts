@@ -2,6 +2,14 @@ import { dedent } from "../_util"
 
 export const examples = [
   {
+    title: "Hello World",
+    description: "Basic example",
+    prompt: dedent`
+      The following is an excerpt from a story about Bob, the cat, flying to space.
+    `,
+  },
+
+  {
     title: "Grammar Police",
     description: "Correct grammar in the provided text",
     prompt: dedent`
