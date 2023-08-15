@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
-    "build": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/js",
-    "watch": "npm run build -- --sourcemap=inline --watch",
+    "bundle": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/js",
+    "build": "npm run bundle -- --minify",
+    "watch": "npm run bundle -- --sourcemap=inline --watch",
     "check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

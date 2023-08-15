@@ -8,7 +8,7 @@ export const QuickTools = ({ params }) => {
   return (
     <>
       <PageHeader title="Quick Tools" description="Shortcuts to common tasks">
-        <Button class="ms-auto" primary href="/quick-tools/new">
+        <Button class="ms-auto" href="/quick-tools/new">
           Create New
         </Button>
       </PageHeader>

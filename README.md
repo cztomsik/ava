@@ -27,6 +27,6 @@ zig build run
 
 ```bash
 npm install
-npm run build -- --minify
+npm run build
 zig build -Doptimize=ReleaseSafe -Dcpu=native
 ```

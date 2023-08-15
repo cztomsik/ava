@@ -1,5 +1,5 @@
 import { Router, Route, Redirect, Switch } from "wouter-preact"
-import { ErrorBoundary, Layout, NavLink } from "./_components"
+import { ErrorBoundary, Layout, Link, NavLink } from "./_components"
 import { Chat } from "./chat/Chat"
 import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
@@ -26,9 +26,9 @@ export const App = () => (
 const AppBar = () => (
   <header class="navbar navbar-expand bg-primary navbar-dark">
     <div class="container">
-      <a class="navbar-brand" href="/">
+      <Link class="navbar-brand" href="/">
         Ava
-      </a>
+      </Link>
 
       <div class="navbar-collapse d-print-none">
         <ul class="navbar-nav me-auto">

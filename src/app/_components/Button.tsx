@@ -1,6 +1,9 @@
-export const Button = ({ class: className = "", submit = false, ...props }) => {
-  props.type = submit ? "submit" : "button"
-  props.class = `btn ${submit ? "btn-primary" : "btn-secondary"} ${className}`
+import { Link } from "."
 
-  return <button {...props} />
+export const Button = ({ class: className = "", submit = false, primary = submit, ...props }) => {
+  props.type = submit ? "submit" : "button"
+  props.class = `btn ${primary ? "btn-primary" : "btn-secondary"} ${className}`
+
+  // @ts-expect-error
+  return props.href ? <Link {...props} /> : <button {...props} />
 }

@@ -11,7 +11,11 @@ export const QuickTool = ({ params: { id } }) => {
 
   return (
     <>
-      <PageHeader title={spec.title} description={spec.description} />
+      <PageHeader title={spec.title} description={spec.description}>
+        <Button href="edit" class="ms-auto">
+          Edit
+        </Button>
+      </PageHeader>
       <PageContent>
         <div class="row">
           <div class="col">
@@ -25,9 +29,7 @@ export const QuickTool = ({ params: { id } }) => {
                 ))}
               </Grid>
 
-              <Button type="submit" primary>
-                Generate
-              </Button>
+              <Button submit>Generate</Button>
             </Form>
           </div>
 
