@@ -2,15 +2,14 @@ import { useSignal } from "@preact/signals"
 import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/examples"
+import { useLocalStorage } from "../_hooks/useLocalStorage"
 
 const VAR = /\{\{(\w+)\}\}/g
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
   const { generate, loading, abort } = useGenerate()
-  const prompt = useSignal(
-    "Here's an e-mail to a customer named {{name}} about a product called {{product}}. The customer is asking about {{subject}} of the product."
-  )
+  const prompt = useLocalStorage("playground.prompt", "")
   const variables = useSignal({})
   const result = useSignal("")
 
@@ -49,7 +48,7 @@ export const Playground = () => {
 
               <textarea
                 class="form-control"
-                placeholder="Prompt"
+                placeholder="Type your prompt here..."
                 rows={16}
                 value={prompt}
                 onInput={e => (prompt.value = e.target.value)}
