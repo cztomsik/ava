@@ -1,5 +1,5 @@
 import "./custom.d.ts"
-import React, { render } from "preact"
+import { render } from "preact"
 import { App } from "./App"
 
 render(<App />, document.querySelector("#app")!)
