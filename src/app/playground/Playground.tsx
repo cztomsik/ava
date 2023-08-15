@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { Form } from "../_components"
+import { Button, Form, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
 
 const VAR = /\{\{(\w+)\}\}/g
@@ -25,12 +25,10 @@ export const Playground = () => {
 
   return (
     <>
-      <header>
-        <h2 class="mb-2">Playground</h2>
-      </header>
+      <PageHeader title="Playground" description="Generate text from a template" />
 
       {/* TODO: single-area mode + toggle */}
-      <main>
+      <PageContent>
         <Form onSubmit={handleSubmit}>
           <div class="row mb-2">
             <div class="col">
@@ -65,18 +63,12 @@ export const Playground = () => {
           </div>
 
           <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">
-              Generate
-            </button>
+            <Button submit>Generate</Button>
 
-            {loading && (
-              <button type="button" class="btn btn-outline-danger" onClick={abort}>
-                Stop generation
-              </button>
-            )}
+            {loading && <Button onClick={abort}>Stop generation</Button>}
           </div>
         </Form>
-      </main>
+      </PageContent>
     </>
   )
 }

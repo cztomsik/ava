@@ -1,5 +1,5 @@
 import { signal, useSignal } from "@preact/signals"
-import { Form } from "../_components"
+import { Button, Form, Layout, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
 import { ChatMessage } from "./ChatMessage"
 
@@ -8,42 +8,48 @@ export const Chat = ({ params }) => {
 
   return (
     <>
-      <aside class="d-print-none">
-        <div class="group">
-          <div>Today</div>
-          <ul class="list-unstyled">
-            <li>
-              <a class="active" href="#">
-                Poem about JavaScript
-              </a>
-            </li>
-            <li>
-              <a href="#">Invoke Clang from Zig</a>
-            </li>
-          </ul>
-        </div>
-        <div class="group">
-          <div>Yesterday</div>
-          <ul class="list-unstyled">
-            <li>
-              <a href="#">Trip to Italy</a>
-            </li>
-            <li>
-              <a href="#">Recipe for a cake</a>
-            </li>
-          </ul>
-        </div>
-        <div class="group">
-          <div>Previous 7 days</div>
-          <ul class="list-unstyled">
-            <li>
-              <a href="#">How to make a website</a>
-            </li>
-          </ul>
-        </div>
-      </aside>
+      <PageHeader title="Chat" description="Dialog-based interface" />
 
-      <ChatSession />
+      <PageContent>
+        <Layout scroll>
+          <aside class="d-print-none">
+            <div class="group">
+              <div>Today</div>
+              <ul class="list-unstyled">
+                <li>
+                  <a class="active" href="#">
+                    Poem about JavaScript
+                  </a>
+                </li>
+                <li>
+                  <a href="#">Invoke Clang from Zig</a>
+                </li>
+              </ul>
+            </div>
+            <div class="group">
+              <div>Yesterday</div>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#">Trip to Italy</a>
+                </li>
+                <li>
+                  <a href="#">Recipe for a cake</a>
+                </li>
+              </ul>
+            </div>
+            <div class="group">
+              <div>Previous 7 days</div>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#">How to make a website</a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+
+          <ChatSession />
+        </Layout>
+      </PageContent>
     </>
   )
 }
@@ -81,11 +87,11 @@ const ChatSession = () => {
         <h2 class="mb-4">New Chat</h2>
       </header>
 
-      <main>
+      <div>
         {messages.value.map(m => (
           <ChatMessage {...m} />
         ))}
-      </main>
+      </div>
 
       <footer>
         <Form class="d-print-none" onSubmit={handleSubmit}>
@@ -99,15 +105,11 @@ const ChatSession = () => {
             onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
           ></textarea>
 
-          <button type="submit" class="btn btn-primary me-2">
+          <Button submit class="me-2">
             Send
-          </button>
+          </Button>
 
-          {loading && (
-            <button type="button" class="btn btn-outline-danger" onClick={abort}>
-              Stop generation
-            </button>
-          )}
+          {loading && <Button onClick={abort}>Stop generation</Button>}
         </Form>
       </footer>
     </>

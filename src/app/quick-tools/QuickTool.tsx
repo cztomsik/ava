@@ -1,4 +1,4 @@
-import { Form } from "../_components"
+import { Button, Form } from "../_components"
 
 export const QuickTool = ({ spec }) => {
   const VAR = /\{\{(\w+)\}\}/g
@@ -24,9 +24,9 @@ export const QuickTool = ({ spec }) => {
               </div>
             ))}
 
-            <button type="submit" class="btn btn-primary">
+            <Button type="submit" primary>
               Generate
-            </button>
+            </Button>
           </Form>
         </div>
 

@@ -7,26 +7,24 @@ import { Playground } from "./playground/Playground"
 export const App = () => (
   <ErrorBoundary>
     <Router>
-      <div class="d-flex flex-column vh-100">
+      <Layout class="vh-100 bg-body-tertiary">
         <AppBar />
 
-        <div class="flex-fill">
-          <Layout class="container my-4" scroll>
-            <Switch>
-              <Route path="/chat/:id?" component={Chat} />
-              <Route path="/quick-tools/:id?" component={QuickTools} />
-              <Route path="/playground" component={Playground} />
-              <Redirect href="/chat" />
-            </Switch>
-          </Layout>
-        </div>
-      </div>
+        <Layout scroll>
+          <Switch>
+            <Route path="/chat/:id?" component={Chat} />
+            <Route path="/quick-tools/:id?" component={QuickTools} />
+            <Route path="/playground" component={Playground} />
+            <Redirect href="/chat" />
+          </Switch>
+        </Layout>
+      </Layout>
     </Router>
   </ErrorBoundary>
 )
 
 const AppBar = () => (
-  <div class="navbar navbar-expand-md bg-primary navbar-dark">
+  <header class="navbar navbar-expand-sm bg-primary navbar-dark">
     <div class="container">
       <a class="navbar-brand" href="/">
         Ava
@@ -52,5 +50,5 @@ const AppBar = () => (
         </ul>
       </div>
     </div>
-  </div>
+  </header>
 )

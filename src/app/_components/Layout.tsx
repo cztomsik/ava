@@ -18,19 +18,13 @@ export const styles = css`
     grid-area: header;
   }
 
-  & > main {
-    grid-area: main;
-  }
-
-  &.scroll > main {
-    overflow-y: auto;
-  }
-
   & > footer {
     grid-area: footer;
   }
+
+  & > :not(aside, header, footer) {
+    grid-area: main;
+  }
 `
 
-export const Layout = ({ scroll, class: className = "", ...props }) => (
-  <div class={`${styles} ${scroll ? "scroll" : ""} ${className}`} {...props} />
-)
+export const Layout = ({ class: className = "", ...props }) => <div class={`${styles} ${className}`} {...props} />

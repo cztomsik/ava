@@ -1,4 +1,4 @@
-import { Link, NavLink } from "../_components"
+import { Link, NavLink, PageContent, PageHeader } from "../_components"
 import { QuickTool } from "./QuickTool"
 import { examples } from "./examples"
 
@@ -25,11 +25,9 @@ export const QuickTools = ({ params }) => {
 
 const Listing = () => (
   <>
-    <header>
-      <h2 class="mb-4">Quick Tools</h2>
-    </header>
+    <PageHeader title="Quick Tools" description="Shortcuts to common tasks" />
 
-    <main>
+    <PageContent>
       <table class="table table-striped table-bordered">
         <thead>
           <tr>
@@ -48,6 +46,6 @@ const Listing = () => (
           ))}
         </tbody>
       </table>
-    </main>
+    </PageContent>
   </>
 )
