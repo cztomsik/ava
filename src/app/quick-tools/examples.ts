@@ -80,8 +80,8 @@ export const examples = [
   },
 
   {
-    title: "Regex",
-    description: "Regex tester",
+    title: "Regex Help",
+    description: "Write a regular expression",
     prompt: dedent`
       User: I need a help writing regular expression in JavaScript. Specifically, I want to write regex for {{whatToMatch}}...
 
@@ -96,8 +96,8 @@ export const examples = [
   },
 
   {
-    title: "Reimplement in Language X",
-    description: "Reimplement in Language X",
+    title: "Total Rewrite",
+    description: "Reimplement given code in another language",
     prompt: dedent`
       User: I need to reimplement the following code in {{language}}:
       {{code}}
