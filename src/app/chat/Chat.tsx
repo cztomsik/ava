@@ -3,7 +3,7 @@ import { Form } from "../_components"
 import { useGenerate } from "../_hooks"
 import { ChatMessage } from "./ChatMessage"
 
-export const Chat = ({ id }) => {
+export const Chat = ({ params }) => {
   // TODO: load by id
 
   return (
@@ -40,7 +40,7 @@ export const Chat = ({ id }) => {
               <a href="#">How to make a website</a>
             </li>
           </ul>
-        </div>{" "}
+        </div>
       </aside>
 
       <ChatSession />

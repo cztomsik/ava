@@ -21,7 +21,7 @@
     "goober": "^2.1.13",
     "markdown-it": "^13.0.1",
     "preact": "^10.16.0",
-    "preact-router": "^4.1.2"
+    "wouter-preact": "^2.11.0"
   },
   "devDependencies": {
     "esbuild": "^0.18.19",

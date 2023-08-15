@@ -1,6 +1,6 @@
 import { css } from "goober"
 
-const styles = css`
+export const styles = css`
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
@@ -22,9 +22,15 @@ const styles = css`
     grid-area: main;
   }
 
+  &.scroll > main {
+    overflow-y: auto;
+  }
+
   & > footer {
     grid-area: footer;
   }
 `
 
-export const Layout = ({ class: className = "", children }) => <div class={`${styles} ${className}`}>{children}</div>
+export const Layout = ({ scroll, class: className = "", ...props }) => (
+  <div class={`${styles} ${scroll ? "scroll" : ""} ${className}`} {...props} />
+)

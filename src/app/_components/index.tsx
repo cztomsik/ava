@@ -1,6 +1,7 @@
 export { ErrorBoundary } from "./ErrorBoundary"
 export { Form } from "./Form"
 export { Layout } from "./Layout"
-export { Link } from "./Link"
+export { Link } from "wouter-preact"
 export { Markdown } from "./Markdown"
 export { Modal } from "./Modal"
+export { NavLink } from "./NavLink"
