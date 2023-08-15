@@ -24,7 +24,7 @@ export const App = () => (
 )
 
 const AppBar = () => (
-  <header class="navbar navbar-expand-sm bg-primary navbar-dark">
+  <header class="navbar navbar-expand bg-primary navbar-dark">
     <div class="container">
       <a class="navbar-brand" href="/">
         Ava
