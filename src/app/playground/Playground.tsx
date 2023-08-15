@@ -26,11 +26,13 @@ export const Playground = () => {
 
   return (
     <>
-      <PageHeader title="Playground" description="Prototype new ideas quickly." />
+      <PageHeader title="Playground" description="Prototype new ideas quickly.">
+        <Button class="ms-auto">Create a Tool</Button>
+      </PageHeader>
 
       {/* TODO: single-area mode + toggle */}
       <PageContent>
-        <Form onSubmit={handleSubmit}>
+        <Form class="vstack" onSubmit={handleSubmit}>
           <div class="row mb-2">
             <div class="col">
               <select class="form-select mb-2" onChange={e => (prompt.value = examples[e.target.value].prompt)}>
@@ -48,7 +50,7 @@ export const Playground = () => {
               <textarea
                 class="form-control"
                 placeholder="Prompt"
-                rows={14}
+                rows={16}
                 value={prompt}
                 onInput={e => (prompt.value = e.target.value)}
               ></textarea>
@@ -67,7 +69,7 @@ export const Playground = () => {
                 </div>
               ))}
 
-              <textarea class="form-control" placeholder="Result" readOnly rows={10} value={result}></textarea>
+              <textarea class="form-control" placeholder="Result" readOnly rows={12} value={result}></textarea>
             </div>
           </div>
 
