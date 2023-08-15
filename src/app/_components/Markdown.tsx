@@ -6,8 +6,8 @@ md.renderer.rules.table_open = function () {
   return '<table class="table table-striped table-bordered">\n'
 }
 
-export const Markdown = ({ input }) => {
+export const Markdown = ({ input, ...props }) => {
   const __html = useMemo(() => md.render(input).replace(/&lt;br&gt;/g, "<br>"), [input])
 
-  return <div dangerouslySetInnerHTML={{ __html }} />
+  return <div dangerouslySetInnerHTML={{ __html }} {...props} />
 }

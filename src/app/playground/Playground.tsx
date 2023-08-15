@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { Button, Form, PageContent, PageHeader } from "../_components"
+import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/examples"
 
@@ -33,7 +33,7 @@ export const Playground = () => {
       {/* TODO: single-area mode + toggle */}
       <PageContent>
         <Form class="vstack" onSubmit={handleSubmit}>
-          <div class="row mb-2">
+          <div class="row">
             <div class="col">
               <select class="form-select mb-2" onChange={e => (prompt.value = examples[e.target.value].prompt)}>
                 <option selected class="text-secondary">
@@ -54,7 +54,15 @@ export const Playground = () => {
                 value={prompt}
                 onInput={e => (prompt.value = e.target.value)}
               ></textarea>
+
+              <div class="d-flex gap-2 mt-2">
+                <Button submit>Generate</Button>
+
+                {loading && <Button onClick={abort}>Stop generation</Button>}
+              </div>
             </div>
+
+            {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
             <div class="col">
               {variableNames.map(name => (
                 <div class="input-group mb-2">
@@ -69,14 +77,8 @@ export const Playground = () => {
                 </div>
               ))}
 
-              <textarea class="form-control" placeholder="Result" readOnly rows={12} value={result}></textarea>
+              {result.value && <Markdown input={result.value} class="card p-3" />}
             </div>
-          </div>
-
-          <div class="d-flex gap-2">
-            <Button submit>Generate</Button>
-
-            {loading && <Button onClick={abort}>Stop generation</Button>}
           </div>
         </Form>
       </PageContent>

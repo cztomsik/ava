@@ -23,8 +23,12 @@ export const QuickTool = ({ params: { id } }) => {
               <Grid class="mb-4" cols="auto 2fr">
                 {variableNames.map((name, i) => (
                   <>
-                    <label class="text-capitalize align-self-center">{name}</label>
-                    <input type="text" class="col form-control" />
+                    <label class="text-capitalize col-form-label">{name}</label>
+                    {name.endsWith("text") ? (
+                      <textarea class="form-control" rows={5} />
+                    ) : (
+                      <input type="text" class="form-control" />
+                    )}
                   </>
                 ))}
               </Grid>
