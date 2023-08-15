@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals"
 import { Button, Form, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
+import { examples } from "../quick-tools/examples"
 
 const VAR = /\{\{(\w+)\}\}/g
 
@@ -25,17 +26,23 @@ export const Playground = () => {
 
   return (
     <>
-      <PageHeader title="Playground" description="Generate text from a template" />
+      <PageHeader title="Playground" description="Prototype new ideas quickly." />
 
       {/* TODO: single-area mode + toggle */}
       <PageContent>
         <Form onSubmit={handleSubmit}>
           <div class="row mb-2">
             <div class="col">
-              <select class="form-select mb-2">
+              <select class="form-select mb-2" onChange={e => (prompt.value = examples[e.target.value].prompt)}>
                 <option selected class="text-secondary">
                   Load from ...
                 </option>
+
+                <optgroup label="Examples">
+                  {examples.map(({ title }, i) => (
+                    <option value={i}>{title}</option>
+                  ))}
+                </optgroup>
               </select>
 
               <textarea

@@ -2,9 +2,16 @@ import { dedent } from "../_util"
 
 export const examples = [
   {
+    title: "Correct Grammar",
+    description: "Correct grammar",
+    prompt:
+      "User: I need to correct grammar in the following text:\n{{text}}\nAssistant: The correct grammar in the following text would be:",
+  },
+
+  {
     title: "Write an E-mail",
     description: "Write e-mail",
-    prompt: "User: I need to write an e-mail to {{name}} about {{about}} because {{reason}}",
+    prompt: "User: I need to write an e-mail to {{name}} about {{about}} because {{reason}}\nAssistant:",
   },
 
   {

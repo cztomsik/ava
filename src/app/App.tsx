@@ -48,7 +48,27 @@ const AppBar = () => (
             </NavLink>
           </li>
         </ul>
+
+        <ModelSelection />
       </div>
     </div>
   </header>
+)
+
+const ModelSelection = () => (
+  <ul class="navbar-nav">
+    <li class="nav-item dropdown">
+      <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
+        wizardlm-13b-v1.2
+      </button>
+
+      <ul class="dropdown-menu">
+        <li>
+          <a class="dropdown-item" href="#">
+            llama-2-13b
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
 )
