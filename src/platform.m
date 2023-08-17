@@ -34,6 +34,7 @@
 
 - (void) createMenus {
     id menu = [[NSMenu new] autorelease];
+    self.mainMenu = menu;
 
     id appMenu = [[NSMenu new] autorelease];
     [appMenu addItemWithTitle:@"About Ava" action:nil keyEquivalent:@""];
@@ -52,9 +53,7 @@
     [windowMenu addItem:[NSMenuItem separatorItem]];
     [windowMenu addItemWithTitle:@"Bring All to Front" action:@selector(arrangeInFront:) keyEquivalent:@""];
     [menu addItemWithTitle:@"Window" action:nil keyEquivalent:@""].submenu = windowMenu;
-    [self setWindowsMenu:windowMenu];
-
-    [self setMainMenu:menu];
+    self.windowsMenu = windowMenu;
 }
 @end
 
@@ -66,8 +65,8 @@
         styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
         backing:NSBackingStoreBuffered
         defer:NO];
-    [self setTitle:@"Ava"];
-    [self setMinSize:NSMakeSize(640, 480)];
+    self.title = @"Ava";
+    self.minSize = NSMakeSize(640, 480);
     [self center];
 
     // Create webview
@@ -75,9 +74,9 @@
     [self.webview
         initWithFrame:[self.contentView bounds]
         configuration:[[WKWebViewConfiguration alloc] init]];
-    [self.webview setNavigationDelegate:self];
+    self.contentView = self.webview;
+    self.webview.navigationDelegate = self;
     [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-    [self setContentView:self.webview];
 
     return self;
 }
