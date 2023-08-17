@@ -4,6 +4,7 @@ import { Chat } from "./chat/Chat"
 import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
 import { Settings } from "./settings/Settings"
+import { Dropdown } from "./_components/Dropdown"
 
 export const App = () => (
   <ErrorBoundary>
@@ -51,26 +52,34 @@ const AppBar = () => (
           </li>
         </ul>
 
+        <BuyButton />
+
         <ModelSelection />
       </div>
     </div>
   </header>
 )
 
+const BuyButton = () => (
+  <a class="btn btn-warning d-md-inline-block me-2" href="https://avapls.com/buy" target="_blank">
+    Buy License
+  </a>
+)
+
 const ModelSelection = () => (
   <ul class="navbar-nav">
-    <li class="nav-item dropdown">
+    <Dropdown component="li" class="nav-item">
       <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
         wizardlm-13b-v1.2
       </button>
 
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="#">
+          <a class="dropdown-item" href="">
             llama-2-13b
           </a>
         </li>
       </ul>
-    </li>
+    </Dropdown>
   </ul>
 )

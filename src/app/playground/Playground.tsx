@@ -55,7 +55,7 @@ export const Playground = () => {
               ></textarea>
 
               <div class="hstack gap-2 mt-2">
-                <Button submit>Send</Button>
+                <Button submit>Generate</Button>
 
                 {loading && <Button onClick={abort}>Stop generation</Button>}
               </div>

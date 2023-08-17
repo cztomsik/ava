@@ -33,19 +33,20 @@
 }
 
 - (void) createMenus {
+    NSString* name = @"Ava";
     id menu = [[NSMenu new] autorelease];
     self.mainMenu = menu;
 
     id appMenu = [[NSMenu new] autorelease];
-    [appMenu addItemWithTitle:@"About Ava" action:nil keyEquivalent:@""];
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"About %@", name] action:nil keyEquivalent:@""];
     [appMenu addItem:[NSMenuItem separatorItem]];
-    [appMenu addItemWithTitle:@"Hide Ava" action:@selector(hide:) keyEquivalent:@"h"];
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"Hide %@", name] action:@selector(hide:) keyEquivalent:@"h"];
     id hideOthersMenuItem = [appMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
     [hideOthersMenuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption | NSEventModifierFlagCommand)];
     [appMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
     [appMenu addItem:[NSMenuItem separatorItem]];
-    [appMenu addItemWithTitle:@"Quit Ava" action:@selector(terminate:) keyEquivalent:@"q"];
-    [menu addItemWithTitle:@"Ava" action:nil keyEquivalent:@""].submenu = appMenu;
+    [appMenu addItemWithTitle:[NSString stringWithFormat:@"Quit %@", name] action:@selector(terminate:) keyEquivalent:@"q"];
+    [menu addItemWithTitle:name action:nil keyEquivalent:@""].submenu = appMenu;
 
     id windowMenu = [[NSMenu new] autorelease];
     [windowMenu addItemWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
@@ -66,7 +67,7 @@
         backing:NSBackingStoreBuffered
         defer:NO];
     self.title = @"Ava";
-    self.minSize = NSMakeSize(640, 480);
+    self.minSize = NSMakeSize(770, 480);
     [self center];
 
     // Create webview
