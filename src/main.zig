@@ -1,8 +1,9 @@
 const std = @import("std");
-const builtin = @import("builtin");
-const Server = @import("server.zig").Server;
+const cli = @import("cli.zig");
 const db = @import("db.zig");
 const llama = @import("llama.zig");
+const platform = @import("platform.zig");
+const Server = @import("server.zig").Server;
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
@@ -10,39 +11,22 @@ const allocator = gpa.allocator();
 pub fn main() !void {
     defer _ = gpa.deinit();
 
+    const options = try cli.parseArgs();
+    if (options.help) return try cli.printHelp();
+
     llama.init(allocator);
     try db.init();
 
     var server = try Server.start(allocator, "127.0.0.1", 3002);
     defer server.deinit();
 
-    try printBanner(server.http.socket.listen_address);
-    server.thread.join();
-}
+    if (options.headless) {
+        try cli.printBanner(server.http.socket.listen_address);
+        server.thread.join();
+    } else {
+        const url = try std.fmt.allocPrintZ(allocator, "http://127.0.0.1:{}", .{server.http.socket.listen_address.getPort()});
+        defer allocator.free(url);
 
-fn printBanner(address: std.net.Address) !void {
-    const target = try builtin.target.linuxTriple(allocator);
-    defer allocator.free(target);
-
-    const banner =
-        \\
-        \\  /\ \  / /\             Server running
-        \\ /--\ \/ /--\  v{s}    http://{}
-        \\ _____________________________________________
-        \\
-        \\ target: {s}
-        \\ sqlite: {s}
-        \\
-        \\
-    ;
-    var writer = std.io.getStdOut().writer();
-    try writer.print(
-        banner,
-        .{
-            "0.0.1",
-            address,
-            target,
-            try db.version(),
-        },
-    );
+        platform.runWebView(url);
+    }
 }

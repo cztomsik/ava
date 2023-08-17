@@ -36,9 +36,16 @@ fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     });
     exe.main_pkg_path = .{ .path = "." };
     exe.addIncludePath(.{ .path = "llama.cpp" });
-    exe.linkSystemLibrary("sqlite3");
+    exe.addCSourceFiles(&.{"src/platform.m"}, &.{"-std=c11"});
+
     exe.linkLibrary(llama);
     b.installArtifact(exe);
+
+    if (target.getOsTag() == .macos) {
+        exe.linkSystemLibrary("sqlite3");
+        exe.linkFramework("Cocoa");
+        exe.linkFramework("WebKit");
+    }
 
     return exe;
 }

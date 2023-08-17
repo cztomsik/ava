@@ -4,7 +4,7 @@ Air-gapped Virtual Assistant / Personal language server
 
 ## Tech stack
 
-- Bun, SQLite, Zig, C++
+- Zig, C++, Objective-C, SQLite
 - Preact, Preact Router, Preact Signals, Bootstrap 5, Goober
 
 ## Local Development
