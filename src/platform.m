@@ -14,13 +14,24 @@
 
 @implementation AvaApplication
 - (void) run {
-    [self setActivationPolicy:NSApplicationActivationPolicyRegular];
-    [self activateIgnoringOtherApps:YES];
-
-    [self createWindow];
-    [self createMenus];
+    self.delegate = self;
 
     [super run];
+}
+
+- (void) applicationWillFinishLaunching:(NSNotification*)notification {
+    [self setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [self activateIgnoringOtherApps:YES];
+    [self createWindow];
+    [self createMenus];
+}
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    return NSTerminateNow;
+}
+
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag {
+    return NO;
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {
@@ -88,7 +99,9 @@
 @end
 
 void _runWebView(char* url) {
-    AvaApplication* app = [AvaApplication sharedApplication];
-    app.url = url;
-    [app run];
+    @autoreleasepool {
+        AvaApplication* app = [AvaApplication sharedApplication];
+        app.url = url;
+        [app run];
+    }
 }

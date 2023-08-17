@@ -54,7 +54,7 @@ const AppBar = () => (
 
         <BuyButton />
 
-        <ModelSelection />
+        <ModelMenu />
       </div>
     </div>
   </header>
@@ -66,7 +66,7 @@ const BuyButton = () => (
   </a>
 )
 
-const ModelSelection = () => (
+const ModelMenu = () => (
   <ul class="navbar-nav">
     <Dropdown component="li" class="nav-item">
       <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
@@ -77,6 +77,14 @@ const ModelSelection = () => (
         <li>
           <a class="dropdown-item" href="">
             llama-2-13b
+          </a>
+        </li>
+
+        <li class="dropdown-divider"></li>
+
+        <li>
+          <a class="dropdown-item" href="/settings">
+            Settings
           </a>
         </li>
       </ul>
