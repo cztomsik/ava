@@ -16,8 +16,11 @@
   </head>
   <body>
     <div id="app">
-      <div style="height: 56px; background: #0d6efd"></div>
-      <div class="container p-3"></div>
+      <!-- extra div, needed for hydration -->
+      <div>
+        <div style="height: 56px; background: #0d6efd"></div>
+        <div class="container p-3"></div>
+      </div>
     </div>
     <script type="module" src="/app.js"></script>
   </body>
