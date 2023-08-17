@@ -13,7 +13,7 @@ pub fn main() !void {
     llama.init(allocator);
     try db.init();
 
-    var server = try Server.start(allocator, "127.0.0.1", 3000);
+    var server = try Server.start(allocator, "127.0.0.1", 3002);
     defer server.deinit();
 
     try printBanner(server.http.socket.listen_address);

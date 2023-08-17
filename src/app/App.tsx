@@ -3,6 +3,7 @@ import { ErrorBoundary, Layout, Link, NavLink } from "./_components"
 import { Chat } from "./chat/Chat"
 import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
+import { Settings } from "./settings/Settings"
 
 export const App = () => (
   <ErrorBoundary>
@@ -15,6 +16,7 @@ export const App = () => (
             <Route path="/chat/:id?" component={Chat} />
             <Route path="/quick-tools/:id?" component={QuickTools} />
             <Route path="/playground" component={Playground} />
+            <Route path="/settings" component={Settings} />
             <Redirect href="/chat" />
           </Switch>
         </Layout>

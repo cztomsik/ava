@@ -2,7 +2,7 @@ import { useSignal } from "@preact/signals"
 import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/examples"
-import { useLocalStorage } from "../_hooks/useLocalStorage"
+import { useLocalStorage } from "../_hooks"
 
 const VAR = /\{\{(\w+)\}\}/g
 
@@ -54,8 +54,8 @@ export const Playground = () => {
                 onInput={e => (prompt.value = e.target.value)}
               ></textarea>
 
-              <div class="d-flex gap-2 mt-2">
-                <Button submit>Generate</Button>
+              <div class="hstack gap-2">
+                <Button submit>Send</Button>
 
                 {loading && <Button onClick={abort}>Stop generation</Button>}
               </div>

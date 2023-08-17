@@ -20,6 +20,16 @@ export const examples = [
   },
 
   {
+    title: "Rephrase",
+    description: "",
+    prompt: dedent`
+      User: Rephrase the following text so it looks more professional:
+      {{text}}
+      Assistant:
+    `,
+  },
+
+  {
     title: "Vacation Planner",
     description: "Plan a vacation",
     prompt: dedent`
@@ -113,5 +123,3 @@ export const examples = [
     `,
   },
 ]
-
-console.log(examples)

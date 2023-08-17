@@ -93,8 +93,8 @@ const ChatSession = () => {
         ))}
       </div>
 
-      <footer>
-        <Form class="d-print-none" onSubmit={handleSubmit}>
+      <footer class="d-print-none">
+        <Form onSubmit={handleSubmit}>
           <textarea
             autofocus
             class="form-control mb-2"
@@ -105,11 +105,11 @@ const ChatSession = () => {
             onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
           ></textarea>
 
-          <Button submit class="me-2">
-            Send
-          </Button>
+          <div class="hstack gap-2">
+            <Button submit>Send</Button>
 
-          {loading && <Button onClick={abort}>Stop generation</Button>}
+            {loading && <Button onClick={abort}>Stop generation</Button>}
+          </div>
         </Form>
       </footer>
     </>
