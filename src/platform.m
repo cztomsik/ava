@@ -48,12 +48,12 @@
     [appMenu addItemWithTitle:[NSString stringWithFormat:@"Quit %@", name] action:@selector(terminate:) keyEquivalent:@"q"];
     [menu addItemWithTitle:name action:nil keyEquivalent:@""].submenu = appMenu;
 
-    id windowMenu = [[NSMenu new] autorelease];
+    id windowMenu = [[[NSMenu alloc] autorelease] initWithTitle:@"Window"];
     [windowMenu addItemWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
     [windowMenu addItemWithTitle:@"Zoom" action:@selector(performZoom:) keyEquivalent:@""];
     [windowMenu addItem:[NSMenuItem separatorItem]];
     [windowMenu addItemWithTitle:@"Bring All to Front" action:@selector(arrangeInFront:) keyEquivalent:@""];
-    [menu addItemWithTitle:@"Window" action:nil keyEquivalent:@""].submenu = windowMenu;
+    [menu addItemWithTitle:@"" action:nil keyEquivalent:@""].submenu = windowMenu;
     self.windowsMenu = windowMenu;
 }
 @end
