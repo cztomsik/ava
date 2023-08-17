@@ -54,7 +54,7 @@ export const Playground = () => {
                 onInput={e => (prompt.value = e.target.value)}
               ></textarea>
 
-              <div class="hstack gap-2">
+              <div class="hstack gap-2 mt-2">
                 <Button submit>Send</Button>
 
                 {loading && <Button onClick={abort}>Stop generation</Button>}
