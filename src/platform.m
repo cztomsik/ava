@@ -2,24 +2,25 @@
 #import <WebKit/WebKit.h>
 
 @interface AvaWindow : NSWindow
-@property (nonatomic, retain) WKWebView* webview;
+@property (strong, nonatomic) WKWebView *webview;
 @end
 
 @interface AvaApplication : NSApplication
-@property (nonatomic, assign) char* url;
-@property (nonatomic, retain) AvaWindow* window;
-- (void) createWindow;
-- (void) createMenus;
+@property (strong, nonatomic) NSString *url;
+@property (strong, nonatomic) AvaWindow *window;
+- (void)createWindow;
+- (void)createMenus;
 @end
 
 @implementation AvaApplication
-- (void) run {
-    self.delegate = self;
 
+- (void)run {
+    self.delegate = self;
+    
     [super run];
 }
 
-- (void) applicationWillFinishLaunching:(NSNotification*)notification {
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [self setActivationPolicy:NSApplicationActivationPolicyRegular];
     [self activateIgnoringOtherApps:YES];
     [self createWindow];
@@ -34,17 +35,16 @@
     return NO;
 }
 
-- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)app {
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app {
     return YES;
 }
 
-- (void) createWindow {
-    self.window = [[AvaWindow alloc] autorelease];
-    [self.window initWithWebview:NSMakeRect(0, 0, 900, 800) url:self.url];
+- (void)createWindow {
+    self.window = [[AvaWindow alloc] initWithUrl:NSMakeRect(0, 0, 900, 800) url:self.url];
 }
 
-- (void) createMenus {
-    NSString* name = @"Ava";
+- (void)createMenus {
+    NSString *name = @"Ava";
     id menu = [[NSMenu new] autorelease];
     self.mainMenu = menu;
 
@@ -64,44 +64,44 @@
     [windowMenu addItemWithTitle:@"Zoom" action:@selector(performZoom:) keyEquivalent:@""];
     [windowMenu addItem:[NSMenuItem separatorItem]];
     [windowMenu addItemWithTitle:@"Bring All to Front" action:@selector(arrangeInFront:) keyEquivalent:@""];
-    [menu addItemWithTitle:@"" action:nil keyEquivalent:@""].submenu = windowMenu;
+    [menu addItemWithTitle:@"" action:nil keyEquivalent:@""].submenu = windowMenu;    
     self.windowsMenu = windowMenu;
 }
+
 @end
 
 @implementation AvaWindow
-- (instancetype) initWithWebview:(NSRect)contentRect url:(char*)url {
-    // Create window
-    self = [super
-        initWithContentRect:contentRect
-        styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
-        backing:NSBackingStoreBuffered
-        defer:NO];
-    self.title = @"Ava";
-    self.minSize = NSMakeSize(770, 480);
-    [self center];
 
-    // Create webview
-    self.webview = [[WKWebView alloc] autorelease];
-    [self.webview
-        initWithFrame:[self.contentView bounds]
-        configuration:[[WKWebViewConfiguration alloc] init]];
-    self.contentView = self.webview;
-    self.webview.navigationDelegate = self;
-    [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
+- (instancetype)initWithUrl:(NSRect)contentRect url:(NSString *)url {
+    self = [super initWithContentRect:contentRect
+                            styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
+                              backing:NSBackingStoreBuffered
+                                defer:NO];
+    if (self) {
+        self.title = @"Ava";
+        self.minSize = NSMakeSize(770, 480);
+        [self center];
 
+        self.webview = [[WKWebView alloc] initWithFrame:[self.contentView bounds]
+                                          configuration:[[WKWebViewConfiguration alloc] init]];
+        self.contentView = self.webview;
+        self.webview.navigationDelegate = self;
+        [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
+    }
+    
     return self;
 }
 
-- (void) webView:(WKWebView*)webView didFinishNavigation:(WKNavigation*)navigation {
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self makeKeyAndOrderFront:nil];
 }
+
 @end
 
-void _runWebView(char* url) {
+void _runWebView(const char *url) {
     @autoreleasepool {
-        AvaApplication* app = [AvaApplication sharedApplication];
-        app.url = url;
+        AvaApplication *app = [AvaApplication sharedApplication];
+        app.url = [NSString stringWithUTF8String:url];
         [app run];
     }
 }
