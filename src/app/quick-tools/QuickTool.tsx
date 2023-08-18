@@ -1,4 +1,4 @@
-import { Button, Form, Grid, PageContent, PageHeader } from "../_components"
+import { Button, Form, FormGrid, PageContent, PageHeader } from "../_components"
 import { examples } from "./examples"
 
 export const QuickTool = ({ params: { id } }) => {
@@ -20,10 +20,10 @@ export const QuickTool = ({ params: { id } }) => {
         <div class="row">
           <div class="col">
             <Form class="" onSubmit={() => alert("TODO")}>
-              <Grid class="mb-4" cols="auto 2fr">
+              <FormGrid class="mb-4">
                 {variableNames.map((name, i) => (
                   <>
-                    <label class="text-capitalize col-form-label">{name}</label>
+                    <label class="text-capitalize">{name}</label>
                     {name.endsWith("text") ? (
                       <textarea class="form-control" rows={5} />
                     ) : (
@@ -31,7 +31,7 @@ export const QuickTool = ({ params: { id } }) => {
                     )}
                   </>
                 ))}
-              </Grid>
+              </FormGrid>
 
               <Button submit>Generate</Button>
             </Form>

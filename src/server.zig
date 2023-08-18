@@ -1,6 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
-const handleApiRequest = @import("api/router.zig").handler;
+const api = @import("api.zig");
 
 /// A context for handling a request.
 pub const Context = struct {
@@ -139,7 +139,7 @@ pub const Server = struct {
 
     fn handleRequest(ctx: *Context) !void {
         if (std.mem.startsWith(u8, ctx.path, "/api/")) {
-            return handleApiRequest(ctx);
+            return api.handler(ctx);
         }
 
         if (std.mem.endsWith(u8, ctx.path, ".map")) {

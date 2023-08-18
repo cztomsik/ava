@@ -1,11 +1,12 @@
-/**
- * Small wrapper around a form element to prevent default submission
- */
+import { useCallback, useRef } from "preact/hooks"
+
 export const Form = ({ onSubmit, ...props }) => {
-  const handleSubmit = event => {
+  const ref = useRef(null)
+
+  const handleSubmit = useCallback(event => {
     event.preventDefault()
     onSubmit()
-  }
+  }, [])
 
-  return <form onSubmit={handleSubmit} {...props} />
+  return <form noValidate ref={ref} onSubmit={handleSubmit} {...props} />
 }

@@ -1,0 +1,29 @@
+const std = @import("std");
+const platform = @import("platform.zig");
+
+pub const Model = struct {
+    name: []const u8,
+    path: []const u8,
+};
+
+pub fn getModels(allocator: std.mem.Allocator) ![]Model {
+    var list = std.ArrayList(Model).init(allocator);
+    var path = try std.fmt.allocPrintZ(allocator, "{s}/{s}", .{ platform.getHome(), "Downloads" });
+    defer allocator.free(path);
+
+    var dir = try std.fs.openIterableDirAbsoluteZ(path, .{});
+    defer dir.close();
+
+    var it = dir.iterate();
+
+    while (try it.next()) |entry| {
+        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".ggmlv3.q4_0.bin")) {
+            try list.append(.{
+                .name = try allocator.dupe(u8, entry.name[0 .. entry.name.len - 16]),
+                .path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ path, entry.name }),
+            });
+        }
+    }
+
+    return list.toOwnedSlice();
+}

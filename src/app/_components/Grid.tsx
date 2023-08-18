@@ -2,7 +2,7 @@ import { css } from "goober"
 
 const cache = {}
 
-export const Grid = ({ cols, class: className = "", children }) => {
+export const Grid = ({ cols, class: className = "", ...props }) => {
   const styles =
     cache[cols] ??
     (cache[cols] = css`
@@ -16,5 +16,5 @@ export const Grid = ({ cols, class: className = "", children }) => {
       }
     `)
 
-  return <div class={`${styles} ${className}`}>{children}</div>
+  return <div class={`${styles} ${className}`} {...props} />
 }
