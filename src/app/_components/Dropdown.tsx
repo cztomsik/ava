@@ -6,9 +6,12 @@ export const Dropdown = ({ component = "div", class: className = "", ...props })
   const ref = useRef(null)
 
   useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = ({ target }) => {
       const el = ref.current
-      el?.querySelector(".dropdown-menu").classList.toggle("show", el.contains(event.target))
+      el?.querySelector(".dropdown-menu").classList.toggle(
+        "show",
+        el.contains(target) && !target.matches(".dropdown-menu :is(a, button)")
+      )
     }
 
     document.addEventListener("click", handleClick)

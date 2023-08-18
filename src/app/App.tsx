@@ -75,17 +75,15 @@ const ModelMenu = () => (
 
       <ul class="dropdown-menu">
         <li>
-          <a class="dropdown-item" href="">
-            llama-2-13b
-          </a>
+          <a class="dropdown-item">llama-2-13b</a>
         </li>
 
         <li class="dropdown-divider"></li>
 
         <li>
-          <a class="dropdown-item" href="/settings">
+          <Link class="dropdown-item" href="/settings">
             Settings
-          </a>
+          </Link>
         </li>
       </ul>
     </Dropdown>
