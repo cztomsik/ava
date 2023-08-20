@@ -45,6 +45,15 @@ fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
         exe.linkSystemLibrary("sqlite3");
         exe.linkFramework("Cocoa");
         exe.linkFramework("WebKit");
+
+        const bundle_plist = b.addInstallFile(.{ .path = "src/Info.plist" }, "Ava.app/Info.plist");
+        const bundle_ico = b.addInstallFile(.{ .path = "src/app/favicon.ico" }, "Ava.app/ava.ico");
+        const bundle_metal = b.addInstallFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "Ava.app/ggml-metal.metal");
+        const bundle_app = b.addInstallFile(.{ .generated = exe.generated_bin.? }, "Ava.app/ava");
+        b.getInstallStep().dependOn(&bundle_plist.step);
+        b.getInstallStep().dependOn(&bundle_ico.step);
+        b.getInstallStep().dependOn(&bundle_metal.step);
+        b.getInstallStep().dependOn(&bundle_app.step);
     }
 
     return exe;

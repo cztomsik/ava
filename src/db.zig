@@ -1,9 +1,11 @@
+const std = @import("std");
 const sqlite = @import("sqlite.zig");
 
 var db: sqlite.SQLite3 = undefined;
 
 pub fn init() !void {
-    db = try sqlite.SQLite3.open("ava.db");
+    std.fs.makeDirAbsolute("/Users/cztomsik/Library/Application Support/AvaPLS") catch {};
+    db = try sqlite.SQLite3.open("/Users/cztomsik/Library/Application Support/AvaPLS/db");
 
     try run_migrations();
 }
