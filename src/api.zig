@@ -4,14 +4,10 @@ const registry = @import("model_registry.zig");
 const llama = @import("llama.zig");
 
 pub fn handler(ctx: *server.Context) !void {
-    const allocator = ctx.arena.allocator();
     const path = ctx.path[5..];
 
     if (std.mem.eql(u8, path, "models")) {
-        const models = try registry.getModels(allocator);
-        for (models) |model| {
-            std.debug.print("model: {s} {s}\n", .{ model.name, model.path });
-        }
+        const models = try registry.getModels(ctx.arena);
         try ctx.sendJson(models);
     }
 
@@ -22,7 +18,7 @@ pub fn handler(ctx: *server.Context) !void {
             sampling: llama.Sampler.Params = .{},
         });
 
-        var sampler = llama.Sampler.init(allocator, params.sampling);
+        var sampler = llama.Sampler.init(ctx.arena, params.sampling);
         defer sampler.deinit();
 
         var cx = try llama.Pool.get(params.model);

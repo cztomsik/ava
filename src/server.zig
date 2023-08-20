@@ -4,17 +4,14 @@ const api = @import("api.zig");
 
 /// A context for handling a request.
 pub const Context = struct {
-    arena: std.heap.ArenaAllocator,
+    arena: std.mem.Allocator,
     res: std.http.Server.Response,
     path: []const u8,
     query: ?[]const u8,
 
-    pub fn init(http: *std.http.Server) !Context {
-        var arena = std.heap.ArenaAllocator.init(http.allocator);
-        errdefer arena.deinit();
-
+    pub fn init(http: *std.http.Server, arena: std.mem.Allocator) !Context {
         var res = try http.accept(.{
-            .allocator = arena.allocator(),
+            .allocator = arena,
             .header_strategy = .{ .dynamic = 10_000 },
         });
         try res.headers.append("Connection", "close");
@@ -35,16 +32,15 @@ pub const Context = struct {
     pub fn deinit(self: *Context) void {
         _ = self.res.reset();
         self.res.deinit();
-        self.arena.deinit();
     }
 
     /// Reads the request body as JSON.
     pub fn readJson(self: *Context, comptime T: type) !T {
-        var reader = std.json.reader(self.res.allocator, self.res.reader());
+        var reader = std.json.reader(self.arena, self.res.reader());
 
         return std.json.parseFromTokenSourceLeaky(
             T,
-            self.res.allocator,
+            self.arena,
             &reader,
             .{},
         );
@@ -69,10 +65,10 @@ pub const Context = struct {
             try self.res.headers.append("Content-Type", "application/json");
         }
 
-        var list = std.ArrayList(u8).init(self.res.allocator);
+        var list = std.ArrayList(u8).init(self.arena);
         defer list.deinit();
 
-        try std.json.stringifyArbitraryDepth(self.res.allocator, body, .{}, list.writer());
+        try std.json.stringifyArbitraryDepth(self.arena, body, .{}, list.writer());
         try list.appendSlice("\r\n");
         try self.sendChunk(list.items);
     }
@@ -84,7 +80,7 @@ pub const Context = struct {
         try self.sendChunk(if (comptime builtin.mode != .Debug) @embedFile("../" ++ path) else blk: {
             var f = try std.fs.cwd().openFile(path, .{});
             defer f.close();
-            break :blk try f.readToEndAlloc(self.res.allocator, std.math.maxInt(usize));
+            break :blk try f.readToEndAlloc(self.arena, std.math.maxInt(usize));
         });
     }
 };
@@ -119,7 +115,12 @@ pub const Server = struct {
 
     fn run(self: *Server) !void {
         while (true) {
-            var ctx = try Context.init(&self.http);
+            // arena contains pointers so let's keep it on stack to avoid
+            // accidental moving & copying which would invalidate the pointers
+            var arena = std.heap.ArenaAllocator.init(self.http.allocator);
+            defer arena.deinit();
+
+            var ctx = try Context.init(&self.http, arena.allocator());
             defer ctx.deinit();
 
             defer {
