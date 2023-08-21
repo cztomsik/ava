@@ -49,11 +49,6 @@ pub const Statement = struct {
         _ = c.sqlite3_finalize(self.stmt);
     }
 
-    /// Resets the prepared statement, allowing it to be executed again.
-    pub fn reset(self: *Statement) !void {
-        try check(c.sqlite3_reset(self.stmt));
-    }
-
     /// Binds the given argument to the prepared statement.
     pub fn bind(self: *Statement, index: usize, arg: anytype) !void {
         const i: c_int = @intCast(index);
@@ -79,9 +74,7 @@ pub const Statement = struct {
     /// Reads the next row, either into a struct/tuple or a single value from
     /// the first column. Returns `error.NoRows` if there are no more rows.
     pub fn read(self: *Statement, comptime T: type) !T {
-        if (try self.step() != .row) {
-            return error.NoRows;
-        }
+        if (try self.step() != .row) return error.NoRows;
 
         if (comptime std.meta.trait.is(.Struct)(T)) {
             var res: T = undefined;
