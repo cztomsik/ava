@@ -106,9 +106,10 @@ pub const Statement = struct {
     }
 
     /// Binds the given arguments to the prepared statement.
+    /// Works with both structs and tuples.
     pub fn bindAll(self: *Statement, args: anytype) !void {
-        for (args, 0..) |arg, n| {
-            try self.bindArg(n, arg);
+        for (std.meta.fields(@TypeOf(args)), 0..) |f, i| {
+            try self.bindArg(i, @field(args, f.name));
         }
     }
 
