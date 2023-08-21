@@ -13,16 +13,11 @@ pub fn init(allocator: std.mem.Allocator) !void {
 }
 
 pub fn deinit() void {
-    db.close() catch |e| std.debug.warn("Failed to close database: {}\n", .{e});
+    db.close() catch |e| std.log.warn("Failed to close database: {!}\n", .{e});
 }
 
-    try run_migrations();
-}
-
-pub fn version() ![]const u8 {
-    return try db.one([]const u8, "SELECT sqlite_version()", .{});
-}
-
-fn run_migrations() !void {
-    // Empty for now
+pub fn query(sql: []const u8, args: anytype) !sqlite.Statement {
+    var stmt = try db.prepare(sql);
+    try stmt.bindAll(args);
+    return stmt;
 }

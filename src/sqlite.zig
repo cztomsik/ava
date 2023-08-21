@@ -27,25 +27,6 @@ pub const SQLite3 = struct {
         try check(c.sqlite3_close(self.db));
     }
 
-    /// Executes the given SQL statement. This is a shorthand for preparing and
-    /// executing the statement.
-    pub fn exec(self: *SQLite3, sql: []const u8, args: anytype) !void {
-        var stmt = try self.prepare(sql);
-        defer stmt.deinit();
-
-        try stmt.exec(args);
-    }
-
-    /// Executes the given SQL statement and returns the first row/value. This
-    /// is a shorthand for preparing, executing and reading the statement.
-    /// Returns `error.SQLiteError` if the statement doesn't return any rows.
-    pub fn one(self: *SQLite3, comptime T: type, sql: []const u8, args: anytype) !T {
-        var stmt = try self.prepare(sql);
-        defer stmt.deinit();
-
-        return stmt.one(T, args);
-    }
-
     /// Creates a prepared statement from the given SQL.
     pub fn prepare(self: *SQLite3, sql: []const u8) !Statement {
         errdefer std.log.err("Failed to prepare SQL: {s}\n", .{sql});
@@ -73,24 +54,6 @@ pub const Statement = struct {
         try check(c.sqlite3_reset(self.stmt));
     }
 
-    /// Executes the prepared statement with the given arguments.
-    pub fn exec(self: *Statement, args: anytype) !void {
-        try self.bindAll(args);
-
-        while (try self.step() != .done) {}
-    }
-
-    /// Executes the prepared statement and returns the first row/value.
-    /// Returns `error.SQLiteError` if the statement doesn't return any rows.
-    pub fn one(self: *Statement, comptime T: type, args: anytype) !T {
-        try self.bindAll(args);
-
-        return switch (try self.step()) {
-            .row => self.read(T),
-            .done => error.SQLiteError,
-        };
-    }
-
     /// Binds the given argument to the prepared statement.
     pub fn bind(self: *Statement, index: usize, arg: anytype) !void {
         const i: c_int = @intCast(index);
@@ -113,9 +76,13 @@ pub const Statement = struct {
         }
     }
 
-    /// Reads either the whole row if the given type is a struct, or the first
-    /// column if it's a primitive.
+    /// Reads the next row, either into a struct/tuple or a single value from
+    /// the first column. Returns `error.NoRows` if there are no more rows.
     pub fn read(self: *Statement, comptime T: type) !T {
+        if (try self.step() != .row) {
+            return error.NoRows;
+        }
+
         if (comptime std.meta.trait.is(.Struct)(T)) {
             var res: T = undefined;
 
@@ -127,6 +94,12 @@ pub const Statement = struct {
         }
 
         return self.column(T, 0);
+    }
+
+    pub fn iterator(self: *Statement, comptime T: type) !RowIterator(T) {
+        return .{
+            .stmt = self,
+        };
     }
 
     /// Gets the value of the given column.
@@ -160,6 +133,16 @@ pub const Statement = struct {
         };
     }
 };
+
+pub fn RowIterator(comptime T: type) type {
+    return struct {
+        stmt: *Statement,
+
+        pub fn next(self: *RowIterator(T)) !?T {
+            return try self.stmt.read(T) catch |e| if (e == error.NoRows) null else e;
+        }
+    };
+}
 
 pub fn check(code: c_int) !void {
     switch (code) {

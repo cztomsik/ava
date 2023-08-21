@@ -45,6 +45,9 @@ pub fn printBanner(address: std.net.Address) !void {
     const target = try builtin.target.linuxTriple(allocator);
     defer allocator.free(target);
 
+    var sqlite_version = try db.query("SELECT sqlite_version();", .{});
+    defer sqlite_version.deinit();
+
     const banner =
         \\
         \\  /\ \  / /\             Server running
@@ -64,7 +67,7 @@ pub fn printBanner(address: std.net.Address) !void {
             "0.0.1",
             address,
             target,
-            try db.version(),
+            try sqlite_version.read([]const u8),
         },
     );
 }
