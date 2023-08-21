@@ -23,7 +23,7 @@ pub const SQLite3 = struct {
     }
 
     /// Closes the database connection.
-    pub fn deinit(self: *SQLite3) !void {
+    pub fn close(self: *SQLite3) !void {
         try check(c.sqlite3_close(self.db));
     }
 

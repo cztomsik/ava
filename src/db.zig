@@ -10,6 +10,11 @@ pub fn init(allocator: std.mem.Allocator) !void {
 
     std.fs.makeDirAbsolute(std.fs.path.dirname(db_file).?) catch {};
     db = try sqlite.SQLite3.open(db_file);
+}
+
+pub fn deinit() void {
+    db.close() catch |e| std.debug.warn("Failed to close database: {}\n", .{e});
+}
 
     try run_migrations();
 }

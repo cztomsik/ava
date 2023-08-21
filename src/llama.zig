@@ -14,6 +14,11 @@ pub fn init(allocator: std.mem.Allocator) void {
     Pool.init(allocator);
 }
 
+pub fn deinit() void {
+    Pool.deinit();
+    c.llama_backend_free();
+}
+
 /// A single-model, single-context, thread-safe pool.
 pub const Pool = struct {
     var allocator: std.mem.Allocator = undefined;
@@ -24,6 +29,17 @@ pub const Pool = struct {
     /// Initializes the pool.
     pub fn init(ally: std.mem.Allocator) void {
         allocator = ally;
+    }
+
+    /// Deinitializes the pool.
+    pub fn deinit() void {
+        if (context != null) {
+            context.?.deinit();
+            context = null;
+
+            model.?.deinit();
+            model = null;
+        }
     }
 
     /// Returns a context for the given model. The context must be released
