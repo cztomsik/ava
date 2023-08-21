@@ -15,7 +15,7 @@ pub fn main() !void {
     if (options.help) return try cli.printHelp();
 
     llama.init(allocator);
-    try db.init();
+    try db.init(allocator);
 
     var server = try Server.start(allocator, "127.0.0.1", 3002);
     defer server.deinit();
