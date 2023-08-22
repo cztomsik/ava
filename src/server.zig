@@ -130,7 +130,7 @@ pub const Server = struct {
             defer {
                 if (ctx.res.state == .waited) ctx.res.do() catch {};
                 ctx.res.finish() catch {};
-                std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.path, @intFromEnum(ctx.res.status) });
+                std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
             }
 
             handleRequest(&ctx) catch |e| {
