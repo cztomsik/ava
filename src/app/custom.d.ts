@@ -4,6 +4,4 @@ interface EventTarget {
   matches
 }
 
-declare global {
-  DEV: boolean
-}
+var DEV: boolean
