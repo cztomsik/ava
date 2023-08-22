@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
-    "bundle": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/js",
+    "bundle": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/app",
     "build": "npm run bundle -- --minify --define:DEV=false",
     "watch": "npm run bundle -- --sourcemap=inline --watch --define:DEV=true",
     "check": "tsc --noEmit",

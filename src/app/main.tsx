@@ -1,4 +1,5 @@
 import "./custom.d.ts"
+import "./styles.css"
 import { render } from "preact"
 import { App } from "./App"
 
