@@ -3,3 +3,7 @@ interface EventTarget {
   value: any
   matches
 }
+
+declare global {
+  DEV: boolean
+}

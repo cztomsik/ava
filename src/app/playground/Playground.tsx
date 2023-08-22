@@ -26,7 +26,7 @@ export const Playground = () => {
   return (
     <>
       <PageHeader title="Playground" description="Prototype new ideas quickly.">
-        <Button class="ms-auto">Create a Tool</Button>
+        {DEV && <Button class="ms-auto">Create a Tool</Button>}
       </PageHeader>
 
       {/* TODO: single-area mode + toggle */}

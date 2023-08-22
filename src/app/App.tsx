@@ -16,7 +16,7 @@ export const App = () => (
         <Layout scroll>
           <Switch>
             <Route path="/chat/:id?" component={Chat} />
-            <Route path="/quick-tools/:id?" component={QuickTools} />
+            {DEV && <Route path="/quick-tools/:id?" component={QuickTools} />}
             <Route path="/playground" component={Playground} />
             <Route path="/settings" component={Settings} />
             <Redirect href="/chat" />
@@ -42,9 +42,11 @@ const AppBar = () => (
             </NavLink>
           </li>
           <li class="nav-item">
-            <NavLink class="nav-link" href="/quick-tools">
-              Quick Tools
-            </NavLink>
+            {DEV && (
+              <NavLink class="nav-link" href="/quick-tools">
+                Quick Tools
+              </NavLink>
+            )}
           </li>
           <li class="nav-item">
             <NavLink class="nav-link" href="/playground">
@@ -61,11 +63,12 @@ const AppBar = () => (
   </header>
 )
 
-const BuyButton = () => (
-  <a class="btn btn-warning d-md-inline-block me-2" href="https://avapls.com/buy" target="_blank">
-    Buy License
-  </a>
-)
+const BuyButton = () =>
+  DEV && (
+    <a class="btn btn-warning d-md-inline-block me-2" href="https://avapls.com/buy" target="_blank">
+      Buy License
+    </a>
+  )
 
 const ModelMenu = () => {
   const { data: models, loading } = useApi("models")
