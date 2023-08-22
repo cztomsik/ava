@@ -8,7 +8,7 @@ pub fn handler(ctx: *server.Context) !void {
 
     if (ctx.match("/models")) {
         const models = try registry.getModels(ctx.arena);
-        try ctx.sendJson(models);
+        return ctx.sendJson(models);
     }
 
     if (ctx.match("/generate")) {
@@ -30,6 +30,7 @@ pub fn handler(ctx: *server.Context) !void {
             // TODO: multi-byte tokens (keep sampling)
             try ctx.sendChunk(cx.model.token_to_str(token));
         }
+        return;
     }
 
     return error.NotFound;
