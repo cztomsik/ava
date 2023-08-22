@@ -5,6 +5,7 @@ import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
 import { Settings } from "./settings/Settings"
 import { Dropdown } from "./_components/Dropdown"
+import { useApi } from "./_hooks"
 
 export const App = () => (
   <ErrorBoundary>
@@ -66,26 +67,36 @@ const BuyButton = () => (
   </a>
 )
 
-const ModelMenu = () => (
-  <ul class="navbar-nav">
-    <Dropdown component="li" class="nav-item">
-      <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
-        wizardlm-13b-v1.2
-      </button>
+const ModelMenu = () => {
+  const { data: models, loading } = useApi("models")
 
-      <ul class="dropdown-menu">
-        <li>
-          <a class="dropdown-item">llama-2-13b</a>
-        </li>
+  return (
+    <ul class="navbar-nav">
+      <Dropdown component="li" class="nav-item">
+        <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
+          wizardlm-13b-v1.2
+        </button>
 
-        <li class="dropdown-divider"></li>
+        <ul class="dropdown-menu">
+          {loading && <li class="dropdown-item">Loading...</li>}
 
-        <li>
-          <Link class="dropdown-item" href="/settings">
-            Settings
-          </Link>
-        </li>
-      </ul>
-    </Dropdown>
-  </ul>
-)
+          {models?.map(model => (
+            <li>
+              <button class="dropdown-item" onClick={() => console.log(model)}>
+                {model.name}
+              </button>
+            </li>
+          ))}
+
+          <li class="dropdown-divider"></li>
+
+          <li>
+            <Link class="dropdown-item" href="/settings">
+              Settings
+            </Link>
+          </li>
+        </ul>
+      </Dropdown>
+    </ul>
+  )
+}
