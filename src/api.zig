@@ -4,14 +4,14 @@ const registry = @import("model_registry.zig");
 const llama = @import("llama.zig");
 
 pub fn handler(ctx: *server.Context) !void {
-    const path = ctx.path[5..];
+    ctx.path = ctx.path[4..];
 
-    if (std.mem.eql(u8, path, "models")) {
+    if (ctx.match("/models")) {
         const models = try registry.getModels(ctx.arena);
         try ctx.sendJson(models);
     }
 
-    if (std.mem.eql(u8, path, "completion")) {
+    if (ctx.match("/generate")) {
         const params = try ctx.readJson(struct {
             model: []const u8,
             prompt: []const u8,

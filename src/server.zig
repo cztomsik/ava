@@ -34,6 +34,10 @@ pub const Context = struct {
         self.res.deinit();
     }
 
+    pub fn match(self: *const Context, pattern: []const u8) bool {
+        return matchPath(pattern, self.path);
+    }
+
     /// Reads the request body as JSON.
     pub fn readJson(self: *Context, comptime T: type) !T {
         var reader = std.json.reader(self.arena, self.res.reader());
@@ -139,29 +143,40 @@ pub const Server = struct {
     }
 
     fn handleRequest(ctx: *Context) !void {
-        if (std.mem.startsWith(u8, ctx.path, "/api/")) {
-            return api.handler(ctx);
-        }
+        // handle API requests
+        if (ctx.match("/api/*")) return api.handler(ctx);
 
-        if (std.mem.endsWith(u8, ctx.path, ".map")) {
-            return ctx.sendChunk("{}");
-        }
+        // TODO: should be .get() but it's not implemented yet
+        if (ctx.match("/favicon.ico")) return ctx.sendResource("src/app/favicon.ico");
+        if (ctx.match("/app.js")) return ctx.sendResource("zig-out/js/main.js");
+        if (ctx.match("/bootstrap.min.css")) return ctx.sendResource("node_modules/bootstrap/dist/css/bootstrap.min.css");
 
-        if (std.mem.eql(u8, ctx.path, "/favicon.ico")) {
-            return ctx.sendResource("src/app/favicon.ico");
-        }
+        // disable source maps in production
+        if (ctx.match("*.map")) return ctx.sendChunk("{}");
 
-        if (std.mem.eql(u8, ctx.path, "/app.js")) {
-            return ctx.sendResource("zig-out/js/main.js");
-        }
-
-        if (std.mem.eql(u8, ctx.path, "/bootstrap.min.css")) {
-            return ctx.sendResource("node_modules/bootstrap/dist/css/bootstrap.min.css");
-        }
-
+        // HTML5 fallback
         try ctx.sendResource("src/app/index.html");
     }
 };
+
+fn matchPath(pattern: []const u8, path: []const u8) bool {
+    var pattern_parts = std.mem.tokenizeScalar(u8, pattern, '/');
+    var path_parts = std.mem.tokenizeScalar(u8, path, '/');
+
+    while (true) {
+        const pat = pattern_parts.next() orelse return true;
+        const pth = path_parts.next() orelse return false;
+        const dynamic = pat[0] == ':' or pat[0] == '*';
+
+        if (std.mem.indexOfScalar(u8, pat, '.')) |i| {
+            const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return false;
+
+            if (!matchPath(pat[i + 1 ..], pth[j + 1 ..])) return false;
+        }
+
+        if (!dynamic and !std.mem.eql(u8, pat, pth)) return false;
+    }
+}
 
 fn mime(comptime ext: []const u8) []const u8 {
     const mime_types = std.ComptimeStringMap([]const u8, .{

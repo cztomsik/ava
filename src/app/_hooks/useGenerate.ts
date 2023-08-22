@@ -25,7 +25,7 @@ export const useGenerate = () => {
 
 async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: () => void) {
   try {
-    const response = await fetch("/api/completion", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       body: JSON.stringify({
         model: "/Users/cztomsik/Downloads/wizardlm-13b-v1.2.ggmlv3.q4_0.bin",
