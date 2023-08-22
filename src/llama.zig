@@ -47,6 +47,7 @@ pub const Pool = struct {
     /// in use.
     pub fn get(model_path: []const u8) !*Context {
         if (!mutex.tryLock()) return error.ContextBusy;
+        errdefer mutex.unlock();
 
         // Reset if the model has changed.
         if (model != null and !std.mem.eql(u8, model.?.path, model_path)) {
