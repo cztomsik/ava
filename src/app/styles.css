@@ -1,2 +1,10 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
+.btn,
+.nav-link {
+  white-space: nowrap;
+}
+
+header {
+  user-select: none;
+}
