@@ -5,7 +5,8 @@ import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
 import { Settings } from "./settings/Settings"
 import { Dropdown } from "./_components/Dropdown"
-import { useApi } from "./_hooks"
+import { useApi, selectedModel } from "./_hooks"
+import { useEffect } from "preact/hooks"
 
 export const App = () => (
   <ErrorBoundary>
@@ -73,11 +74,15 @@ const BuyButton = () =>
 const ModelMenu = () => {
   const { data: models, loading } = useApi("models")
 
+  useEffect(() => {
+    selectedModel.value = models?.[0]?.name
+  }, [models])
+
   return (
     <ul class="navbar-nav">
       <Dropdown component="li" class="nav-item">
         <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
-          wizardlm-13b-v1.2
+          {selectedModel.value}
         </button>
 
         <ul class="dropdown-menu">
@@ -85,7 +90,7 @@ const ModelMenu = () => {
 
           {models?.map(model => (
             <li>
-              <button class="dropdown-item" onClick={() => console.log(model)}>
+              <button class="dropdown-item" onClick={() => (selectedModel.value = model.name)}>
                 {model.name}
               </button>
             </li>

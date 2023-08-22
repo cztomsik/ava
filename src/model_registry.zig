@@ -6,6 +6,14 @@ pub const Model = struct {
     path: []const u8,
 };
 
+pub fn getModelPath(allocator: std.mem.Allocator, model_name: []const u8) ![]const u8 {
+    return std.fmt.allocPrintZ(allocator, "{s}/{s}/{s}.ggmlv3.q4_0.bin", .{
+        platform.getHome(),
+        "Downloads",
+        std.fs.path.basename(model_name),
+    });
+}
+
 pub fn getModels(allocator: std.mem.Allocator) ![]Model {
     var list = std.ArrayList(Model).init(allocator);
     var path = try std.fmt.allocPrintZ(allocator, "{s}/{s}", .{ platform.getHome(), "Downloads" });

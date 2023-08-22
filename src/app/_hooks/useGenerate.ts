@@ -1,5 +1,7 @@
 import { useCallback, useEffect } from "preact/hooks"
-import { useSignal } from "@preact/signals"
+import { signal, useSignal } from "@preact/signals"
+
+export const selectedModel = signal("")
 
 export const useGenerate = () => {
   const ctrl = useSignal(null)
@@ -28,7 +30,7 @@ async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: (
     const response = await fetch("/api/generate", {
       method: "POST",
       body: JSON.stringify({
-        model: "/Users/cztomsik/Downloads/wizardlm-13b-v1.2.ggmlv3.q4_0.bin",
+        model: selectedModel.value,
         prompt,
       }),
       headers: {

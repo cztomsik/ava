@@ -21,7 +21,7 @@ pub fn handler(ctx: *server.Context) !void {
         var sampler = llama.Sampler.init(ctx.arena, params.sampling);
         defer sampler.deinit();
 
-        var cx = try llama.Pool.get(params.model);
+        var cx = try llama.Pool.get(try registry.getModelPath(ctx.arena, params.model));
         defer llama.Pool.release(cx);
 
         try cx.prepare(params.prompt);

@@ -1,3 +1,3 @@
 export { useApi } from "./useApi"
-export { useGenerate } from "./useGenerate"
+export { useGenerate, selectedModel } from "./useGenerate"
 export { useLocalStorage } from "./useLocalStorage"
