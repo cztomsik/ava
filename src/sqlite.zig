@@ -23,8 +23,42 @@ pub const SQLite3 = struct {
     }
 
     /// Closes the database connection.
-    pub fn close(self: *SQLite3) !void {
-        try check(c.sqlite3_close(self.db));
+    pub fn close(self: *SQLite3) void {
+        _ = c.sqlite3_close(self.db);
+    }
+
+    /// Executes the given SQL, ignoring any rows it returns.
+    pub fn exec(self: *SQLite3, sql: []const u8, args: anytype) !void {
+        var stmt = try self.query(sql, args);
+        defer stmt.deinit();
+
+        try stmt.exec();
+    }
+
+    /// Returns the number of rows affected by the last INSERT, UPDATE or
+    /// DELETE statement.
+    pub fn rowsAffected(self: *SQLite3) !usize {
+        return @intCast(c.sqlite3_changes(self.db));
+    }
+
+    /// Shorthand for `self.query(sql, args).read(T)` where `T` is a primitive
+    /// type. Returns the first value of the first row returned by the query.
+    pub fn get(self: *SQLite3, comptime T: type, sql: []const u8, args: anytype) !T {
+        var stmt = try self.query(sql, args);
+        defer stmt.deinit();
+
+        return switch (@typeInfo(T)) {
+            .Int, .Float, .Bool => stmt.read(T),
+            else => @compileError("Only primitive types are supported"),
+        };
+    }
+
+    /// Shorthand for `self.prepare(sql).bindAll(args)`. Returns the prepared
+    /// statement which still needs to be executed (and deinitialized).
+    pub fn query(self: *SQLite3, sql: []const u8, args: anytype) !Statement {
+        var stmt = try self.prepare(sql);
+        try stmt.bindAll(args);
+        return stmt;
     }
 
     /// Creates a prepared statement from the given SQL.
@@ -32,7 +66,14 @@ pub const SQLite3 = struct {
         errdefer std.log.err("Failed to prepare SQL: {s}\n", .{sql});
 
         var stmt: ?*c.sqlite3_stmt = null;
-        try check(c.sqlite3_prepare_v2(self.db, sql.ptr, @intCast(sql.len), &stmt, null));
+        var tail: [*c]const u8 = null;
+        try check(c.sqlite3_prepare_v2(self.db, sql.ptr, @intCast(sql.len), &stmt, &tail));
+
+        if (tail != null and tail != sql.ptr + sql.len) {
+            const rest = sql[@intFromPtr(tail) - @intFromPtr(sql.ptr) ..];
+            std.log.err("Trailing SQL({}): {s}\n", .{ rest.len, rest });
+            return error.SQLiteError;
+        }
 
         return .{
             .stmt = stmt.?,
@@ -51,7 +92,7 @@ pub const Statement = struct {
 
     /// Binds the given argument to the prepared statement.
     pub fn bind(self: *Statement, index: usize, arg: anytype) !void {
-        const i: c_int = @intCast(index);
+        const i: c_int = @intCast(index + 1);
 
         try check(switch (@TypeOf(arg)) {
             bool => c.sqlite3_bind_int(self.stmt, i, if (arg) 1 else 0),
@@ -66,9 +107,14 @@ pub const Statement = struct {
     /// Binds the given arguments to the prepared statement.
     /// Works with both structs and tuples.
     pub fn bindAll(self: *Statement, args: anytype) !void {
-        for (std.meta.fields(@TypeOf(args)), 0..) |f, i| {
-            try self.bindArg(i, @field(args, f.name));
+        inline for (std.meta.fields(@TypeOf(args)), 0..) |f, i| {
+            try self.bind(i, @field(args, f.name));
         }
+    }
+
+    /// Executes the prepared statement, ignoring any rows it returns.
+    pub fn exec(self: *Statement) !void {
+        while (try self.step() != .done) {}
     }
 
     /// Reads the next row, either into a struct/tuple or a single value from
@@ -80,7 +126,7 @@ pub const Statement = struct {
             var res: T = undefined;
 
             inline for (std.meta.fields(T), 0..) |f, i| {
-                @field(res, f.name) = try self.read(f.type, i);
+                @field(res, f.name) = try self.column(f.type, i);
             }
 
             return res;
@@ -89,7 +135,8 @@ pub const Statement = struct {
         return self.column(T, 0);
     }
 
-    pub fn iterator(self: *Statement, comptime T: type) !RowIterator(T) {
+    /// Returns an iterator over the rows returned by the prepared statement.
+    pub fn iterator(self: *Statement, comptime T: type) RowIterator(T) {
         return .{
             .stmt = self,
         };
@@ -99,21 +146,23 @@ pub const Statement = struct {
     pub fn column(self: *Statement, comptime T: type, index: usize) !T {
         const i: c_int = @intCast(index);
 
-        switch (T) {
-            bool => c.sqlite3_column_int(self.stmt, i) != 0,
-            i32 => c.sqlite3_column_int(self.stmt, i),
-            i64 => c.sqlite3_column_int64(self.stmt, i),
-            f64 => c.sqlite3_column_double(self.stmt, i),
-            []const u8 => {
-                const len = c.sqlite3_column_bytes(self.stmt, i);
-                const data = c.sqlite3_column_text(self.stmt, i);
-                return data[0..@intCast(len)];
+        return switch (@typeInfo(T)) {
+            .Bool => c.sqlite3_column_int(self.stmt, i) != 0,
+            .Int => @intCast(c.sqlite3_column_int64(self.stmt, i)),
+            .Float => c.sqlite3_column_double(self.stmt, i),
+            else => {
+                if (T == []const u8) {
+                    const len = c.sqlite3_column_bytes(self.stmt, i);
+                    const data = c.sqlite3_column_text(self.stmt, i);
+                    return data[0..@intCast(len)];
+                }
+
+                @compileError("TODO");
             },
-            else => @compileError("TODO"),
-        }
+        };
     }
 
-    fn step(self: *Statement) !enum { row, done } {
+    pub fn step(self: *Statement) !enum { row, done } {
         const code = c.sqlite3_step(self.stmt);
 
         return switch (code) {
@@ -132,7 +181,7 @@ pub fn RowIterator(comptime T: type) type {
         stmt: *Statement,
 
         pub fn next(self: *RowIterator(T)) !?T {
-            return try self.stmt.read(T) catch |e| if (e == error.NoRows) null else e;
+            return self.stmt.read(T) catch |e| if (e == error.NoRows) null else e;
         }
     };
 }
@@ -141,7 +190,7 @@ pub fn check(code: c_int) !void {
     switch (code) {
         c.SQLITE_OK, c.SQLITE_DONE, c.SQLITE_ROW => return,
         else => {
-            std.log.err("SQLite error: {}", .{code});
+            std.log.err("SQLite error: {} {s}", .{ code, c.sqlite3_errstr(code) });
             return error.SQLiteError;
         },
     }

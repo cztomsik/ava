@@ -6,5 +6,8 @@
   },
   "[objective-c]": {
     "editor.tabSize": 4
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
   }
 }
