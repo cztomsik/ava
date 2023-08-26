@@ -26,3 +26,11 @@ pub fn exec(sql: []const u8, args: anytype) !void {
 pub fn query(sql: []const u8, args: anytype) !sqlite.Statement {
     return db.query(sql, args);
 }
+
+pub fn delete(comptime T: type, id: std.meta.FieldType(T, .id)) !void {
+    return exec("DELETE FROM {s} WHERE id = ?", .{ tableName(T), id });
+}
+
+fn tableName(comptime T: type) []const u8 {
+    return std.fs.path.extension(@typeName(T));
+}
