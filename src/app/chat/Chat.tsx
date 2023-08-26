@@ -13,43 +13,32 @@ export const Chat = ({ params }) => {
       <PageContent>
         <Layout scroll>
           <aside class="d-print-none">
-            <div class="group">
-              <div>Today</div>
-              <ul class="list-unstyled">
-                <li>
-                  <a class="active" href="#">
-                    Poem about JavaScript
-                  </a>
-                </li>
-                <li>
-                  <a href="#">Invoke Clang from Zig</a>
-                </li>
-              </ul>
-            </div>
-            <div class="group">
-              <div>Yesterday</div>
-              <ul class="list-unstyled">
-                <li>
-                  <a href="#">Trip to Italy</a>
-                </li>
-                <li>
-                  <a href="#">Recipe for a cake</a>
-                </li>
-              </ul>
-            </div>
-            <div class="group">
-              <div>Previous 7 days</div>
-              <ul class="list-unstyled">
-                <li>
-                  <a href="#">How to make a website</a>
-                </li>
-              </ul>
-            </div>
+            <PreviousChats />
           </aside>
 
           <ChatSession />
         </Layout>
       </PageContent>
+    </>
+  )
+}
+
+const PreviousChats = () => {
+  return (
+    <>
+      <div class="group">
+        <div>Previous</div>
+        <ul class="list-unstyled">
+          <li>
+            <a class="active" href="#">
+              Poem about JavaScript
+            </a>
+          </li>
+          <li>
+            <a href="#">Invoke Clang from Zig</a>
+          </li>
+        </ul>
+      </div>
     </>
   )
 }
