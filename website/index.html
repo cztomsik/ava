@@ -10,13 +10,21 @@
       integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      .btn-outline-secondary {
+        --bs-btn-hover-bg: none;
+        --bs-btn-hover-border-color: var(--bs-btn-hover-color);
+      }
+    </style>
   </head>
-  <style>
-    .btn-outline-secondary {
-      --bs-btn-hover-bg: none;
-      --bs-btn-hover-border-color: var(--bs-btn-hover-color);
-    }
-  </style>
+
   <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-primary" id="top">
       <div class="container">
@@ -61,7 +69,7 @@
 
     <div class="links text-bg-dark py-3">
       <div class="container text-center">
-        <p class="text-secondary mb-1">Get in touch</p>
+        <p class="text-secondary mb-1">Connect with us</p>
         <div class="hstack gap-2 justify-content-center">
           <a href="" class="btn btn-sm btn-outline-secondary">Twitter</a>
           <a href="" class="btn btn-sm btn-outline-secondary">Discord</a>
@@ -157,10 +165,38 @@
       </div>
     </section>
 
-    <footer class="footer text-bg-primary py-4">
+    <footer class="footer text-bg-primary py-5">
       <div class="container mt-4">
-        <div class="text-center">
-          <p>&copy; 2021 Ava PLS</p>
+        <div class="row">
+          <div class="col-md-4">
+            <a class="navbar-brand" href="#top">Ava PLS</a>
+            <p class="text-light mt-3">
+              Revolutionizing language processing with the power of advanced models, right on your desktop.
+            </p>
+          </div>
+
+          <div class="col-md-4">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="#top" class="text-light">Home</a></li>
+              <li><a href="#about" class="text-light">About</a></li>
+              <li><a href="#download" class="text-light">Download</a></li>
+              <li><a href="#faq" class="text-light">FAQ</a></li>
+            </ul>
+          </div>
+
+          <div class="col-md-4">
+            <h5>Follow Us</h5>
+            <div class="hstack gap-2">
+              <a href="#" class="text-light"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="text-light"><i class="fab fa-discord"></i></a>
+              <a href="#" class="text-light"><i class="fab fa-product-hunt"></i></a>
+              <a href="mailto:info@tomsik.cz" class="text-light"><i class="fas fa-envelope"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-4">
+          <p>&copy; 2023 Kamil Tomšík. All rights reserved.</p>
         </div>
       </div>
     </footer>
