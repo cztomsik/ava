@@ -57,8 +57,8 @@
 
     <header class="hero text-bg-primary py-5">
       <div class="container">
-        <div class="row align-items-center">
-          <div class="col">
+        <div class="row g-0 align-items-center">
+          <div class="col-md">
             <div class="my-4">
               <h1>
                 Meet Ava: Your Personal<br class="d-none d-xl-block" />
@@ -73,14 +73,17 @@
               <a href="#download" class="btn btn-lg btn-outline-light">Download Ava PLS</a>
             </div>
           </div>
-          <div class="col mb-4">
+          <div class="col-md mb-4">
             <img
               class="shadow-hero"
               src="screenshot.png"
-              width="640"
-              height="480"
               alt="Ava PLS in action"
-              style="border-radius: 9px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45)"
+              style="
+                max-width: min(100%, 640px);
+                object-fit: contain;
+                border-radius: 9px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+              "
             />
           </div>
         </div>
