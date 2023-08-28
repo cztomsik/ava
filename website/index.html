@@ -48,7 +48,7 @@
       </div>
     </nav>
 
-    <header class="hero text-bg-primary pt-5">
+    <header class="hero text-bg-primary py-5">
       <div class="container">
         <div class="row align-items-center">
           <div class="col">
@@ -66,8 +66,15 @@
               <a href="#download" class="btn btn-lg btn-outline-light">Download Ava PLS</a>
             </div>
           </div>
-          <div class="col align-self-end">
-            <img class="shadow-lg" src="https://via.placeholder.com/640x400" alt="Ava PLS in action" />
+          <div class="col mb-4">
+            <img
+              class="shadow-hero"
+              src="screenshot.png"
+              width="640"
+              height="480"
+              alt="Ava PLS in action"
+              style="border-radius: 9px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45)"
+            />
           </div>
         </div>
       </div>
@@ -130,43 +137,67 @@
     <section class="faq text-bg-light py-4" id="faq">
       <div class="container py-4">
         <h2 class="text-center mb-4">Frequently Asked Questions</h2>
-        <div class="row py-4">
-          <div class="col-md-6 col-lg-4">
-            <h5>What is Ava?</h5>
-            <p>
-              Ava is a personal language server that runs locally on your computer. It allows you to process language
-              tasks without sharing your data online.
-            </p>
-          </div>
+        <div class="row row-gap-4 py-4">
           <div class="col-md-6 col-lg-4">
             <h5>What is a language server?</h5>
             <p>
-              A language server is a program that processes language tasks, such as spell checking, grammar checking,
-              and more.
+              A language server is a specialized program that processes language-related tasks. This includes activities
+              like text generation, grammar correction, rephrasing, summarization, data extraction, and more.
             </p>
           </div>
           <div class="col-md-6 col-lg-4">
             <h5>What is a language model?</h5>
             <p>
-              A language model is a program that processes language tasks, such as spell checking, grammar checking, and
-              more.
+              A language model is a type of artificial intelligence that understands and generates human language. It's
+              the engine behind many modern language processing tools.
             </p>
           </div>
           <div class="col-md-6 col-lg-4">
-            <h5>How do I use Ava?</h5>
-            <p>Ava is a desktop application. Simply download and install Ava, and you're ready to go.</p>
+            <h5>How is privacy ensured?</h5>
+            <p>
+              Ava processes all language tasks locally on your device. This means your data never leaves your computer
+              and is not shared with any external servers, ensuring maximum privacy.
+            </p>
           </div>
           <div class="col-md-6 col-lg-4">
-            <h5>What operating systems does Ava support?</h5>
-            <p>Ava supports Windows and macOS. Linux support is planned, but there is no ETA yet.</p>
+            <h5>Do I need an internet connection?</h5>
+            <p>
+              Once Ava is downloaded and set up, you don't need an active internet connection. However, to download a
+              language model, you'll need to be connected to the internet.
+            </p>
           </div>
           <div class="col-md-6 col-lg-4">
-            <h5>What languages does Ava support?</h5>
-            <p>It depends on the language model you use. Ava supports any language model that you can install.</p>
+            <h5>How much does it cost?</h5>
+            <p>
+              Good news! The basic version is completely free. There will be a premium version in the future, but the
+              core functionalities will always remain accessible without any cost.
+            </p>
           </div>
           <div class="col-md-6 col-lg-4">
-            <h5>How much does Ava cost?</h5>
-            <p>Ava is free to use. We may offer premium features in the future, but Ava will always be free to use.</p>
+            <h5>How do I get started?</h5>
+            <p>
+              It's simple! Download Ava, install it on your desktop, and you're all set to explore its capabilities.
+            </p>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <h5>What languages are supported?</h5>
+            <p>
+              It depends on the language model you choose. Theoretically, any language can be supported. However,
+              majority of models are trained on English. This will likely improve in the future but it's not something
+              we can control.
+            </p>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <h5>Which operating systems are supported?</h5>
+            <p>
+              Currently, only macOS version is available. Windows is coming soon and Linux is planned for the future.
+            </p>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <h5>Is there a version for mobile devices?</h5>
+            <p>
+              Not at the moment. However, we're exploring the possibility of a mobile version. Stay tuned for updates!
+            </p>
           </div>
         </div>
       </div>
@@ -202,7 +233,10 @@
             </div>
           </div>
         </div>
-        <div class="text-center mt-4">&copy; 2023 Kamil Tomšík. All rights reserved.</div>
+        <div class="text-center mt-4">
+          &copy; 2023 Kamil Tomšík. All rights reserved. Made with
+          <a class="text-white" href="https://getbootstrap.com/">Bootstrap</a>
+        </div>
       </div>
     </footer>
   </body>
