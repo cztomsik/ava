@@ -86,8 +86,10 @@
 
         self.webview = [[WKWebView alloc] initWithFrame:[self.contentView bounds]
                                           configuration:[[WKWebViewConfiguration alloc] init]];
-        self.contentView = self.webview;
+        self.webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
         self.webview.navigationDelegate = self;
+
+        [self.contentView addSubview:self.webview];
         [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
     }
     
