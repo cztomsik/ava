@@ -36,7 +36,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     ["vstack", "flex flex-col"],
     ["row", "flex flex-row -mx-2"],
     ["col", { flex: "1", padding: "0 0.5rem" }],
-    ["btn", "inline-flex items-center justify-center px-3 py-2 text-sm leading-none border rounded-md"],
+    ["btn", "inline-flex items-center justify-center px-3 py-2 text-sm font-semibold border rounded-md"],
     ["form-control", "block w-full px-2 py-1.5 border bg-neutral-50 border-neutral-300 rounded-md"],
     ["form-select", "form-control appearance-none"],
   ],
@@ -46,7 +46,8 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     },
 
     fontSize: {
-      sm: ["13px", "1.25rem"],
+      xs: ["12px", "1rem"],
+      sm: ["13px", "1rem"],
       base: ["14px", "1.25rem"],
       lg: ["16px", "1.5rem"],
       xl: ["18px", "1.5rem"],

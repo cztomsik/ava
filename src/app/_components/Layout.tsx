@@ -11,7 +11,6 @@ export const styles = css`
 
   & > aside {
     grid-area: aside;
-    min-width: 200px;
   }
 
   & > header {

@@ -32,24 +32,31 @@ export const App = () => (
 )
 
 const Sidebar = () => (
-  <aside class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300">
-    <SearchField class="mt-6 mb-8" />
+  <aside class="vstack w-min gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300">
+    <SearchField class="mt-6 mb-4" />
 
+    <SidebarHeader title="Main" />
     <SidebarLink href="/chat">Chat</SidebarLink>
     {DEV && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
     <SidebarLink href="/playground">Playground</SidebarLink>
+
+    <SidebarHeader title="Other" />
     <SidebarLink href="/settings">Settings</SidebarLink>
 
     <div class="vstack mt-auto">
       <label>Model</label>
-      <ModelSelect class="mt-2" />
+      <ModelSelect class="mt-2 w-40" />
     </div>
   </aside>
 )
 
+const SidebarHeader = ({ title }) => (
+  <h2 class="mt-6 ml-3 text-xs font-bold text-gray-400 dark:text-gray-400">{title}</h2>
+)
+
 const SidebarLink = props => (
   <NavLink
-    class="rounded font-normal py-2 px-3 text-neutral-900"
+    class="rounded font-semibold py-2 px-3 text-neutral-900"
     activeClass="bg-neutral-200 dark:bg-neutral-600"
     {...props}
   />
