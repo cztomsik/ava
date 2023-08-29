@@ -2,7 +2,7 @@ import { css } from "@twind/core"
 
 export const styles = css`
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: min-content minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     "aside header"
