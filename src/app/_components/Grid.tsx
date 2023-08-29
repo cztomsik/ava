@@ -1,4 +1,4 @@
-import { css } from "goober"
+import { css } from "@twind/core"
 
 const cache = {}
 

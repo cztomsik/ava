@@ -6,7 +6,7 @@ import { Modal } from "."
  * A component that catches errors in the component tree and unhandled promise
  * rejections and displays them in a modal.
  */
-export const ErrorBoundary = ({ children }) => {
+export const ErrorBoundary = ({ children, ...props }) => {
   const lastError = useSignal(null)
 
   // Errors in the component tree (render, event handlers, etc.)
@@ -24,7 +24,7 @@ export const ErrorBoundary = ({ children }) => {
   const reset = useCallback(() => (lastError.value = null), [])
 
   return (
-    <div>
+    <div {...props}>
       {children}
 
       {lastError.value && (

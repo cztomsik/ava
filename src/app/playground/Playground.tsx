@@ -35,9 +35,7 @@ export const Playground = () => {
           <div class="row">
             <div class="col">
               <select class="form-select mb-2" onChange={e => (prompt.value = examples[e.target.value].prompt)}>
-                <option selected class="text-secondary">
-                  Load from ...
-                </option>
+                <option selected>Load from ...</option>
 
                 <optgroup label="Examples">
                   {examples.map(({ title }, i) => (

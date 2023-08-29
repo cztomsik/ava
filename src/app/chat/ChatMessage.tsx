@@ -1,4 +1,4 @@
-import { css } from "goober"
+import { css } from "@twind/core"
 import { Markdown } from "../_components"
 
 const styles = css`
@@ -26,7 +26,7 @@ const styles = css`
   }
 
   pre {
-    background: var(--bs-gray-200);
+    background: var(--bs-neutral-200);
     padding: 1rem;
     border: 1px solid var(--bs-border-color);
   }

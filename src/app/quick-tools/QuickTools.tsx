@@ -1,4 +1,4 @@
-import { Button, Link, PageContent, PageHeader } from "../_components"
+import { Button, Link, PageContent, PageHeader, Table } from "../_components"
 import { QuickTool } from "./QuickTool"
 import { examples } from "./examples"
 
@@ -14,7 +14,7 @@ export const QuickTools = ({ params }) => {
       </PageHeader>
 
       <PageContent>
-        <table class="table table-striped table-bordered">
+        <Table>
           <thead>
             <tr>
               <th>Name</th>
@@ -31,7 +31,7 @@ export const QuickTools = ({ params }) => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </PageContent>
     </>
   )

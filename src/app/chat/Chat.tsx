@@ -28,16 +28,12 @@ const PreviousChats = () => {
     <>
       <div class="group">
         <div>Previous</div>
-        <ul class="list-unstyled">
-          <li>
-            <a class="active" href="#">
-              Poem about JavaScript
-            </a>
-          </li>
-          <li>
-            <a href="#">Invoke Clang from Zig</a>
-          </li>
-        </ul>
+        <div class="vstack gap-2 my-2">
+          <a class="active" href="#">
+            Poem about JavaScript
+          </a>
+          <a href="#">Invoke Clang from Zig</a>
+        </div>
       </div>
     </>
   )

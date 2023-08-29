@@ -1,18 +1,21 @@
 import { Router, Route, Redirect, Switch } from "wouter-preact"
-import { ErrorBoundary, Layout, Link, NavLink } from "./_components"
+import { ErrorBoundary, Layout, Link, NavLink, SearchField } from "./_components"
 import { Chat } from "./chat/Chat"
 import { QuickTools } from "./quick-tools/QuickTools"
 import { Playground } from "./playground/Playground"
 import { Settings } from "./settings/Settings"
-import { Dropdown } from "./_components/Dropdown"
 import { useApi, selectedModel } from "./_hooks"
 import { useEffect } from "preact/hooks"
 
 export const App = () => (
-  <ErrorBoundary>
+  <ErrorBoundary class="text-base bg-white dark:bg-neutral-800 text-neutral-900">
     <Router>
-      <Layout class="vh-100 bg-body-tertiary">
-        <AppBar />
+      <Layout class="h-screen">
+        {/*
+        <BuyButton />
+        */}
+
+        <Sidebar />
 
         <Layout scroll>
           <Switch>
@@ -28,50 +31,38 @@ export const App = () => (
   </ErrorBoundary>
 )
 
-const AppBar = () => (
-  <header class="navbar navbar-expand bg-primary navbar-dark">
-    <div class="container">
-      <Link class="navbar-brand" href="/">
-        Ava
-      </Link>
+const Sidebar = () => (
+  <aside class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300">
+    <SearchField class="mt-6 mb-8" />
 
-      <div class="navbar-collapse d-print-none">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <NavLink class="nav-link" href="/chat">
-              Chat
-            </NavLink>
-          </li>
-          <li class="nav-item">
-            {DEV && (
-              <NavLink class="nav-link" href="/quick-tools">
-                Quick Tools
-              </NavLink>
-            )}
-          </li>
-          <li class="nav-item">
-            <NavLink class="nav-link" href="/playground">
-              Playground
-            </NavLink>
-          </li>
-        </ul>
+    <SidebarLink href="/chat">Chat</SidebarLink>
+    {DEV && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
+    <SidebarLink href="/playground">Playground</SidebarLink>
+    <SidebarLink href="/settings">Settings</SidebarLink>
 
-        <BuyButton />
-
-        <ModelMenu />
-      </div>
+    <div class="vstack mt-auto">
+      <label>Model</label>
+      <ModelSelect class="mt-2" />
     </div>
-  </header>
+  </aside>
+)
+
+const SidebarLink = props => (
+  <NavLink
+    class="rounded font-normal py-2 px-3 text-neutral-900"
+    activeClass="bg-neutral-200 dark:bg-neutral-600"
+    {...props}
+  />
 )
 
 const BuyButton = () =>
   DEV && (
-    <a class="btn btn-warning d-md-inline-block me-2" href="https://avapls.com/buy" target="_blank">
+    <a class="me-2" href="http://www.avapls.com/" target="_blank">
       Buy License
     </a>
   )
 
-const ModelMenu = () => {
+const ModelSelect = ({ class: className = "" }) => {
   const { data: models, loading } = useApi("models")
 
   useEffect(() => {
@@ -79,32 +70,18 @@ const ModelMenu = () => {
   }, [models])
 
   return (
-    <ul class="navbar-nav">
-      <Dropdown component="li" class="nav-item">
-        <button class="btn btn-link nav-link dropdown-toggle" data-bs-toggle="dropdown">
-          {selectedModel.value}
-        </button>
+    <select
+      class={`form-select ${className}`}
+      value={selectedModel.value}
+      onChange={e => (selectedModel.value = e.target.value)}
+    >
+      {loading && <option>Loading...</option>}
 
-        <ul class="dropdown-menu">
-          {loading && <li class="dropdown-item">Loading...</li>}
-
-          {models?.map(model => (
-            <li>
-              <button class="dropdown-item" onClick={() => (selectedModel.value = model.name)}>
-                {model.name}
-              </button>
-            </li>
-          ))}
-
-          <li class="dropdown-divider"></li>
-
-          <li>
-            <Link class="dropdown-item" href="/settings">
-              Settings
-            </Link>
-          </li>
-        </ul>
-      </Dropdown>
-    </ul>
+      {models?.map(model => (
+        <option key={model.name} value={model.name}>
+          {model.name}
+        </option>
+      ))}
+    </select>
   )
 }

@@ -4,4 +4,8 @@ interface EventTarget {
   matches
 }
 
+// feature flags
 var DEV: boolean
+
+// preact factory
+var h

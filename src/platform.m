@@ -103,11 +103,14 @@
 }
 
 - (void)sendEvent:(NSEvent *)event {
-    if (self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height < -30) {
-        // Pass through anything outside the titlebar area
+    if (
+        self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height < -30 &&
+        self.mouseLocationOutsideOfEventStream.x > 200
+    ) {
+        // Pass through anything outside the titlebar/sidebar area
         [super sendEvent:event];
     } else if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
-        // Pass through clicks on the titlebar, but only if we're not hovering over a link
+        // Otherwise pass through mouse downs but only if we're not hovering over a link/button
         [self mouseDown:event];
     } else if (event.type == NSEventTypeLeftMouseDragged) {
         // Allow dragging the window around

@@ -149,7 +149,6 @@ pub const Server = struct {
         // TODO: should be .get() but it's not implemented yet
         if (ctx.match("/favicon.ico")) return ctx.sendResource("src/app/favicon.ico");
         if (ctx.match("/app.js")) return ctx.sendResource("zig-out/app/main.js");
-        if (ctx.match("/app.css")) return ctx.sendResource("zig-out/app/main.css");
 
         // disable source maps in production
         if (ctx.match("*.map")) return ctx.sendChunk("{}");
