@@ -103,7 +103,7 @@
 }
 
 - (void)sendEvent:(NSEvent *)event {
-    if (self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height) < -30) {
+    if (self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height < -30) {
         // Pass through anything outside the titlebar area
         [super sendEvent:event];
     } else if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
