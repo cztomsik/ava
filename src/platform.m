@@ -74,13 +74,15 @@
 
 - (instancetype)initWithUrl:(NSRect)contentRect url:(NSString *)url {
     self = [super initWithContentRect:contentRect
-                            styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
+                            styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
                               backing:NSBackingStoreBuffered
                                 defer:NO];
     if (self) {
         self.title = @"Ava";
+        self.titleVisibility = NSWindowTitleHidden;
+        self.titlebarAppearsTransparent = YES;
         self.minSize = NSMakeSize(770, 480);
-        [self setFrameAutosaveName:@"Ava.main"];
+        self.frameAutosaveName = @"Ava.main";
 
         self.webview = [[WKWebView alloc] initWithFrame:[self.contentView bounds]
                                           configuration:[[WKWebViewConfiguration alloc] init]];
@@ -94,6 +96,28 @@
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self makeKeyAndOrderFront:nil];
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    NSLog(@"Error: %@", error);
+}
+
+- (void)sendEvent:(NSEvent *)event {
+    if (self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height) < -30) {
+        // Pass through anything outside the titlebar area
+        [super sendEvent:event];
+    } else if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
+        // Pass through clicks on the titlebar, but only if we're not hovering over a link
+        [self mouseDown:event];
+    } else if (event.type == NSEventTypeLeftMouseDragged) {
+        // Allow dragging the window around
+        NSPoint p = self.frame.origin;
+        p.x += event.deltaX;
+        p.y -= event.deltaY;
+        self.frameOrigin = p;
+    } else {
+        [super sendEvent:event];
+    }
 }
 
 @end
