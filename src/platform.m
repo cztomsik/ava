@@ -80,7 +80,7 @@
     if (self) {
         self.title = @"Ava";
         self.minSize = NSMakeSize(770, 480);
-        [self center];
+        [self setFrameAutosaveName:@"Ava.main"];
 
         self.webview = [[WKWebView alloc] initWithFrame:[self.contentView bounds]
                                           configuration:[[WKWebViewConfiguration alloc] init]];
