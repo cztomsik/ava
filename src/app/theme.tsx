@@ -15,7 +15,8 @@ const styles = css`
 
   a,
   button,
-  input {
+  input,
+  select {
     cursor: pointer; /* TODO: this is needed for draggability, remove once we have a better solution */
     white-space: nowrap;
   }
