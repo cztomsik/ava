@@ -7,7 +7,7 @@ export const Settings = () => {
     <>
       <PageHeader title="Settings"></PageHeader>
       <PageContent>
-        <Alert type="warning">
+        <Alert class="bg-orange-50 my-4">
           <strong>This page is under construction.</strong> <br />
           For now, the models directory is set to your downloads folder.
         </Alert>

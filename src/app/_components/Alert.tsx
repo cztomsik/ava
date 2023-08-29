@@ -1,6 +1,6 @@
-export const Alert = ({ children, type = "info" }) => {
+export const Alert = ({ class: className = "", children }) => {
   return (
-    <div className={`alert alert-${type}`} role="alert">
+    <div className={`p-3 rounded-md border-1 border-neutral-300 ${className}`} role="alert">
       {children}
     </div>
   )

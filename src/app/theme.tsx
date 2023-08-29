@@ -3,6 +3,8 @@ import { tw, install, css, autoDarkColor, TwindUserConfig } from "@twind/core"
 import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind"
 
 const styles = css`
+  overscroll-behavior: none;
+
   *,
   a,
   button {
@@ -53,7 +55,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
 }
 
 install(cfg, !DEV)
-document.body.classList.add(styles)
+document.documentElement.classList.add(styles)
 
 options.vnode = vnode => {
   if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)
