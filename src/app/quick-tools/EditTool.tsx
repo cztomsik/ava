@@ -13,7 +13,7 @@ export const EditTool = ({ params: { id } }) => {
           <Grid cols="auto 1fr">{"TODO"}</Grid>
 
           <Button submit>Save</Button>
-          <Button>Cancel</Button>
+          <Button href="..">Cancel</Button>
         </Form>
       </PageContent>
     </>

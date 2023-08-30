@@ -12,9 +12,8 @@ const handleClick = e => {
  * click behavior and instead uses the router to navigate.
  */
 export const Link = props => {
-  if (props.href.startsWith("./")) {
-    props.href = location.pathname + props.href.slice(1)
-  }
+  if (props.href === "..") props.href = location.pathname.split("/").slice(0, -1).join("/")
+  if (props.href.startsWith("./")) props.href = location.pathname + props.href.slice(1)
 
   props.onClick = handleClick
   return <a {...props} />
