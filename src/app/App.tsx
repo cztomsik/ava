@@ -32,15 +32,13 @@ const Sidebar = () => (
     <SidebarHeader title="Other" />
     <SidebarLink href="/settings">Settings</SidebarLink>
 
-    <div class="vstack mt-auto">
-      <label>Model</label>
-      <ModelSelect class="mt-2 w-40" />
-    </div>
+    <SidebarHeader title="Model" class="mt-auto" />
+    <ModelSelect class="mt-2 w-40 lg:w-52" />
   </aside>
 )
 
-const SidebarHeader = ({ title }) => (
-  <h2 class="mt-6 ml-3 text-xs font-bold text-gray-400 dark:text-gray-400">{title}</h2>
+const SidebarHeader = ({ title, class: className = "" }) => (
+  <h2 class={`mt-6 ml-3 text-xs font-bold text-gray-400 dark:text-gray-400 ${className}`}>{title}</h2>
 )
 
 const SidebarLink = props => (

@@ -49,7 +49,7 @@
     win.title = @"Ava";
     win.titleVisibility = NSWindowTitleHidden;
     win.titlebarAppearsTransparent = YES;
-    win.minSize = NSMakeSize(770, 480);
+    win.minSize = NSMakeSize(700, 480);
     win.frameAutosaveName = @"Ava.main";
 
     WKWebViewConfiguration *cfg = [[WKWebViewConfiguration alloc] init];
