@@ -5,6 +5,10 @@ import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind"
 const styles = css`
   overscroll-behavior: none;
 
+  &.oof #app {
+    opacity: 0.8;
+  }
+
   *,
   a,
   button {
@@ -40,6 +44,11 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     ["form-control", "block w-full px-2 py-1.5 border bg-neutral-50 border-neutral-300 rounded-md"],
     ["form-select", "form-control appearance-none"],
   ],
+  variants: [
+    // out-of-focus (TODO: maybe opacity is enough?)
+    // or maybe just define few color classes and override them in dark mode
+    // ["oof", "&:is(.oof *)"],
+  ],
   theme: {
     fontFamily: {
       sans: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`,
@@ -62,3 +71,6 @@ document.documentElement.classList.add(styles)
 options.vnode = vnode => {
   if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)
 }
+
+addEventListener("blur", () => document.documentElement.classList.add("oof"))
+addEventListener("focus", () => document.documentElement.classList.remove("oof"))
