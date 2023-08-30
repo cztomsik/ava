@@ -1,7 +1,7 @@
 import { useSignal } from "@preact/signals"
 import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
 import { useGenerate } from "../_hooks"
-import { examples } from "../quick-tools/examples"
+import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
 
 const VAR = /\{\{(\w+)\}\}/g

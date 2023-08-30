@@ -1,13 +1,12 @@
 import { PageContent, PageHeader } from "../_components"
 import { ToolForm } from "./ToolForm"
-import { examples } from "./_examples"
 
-export const EditTool = ({ params: { id } }) => {
-  const tool = examples[id]
+export const CreateTool = () => {
+  const tool = {}
 
   return (
     <>
-      <PageHeader title="Edit Tool" description="Edit Tool"></PageHeader>
+      <PageHeader title="New Tool" description="Create a new Tool"></PageHeader>
 
       <PageContent>
         <ToolForm tool={tool} onSubmit={() => {}} />

@@ -1,5 +1,5 @@
 import { Button, Link, PageContent, PageHeader, Table } from "../_components"
-import { examples } from "./examples"
+import { examples } from "./_examples"
 
 export const QuickTools = () => {
   return (

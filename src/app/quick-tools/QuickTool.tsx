@@ -1,5 +1,5 @@
 import { Button, Form, FormGrid, PageContent, PageHeader } from "../_components"
-import { examples } from "./examples"
+import { examples } from "./_examples"
 
 export const QuickTool = ({ params: { id } }) => {
   const spec = examples[id]

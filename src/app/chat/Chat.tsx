@@ -24,19 +24,20 @@ export const Chat = ({ params }) => {
 }
 
 const PreviousChats = () => {
-  return (
-    <>
-      <div class="group">
-        <div>Previous</div>
-        <div class="vstack gap-2 my-2">
-          <a class="active" href="#">
-            Poem about JavaScript
-          </a>
-          <a href="#">Invoke Clang from Zig</a>
-        </div>
-      </div>
-    </>
-  )
+  return null
+  // return (
+  //   <>
+  //     <div class="group">
+  //       <div>Previous</div>
+  //       <div class="vstack gap-2 my-2">
+  //         <a class="active" href="#">
+  //           Poem about JavaScript
+  //         </a>
+  //         <a href="#">Invoke Clang from Zig</a>
+  //       </div>
+  //     </div>
+  //   </>
+  // )
 }
 
 const ChatSession = () => {

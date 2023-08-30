@@ -5,10 +5,12 @@ import { QuickTools } from "./quick-tools/QuickTools"
 import { Settings } from "./settings/Settings"
 import { QuickTool } from "./quick-tools/QuickTool"
 import { EditTool } from "./quick-tools/EditTool"
+import { CreateTool } from "./quick-tools/CreateTool"
 
 const routes = [
   { path: "/chat", component: Chat },
   DEV && { path: "/quick-tools", component: QuickTools },
+  DEV && { path: "/quick-tools/new", component: CreateTool },
   DEV && { path: "/quick-tools/:id", component: QuickTool },
   DEV && { path: "/quick-tools/:id/edit", component: EditTool },
   { path: "/playground", component: Playground },
