@@ -15,6 +15,7 @@ const styles = css`
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-user-drag: none;
   }
 
   a,
