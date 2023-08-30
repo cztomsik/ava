@@ -32,7 +32,10 @@ export const App = () => (
 )
 
 const Sidebar = () => (
-  <aside class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300" data-drag-window>
+  <aside
+    class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300 shadow-inner"
+    data-drag-window
+  >
     <SearchField class="mt-6 mb-4" />
 
     <SidebarHeader title="Main" />

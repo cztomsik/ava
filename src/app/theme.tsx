@@ -40,9 +40,11 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     ["vstack", "flex flex-col"],
     ["row", "flex flex-row -mx-2"],
     ["col", { flex: "1", padding: "0 0.5rem" }],
-    ["btn", "inline-flex items-center justify-center px-3 py-2 text-sm font-semibold border rounded-md"],
     ["form-control", "block w-full px-2 py-1.5 border bg-neutral-50 border-neutral-300 rounded-md"],
     ["form-select", "form-control appearance-none"],
+
+    // custom
+    ["shadow-thin", { boxShadow: "0 1px 1px 0 rgba(0, 0, 0, 0.3)" }],
   ],
   variants: [
     // out-of-focus (TODO: maybe opacity is enough?)
