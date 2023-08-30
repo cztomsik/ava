@@ -105,24 +105,23 @@
 }
 
 - (void)sendEvent:(NSEvent *)event {
+    // Pass through anything outside the titlebar/sidebar area
+    // TODO: This is a hack, we need to find a better way to find what is
+    //       supposed to trigger a window drag and what is not.
     if (
         self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height < -30 &&
         self.mouseLocationOutsideOfEventStream.x > 200
     ) {
-        // Pass through anything outside the titlebar/sidebar area
         [super sendEvent:event];
-    } else if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
-        // Otherwise pass through mouse downs but only if we're not hovering over a link/button
-        [self mouseDown:event];
-    } else if (event.type == NSEventTypeLeftMouseDragged) {
-        // Allow dragging the window around
-        NSPoint p = self.frame.origin;
-        p.x += event.deltaX;
-        p.y -= event.deltaY;
-        self.frameOrigin = p;
-    } else {
-        [super sendEvent:event];
+        return;
+    } 
+
+    if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
+        [self performWindowDragWithEvent:event];
+        return;
     }
+
+    [super sendEvent:event];
 }
 
 @end
