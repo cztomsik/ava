@@ -3,15 +3,21 @@ import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 import { QuickTools } from "./quick-tools/QuickTools"
 import { Settings } from "./settings/Settings"
+import { QuickTool } from "./quick-tools/QuickTool"
+import { EditTool } from "./quick-tools/EditTool"
 
 const routes = [
   { path: "/chat", component: Chat },
   DEV && { path: "/quick-tools", component: QuickTools },
+  DEV && { path: "/quick-tools/:id", component: QuickTool },
+  DEV && { path: "/quick-tools/:id/edit", component: EditTool },
   { path: "/playground", component: Playground },
   { path: "/settings", component: Settings },
 ].filter(Boolean)
 
-let currentRoute = signal(routes[0])
+const current = signal({ route: routes[0], params: {} })
+
+const patternCache: Record<string, RegExp> = {}
 
 export const router = {
   routes,
@@ -21,16 +27,34 @@ export const router = {
     this.onChange()
   },
 
+  match(pattern: string) {
+    const regex =
+      patternCache[pattern] ||
+      (patternCache[pattern] = new RegExp(
+        `^${pattern.replace(/:(\w+)/g, "(?<$1>[^/]+)").replace(/\*/g, "(?<all>.*)")}$`
+      ))
+    return location.pathname.match(regex)
+  },
+
   onChange() {
-    currentRoute.value = routes.find(route => route.path === location.pathname)
-    if (!currentRoute.value) this.navigate(routes[0].path, true)
+    for (const r of routes) {
+      const match = this.match(r.path)
+      if (match) {
+        current.value = { route: r, params: match.groups }
+        return
+      }
+    }
+
+    this.navigate(routes[0].path, true)
   },
 
   get currentRoute() {
-    return currentRoute.value
+    return current.value.route
   },
 
-  params: {},
+  get params() {
+    return current.value.params
+  },
 }
 
 addEventListener("popstate", () => router.onChange())

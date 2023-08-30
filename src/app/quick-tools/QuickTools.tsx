@@ -1,10 +1,7 @@
 import { Button, Link, PageContent, PageHeader, Table } from "../_components"
-import { QuickTool } from "./QuickTool"
 import { examples } from "./examples"
 
-export const QuickTools = ({ params }) => {
-  if (params.id) return <QuickTool params={params} />
-
+export const QuickTools = () => {
   return (
     <>
       <PageHeader title="Quick Tools" description="Shortcuts for common tasks">
