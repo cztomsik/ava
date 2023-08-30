@@ -18,3 +18,9 @@ if ("webkit" in window) {
   addEventListener("mousedown", delegate)
   addEventListener("dblclick", delegate)
 }
+
+if (!DEV) {
+  addEventListener("contextmenu", e => {
+    if (!e.target.matches("input, textarea")) e.preventDefault()
+  })
+}
