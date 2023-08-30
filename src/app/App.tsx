@@ -1,35 +1,21 @@
-import { Router, Route, Redirect, Switch } from "wouter-preact"
 import { ErrorBoundary, Layout, Link, NavLink, SearchField } from "./_components"
-import { Chat } from "./chat/Chat"
-import { QuickTools } from "./quick-tools/QuickTools"
-import { Playground } from "./playground/Playground"
-import { Settings } from "./settings/Settings"
+import { router } from "./router"
 import { useApi, selectedModel } from "./_hooks"
 import { useEffect } from "preact/hooks"
 
-export const App = () => (
-  <ErrorBoundary class="text-base bg-white dark:bg-neutral-800 text-neutral-900">
-    <Router>
+export const App = () => {
+  return (
+    <ErrorBoundary class="text-base bg-white dark:bg-neutral-800 text-neutral-900">
       <Layout class="h-screen">
-        {/*
-        <BuyButton />
-        */}
-
         <Sidebar />
 
         <Layout scroll>
-          <Switch>
-            <Route path="/chat/:id?" component={Chat} />
-            {DEV && <Route path="/quick-tools/:id?" component={QuickTools} />}
-            <Route path="/playground" component={Playground} />
-            <Route path="/settings" component={Settings} />
-            <Redirect href="/chat" />
-          </Switch>
+          <router.currentRoute.component params={router.params} />
         </Layout>
       </Layout>
-    </Router>
-  </ErrorBoundary>
-)
+    </ErrorBoundary>
+  )
+}
 
 const Sidebar = () => (
   <aside
