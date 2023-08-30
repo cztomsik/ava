@@ -2,6 +2,7 @@
 interface EventTarget {
   value: any
   matches
+  closest
 }
 
 // feature flags
@@ -9,3 +10,6 @@ var DEV: boolean
 
 // preact factory
 var h
+
+// macos messaging
+var webkit

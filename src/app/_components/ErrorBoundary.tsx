@@ -29,7 +29,8 @@ export const ErrorBoundary = ({ children, ...props }) => {
 
       {lastError.value && (
         <Modal title="Unexpected Error" onClose={reset}>
-          <pre class="">{lastError.value.message ?? lastError.value}</pre>
+          <p class="mb-4">An unexpected error occurred. ({lastError.value.constructor.name})</p>
+          <pre class="p-0 whitespace-pre-wrap overflow-auto">{lastError.value.message ?? lastError.value}</pre>
         </Modal>
       )}
     </div>

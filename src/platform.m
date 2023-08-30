@@ -7,18 +7,13 @@
 
 @interface AvaApplication : NSApplication
 @property (strong, nonatomic) NSString *url;
+@property (nonatomic) BOOL debug;
 @property (strong, nonatomic) AvaWindow *window;
 - (void)createWindow;
 - (void)createMenus;
 @end
 
 @implementation AvaApplication
-
-- (void)run {
-    self.delegate = self;
-    
-    [super run];
-}
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [self setActivationPolicy:NSApplicationActivationPolicyRegular];
@@ -40,7 +35,37 @@
 }
 
 - (void)createWindow {
-    self.window = [[AvaWindow alloc] initWithUrl:NSMakeRect(0, 0, 900, 800) url:self.url];
+    NSWindowStyleMask mask = NSWindowStyleMaskTitled | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
+    AvaWindow *win = [[AvaWindow alloc] initWithContentRect:NSMakeRect(0, 0, 900, 800)
+                                                  styleMask:mask
+                                                    backing:NSBackingStoreBuffered
+                                                      defer:NO];
+
+    if (!win) {
+        NSLog(@"Failed to create window");
+        exit(1);
+    }
+
+    win.title = @"Ava";
+    win.titleVisibility = NSWindowTitleHidden;
+    win.titlebarAppearsTransparent = YES;
+    win.minSize = NSMakeSize(770, 480);
+    win.frameAutosaveName = @"Ava.main";
+
+    WKWebViewConfiguration *cfg = [[WKWebViewConfiguration alloc] init];
+    cfg.preferences = [[WKPreferences alloc] init];
+    if (self.debug) [cfg.preferences setValue:@YES forKey:@"developerExtrasEnabled"];
+    cfg.userContentController = [[WKUserContentController alloc] init];
+    [cfg.userContentController addScriptMessageHandler:(id)win name:@"event"];
+
+    win.webview = [[WKWebView alloc] initWithFrame:[win.contentView bounds] configuration:cfg];
+    win.webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    win.webview.navigationDelegate = (id)win;
+
+    [win.contentView addSubview:win.webview];
+    [win.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.url]]];
+
+    self.window = win;
 }
 
 - (void)createMenus {
@@ -72,30 +97,6 @@
 
 @implementation AvaWindow
 
-- (instancetype)initWithUrl:(NSRect)contentRect url:(NSString *)url {
-    self = [super initWithContentRect:contentRect
-                            styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskFullSizeContentView | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
-                              backing:NSBackingStoreBuffered
-                                defer:NO];
-    if (self) {
-        self.title = @"Ava";
-        self.titleVisibility = NSWindowTitleHidden;
-        self.titlebarAppearsTransparent = YES;
-        self.minSize = NSMakeSize(770, 480);
-        self.frameAutosaveName = @"Ava.main";
-
-        self.webview = [[WKWebView alloc] initWithFrame:[self.contentView bounds]
-                                          configuration:[[WKWebViewConfiguration alloc] init]];
-        self.webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-        self.webview.navigationDelegate = self;
-
-        [self.contentView addSubview:self.webview];
-        [self.webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
-    }
-    
-    return self;
-}
-
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self makeKeyAndOrderFront:nil];
 }
@@ -104,32 +105,24 @@
     NSLog(@"Error: %@", error);
 }
 
-- (void)sendEvent:(NSEvent *)event {
-    // Pass through anything outside the titlebar/sidebar area
-    // TODO: This is a hack, we need to find a better way to find what is
-    //       supposed to trigger a window drag and what is not.
-    if (
-        self.mouseLocationOutsideOfEventStream.y - self.contentLayoutRect.size.height < -30 &&
-        self.mouseLocationOutsideOfEventStream.x > 200
-    ) {
-        [super sendEvent:event];
-        return;
-    } 
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    if ([message.body isEqualToString:@"drag"]) {
+        if (self.styleMask & NSWindowStyleMaskFullScreen) return;
 
-    if (event.type == NSEventTypeLeftMouseDown && NSCursor.currentCursor != NSCursor.pointingHandCursor) {
+        NSEvent *event = [NSApp currentEvent];
         [self performWindowDragWithEvent:event];
-        return;
     }
-
-    [super sendEvent:event];
 }
 
 @end
 
-void _runWebView(const char *url) {
+// adapted from https://developer.apple.com/documentation/appkit/nsapplication#overview
+void _runWebView(const char *url, BOOL debug) {
     @autoreleasepool {
         AvaApplication *app = [AvaApplication sharedApplication];
+        app.delegate = (id)app;
         app.url = [NSString stringWithUTF8String:url];
+        app.debug = debug;
         [app run];
     }
 }

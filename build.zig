@@ -36,7 +36,7 @@ fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     });
     exe.main_pkg_path = .{ .path = "." };
     exe.addIncludePath(.{ .path = "llama.cpp" });
-    exe.addCSourceFiles(&.{"src/platform.m"}, &.{"-std=c11"});
+    exe.addCSourceFiles(&.{"src/platform.m"}, &.{ "-std=c11", "-Werror" });
 
     exe.linkLibrary(llama);
     b.installArtifact(exe);
