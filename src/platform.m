@@ -106,11 +106,15 @@
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    if ([message.body isEqualToString:@"drag"]) {
+    if ([message.body isEqualToString:@"mousedown"]) {
         if (self.styleMask & NSWindowStyleMaskFullScreen) return;
 
         NSEvent *event = [NSApp currentEvent];
         [self performWindowDragWithEvent:event];
+    }
+
+    if ([message.body isEqualToString:@"dblclick"]) {
+        [self performZoom:nil];
     }
 }
 
