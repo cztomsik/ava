@@ -1,9 +1,10 @@
 import { router } from "../router"
 
 const handleClick = e => {
-  e.preventDefault()
-
-  router.navigate(e.target.href)
+  if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)) {
+    e.preventDefault()
+    router.navigate(e.target.href)
+  }
 }
 
 /**
