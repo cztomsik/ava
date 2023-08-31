@@ -35,7 +35,7 @@ const parse = (input, target = []) => {
     }
   }
 
-  for (pos = 0; pos < input.length; match = null) {
+  for (input = input.trim(), pos = 0; pos < input.length; match = null) {
     // Basic formatting
     p(/\\(.)/g, ch => ch) // Escape
     p(/(  |\\)\n/g, () => <br />) // Line ends with 2 spaces or a backslash
@@ -46,7 +46,7 @@ const parse = (input, target = []) => {
     p(/\[(.*?)\]\((.*?)\)/g, (text, href) => <a href={href}>{parse(text)}</a>)
     p(/!\[(.*?)\]\((.*?)(\s.*)?\)/g, (alt, src) => <img src={src} alt={alt} />)
     p(/`([^`]+)`/g, text => <code class="font-mono">{text}</code>)
-    p(/```.*?\n([\s\S]*?)```/g, text => <pre class="font-mono border p-2 my-2 bg-gray-100 text-gray-900">{text}</pre>)
+    p(/```.*?\n([\s\S]*?)```/g, text => <pre class="font-mono rounded p-2 my-2 bg-gray-800 text-gray-100">{text}</pre>)
 
     // Heading
     p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => (
