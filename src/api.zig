@@ -1,10 +1,18 @@
 const std = @import("std");
 const server = @import("server.zig");
+const db = @import("db.zig");
 const registry = @import("model_registry.zig");
 const llama = @import("llama.zig");
 
 pub fn handler(ctx: *server.Context) !void {
     ctx.path = ctx.path[4..];
+
+    if (ctx.match("/prompts")) {
+        var stmt = try db.query("SELECT * FROM Prompt ORDER BY id", .{});
+        defer stmt.deinit();
+
+        return ctx.sendJson(stmt.iterator(db.Prompt));
+    }
 
     if (ctx.match("/models")) {
         const models = try registry.getModels(ctx.arena);

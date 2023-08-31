@@ -5,7 +5,7 @@ export const ToolForm = ({ tool, onSubmit }) => {
     <Form onSubmit={onSubmit}>
       <FormGrid>
         <label>Title</label>
-        <TextField name="title" />
+        <TextField name="name" />
 
         <label>Description</label>
         <TextField name="description" />

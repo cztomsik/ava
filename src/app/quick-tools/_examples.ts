@@ -2,7 +2,7 @@ import { dedent } from "../_util"
 
 export const examples = [
   {
-    title: "Hello World",
+    name: "Hello World",
     description: "Basic example",
     prompt: dedent`
       The following is an excerpt from a story about Bob, the cat, flying to space.
@@ -11,7 +11,7 @@ export const examples = [
 
   // TODO: Writing technical documentation, product announcement, etc.
   {
-    title: "Copywriting",
+    name: "Copywriting",
     description: "Copywriting",
     prompt: dedent`
       SYSTEM: User needs help with copywriting.
@@ -25,7 +25,7 @@ export const examples = [
 if (DEV) {
   examples.push(
     {
-      title: "Grammar Police",
+      name: "Grammar Police",
       description: "Correct grammar in the provided text",
       prompt: dedent`
         USER: Correct grammar in the following text:
@@ -35,7 +35,7 @@ if (DEV) {
     },
 
     {
-      title: "Rephrase",
+      name: "Rephrase",
       description: "",
       prompt: dedent`
         USER: Rephrase the following text so it looks more professional:
@@ -45,7 +45,7 @@ if (DEV) {
     },
 
     {
-      title: "Vacation Planner",
+      name: "Vacation Planner",
       description: "Plan a vacation",
       prompt: dedent`
         USER: I need a help with planning a vacation to {{destination}}. I want to go there for {{days}} days. I want to go there in {{month}}. My budget is {{budget}} dollars. {{extra}}
@@ -54,7 +54,7 @@ if (DEV) {
     },
 
     {
-      title: "Writing Style",
+      name: "Writing Style",
       description: "Suggest style improvements",
       prompt: dedent`
         USER: Given the following text, suggest improvements to the style:
@@ -64,7 +64,7 @@ if (DEV) {
     },
 
     {
-      title: "Interview Prep",
+      name: "Interview Prep",
       description: "Prepare for an interview",
       prompt: dedent`
         USER: I need to prepare for an interview for a {{position}} position at {{company}}. The company industry is {{industry}}.
@@ -73,7 +73,7 @@ if (DEV) {
     },
 
     {
-      title: "Write an E-mail",
+      name: "Write an E-mail",
       description: "Write e-mail",
       prompt: dedent`
         USER: I need to write an e-mail to {{name}} about {{about}} because {{reason}}\nASSISTANT:
@@ -81,7 +81,7 @@ if (DEV) {
     },
 
     {
-      title: "Write a Reply",
+      name: "Write a Reply",
       description: "Write e-mail reply",
       prompt: dedent`
         USER: I got this email from {{name}}:
@@ -93,7 +93,7 @@ if (DEV) {
     },
 
     {
-      title: "Summarize",
+      name: "Summarize",
       description: "Summarize text",
       prompt: dedent`
         USER: I need to summarize the following text:
@@ -103,7 +103,7 @@ if (DEV) {
     },
 
     {
-      title: "Buy or Sell",
+      name: "Buy or Sell",
       description: "Stock market advice",
       prompt: dedent`
         USER: Given the following text about a stock, should I buy or sell?
@@ -113,7 +113,7 @@ if (DEV) {
     },
 
     {
-      title: "Regex Help",
+      name: "Regex Help",
       description: "Write a regular expression",
       prompt: dedent`
         USER: I need a help writing regular expression in JavaScript. Specifically, I want to write regex for {{whatToMatch}}...
@@ -129,7 +129,7 @@ if (DEV) {
     },
 
     {
-      title: "Total Rewrite",
+      name: "Total Rewrite",
       description: "Reimplement given code in another language",
       prompt: dedent`
         USER: I need to reimplement the following code in {{language}}:

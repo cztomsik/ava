@@ -3,6 +3,13 @@ const platform = @import("platform.zig");
 const sqlite = @import("sqlite.zig");
 const migrate = @import("db_migrate.zig").migrate;
 
+// TODO: comptime from db schema?
+pub const Prompt = struct {
+    id: u32,
+    name: []const u8,
+    prompt: []const u8,
+};
+
 var db: sqlite.SQLite3 = undefined;
 
 pub fn init(allocator: std.mem.Allocator) !void {

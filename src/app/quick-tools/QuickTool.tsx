@@ -11,7 +11,7 @@ export const QuickTool = ({ params: { id } }) => {
 
   return (
     <>
-      <PageHeader title={spec.title} description={spec.description}>
+      <PageHeader title={spec.name} description={spec.description}>
         <Button href="./edit" class="ms-auto">
           Edit
         </Button>

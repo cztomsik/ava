@@ -64,15 +64,26 @@ pub const Context = struct {
     }
 
     /// Sends a chunk of JSON. The chunk always ends with a newline.
+    /// Supports values, slices and iterators.
     pub fn sendJson(self: *Context, body: anytype) !void {
         if (self.res.state == .waited) {
             try self.res.headers.append("Content-Type", "application/json");
         }
 
         var list = std.ArrayList(u8).init(self.arena);
+        var writer = list.writer();
         defer list.deinit();
 
-        try std.json.stringifyArbitraryDepth(self.arena, body, .{}, list.writer());
+        if (comptime std.meta.trait.hasFn("next")(@TypeOf(body))) {
+            var copy = body;
+
+            try writer.writeAll("[");
+            while (try copy.next()) |item| try std.json.stringify(item, .{}, writer);
+            try writer.writeAll("]");
+        } else {
+            try std.json.stringify(body, .{}, writer);
+        }
+
         try list.appendSlice("\r\n");
         try self.sendChunk(list.items);
     }

@@ -1,6 +1,6 @@
 import { useSignal } from "@preact/signals"
 import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
-import { useGenerate } from "../_hooks"
+import { useApi, useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
 
@@ -34,15 +34,7 @@ export const Playground = () => {
         <Form class="vstack" onSubmit={handleSubmit}>
           <div class="row">
             <div class="col">
-              <select class="form-select mb-2" onChange={e => (prompt.value = examples[e.target.value].prompt)}>
-                <option selected>Load from ...</option>
-
-                <optgroup label="Examples">
-                  {examples.map(({ title }, i) => (
-                    <option value={i}>{title}</option>
-                  ))}
-                </optgroup>
-              </select>
+              <PromptLoader onLoad={item => (prompt.value = item.prompt)} />
 
               <textarea
                 class="form-control"
@@ -74,11 +66,49 @@ export const Playground = () => {
                 </div>
               ))}
 
-              {result.value && <Markdown input={result.value} class="card p-3" />}
+              {<Markdown input={prompt.value} class="card p-3" />}
             </div>
           </div>
         </Form>
       </PageContent>
     </>
+  )
+}
+
+const PromptLoader = ({ onLoad }) => {
+  const { data: savedPrompts, loading } = useApi("prompts")
+
+  const handleChange = e => {
+    const id = e.target.value
+
+    if (id > 0) {
+      return onLoad(savedPrompts.find(p => p.id == id))
+    }
+
+    if (id <= 0) {
+      return onLoad(examples[-id])
+    }
+  }
+
+  return (
+    <select class="form-select mb-2" onChange={handleChange}>
+      <option selected value="">
+        Load from ...
+      </option>
+
+      <optgroup label="Saved">
+        {loading && <option>Loading ...</option>}
+
+        {savedPrompts?.map(({ id, name }) => (
+          <option value={id}>{name}</option>
+        ))}
+      </optgroup>
+
+      <optgroup label="Examples">
+        {examples.map(({ name }, i) => (
+          <option value={-i}>{name}</option>
+        ))}
+      </optgroup>
+    </select>
   )
 }
