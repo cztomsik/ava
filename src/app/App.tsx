@@ -9,7 +9,7 @@ export const App = () => {
       <Layout class="h-screen">
         <Sidebar />
 
-        <Layout scroll>
+        <Layout>
           <router.currentRoute.component params={router.params} />
         </Layout>
       </Layout>

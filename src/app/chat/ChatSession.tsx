@@ -42,7 +42,7 @@ export const ChatSession = () => {
         ))}
       </div>
 
-      <footer class="d-print-none">
+      <footer class="pt-2 print:hidden">
         <Form onSubmit={handleSubmit}>
           <textarea
             autofocus

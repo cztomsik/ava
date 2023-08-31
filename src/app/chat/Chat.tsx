@@ -9,8 +9,8 @@ export const Chat = ({ params }) => {
       <PageHeader title="Chat" description="Dialog-based interface" />
 
       <PageContent>
-        <Layout scroll>
-          <aside class="d-print-none">
+        <Layout>
+          <aside class="print:hidden">
             <PreviousChats />
           </aside>
 
