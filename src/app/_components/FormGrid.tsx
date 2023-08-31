@@ -1,11 +1,10 @@
 import { css } from "@twind/core"
 import { Grid } from "."
 
-// TODO: for some reason, the resulting class name contains [object Object] prefix
-//       (and the top-level styles are not working - so the mb-4 is needed)
+// align-self would work too but it wouldn't add margin when the label is on top
 const styles = css`
-  label {
-    margin-top: 0.4rem;
+  & label {
+    @apply mt-1.5;
 
     @media (min-width: 768px) {
       min-width: 6rem;

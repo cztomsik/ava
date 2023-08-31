@@ -1,25 +1,12 @@
-import { css } from "@twind/core"
 import { useMemo } from "preact/hooks"
 import { Table } from "."
 
-const styles = css`
-  h1 {
-    font-size: 1.3rem;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  h3 {
-    font-size: 1.1rem;
-  }
-`
+const headings = ["text-2xl", "text-xl", "text-lg"]
 
 /**
  * Renders a subset of markdown
  */
-export const Markdown = ({ input, class: className = "", ...props }) => {
+export const Markdown = ({ input, ...props }) => {
   const nodes = useMemo(() => {
     try {
       return parse(input)
@@ -29,11 +16,7 @@ export const Markdown = ({ input, class: className = "", ...props }) => {
     }
   }, [input])
 
-  return (
-    <div class={`${styles} ${className}`} {...props}>
-      {nodes}
-    </div>
-  )
+  return <div {...props}>{nodes}</div>
 }
 
 /**
@@ -66,7 +49,9 @@ const parse = (input, target = []) => {
     p(/```.*?\n([\s\S]*?)```/g, text => <pre class="font-mono border p-2 my-2 bg-gray-100 text-gray-900">{text}</pre>)
 
     // Heading
-    p(/^(#{1,6}) (.*)$/gm, (prefix, text, H: any = `h${prefix.length}`) => <H class="font-bold mb-2">{parse(text)}</H>)
+    p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => (
+      <H class={`font-bold mb-2 ${headings[l - 1] ?? ""}`}>{parse(text)}</H>
+    ))
 
     // Lists
     // p(/^(\s*)(\+|-|\*|\d+\.) /gm
