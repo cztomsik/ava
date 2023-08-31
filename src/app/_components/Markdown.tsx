@@ -35,7 +35,7 @@ const parse = (input, target = []) => {
     }
   }
 
-  for (input = input.replace(/^\s+/gm, ""), pos = 0; pos < input.length; match = null) {
+  for (pos = 0; pos < input.length; match = null) {
     // Basic formatting
     p(/\\(.)/g, ch => ch) // Escape
     p(/(  |\\)\n/g, () => <br />) // Line ends with 2 spaces or a backslash
