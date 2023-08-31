@@ -22,12 +22,20 @@ const Sidebar = () => (
     class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300 shadow-inner"
     data-drag-window
   >
-    <SearchField class="mt-6 mb-4" />
+    {DEV ? <SearchField class="mt-6 mb-4" /> : <div class="mt-4" />}
 
     <SidebarHeader title="Main" />
     <SidebarLink href="/chat">Chat</SidebarLink>
     {DEV && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
     <SidebarLink href="/playground">Playground</SidebarLink>
+
+    {DEV && (
+      <>
+        <SidebarHeader title="Pinned" />
+        <SidebarLink href="/pinned/1">Copywriting</SidebarLink>
+        <SidebarLink href="/pinned/2">Debugging</SidebarLink>
+      </>
+    )}
 
     <SidebarHeader title="Other" />
     <SidebarLink href="/settings">Settings</SidebarLink>
