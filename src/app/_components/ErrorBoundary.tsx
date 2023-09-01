@@ -2,6 +2,8 @@ import { useCallback, useEffect, useErrorBoundary } from "preact/hooks"
 import { useSignal } from "@preact/signals"
 import { Modal } from "."
 
+const fetch = window.fetch
+
 /**
  * A component that catches errors in the component tree and unhandled promise
  * rejections and displays them in a modal.
@@ -19,6 +21,23 @@ export const ErrorBoundary = ({ children, ...props }) => {
 
     return () => removeEventListener("unhandledrejection", listener)
   })
+
+  // Fetch errors
+  useEffect(() => {
+    window.fetch = async (...args) => {
+      const res = await fetch(...args)
+
+      if (!res.ok) {
+        const err = new Error(`${res.status} ${res.statusText}`)
+        err["response"] = res
+        throw err
+      }
+
+      return res
+    }
+
+    return () => (window.fetch = fetch)
+  }, [])
 
   // Clear the error when the user closes the modal
   const reset = useCallback(() => (lastError.value = null), [])
