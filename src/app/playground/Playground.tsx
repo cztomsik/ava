@@ -25,7 +25,7 @@ export const Playground = () => {
 
   return (
     <>
-      <PageHeader title="Playground" description="Prototype new ideas quickly.">
+      <PageHeader title="Playground" description="Try out new ideas quickly">
         {DEV && <Button>Create a Tool</Button>}
       </PageHeader>
 

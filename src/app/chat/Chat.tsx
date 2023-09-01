@@ -1,39 +1,48 @@
-import { Layout, PageContent, PageHeader } from "../_components"
-import { ChatSession } from "./ChatSession"
+import { Button, PageContent, PageHeader } from "../_components"
+import { ChatLog } from "./ChatLog"
+import { ChatInput } from "./ChatInput"
+import { useGenerate } from "../_hooks"
+import { signal, useSignal } from "@preact/signals"
 
-export const Chat = ({ params }) => {
-  // TODO: load by id
+export const Chat = () => {
+  const { generate, loading, abort } = useGenerate()
+  const messages = useSignal([
+    {
+      role: "system",
+      content:
+        "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
+    } as any,
+  ])
+
+  const handleSend = async text => {
+    const content = signal("")
+
+    messages.value = [...messages.value, { role: "user", content: text }, { role: "assistant", content }]
+
+    const prompt = messages.value.reduce(
+      (res, m) => res + (m.role === "system" ? m.content : `${m.role.toUpperCase()}: ${m.content}\n`),
+      ""
+    )
+
+    // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
+    for await (const temp of generate(prompt.trimEnd(), { stop: ["USER", ":"] })) {
+      content.value = temp
+    }
+  }
 
   return (
     <>
       <PageHeader title="Chat" description="Dialog-based interface" />
 
       <PageContent>
-        <Layout>
-          <aside class="print:hidden">
-            <PreviousChats />
-          </aside>
-
-          <ChatSession />
-        </Layout>
+        <ChatLog chat={{ messages }} />
+        <div class="hstack justify-center mt-4">{loading && <Button onClick={abort}>Stop generation</Button>}</div>
       </PageContent>
+
+      {/* Always visible, because we are always either in a previous chat or in a new chat. */}
+      <footer class="p-4 lg:px-10">
+        <ChatInput onSend={handleSend} />
+      </footer>
     </>
   )
-}
-
-const PreviousChats = () => {
-  return null
-  // return (
-  //   <>
-  //     <div class="group">
-  //       <div>Previous</div>
-  //       <div class="vstack gap-2 my-2">
-  //         <a class="active" href="#">
-  //           Poem about JavaScript
-  //         </a>
-  //         <a href="#">Invoke Clang from Zig</a>
-  //       </div>
-  //     </div>
-  //   </>
-  // )
 }

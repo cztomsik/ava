@@ -1,7 +1,8 @@
 import { useCallback, useEffect } from "preact/hooks"
-import { signal, useSignal } from "@preact/signals"
+import { effect, signal, useSignal } from "@preact/signals"
 
-export const selectedModel = signal("")
+export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
+effect(() => localStorage.setItem("selectedModel", selectedModel.value))
 
 export const useGenerate = () => {
   const ctrl = useSignal(null)
@@ -12,11 +13,11 @@ export const useGenerate = () => {
     ctrl.value = null
   }, [])
 
-  const generate = useCallback(prompt => {
+  const generate = useCallback((prompt, options = {}) => {
     abort()
     ctrl.value = new AbortController()
 
-    return generateCompletions(prompt, ctrl.value.signal, abort)
+    return generateCompletions(prompt, options, ctrl.value.signal, abort)
   }, [])
 
   // cancel any generation when the component is unmounted
@@ -25,7 +26,10 @@ export const useGenerate = () => {
   return { generate, loading, abort } as const
 }
 
-async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: () => void) {
+async function* generateCompletions(prompt, options, signal?: AbortSignal, onComplete?: () => void) {
+  const { stop = null } = options
+  let stopQueue = stop?.slice()
+
   try {
     const response = await fetch("/api/generate", {
       method: "POST",
@@ -46,6 +50,20 @@ async function* generateCompletions(prompt, signal?: AbortSignal, onComplete?: (
       // strip the initial space which is always emitted at the beginning of the stream
       if (!content) {
         token = token.trimStart()
+      }
+
+      if (stop) {
+        if (stopQueue[0] === token) {
+          stopQueue.shift()
+
+          if (stopQueue.length === 0) {
+            break
+          } else {
+            continue
+          }
+        } else {
+          stopQueue = stop.slice()
+        }
       }
 
       yield (content += token)
