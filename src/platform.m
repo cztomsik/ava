@@ -115,6 +115,20 @@
     NSLog(@"Error: %@", error);
 }
 
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decision {
+    NSURL *url = navigationAction.request.URL;
+    if ([url.scheme isEqualToString:@"file"]) {
+        decision(WKNavigationActionPolicyCancel);
+    } else {
+        if ([url.absoluteString hasPrefix:[NSApp url]]) {
+            decision(WKNavigationActionPolicyAllow);
+        } else {
+            [[NSWorkspace sharedWorkspace] openURL:url];
+            decision(WKNavigationActionPolicyCancel);
+        }
+    }
+}
+
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.body isEqualToString:@"mousedown"]) {
         if (self.styleMask & NSWindowStyleMaskFullScreen) return;

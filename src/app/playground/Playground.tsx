@@ -96,13 +96,15 @@ const PromptLoader = ({ onLoad }) => {
         Load from ...
       </option>
 
-      <optgroup label="Saved">
-        {loading && <option>Loading ...</option>}
+      {DEV && (
+        <optgroup label="Saved">
+          {loading && <option>Loading ...</option>}
 
-        {savedPrompts?.map(({ id, name }) => (
-          <option value={id}>{name}</option>
-        ))}
-      </optgroup>
+          {savedPrompts?.map(({ id, name }) => (
+            <option value={id}>{name}</option>
+          ))}
+        </optgroup>
+      )}
 
       <optgroup label="Examples">
         {examples.map(({ name }, i) => (

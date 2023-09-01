@@ -50,7 +50,7 @@ const SidebarLink = props => (
 
 const BuyButton = () =>
   DEV && (
-    <a class="me-2" href="http://www.avapls.com/" target="_blank">
+    <a class="me-2" href="http://www.avapls.com/">
       Buy License
     </a>
   )

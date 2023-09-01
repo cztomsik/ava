@@ -48,7 +48,7 @@ const parse = (input, target = []) => {
 
     // Links
     p(/\[(.*?)\]\((.*?)\)/g, (text, href) => (
-      <a class="text-blue-500" href={href} target="_blank" rel="noopener noreferrer">
+      <a class="text-blue-500" href={href}>
         {parse(text)}
       </a>
     ))
