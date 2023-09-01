@@ -1,14 +1,17 @@
 import { Markdown } from "../_components"
 
 // TODO: load from settings
-const userImg =
-  "data:image/svg+xml;base64," +
-  btoa(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-      <rect x="0" y="0" width="32" height="32" fill="#eee" />
-      <text x="16" y="22" font-family="sans-serif" font-size="18" text-anchor="middle" fill="#ccc">?</text>
-    </svg>`
+const userImg = URL.createObjectURL(
+  new Blob(
+    [
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+        <rect x="0" y="0" width="32" height="32" fill="#eee" />
+        <text x="16" y="22" font-family="sans-serif" font-size="18" text-anchor="middle" fill="#ccc">?</text>
+      </svg>`,
+    ],
+    { type: "image/svg+xml" }
   )
+)
 
 export const ChatLog = ({ chat }) => {
   return (
