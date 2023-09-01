@@ -2,10 +2,11 @@ import { signal } from "@preact/signals"
 import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 import { QuickTools } from "./quick-tools/QuickTools"
-import { Settings } from "./settings/Settings"
 import { QuickTool } from "./quick-tools/QuickTool"
 import { EditTool } from "./quick-tools/EditTool"
 import { CreateTool } from "./quick-tools/CreateTool"
+import { Models } from "./settings/Models"
+import { License } from "./settings/License"
 
 const routes = [
   { path: "/chat", component: Chat },
@@ -14,7 +15,8 @@ const routes = [
   DEV && { path: "/quick-tools/:id", component: QuickTool },
   DEV && { path: "/quick-tools/:id/edit", component: EditTool },
   { path: "/playground", component: Playground },
-  { path: "/settings", component: Settings },
+  { path: "/settings", component: Models },
+  { path: "/settings/license", component: License },
 ].filter(Boolean)
 
 const current = signal({ route: routes[0], params: {} })

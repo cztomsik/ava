@@ -28,8 +28,8 @@ export const Message = ({ role, content }) => {
   return role == "system" ? (
     <div class="text-md lg:text-lg text-neutral-400 mb-4">{content}</div>
   ) : (
-    <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border-(y neutral-100) bg-neutral-50 -mx-10 px-10)`}>
-      <Avatar class="mr-2" role={role} />
+    <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border(y neutral-100) bg-neutral-50 -mx-10 px-10)`}>
+      <Avatar class="mr-4" role={role} />
       <Markdown class="flex-1" input={"" + content} />
     </div>
   )

@@ -43,10 +43,22 @@ const parse = (input, target = []) => {
     p(/(__|\*\*)(.*?)\1/g, (_, text) => <strong class="font-bold">{parse(text)}</strong>)
     p(/(_|\*)(.*?)\1/g, (_, text) => <em class="font-italic">{parse(text)}</em>)
     p(/~~(.*?)~~/g, text => <s>{parse(text)}</s>)
-    p(/\[(.*?)\]\((.*?)\)/g, (text, href) => <a href={href}>{parse(text)}</a>)
     p(/!\[(.*?)\]\((.*?)(\s.*)?\)/g, (alt, src) => <img src={src} alt={alt} />)
     p(/`([^`]+)`/g, text => <code class="font-mono">{text}</code>)
-    p(/```.*?\n([\s\S]*?)```/g, text => <pre class="font-mono rounded p-2 my-2 bg-gray-800 text-gray-100">{text}</pre>)
+
+    // Links
+    p(/\[(.*?)\]\((.*?)\)/g, (text, href) => (
+      <a class="text-blue-500" href={href} target="_blank" rel="noopener noreferrer">
+        {parse(text)}
+      </a>
+    ))
+
+    // Code blocks
+    p(/```.*?\n([\s\S]*?)```/g, text => (
+      <pre class="font-mono rounded p-2 my-2 bg-gray-800 text-gray-100 dark:(bg-gray-800 text-gray-100 border(& gray-600)">
+        {text}
+      </pre>
+    ))
 
     // Heading
     p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => (

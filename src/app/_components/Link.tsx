@@ -1,6 +1,8 @@
 import { router } from "../router"
 
 const handleClick = e => {
+  if (e.target.href.match(/^http|mailto/)) return
+
   if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)) {
     e.preventDefault()
     router.navigate(e.target.href)
