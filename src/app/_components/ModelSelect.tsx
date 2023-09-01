@@ -2,7 +2,8 @@ import { useEffect } from "preact/hooks"
 import { useApi, selectedModel } from "../_hooks"
 
 export const ModelSelect = ({ class: className = "" }) => {
-  const { data: models, loading } = useApi("models")
+  const { data: models, refetch } = useApi("models")
+  const { value } = selectedModel
 
   useEffect(() => {
     if (models) {
@@ -15,10 +16,11 @@ export const ModelSelect = ({ class: className = "" }) => {
   return (
     <select
       class={`form-select ${className}`}
-      value={selectedModel.value}
+      value={value}
+      onClick={refetch}
       onChange={e => (selectedModel.value = e.target.value)}
     >
-      {loading && <option>Loading...</option>}
+      {models?.length === 0 && <option value={value}>Select a model</option>}
 
       {models?.map(model => (
         <option key={model.name} value={model.name}>
