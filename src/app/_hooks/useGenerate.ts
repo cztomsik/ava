@@ -17,7 +17,7 @@ export const useGenerate = () => {
     abort()
     ctrl.value = new AbortController()
 
-    return generateCompletions(prompt, options, ctrl.value.signal, abort)
+    return selectedModel.value ? generateCompletions(prompt, options, ctrl.value.signal, abort) : noModelSelected(abort)
   }, [])
 
   // cancel any generation when the component is unmounted
@@ -83,4 +83,20 @@ async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
   for (let res; !(res = await reader.read()).done; ) {
     yield decoder.decode(res.value)
   }
+}
+
+async function* noModelSelected(onComplete) {
+  const msg = `
+    **No model selected.**
+    Please select a model from the dropdown in the bottom left.
+
+    Go to **[Settings](/settings)** for more information.
+  `
+  let content = ""
+
+  for (const word of msg.split(/\b/g)) {
+    yield (content += word)
+    await new Promise(resolve => setTimeout(resolve, 30))
+  }
+  onComplete?.()
 }
