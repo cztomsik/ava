@@ -158,6 +158,7 @@ pub const Server = struct {
         if (ctx.match("/api/*")) return api.handler(ctx);
 
         // TODO: should be .get() but it's not implemented yet
+        if (ctx.match("/LICENSE.md")) return ctx.sendResource("LICENSE.md");
         if (ctx.match("/favicon.ico")) return ctx.sendResource("src/app/favicon.ico");
         if (ctx.match("/app.js")) return ctx.sendResource("zig-out/app/main.js");
 
@@ -193,6 +194,7 @@ fn mime(comptime ext: []const u8) []const u8 {
         .{ ".html", "text/html" },
         .{ ".css", "text/css" },
         .{ ".js", "text/javascript" },
+        .{ ".md", "text/markdown" },
     });
 
     return mime_types.get(ext) orelse "application/octet-stream";
