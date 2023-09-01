@@ -28,12 +28,9 @@ export const Message = ({ role, content }) => {
   return role == "system" ? (
     <div class="text-md lg:text-lg text-neutral-400 mb-4">{content}</div>
   ) : (
-    <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border-y bg-neutral-50 -mx-10 px-10)`}>
-      <Avatar role={role} />
-      <div class="flex-1 ml-4">
-        {/* <div class="capitalize font-semibold text-neutral-400">{role}:</div> */}
-        <Markdown input={"" + content} />
-      </div>
+    <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border-(y neutral-100) bg-neutral-50 -mx-10 px-10)`}>
+      <Avatar class="mr-2" role={role} />
+      <Markdown class="flex-1" input={"" + content} />
     </div>
   )
 }

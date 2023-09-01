@@ -2,6 +2,7 @@ import { options } from "preact"
 import { tw, install, css, autoDarkColor, TwindUserConfig } from "@twind/core"
 import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind"
 
+// TODO: some of these should be webview-only
 const styles = css`
   overscroll-behavior: none;
 
@@ -19,10 +20,7 @@ const styles = css`
   }
 
   a,
-  button,
-  input,
-  select {
-    cursor: pointer; /* TODO: this is needed for draggability, remove once we have a better solution */
+  button {
     white-space: nowrap;
   }
 
@@ -36,7 +34,6 @@ const cfg: TwindUserConfig<TailwindTheme> = {
   darkColor: autoDarkColor,
   rules: [
     // mini-bootstrap
-    ["m([es])-(\\d+|auto)", (match, _) => `m${match[1] == "s" ? "l" : "r"}-${match[2]}`],
     ["hstack", "flex flex-row items-center"],
     ["vstack", "flex flex-col"],
     ["row", "flex flex-row -mx-2"],

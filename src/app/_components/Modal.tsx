@@ -8,7 +8,7 @@ export const Modal = ({ title, class: className = "", children, onClose }) => (
     <div class="rounded bg-neutral-50 border-1 border-neutral-500 shadow-lg w-1/2">
       <div class="hstack px-4 pt-4">
         <h5 class="text-lg font-medium">{title}</h5>
-        <button type="button" class="ms-auto" onClick={onClose}>
+        <button type="button" class="ml-auto" onClick={onClose}>
           X
         </button>
       </div>

@@ -5,7 +5,7 @@ import { useEffect } from "preact/hooks"
 
 export const App = () => {
   return (
-    <ErrorBoundary class="text-base bg-white dark:bg-neutral-800 text-neutral-900">
+    <ErrorBoundary class="text-(base neutral-900) bg-(white dark:neutral-800)">
       <Layout class="h-screen">
         <Sidebar />
 
@@ -18,10 +18,7 @@ export const App = () => {
 }
 
 const Sidebar = () => (
-  <aside
-    class="vstack gap-2 p-4 bg-neutral-100 dark:bg-neutral-700 border-r-1 border-neutral-300 shadow-inner"
-    data-drag-window
-  >
+  <aside class="vstack gap-2 p-4 bg-neutral-(100 dark:700) border-(r-1 neutral-300) shadow-inner" data-drag-window>
     {DEV ? <SearchField class="mt-6 mb-4" /> : <div class="mt-4" />}
 
     <SidebarHeader title="Main" />
@@ -41,18 +38,18 @@ const Sidebar = () => (
     <SidebarLink href="/settings">Settings</SidebarLink>
 
     <SidebarHeader title="Model" class="mt-auto" />
-    <ModelSelect class="mt-2 w-40 lg:w-52" />
+    <ModelSelect class="mt-2 w-(40 lg:52)" />
   </aside>
 )
 
 const SidebarHeader = ({ title, class: className = "" }) => (
-  <h2 class={`mt-6 ml-3 text-xs font-bold text-gray-400 dark:text-gray-400 ${className}`}>{title}</h2>
+  <h2 class={`mt-6 ml-3 font-bold text-(xs gray-400 dark:gray-400) ${className}`}>{title}</h2>
 )
 
 const SidebarLink = props => (
   <NavLink
     class="rounded font-semibold py-2 px-3 text-neutral-900"
-    activeClass="bg-neutral-200 dark:bg-neutral-600"
+    activeClass="bg-neutral-(200 dark:600)"
     {...props}
   />
 )
