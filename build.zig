@@ -29,7 +29,7 @@ pub fn build(builder: *std.Build) !void {
 
 fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     const exe = b.addExecutable(.{
-        .name = "main", // should be "ava" but "Zig Language Extras" only works with "main"
+        .name = "ava",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
