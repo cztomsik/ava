@@ -29,7 +29,6 @@ export const Playground = () => {
         {DEV && <Button>Create a Tool</Button>}
       </PageHeader>
 
-      {/* TODO: single-area mode + toggle */}
       <PageContent>
         <Form class="vstack" onSubmit={handleSubmit}>
           <div class="row">
@@ -54,19 +53,16 @@ export const Playground = () => {
             {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
             <div class="col">
               {variableNames.map(name => (
-                <div class="input-group mb-2">
-                  <span class="input-group-text">{name}</span>
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder={name}
-                    value={variables[name]}
-                    onInput={e => (variables[name] = e.target.value)}
-                  />
-                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2"
+                  placeholder={name}
+                  value={variables[name]}
+                  onInput={e => (variables[name] = e.target.value)}
+                />
               ))}
 
-              {<Markdown input={prompt.value} class="card p-3" />}
+              {<Markdown input={result.value} class="card p-3" />}
             </div>
           </div>
         </Form>
