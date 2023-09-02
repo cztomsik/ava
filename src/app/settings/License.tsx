@@ -14,18 +14,16 @@ export const License = () => {
 
   return (
     <SettingsPage>
-      <div class="vstack overflow-hidden">
-        <h1 class="text-lg font-bold">License</h1>
-        <div class="flex-1 p-4 border rounded-md overflow-auto shadow-inner my-4">
-          <Markdown class="max-w-2xl" input={license.value}></Markdown>
-        </div>
-
-        <h2 class="text-lg font-bold">Open Source acknowledgement</h2>
-        <p>
-          This Software, incorporates and uses open-source software components. The use of these components is
-          acknowledged, and their respective licenses are included in the LICENSES.md file which is shown above.
-        </p>
+      <h1 class="text-lg font-bold">License</h1>
+      <div class="flex-1 p-4 border rounded-md overflow-auto shadow-inner my-4">
+        <Markdown class="max-w-2xl" input={license.value}></Markdown>
       </div>
+
+      <h2 class="text-lg font-bold">Open Source acknowledgement</h2>
+      <p>
+        This Software, incorporates and uses open-source software components. The use of these components is
+        acknowledged, and their respective licenses are included in the LICENSES.md file which is shown above.
+      </p>
     </SettingsPage>
   )
 }

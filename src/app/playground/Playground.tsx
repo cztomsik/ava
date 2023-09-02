@@ -30,7 +30,7 @@ export const Playground = () => {
       </PageHeader>
 
       <PageContent>
-        <Form class="flex-1 row overflow-hidden" onSubmit={handleSubmit}>
+        <Form class="flex-1 max-h-full row" onSubmit={handleSubmit}>
           <div class="col vstack">
             <PromptLoader onLoad={item => (prompt.value = item.prompt)} />
 

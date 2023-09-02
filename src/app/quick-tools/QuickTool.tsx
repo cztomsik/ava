@@ -14,31 +14,29 @@ export const QuickTool = ({ params: { id } }) => {
       <PageHeader title={spec.name} description={spec.description}>
         <Button href="./edit">Edit</Button>
       </PageHeader>
+
       <PageContent>
-        <div class="row">
-          <div class="col">
-            <Form class="" onSubmit={() => alert("TODO")}>
-              <FormGrid class="mb-4">
-                {variableNames.map((name, i) => (
-                  <>
-                    <label class="text-capitalize">{name}</label>
-                    {name.endsWith("text") ? (
-                      <textarea class="form-control" rows={5} />
-                    ) : (
-                      <input type="text" class="form-control" />
-                    )}
-                  </>
-                ))}
-              </FormGrid>
+        <Form class="row" onSubmit={() => alert("TODO")}>
+          <FormGrid class="col">
+            {variableNames.map((name, i) => (
+              <>
+                <label class="text-capitalize">{name}</label>
+                {name.endsWith("text") ? (
+                  <textarea class="form-control" rows={5} />
+                ) : (
+                  <input type="text" class="form-control" />
+                )}
+              </>
+            ))}
 
-              <Button submit>Generate</Button>
-            </Form>
-          </div>
+            <div />
+            <Button submit>Generate</Button>
+          </FormGrid>
 
-          <div class="col overflow-hidden">
+          <div class="col overflow-auto">
             <pre class="card p-3">{result}</pre>
           </div>
-        </div>
+        </Form>
       </PageContent>
     </>
   )
