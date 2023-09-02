@@ -2,8 +2,8 @@ import { css } from "@twind/core"
 
 export const styles = css`
   display: grid;
-  grid-template-columns: min-content minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: min-content 1fr;
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     "aside header"
     "aside main"

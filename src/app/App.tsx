@@ -6,10 +6,7 @@ export const App = () => {
     <ErrorBoundary class="text(base neutral-900) bg(white dark:neutral-800)">
       <Layout class="h-screen">
         <Sidebar />
-
-        <Layout>
-          <router.currentRoute.component params={router.params} />
-        </Layout>
+        <router.currentRoute.component params={router.params} />
       </Layout>
     </ErrorBoundary>
   )
