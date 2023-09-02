@@ -3,6 +3,7 @@ import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useGenerate } from "../_hooks"
 import { signal, useSignal } from "@preact/signals"
+import { useRef } from "preact/hooks"
 
 export const Chat = () => {
   const { generate, loading, abort } = useGenerate()
@@ -13,6 +14,8 @@ export const Chat = () => {
         "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n",
     } as any,
   ])
+
+  const ref = useRef(null)
 
   const handleSend = async text => {
     const content = signal("")
@@ -27,6 +30,8 @@ export const Chat = () => {
     // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
     for await (const temp of generate(prompt.trimEnd(), { stop: ["USER", ":"] })) {
       content.value = temp
+
+      ref.current?.scrollIntoView({ behavior: "smooth" })
     }
   }
 
@@ -36,7 +41,10 @@ export const Chat = () => {
 
       <PageContent>
         <ChatLog chat={{ messages }} />
-        <div class="hstack justify-center mt-4">{loading && <Button onClick={abort}>Stop generation</Button>}</div>
+
+        <div ref={ref} class="hstack justify-center mt-4">
+          {loading && <Button onClick={abort}>Stop generation</Button>}
+        </div>
       </PageContent>
 
       {/* Always visible, because we are always either in a previous chat or in a new chat. */}
