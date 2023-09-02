@@ -12,7 +12,6 @@ export const ChatInput = ({ onSend }) => {
   return (
     <Form onSubmit={handleSubmit}>
       <textarea
-        autofocus
         class="form-control mb-2"
         rows={3}
         placeholder="Ask anything..."
