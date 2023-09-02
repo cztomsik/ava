@@ -6,12 +6,16 @@ APP_PATH="./zig-out/${APP_NAME}.app"
 DMG_TMP_PATH="./zig-out/${APP_NAME}_tmp.dmg"
 DMG_FINAL_PATH="./zig-out/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 
-# Check & clean
-if [ ! -d "${APP_PATH}" ]; then echo "Error: ${APP_PATH} doesn't exist!"; exit 1; fi
-if [ -f "${DMG_TMP_PATH}" ]; then rm "${DMG_TMP_PATH}"; fi
-if [ -f "${DMG_FINAL_PATH}" ]; then rm "${DMG_FINAL_PATH}"; fi
+# Clean
+rm -rf ./zig-out
 
-# TODO: Code signing (self-signed first)
+# Build
+npm run build
+zig build -Doptimize=ReleaseSafe
+
+# Check
+if [ ! -d "${APP_PATH}" ]; then echo "Error: ${APP_PATH} doesn't exist!"; exit 1; fi
+
 # TODO: Notarization
 codesign -fs "Ava PLS" --deep "${APP_PATH}"
 
