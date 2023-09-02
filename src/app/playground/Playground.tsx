@@ -30,39 +30,39 @@ export const Playground = () => {
       </PageHeader>
 
       <PageContent>
-        <Form class="vstack" onSubmit={handleSubmit}>
-          <div class="row">
-            <div class="col">
-              <PromptLoader onLoad={item => (prompt.value = item.prompt)} />
+        <Form class="flex-1 row overflow-hidden" onSubmit={handleSubmit}>
+          <div class="col vstack">
+            <PromptLoader onLoad={item => (prompt.value = item.prompt)} />
 
-              <textarea
-                class="form-control"
-                placeholder="Type your prompt here..."
-                rows={16}
-                value={prompt}
-                onInput={e => (prompt.value = e.target.value)}
-              ></textarea>
+            <textarea
+              class="form-control flex-1"
+              placeholder="Type your prompt here..."
+              rows={16}
+              value={prompt}
+              onInput={e => (prompt.value = e.target.value)}
+            ></textarea>
 
-              <div class="hstack gap-2 mt-2">
-                <Button submit>Generate</Button>
+            <div class="hstack gap-2 mt-2">
+              <Button submit>Generate</Button>
 
-                {loading && <Button onClick={abort}>Stop generation</Button>}
-              </div>
+              {loading && <Button onClick={abort}>Stop generation</Button>}
             </div>
+          </div>
 
-            {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
-            <div class="col">
-              {variableNames.map(name => (
-                <input
-                  type="text"
-                  class="form-control mb-2"
-                  placeholder={name}
-                  value={variables[name]}
-                  onInput={e => (variables[name] = e.target.value)}
-                />
-              ))}
+          {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
+          <div class="col vstack">
+            {variableNames.map(name => (
+              <input
+                type="text"
+                class="form-control mb-2"
+                placeholder={name}
+                value={variables[name]}
+                onInput={e => (variables[name] = e.target.value)}
+              />
+            ))}
 
-              {<Markdown input={result.value} class="card p-3" />}
+            <div class="flex-1 overflow-auto">
+              <Markdown input={result.value} class="card p-3" />
             </div>
           </div>
         </Form>
