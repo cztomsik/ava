@@ -66,18 +66,7 @@ const parse = (input, target = []) => {
     ))
 
     // Lists
-    // p(/^(\s*)(\+|-|\*|\d+\.) /gm
-    // p(/(?:^|\n)((?:(-|\d+\.) .+(?:\n|$))+)/g, (m, ch, List: any = ch == "-" ? "ul" : "ol") => (
-    //   <List>
-    //     {console.log([m, ch, List])}
-    //     {m
-    //       .trim()
-    //       .split("\n")
-    //       .map(line => (
-    //         <li>{parse(line.slice(2))}</li>
-    //       ))}
-    //   </List>
-    // ))
+    p(/^(((\s*((\*|\+|\-)|\d(\.|\))) [^\n]+)\n)+)/gm, m => parseList(m))
 
     // TODO: Paragraphs
     p(/\n/g, () => <br />)
@@ -104,6 +93,33 @@ const parse = (input, target = []) => {
 
   return target
 }
+
+const parseList = (input, level = 0) => {
+  const lines = input.split("\n").filter(Boolean)
+  const stack = [mkList(/^\s*\d/.test(input))]
+
+  for (const l of lines) {
+    const [_, indent, ord, rest] = l.match(/^(\s*)(\d)?\S+ (.*)$/)
+
+    if (indent.length > level) {
+      level = indent.length
+      stack.push(mkList(!!ord))
+    }
+
+    if (indent.length < level) {
+      level = indent.length
+      const prev = stack.pop()
+      stack[stack.length - 1].props.children.push(prev)
+    }
+
+    stack[stack.length - 1].props.children.push(<li>{parse(rest)}</li>)
+  }
+
+  return stack
+}
+
+const mkList = ord =>
+  ord ? <ol class="py-2 ml-4 list-decimal" children={[]} /> : <ul class="py-2 ml-4 list-disc" children={[]} />
 
 // TODO: we can cache this and preact will skip diffing then
 const parseTable = input => {
