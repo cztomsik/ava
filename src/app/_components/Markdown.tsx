@@ -16,8 +16,14 @@ export const Markdown = ({ input, ...props }) => {
     }
   }, [input])
 
+  // TODO: I've seen once that preact failed to properly diff nodes
+  //       if that happens again, we might need to use a key here
+  //       (and do some incremental parsing, which would be nice anyway)
   return <div {...props}>{nodes}</div>
 }
+
+// TODO: maybe we can always cache calls to parse()
+//       and optimize any sub-calls? get rid of target to make it immutable?
 
 /**
  * Parse markdown into a list of vnodes
