@@ -4,7 +4,7 @@
 APP_NAME="Ava"
 APP_PATH="./zig-out/${APP_NAME}.app"
 DMG_TMP_PATH="./zig-out/${APP_NAME}_tmp.dmg"
-DMG_FINAL_PATH="./zig-out/${APP_NAME}.dmg"
+DMG_FINAL_PATH="./zig-out/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 
 # Check & clean
 if [ ! -d "${APP_PATH}" ]; then echo "Error: ${APP_PATH} doesn't exist!"; exit 1; fi
