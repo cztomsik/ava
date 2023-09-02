@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { Button, Form, Markdown, PageContent, PageHeader } from "../_components"
+import { Button, Form, GenerationProgress, Markdown, PageContent, PageHeader } from "../_components"
 import { useApi, useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
@@ -8,7 +8,7 @@ const VAR = /\{\{(\w+)\}\}/g
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
-  const { generate, loading, abort } = useGenerate()
+  const { generate, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
   const variables = useSignal({})
   const result = useSignal("")
@@ -16,8 +16,6 @@ export const Playground = () => {
   const variableNames = prompt.value.match(VAR)?.map(v => v.slice(2, -2)) ?? []
 
   const handleSubmit = async () => {
-    result.value = ""
-
     for await (const res of generate(prompt.value.replace(VAR, (_, name) => variables[name]))) {
       result.value = res
     }
@@ -42,11 +40,9 @@ export const Playground = () => {
               onInput={e => (prompt.value = e.target.value)}
             ></textarea>
 
-            <div class="hstack gap-2 mt-2">
-              <Button submit>Generate</Button>
-
-              {loading && <Button onClick={abort}>Stop generation</Button>}
-            </div>
+            <Button class="mt-2" submit>
+              Generate
+            </Button>
           </div>
 
           {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
@@ -62,7 +58,8 @@ export const Playground = () => {
             ))}
 
             <div class="flex-1 overflow-auto">
-              <Markdown input={result.value} class="card p-3" />
+              <Markdown input={result.value} class="p-4 mb-2 border rounded-md empty:hidden" />
+              <GenerationProgress {...progress} />
             </div>
           </div>
         </Form>

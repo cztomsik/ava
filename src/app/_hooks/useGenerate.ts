@@ -6,97 +6,94 @@ effect(() => localStorage.setItem("selectedModel", selectedModel.value))
 
 export const useGenerate = () => {
   const ctrl = useSignal(null)
-  const loading = ctrl.value && !ctrl.value.signal.aborted
+  const data = useSignal(null)
+  const result = useSignal("")
+  const abort = useCallback(() => ctrl.value?.abort(), [])
+  useEffect(() => abort, []) // Cancel any generation when the component is unmounted
 
-  const abort = useCallback(() => {
-    ctrl.value?.abort()
-    ctrl.value = null
-  }, [])
-
-  const generate = useCallback((prompt, options = {}) => {
-    abort()
+  const generate = useCallback(async function* (prompt, { stop = null, trimFirst = true } = {}) {
+    let stopQueue = stop?.slice()
     ctrl.value = new AbortController()
+    data.value = { status: "Sending..." }
+    yield (result.value = "")
 
-    return selectedModel.value ? generateCompletions(prompt, options, ctrl.value.signal, abort) : noModelSelected(abort)
-  }, [])
+    try {
+      for await (let d of await callApi(selectedModel.value, prompt, ctrl.value.signal)) {
+        data.value = d
 
-  // cancel any generation when the component is unmounted
-  useEffect(() => () => ctrl.value?.abort(), [])
-
-  return { generate, loading, abort } as const
-}
-
-async function* generateCompletions(prompt, options, signal?: AbortSignal, onComplete?: () => void) {
-  const { stop = null } = options
-  let stopQueue = stop?.slice()
-
-  try {
-    const response = await fetch("/api/generate", {
-      method: "POST",
-      body: JSON.stringify({
-        model: selectedModel.value,
-        prompt,
-      }),
-      headers: {
-        Connection: "keep-alive",
-        "Content-Type": "application/json",
-      },
-      signal,
-    })
-
-    let content = ""
-
-    for await (let token of chunks(response.body.getReader())) {
-      // strip the initial space which is always emitted at the beginning of the stream
-      if (!content) {
-        token = token.trimStart()
-      }
-
-      if (stop) {
-        if (stopQueue[0] === token) {
-          stopQueue.shift()
-
-          if (stopQueue.length === 0) {
-            break
-          } else {
-            continue
+        if ("content" in d) {
+          // Strip the initial space which is always emitted at the beginning of the stream
+          if (trimFirst) {
+            d.content = d.content.trimStart()
+            trimFirst = false
           }
-        } else {
-          stopQueue = stop.slice()
+
+          if (stop) {
+            if (stopQueue[0] === d.content) {
+              stopQueue.shift()
+              if (stopQueue.length === 0) break
+              else continue
+            } else stopQueue = stop.slice()
+          }
+
+          yield (result.value += d.content)
         }
       }
-
-      yield (content += token)
+    } catch (e) {
+      if (e.code !== DOMException.ABORT_ERR) {
+        throw e
+      }
+    } finally {
+      data.value = null
+      abort()
     }
+  }, [])
 
-    onComplete?.()
-  } catch (e) {
-    if (e.code !== DOMException.ABORT_ERR) {
-      throw e
+  return { generate, data, result, abort } as const
+}
+
+async function callApi(model: string, prompt: string, signal: AbortSignal) {
+  if (!model) {
+    return noModelSelected()
+  }
+
+  const response = await fetch("/api/generate", {
+    method: "POST",
+    body: JSON.stringify({ model, prompt }),
+    headers: {
+      Connection: "keep-alive",
+      "Content-Type": "application/json",
+    },
+    signal,
+  })
+
+  return jsonLines(response.body.getReader())
+}
+
+async function* jsonLines(reader: ReadableStreamDefaultReader<Uint8Array>) {
+  for await (const chunk of chunks(reader)) {
+    for (const line of chunk.split("\n")) {
+      if (line) yield JSON.parse(line)
     }
   }
 }
 
-async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
-  const decoder = new TextDecoder()
-
+async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>, decoder = new TextDecoder()) {
   for (let res; !(res = await reader.read()).done; ) {
     yield decoder.decode(res.value)
   }
 }
 
-async function* noModelSelected(onComplete) {
+async function* noModelSelected() {
   const msg = `
     **No model selected.**
     Please select a model from the dropdown in the bottom left.
 
     Go to **[Settings](/settings)** for more information.
   `
-  let content = ""
 
   for (const word of msg.split(/\b/g)) {
-    yield (content += word)
+    yield word
     await new Promise(resolve => setTimeout(resolve, 30))
   }
-  onComplete?.()
 }

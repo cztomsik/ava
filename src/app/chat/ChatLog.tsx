@@ -1,10 +1,10 @@
 import { Markdown } from "../_components"
 
-export const ChatLog = ({ chat }) => {
+export const ChatLog = ({ chat, class: className = "" }) => {
   const items = chat.messages.value
 
   return (
-    <div class="vstack">
+    <div class={`vstack ${className}`}>
       {items.map(message => (
         <Message {...message} />
       ))}
@@ -40,7 +40,7 @@ const fallbackAvatar = (text, bg, fg) =>
       [
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
         <rect x="0" y="0" width="32" height="32" fill="${bg}" />
-        <text x="16" y="22" font-family="sans-serif" font-size="18" text-anchor="middle" fill="${fg}">${text}</text>
+        <text x="16" y="21" font-family="sans-serif" font-size="12" text-anchor="middle" fill="${fg}">${text}</text>
       </svg>`,
       ],
       { type: "image/svg+xml" }
@@ -48,5 +48,5 @@ const fallbackAvatar = (text, bg, fg) =>
   )
 
 // TODO: load from settings
-const userImg = fallbackAvatar("U", "#ccf", "#44a")
-const assistantImg = fallbackAvatar("AI", "#faa", "#a00")
+const userImg = fallbackAvatar("You", "#faac", "#fff")
+const assistantImg = fallbackAvatar("AVA", "#66f", "#fff")
