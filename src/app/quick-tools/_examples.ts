@@ -9,6 +9,17 @@ export const examples = [
     `,
   },
 
+  {
+    name: "Question Answering",
+    description: "Basic question answering",
+    prompt: dedent`
+      Q: What is the capital of France?
+      A: Paris.
+      Q: {{question}}
+      A:
+    `,
+  },
+
   // TODO: Writing technical documentation, product announcement, etc.
   {
     name: "Copywriting",
