@@ -34,9 +34,38 @@ pub fn handler(ctx: *server.Context) !void {
 
         try cx.prepare(params.prompt);
 
+        // multi-byte
+        // TODO: move to Sampler?
+        var mb_pending: usize = 0;
+        var buf = std.ArrayList(u8).init(ctx.arena);
+        var writer = buf.writer();
+
         while (try cx.generate(&sampler)) |token| {
-            // TODO: multi-byte tokens (keep sampling)
-            try ctx.sendChunk(cx.model.token_to_str(token));
+            const bytes = cx.model.token_to_str(token);
+
+            if (mb_pending > 0) {
+                mb_pending -= bytes.len;
+                try writer.writeAll(bytes);
+                continue;
+            }
+
+            if (buf.items.len > 0) {
+                try ctx.sendChunk(buf.items);
+                buf.clearRetainingCapacity();
+                mb_pending = 0;
+                continue;
+            }
+
+            if (bytes.len == 1) {
+                mb_pending = try std.unicode.utf8ByteSequenceLength(bytes[0]) - 1;
+            }
+
+            if (mb_pending > 0) {
+                try writer.writeAll(bytes);
+                continue;
+            }
+
+            try ctx.sendChunk(bytes);
         }
         return;
     }
