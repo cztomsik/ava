@@ -10,7 +10,7 @@ const urls = [
 export const Models = () => {
   return (
     <SettingsPage>
-      <Alert class="bg-orange-50 mb-8">
+      <Alert class="mb-8">
         <strong>This page is under construction.</strong> <br />
         For now, you need to download the models manually and put them into your Downloads folder. <br />
         <br />
