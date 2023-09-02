@@ -36,22 +36,16 @@ const parse = (input, target = []) => {
   }
 
   for (input = input.trim(), pos = 0; pos < input.length; match = null) {
-    // Basic formatting
+    // Basic formatting (intentionally non-recursive)
     p(/\\(.)/g, ch => ch) // Escape
     p(/(  |\\)\n/g, () => <br />) // Line ends with 2 spaces or a backslash
     p(/^(---|\*\*\*|___)\n/gm, () => <hr />)
-    p(/(__|\*\*)(.*?)\1/g, (_, text) => <strong class="font-bold">{parse(text)}</strong>)
-    p(/(_|\*)(.*?)\1/g, (_, text) => <em class="font-italic">{parse(text)}</em>)
-    p(/~~(.*?)~~/g, text => <s>{parse(text)}</s>)
+    p(/(__|\*\*)(.*?)\1/g, (_, text) => <strong class="font-bold">{text}</strong>)
+    p(/(_|\*)(.*?)\1/g, (_, text) => <em class="font-italic">{text}</em>)
+    p(/~~(.*?)~~/g, text => <s>{text}</s>)
     p(/!\[(.*?)\]\((.*?)(\s.*)?\)/g, (alt, src) => <img src={src} alt={alt} />)
     p(/`([^`]+)`/g, text => <code class="font-mono">{text}</code>)
-
-    // Links
-    p(/\[(.*?)\]\((.*?)\)/g, (text, href) => (
-      <a class="text-blue-500" href={href}>
-        {parse(text)}
-      </a>
-    ))
+    p(/\[(.*?)\]\((.*?)\)/g, (children, href) => <a class="text-blue-500" {...{ href, children }} />)
 
     // Code blocks
     p(/```.*?\n([\s\S]*?)```/g, text => (
@@ -105,6 +99,7 @@ const parse = (input, target = []) => {
   return target
 }
 
+// TODO: we can cache this and preact will skip diffing then
 const parseTable = input => {
   const lines = input.trim().split("\n")
   const cells = lines.map(row => row.slice(1, -1).split("|"))
