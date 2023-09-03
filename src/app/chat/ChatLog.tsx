@@ -48,5 +48,5 @@ const fallbackAvatar = (text, bg, fg) =>
   )
 
 // TODO: load from settings
-const userImg = fallbackAvatar("You", "#faac", "#fff")
-const assistantImg = fallbackAvatar("AVA", "#66f", "#fff")
+const userImg = fallbackAvatar("You", "#dc354588", "#fff")
+const assistantImg = fallbackAvatar("AVA", "#0d6efd", "#fff")
