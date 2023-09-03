@@ -86,14 +86,23 @@ async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>, decoder 
 
 async function* noModelSelected() {
   const msg = `
-    **No model selected.**
+    Hey there! 👋
+    It looks like you haven't selected a model yet.
     Please select a model from the dropdown in the bottom left.
 
+    In case you don't have a model yet, you can get one from **[Hugging Face](https://huggingface.co/models)**.
     Go to **[Settings](/settings)** for more information.
+
+    In the meantime, here's a little poem for you:
+
+    > Roses are red
+    > Violets are blue
+    > I'm a bot
+    > Writing poetry for you
   `
 
-  for (const word of msg.split(/\b/g)) {
-    yield word
+  for (const content of msg.split(/\b/g)) {
+    yield { content }
     await new Promise(resolve => setTimeout(resolve, 30))
   }
 }

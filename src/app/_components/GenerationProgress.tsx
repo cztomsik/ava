@@ -4,6 +4,7 @@ import { Button } from "."
 export const GenerationProgress = ({ data, abort, class: className = "" }) => {
   const ref = useRef(null)
 
+  // TODO: This works in safari webview but chrome only scrolls sometimes
   data.subscribe(() => ref.current?.scrollIntoView({ behavior: "smooth" }))
 
   return (
