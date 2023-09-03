@@ -13,6 +13,7 @@ export const useGenerate = () => {
 
   const generate = useCallback(async function* (prompt, { stop = null, trimFirst = true } = {}) {
     let stopQueue = stop?.slice()
+    ctrl.value?.abort()
     ctrl.value = new AbortController()
     data.value = { status: "Sending..." }
     yield (result.value = "")
@@ -45,7 +46,6 @@ export const useGenerate = () => {
       }
     } finally {
       data.value = null
-      abort()
     }
   }, [])
 
