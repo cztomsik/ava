@@ -27,7 +27,9 @@ This Software, "Ava PLS", incorporates and uses open-source software components.
 3. [Preact](https://preactjs.com/) - MIT
 4. [Twind](https://twind.style/) - MIT
 
-**Open-Source Licenses**
+---
+
+**Zig License**
 
 The MIT License (Expat)
 
@@ -53,6 +55,8 @@ THE SOFTWARE.
 
 ---
 
+**llamma.cpp License**
+
 MIT License
 
 Copyright (c) 2023 Georgi Gerganov
@@ -77,6 +81,8 @@ SOFTWARE.
 
 ---
 
+**Preact License**
+
 The MIT License (MIT)
 
 Copyright (c) 2015-present Jason Miller
@@ -100,6 +106,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ---
+
+**Twind License**
 
 MIT License
 
