@@ -91,12 +91,20 @@ pub const Context = struct {
     /// Sends a static resource. The resource is embedded in release builds.
     pub fn sendResource(self: *Context, comptime path: []const u8) !void {
         try self.res.headers.append("Content-Type", comptime mime(std.fs.path.extension(path)) ++ "; charset=utf-8");
+        try self.noCache();
 
         try self.sendChunk(if (comptime builtin.mode != .Debug) @embedFile("../" ++ path) else blk: {
             var f = try std.fs.cwd().openFile(path, .{});
             defer f.close();
             break :blk try f.readToEndAlloc(self.arena, std.math.maxInt(usize));
         });
+    }
+
+    /// Adds no-cache headers to the response.
+    pub fn noCache(self: *Context) !void {
+        try self.res.headers.append("Cache-Control", "no-cache, no-store, must-revalidate");
+        try self.res.headers.append("Pragma", "no-cache");
+        try self.res.headers.append("Expires", "0");
     }
 };
 
