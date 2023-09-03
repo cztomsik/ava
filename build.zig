@@ -29,7 +29,7 @@ pub fn build(builder: *std.Build) !void {
 
 fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     const exe = b.addExecutable(.{
-        .name = "ava",
+        .name = format("ava_{s}", .{@tagName(target.getCpuArch())}),
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
@@ -42,18 +42,14 @@ fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     b.installArtifact(exe);
 
     if (target.getOsTag() == .macos) {
-        exe.linkSystemLibrary("sqlite3");
-        exe.linkFramework("Cocoa");
-        exe.linkFramework("WebKit");
+        useMacSDK(exe);
 
-        const bundle_plist = b.addInstallFile(.{ .path = "src/Info.plist" }, "Ava.app/Info.plist");
-        const bundle_ico = b.addInstallFile(.{ .path = "src/app/favicon.ico" }, "Ava.app/ava.ico");
-        const bundle_metal = b.addInstallFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "Ava.app/ggml-metal.metal");
-        const bundle_app = b.addInstallFile(.{ .generated = exe.generated_bin.? }, "Ava.app/ava");
-        b.getInstallStep().dependOn(&bundle_plist.step);
-        b.getInstallStep().dependOn(&bundle_ico.step);
-        b.getInstallStep().dependOn(&bundle_metal.step);
-        b.getInstallStep().dependOn(&bundle_app.step);
+        exe.linkSystemLibrary("sqlite3");
+        exe.linkSystemLibrary("objc");
+        exe.linkFramework("Foundation");
+        exe.linkFramework("CoreFoundation");
+        exe.linkFramework("AppKit");
+        exe.linkFramework("WebKit");
     }
 
     return exe;
@@ -86,6 +82,8 @@ fn addLlama() !*std.Build.Step.Compile {
 
     // Use Metal on macOS
     if (target.getOsTag() == .macos) {
+        useMacSDK(llama);
+
         try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
         try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
 
@@ -105,4 +103,16 @@ fn addLlama() !*std.Build.Step.Compile {
     llama.addCSourceFiles(&.{"llama.cpp/llama.cpp"}, cxxflags.items);
 
     return llama;
+}
+
+fn useMacSDK(step: *std.Build.Step.Compile) void {
+    const macos_sdk = std.mem.trimRight(u8, b.exec(&.{ "xcrun", "--show-sdk-path" }), "\n");
+
+    step.addSystemIncludePath(.{ .path = format("{s}/usr/include", .{macos_sdk}) });
+    step.addFrameworkPath(.{ .path = format("{s}/System/Library/Frameworks", .{macos_sdk}) });
+    step.addLibraryPath(.{ .path = format("{s}/usr/lib", .{macos_sdk}) });
+}
+
+fn format(comptime fmt: []const u8, args: anytype) []const u8 {
+    return std.fmt.allocPrint(b.allocator, fmt, args) catch @panic("OOM");
 }

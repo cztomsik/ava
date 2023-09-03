@@ -9,12 +9,15 @@ DMG_FINAL_PATH="./zig-out/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 # Clean
 rm -rf ./zig-out
 
-# Build
+# Build JS, x86_64, aarch64, and universal binary
 npm run build
-zig build -Doptimize=ReleaseSafe
+zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.13.3
+zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.13.3
+lipo -create ./zig-out/bin/ava_aarch64 ./zig-out/bin/ava_x86_64 -output ./zig-out/bin/ava
 
-# Check
-if [ ! -d "${APP_PATH}" ]; then echo "Error: ${APP_PATH} doesn't exist!"; exit 1; fi
+mkdir -p "${APP_PATH}"
+cp ./src/Info.plist ./zig-out/bin/ava ./llama.cpp/ggml-metal.metal "${APP_PATH}/"
+cp ./src/app/favicon.ico "${APP_PATH}/ava.ico"
 
 # TODO: Notarization
 codesign -fs "Ava PLS" --deep "${APP_PATH}"
