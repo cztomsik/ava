@@ -238,6 +238,8 @@ pub const Sampler = struct {
         top_k: u32 = 40,
         top_p: f32 = 0.5,
         temperature: f32 = 0.7,
+        repeat_n_last: usize = 256,
+        repeat_penalty: f32 = 1.05,
         stop_eos: bool = true,
     };
 
@@ -272,6 +274,10 @@ pub const Sampler = struct {
             .size = self.candidates.items.len,
             .sorted = false,
         };
+
+        // Apply repetition penalty.
+        const last_n = @min(ctx.tokens.items.len, self.params.repeat_n_last);
+        c.llama_sample_repetition_penalty(ctx.ptr, &candidates, &ctx.tokens.items[ctx.tokens.items.len - last_n], @intCast(last_n), self.params.repeat_penalty);
 
         if (self.params.temperature <= 0) {
             return c.llama_sample_token_greedy(ctx.ptr, &candidates);
