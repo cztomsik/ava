@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { useEffect } from "preact/hooks"
+import { useCallback, useEffect } from "preact/hooks"
 
 export const useApi = basePath => {
   const baseUrl = `/api/${basePath}`
@@ -10,10 +10,10 @@ export const useApi = basePath => {
     loading: false,
   })
 
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     signal.value = { ...signal.value, error: null, loading: true }
     signal.value = { ...signal.value, data: await fetch(baseUrl).then(res => res.json()), loading: false }
-  }
+  }, [])
 
   useEffect(() => {
     refetch()
