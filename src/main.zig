@@ -30,6 +30,6 @@ pub fn main() !void {
         const url = try std.fmt.allocPrintZ(allocator, "http://127.0.0.1:{}", .{server.http.socket.listen_address.getPort()});
         defer allocator.free(url);
 
-        platform.runWebView(url);
+        platform.runWebViewApp(url);
     }
 }

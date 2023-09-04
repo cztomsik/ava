@@ -15,9 +15,11 @@ zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.13.3
 zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.13.3
 lipo -create ./zig-out/bin/ava_aarch64 ./zig-out/bin/ava_x86_64 -output ./zig-out/bin/ava
 
-mkdir -p "${APP_PATH}"
-cp ./src/Info.plist ./zig-out/bin/ava ./llama.cpp/ggml-metal.metal "${APP_PATH}/"
-cp ./src/app/favicon.ico "${APP_PATH}/ava.ico"
+mkdir -p "${APP_PATH}/Contents/MacOS"
+mkdir -p "${APP_PATH}/Contents/Resources"
+cp ./src/Info.plist "${APP_PATH}/Contents/"
+cp ./zig-out/bin/ava "${APP_PATH}/Contents/MacOS/"
+cp ./zig-out/bin/*.nib ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
 
 # TODO: Notarization
 codesign -fs "Ava PLS" --deep "${APP_PATH}"

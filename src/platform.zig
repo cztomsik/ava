@@ -5,8 +5,8 @@ pub fn getHome() [*:0]const u8 {
     return std.os.getenv("HOME") orelse ".";
 }
 
-pub fn runWebView(url: [*:0]const u8) void {
-    _runWebView(url, builtin.mode == .Debug);
+pub fn runWebViewApp(url: [*:0]const u8) void {
+    _runWebViewApp(url, builtin.mode == .Debug);
 }
 
-extern fn _runWebView(url: [*:0]const u8, debug: bool) void;
+extern fn _runWebViewApp(url: [*:0]const u8, debug: bool) void;

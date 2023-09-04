@@ -29,7 +29,7 @@ pub fn build(builder: *std.Build) !void {
 
 fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
     const exe = b.addExecutable(.{
-        .name = format("ava_{s}", .{@tagName(target.getCpuArch())}),
+        .name = b.fmt("ava_{s}", .{@tagName(target.getCpuArch())}),
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
@@ -50,6 +50,13 @@ fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
         exe.linkFramework("CoreFoundation");
         exe.linkFramework("AppKit");
         exe.linkFramework("WebKit");
+
+        const ibtool = b.addSystemCommand(&.{ "ibtool", "--compile" });
+        const nib = ibtool.addOutputFileArg("MainMenu.nib");
+        ibtool.addFileArg(.{ .path = "src/platform.xib" });
+        const copy_nib = b.addInstallBinFile(nib, "MainMenu.nib");
+        copy_nib.step.dependOn(&ibtool.step);
+        b.getInstallStep().dependOn(&copy_nib.step);
     }
 
     return exe;
@@ -93,7 +100,7 @@ fn addLlama() !*std.Build.Step.Compile {
         llama.linkFramework("MetalKit");
         llama.linkFramework("MetalPerformanceShaders");
 
-        // copy the *.metal file so that it can be loaded at runtime
+        // Copy the *.metal file so that it can be loaded at runtime
         const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
         b.getInstallStep().dependOn(&copy_metal_step.step);
     }
@@ -108,11 +115,7 @@ fn addLlama() !*std.Build.Step.Compile {
 fn useMacSDK(step: *std.Build.Step.Compile) void {
     const macos_sdk = std.mem.trimRight(u8, b.exec(&.{ "xcrun", "--show-sdk-path" }), "\n");
 
-    step.addSystemIncludePath(.{ .path = format("{s}/usr/include", .{macos_sdk}) });
-    step.addFrameworkPath(.{ .path = format("{s}/System/Library/Frameworks", .{macos_sdk}) });
-    step.addLibraryPath(.{ .path = format("{s}/usr/lib", .{macos_sdk}) });
-}
-
-fn format(comptime fmt: []const u8, args: anytype) []const u8 {
-    return std.fmt.allocPrint(b.allocator, fmt, args) catch @panic("OOM");
+    step.addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{macos_sdk}) });
+    step.addFrameworkPath(.{ .path = b.fmt("{s}/System/Library/Frameworks", .{macos_sdk}) });
+    step.addLibraryPath(.{ .path = b.fmt("{s}/usr/lib", .{macos_sdk}) });
 }

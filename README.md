@@ -23,6 +23,14 @@ npm run watch
 zig build run
 ```
 
+## macOS
+
+Xcode is needed (for ibtool)
+
+```
+sudo xcode-select -switch /Applications/Xcode.app
+```
+
 ## Production build
 
 ```bash
