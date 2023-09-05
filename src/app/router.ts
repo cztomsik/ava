@@ -7,6 +7,7 @@ import { EditTool } from "./quick-tools/EditTool"
 import { CreateTool } from "./quick-tools/CreateTool"
 import { Models } from "./settings/Models"
 import { License } from "./settings/License"
+import { Api } from "./settings/Api"
 
 const routes = [
   { path: "/chat", component: Chat },
@@ -17,6 +18,7 @@ const routes = [
   { path: "/playground", component: Playground },
   { path: "/settings", component: Models },
   { path: "/settings/license", component: License },
+  { path: "/settings/api", component: Api },
 ].filter(Boolean)
 
 const current = signal({ route: routes[0], params: {} })

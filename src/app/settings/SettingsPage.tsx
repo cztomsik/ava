@@ -9,7 +9,7 @@ export const SettingsPage = ({ children }) => {
             Models
           </NavLink>
           {/* <NavLink href="/settings/personalization">Personalization</NavLink> */}
-          {/* <NavLink href="/settings/api">API</NavLink> */}
+          <NavLink href="/settings/api">API</NavLink>
           <NavLink href="/settings/license">License</NavLink>
         </Tabs>
       </PageHeader>
