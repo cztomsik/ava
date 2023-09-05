@@ -21,6 +21,7 @@ const styles = css`
   }
 
   & a {
+    cursor: pointer;
     @apply text-blue-500;
   }
 
