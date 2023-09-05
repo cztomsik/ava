@@ -1,12 +1,45 @@
 import { useMemo } from "preact/hooks"
 import { Table } from "."
+import { css } from "@twind/core"
 
-const headings = ["text-2xl", "text-xl", "text-lg"]
+const headings = ["text-2xl", "text-xl", "text-lg", "text-base", "text-base", "text-base"]
+
+const styles = css`
+  ${headings.map((h, i) => `& h${i + 1} { @apply font-bold ${h}; }`).join("\n")}
+  ${headings.map((_, i) => `& h${i + 1} + br { display: none; }`).join("\n")}
+
+  & strong {
+    @apply font-bold;
+  }
+
+  & em {
+    @apply font-italic;
+  }
+
+  & code {
+    @apply font-mono;
+  }
+
+  & a {
+    @apply text-blue-500;
+  }
+
+  & pre {
+    @apply font-mono rounded p-2 my-2 bg-gray-800 text-gray-100 dark:(bg-gray-800 text-gray-100 border(& gray-600);
+  }
+
+  &,
+  & * {
+    cursor: text;
+    user-select: auto;
+    -webkit-user-select: auto;
+  }
+`
 
 /**
  * Renders a subset of markdown
  */
-export const Markdown = ({ input, ...props }) => {
+export const Markdown = ({ input, class: className = "", ...props }) => {
   const nodes = useMemo(() => {
     try {
       return parse(input)
@@ -19,7 +52,11 @@ export const Markdown = ({ input, ...props }) => {
   // TODO: I've seen once that preact failed to properly diff nodes
   //       if that happens again, we might need to use a key here
   //       (and do some incremental parsing, which would be nice anyway)
-  return <div {...props}>{nodes}</div>
+  return (
+    <div class={`${styles} ${className}`} {...props}>
+      {nodes}
+    </div>
+  )
 }
 
 // TODO: maybe we can always cache calls to parse()
@@ -46,24 +83,18 @@ const parse = (input, target = []) => {
     p(/\\(.)/g, ch => ch) // Escape
     p(/(  |\\)\n/g, () => <br />) // Line ends with 2 spaces or a backslash
     p(/^(---|\*\*\*|___)\n/gm, () => <hr />)
-    p(/(__|\*\*)(.*?)\1/g, (_, text) => <strong class="font-bold">{parse(text)}</strong>)
-    p(/(_|\*)(.*?)\1/g, (_, text) => <em class="font-italic">{parse(text)}</em>)
+    p(/(__|\*\*)(.*?)\1/g, (_, text) => <strong>{parse(text)}</strong>)
+    p(/(_|\*)(.*?)\1/g, (_, text) => <em>{parse(text)}</em>)
     p(/~~(.*?)~~/g, text => <s>{parse(text)}</s>)
     p(/!\[(.*?)\]\((.*?)(\s.*)?\)/g, (alt, src) => <img src={src} alt={alt} />)
-    p(/`([^`]+)`/g, text => <code class="font-mono">{text}</code>)
-    p(/\[(.*?)\]\((.*?)\)/g, (children, href) => <a class="text-blue-500" {...{ href, children }} />)
+    p(/`([^`]+)`/g, text => <code>{text}</code>)
+    p(/\[(.*?)\]\((.*?)\)/g, (children, href) => <a {...{ href, children }} />)
 
     // Code blocks
-    p(/```.*?\n([\s\S]*?)```/g, text => (
-      <pre class="font-mono rounded p-2 my-2 bg-gray-800 text-gray-100 dark:(bg-gray-800 text-gray-100 border(& gray-600)">
-        {text}
-      </pre>
-    ))
+    p(/```.*?\n([\s\S]*?)```/g, text => <pre>{text}</pre>)
 
     // Heading
-    p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => (
-      <H class={`font-bold mb-2 ${headings[l - 1] ?? ""}`}>{parse(text)}</H>
-    ))
+    p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => <H>{parse(text)}</H>)
 
     // Lists
     p(/^(((\s*((\*|\+|\-)|\d(\.|\))) [^\n]+)\n)+)/gm, m => parseList(m))
