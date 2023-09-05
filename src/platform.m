@@ -32,6 +32,7 @@
     WKWebView *webview = [[WKWebView alloc] initWithFrame:[win.contentView bounds] configuration:cfg];
     webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     webview.navigationDelegate = (id)self;
+    webview.UIDelegate = (id)self;
     self.webview = webview;
 
     [win.contentView addSubview:webview];
@@ -58,6 +59,25 @@
             decision(WKNavigationActionPolicyCancel);
         }
     }
+}
+
+// TODO: either provide/fix the icon or replace it with a custom modal implementation (which may be in JS or even in nib)
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(nonnull void (^)(NSString * _Nullable))completionHandler {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = prompt;
+    NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 300, 24)];
+    input.stringValue = defaultText;
+    alert.accessoryView = input;
+    [alert addButtonWithTitle:@"OK"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            completionHandler(input.stringValue);
+        } else {
+            completionHandler(nil);
+        }
+    }];
+    [alert.window makeFirstResponder:input];
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
