@@ -34,7 +34,7 @@ pub const Context = struct {
         self.res.deinit();
     }
 
-    pub fn match(self: *const Context, pattern: []const u8) bool {
+    pub fn match(self: *const Context, pattern: []const u8) ?[][]const u8 {
         return matchPath(pattern, self.path);
     }
 
@@ -163,37 +163,57 @@ pub const Server = struct {
 
     fn handleRequest(ctx: *Context) !void {
         // handle API requests
-        if (ctx.match("/api/*")) return api.handler(ctx);
+        if (ctx.match("/api/*")) |_| {
+            ctx.path = ctx.path[4..];
+
+            inline for (@typeInfo(api).Struct.decls) |d| {
+                const method = comptime d.name[0 .. std.mem.indexOfScalar(u8, d.name, ' ') orelse unreachable];
+                const pattern = d.name[method.len + 1 ..];
+
+                if (ctx.res.request.method == @field(std.http.Method, method)) {
+                    if (ctx.match(pattern)) |_| return @field(api, d.name)(ctx);
+                }
+            }
+
+            return error.NotFound;
+        }
 
         // TODO: should be .get() but it's not implemented yet
-        if (ctx.match("/LICENSE.md")) return ctx.sendResource("LICENSE.md");
-        if (ctx.match("/favicon.ico")) return ctx.sendResource("src/app/favicon.ico");
-        if (ctx.match("/app.js")) return ctx.sendResource("zig-out/app/main.js");
+        if (ctx.match("/LICENSE.md")) |_| return ctx.sendResource("LICENSE.md");
+        if (ctx.match("/favicon.ico")) |_| return ctx.sendResource("src/app/favicon.ico");
+        if (ctx.match("/app.js")) |_| return ctx.sendResource("zig-out/app/main.js");
 
         // disable source maps in production
-        if (ctx.match("*.map")) return ctx.sendChunk("{}");
+        if (ctx.match("*.map")) |_| return ctx.sendChunk("{}");
 
         // HTML5 fallback
         try ctx.sendResource("src/app/index.html");
     }
 };
 
-fn matchPath(pattern: []const u8, path: []const u8) bool {
+fn matchPath(pattern: []const u8, path: []const u8) ?[][]const u8 {
     var pattern_parts = std.mem.tokenizeScalar(u8, pattern, '/');
     var path_parts = std.mem.tokenizeScalar(u8, path, '/');
+    var matches: [16][]const u8 = undefined;
+    var len: usize = 0;
 
-    while (true) {
-        const pat = pattern_parts.next() orelse return true;
-        const pth = path_parts.next() orelse return false;
+    while (true) : (len += 1) {
+        const pat = pattern_parts.next() orelse return matches[0..len];
+        const pth = path_parts.next() orelse return null;
         const dynamic = pat[0] == ':' or pat[0] == '*';
 
         if (std.mem.indexOfScalar(u8, pat, '.')) |i| {
-            const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return false;
+            const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return null;
 
-            if (!matchPath(pat[i + 1 ..], pth[j + 1 ..])) return false;
+            if (matchPath(pat[i + 1 ..], pth[j + 1 ..])) |m| {
+                for (m) |s| {
+                    matches[len] = s;
+                    len += 1;
+                }
+            } else return null;
         }
 
-        if (!dynamic and !std.mem.eql(u8, pat, pth)) return false;
+        if (!dynamic and !std.mem.eql(u8, pat, pth)) return null;
     }
 }
 
