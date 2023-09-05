@@ -1,6 +1,6 @@
 import { Markdown } from "../_components"
 
-export const ChatLog = ({ chat, class: className = "" }) => {
+export const ChatLog = ({ chat, class: className = "", fallbackContent = null }) => {
   const items = chat.messages.value
 
   return (
@@ -9,9 +9,7 @@ export const ChatLog = ({ chat, class: className = "" }) => {
         <Message {...message} />
       ))}
 
-      {items.length === 1 && (
-        <div class="text-neutral-400">They conversation is empty. Use the input below to start chatting.</div>
-      )}
+      {items.length === 1 && fallbackContent}
     </div>
   )
 }

@@ -31,7 +31,18 @@ export const Chat = () => {
       <PageHeader title="Chat" description="Dialog-based interface" />
 
       <PageContent>
-        <ChatLog chat={{ messages }} />
+        <ChatLog
+          chat={{ messages }}
+          fallbackContent={
+            <div class="text-neutral-400">
+              <div>They conversation is empty.</div>
+              <ul class="list-disc mt-2 ml-4">
+                <li>Use the input below to start chatting.</li>
+                <li>You can type multi-line messages with Shift+Enter.</li>
+              </ul>
+            </div>
+          }
+        />
         <GenerationProgress class="mt-4" {...progress} />
       </PageContent>
 
