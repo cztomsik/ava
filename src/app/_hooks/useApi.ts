@@ -1,8 +1,10 @@
 import { useSignal } from "@preact/signals"
 import { useCallback, useEffect } from "preact/hooks"
 
+export const API_URL = `${window.location.protocol}//${window.location.host}/api`
+
 export const useApi = basePath => {
-  const baseUrl = `/api/${basePath}`
+  const baseUrl = `${API_URL}/${basePath}`
 
   const signal = useSignal({
     data: null,
