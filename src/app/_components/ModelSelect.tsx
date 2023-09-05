@@ -3,7 +3,6 @@ import { useApi, selectedModel } from "../_hooks"
 
 export const ModelSelect = ({ class: className = "" }) => {
   const { data: models, refetch } = useApi("models")
-  const { value } = selectedModel
 
   useEffect(() => {
     if (models) {
@@ -16,11 +15,11 @@ export const ModelSelect = ({ class: className = "" }) => {
   return (
     <select
       class={`form-select ${className}`}
-      value={value}
+      value={selectedModel.value}
       onClick={refetch}
       onChange={e => (selectedModel.value = e.target.value)}
     >
-      {<option value={models?.length === 0 ? value : ""}>Select a model</option>}
+      {<option value={models?.length === 0 ? selectedModel.value : ""}>Select a model</option>}
 
       {models?.map(model => (
         <option key={model.name} value={model.name}>
