@@ -20,7 +20,7 @@ export const ModelSelect = ({ class: className = "" }) => {
       onClick={refetch}
       onChange={e => (selectedModel.value = e.target.value)}
     >
-      {models?.length === 0 && <option value={value}>Select a model</option>}
+      {<option value={models?.length === 0 ? value : ""}>Select a model</option>}
 
       {models?.map(model => (
         <option key={model.name} value={model.name}>
