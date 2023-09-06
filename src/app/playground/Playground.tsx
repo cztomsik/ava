@@ -8,8 +8,10 @@ const VAR = /\{\{(\w+)\}\}/g
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
+  const { data: prompts, loading, post: createPrompt, del } = useApi("prompts")
   const { generate, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
+  const id = useSignal(null)
   const variables = useSignal({})
   const result = useSignal("")
 
@@ -21,23 +23,49 @@ export const Playground = () => {
     }
   }
 
+  const handleSaveAs = async () => {
+    const name = window.prompt("Name this prompt", "Untitled")
+
+    if (name) {
+      await createPrompt({ name, prompt: prompt.value })
+    }
+  }
+
+  const handleDelete = async () => {
+    await del(id.value)
+    id.value = null
+  }
+
   return (
     <>
       <PageHeader title="Playground" description="Try out new ideas quickly">
+        {id.value > 0 && <Button onClick={handleDelete}>Delete</Button>}
+        <Button onClick={handleSaveAs}>Save As</Button>
         {DEV && <Button>Create a Tool</Button>}
       </PageHeader>
 
       <PageContent>
         <Form class="flex-1 max-h-full row" onSubmit={handleSubmit}>
           <div class="col vstack">
-            <PromptLoader onLoad={item => (prompt.value = item.prompt)} />
+            <PromptSelect
+              prompts={prompts}
+              loading={loading}
+              value={{ id: id.value }}
+              onChange={item => {
+                prompt.value = item.prompt
+                id.value = item.id
+              }}
+            />
 
             <textarea
               class="form-control flex-1"
               placeholder="Type your prompt here..."
               rows={16}
               value={prompt}
-              onInput={e => (prompt.value = e.target.value)}
+              onInput={e => {
+                prompt.value = e.target.value
+                id.value = null
+              }}
             ></textarea>
 
             <Button class="mt-2" submit>
@@ -45,7 +73,6 @@ export const Playground = () => {
             </Button>
           </div>
 
-          {/* TODO: this whole part should be a separate component, keyed by prompt or variable names */}
           <div class="col vstack">
             {variableNames.map(name => (
               <input
@@ -68,40 +95,31 @@ export const Playground = () => {
   )
 }
 
-const PromptLoader = ({ onLoad }) => {
-  const { data: savedPrompts, loading } = useApi("prompts")
-
+const PromptSelect = ({ prompts, loading, value, onChange }) => {
   const handleChange = e => {
-    const id = e.target.value
+    const id = +e.target.value
+    const arr = id > 0 ? prompts : examples
 
-    if (id > 0) {
-      return onLoad(savedPrompts.find(p => p.id == id))
-    }
-
-    if (id <= 0) {
-      return onLoad(examples[-id])
-    }
+    onChange(arr.find(p => p.id === id))
   }
 
   return (
-    <select class="form-select mb-2" onChange={handleChange}>
+    <select class="form-select mb-2" value={value?.id ?? ""} onChange={handleChange}>
       <option selected value="">
         Load from ...
       </option>
 
-      {DEV && (
-        <optgroup label="Saved">
-          {loading && <option>Loading ...</option>}
+      <optgroup label="Saved Prompts">
+        {loading && <option>Loading ...</option>}
 
-          {savedPrompts?.map(({ id, name }) => (
-            <option value={id}>{name}</option>
-          ))}
-        </optgroup>
-      )}
+        {prompts?.map(({ id, name }) => (
+          <option value={id}>{name}</option>
+        ))}
+      </optgroup>
 
       <optgroup label="Examples">
-        {examples.map(({ name }, i) => (
-          <option value={-i}>{name}</option>
+        {examples.map(({ id, name }, i) => (
+          <option value={id}>{name}</option>
         ))}
       </optgroup>
     </select>
