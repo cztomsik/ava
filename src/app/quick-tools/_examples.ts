@@ -2,6 +2,7 @@ import { dedent } from "../_util"
 
 export const examples = [
   {
+    id: -1,
     name: "Hello World",
     description: "Basic example",
     prompt: dedent`
@@ -10,6 +11,7 @@ export const examples = [
   },
 
   {
+    id: -2,
     name: "Question Answering",
     description: "Basic question answering",
     prompt: dedent`
@@ -22,6 +24,7 @@ export const examples = [
 
   // TODO: Writing technical documentation, product announcement, etc.
   {
+    id: -3,
     name: "Copywriting",
     description: "Copywriting",
     prompt: dedent`
@@ -36,6 +39,7 @@ export const examples = [
 if (DEV) {
   examples.push(
     {
+      id: -4,
       name: "Grammar Police",
       description: "Correct grammar in the provided text",
       prompt: dedent`
@@ -46,6 +50,7 @@ if (DEV) {
     },
 
     {
+      id: -5,
       name: "Rephrase",
       description: "",
       prompt: dedent`
@@ -56,6 +61,7 @@ if (DEV) {
     },
 
     {
+      id: -6,
       name: "Vacation Planner",
       description: "Plan a vacation",
       prompt: dedent`
@@ -65,6 +71,7 @@ if (DEV) {
     },
 
     {
+      id: -7,
       name: "Writing Style",
       description: "Suggest style improvements",
       prompt: dedent`
@@ -75,6 +82,7 @@ if (DEV) {
     },
 
     {
+      id: -8,
       name: "Interview Prep",
       description: "Prepare for an interview",
       prompt: dedent`
@@ -84,6 +92,7 @@ if (DEV) {
     },
 
     {
+      id: -9,
       name: "Write an E-mail",
       description: "Write e-mail",
       prompt: dedent`
@@ -92,6 +101,7 @@ if (DEV) {
     },
 
     {
+      id: -10,
       name: "Write a Reply",
       description: "Write e-mail reply",
       prompt: dedent`
@@ -104,6 +114,7 @@ if (DEV) {
     },
 
     {
+      id: -11,
       name: "Summarize",
       description: "Summarize text",
       prompt: dedent`
@@ -114,6 +125,7 @@ if (DEV) {
     },
 
     {
+      id: -12,
       name: "Buy or Sell",
       description: "Stock market advice",
       prompt: dedent`
@@ -124,6 +136,7 @@ if (DEV) {
     },
 
     {
+      id: -13,
       name: "Regex Help",
       description: "Write a regular expression",
       prompt: dedent`
@@ -140,6 +153,7 @@ if (DEV) {
     },
 
     {
+      id: -14,
       name: "Total Rewrite",
       description: "Reimplement given code in another language",
       prompt: dedent`
