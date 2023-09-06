@@ -69,6 +69,41 @@ Generates text from a prompt.
 | \`.stop_eos\`       | \`boolean\` | Stop generating when an end-of-sentence token is encountered. |
 
 The response is a stream of JSON lines, where each line is either \`{ status: "message" }\`, \`{ content: "token" }\` or \`{ error: "message" }\`. The response will be chunked, so the client can start processing the response as soon as the first chunk is received.
+
+## GET /api/prompts
+
+Returns a list of saved prompts.
+
+\`\`\`json
+[
+  {
+    "id": 1,
+    "name": "prompt_name",
+    "prompt": "prompt text"
+  }
+]
+\`\`\`
+
+## POST /api/prompts
+
+Saves a prompt.
+
+\`\`\`json
+{
+  "name": "prompt_name",
+  "prompt": "prompt text"
+}
+\`\`\`
+
+| Field      | Type       | Description |
+| ---------- | ---------- | ----------- |
+| \`name\`   | \`string\` | The name of the prompt. |
+| \`prompt\` | \`string\` | The text of the prompt. |
+
+## DELETE /api/prompts/:id
+
+Deletes a prompt.
+
 `}
       />
     </SettingsPage>
