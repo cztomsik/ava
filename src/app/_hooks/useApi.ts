@@ -17,9 +17,26 @@ export const useApi = basePath => {
     signal.value = { ...signal.value, data: await fetch(baseUrl).then(res => res.json()), loading: false }
   }, [])
 
+  const post = useCallback(async (data, options = {}) => {
+    signal.value = { ...signal.value, error: null, loading: true }
+    await fetch(baseUrl, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+    refetch()
+  }, [])
+
+  const del = useCallback(async (id, options = {}) => {
+    signal.value = { ...signal.value, error: null, loading: true }
+    await fetch(`${baseUrl}/${id}`, {
+      method: "DELETE",
+    })
+    refetch()
+  }, [])
+
   useEffect(() => {
     refetch()
   }, [])
 
-  return { ...signal.value, refetch }
+  return { ...signal.value, refetch, post, del }
 }
