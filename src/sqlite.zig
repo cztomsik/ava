@@ -97,7 +97,7 @@ pub const Statement = struct {
         try check(switch (@TypeOf(arg)) {
             bool => c.sqlite3_bind_int(self.stmt, i, if (arg) 1 else 0),
             i32 => c.sqlite3_bind_int(self.stmt, i, arg),
-            i64 => c.sqlite3_bind_int64(self.stmt, i, arg),
+            u32, i64 => c.sqlite3_bind_int64(self.stmt, i, arg),
             f64 => c.sqlite3_bind_double(self.stmt, i, arg),
             []const u8 => c.sqlite3_bind_text(self.stmt, i, arg.ptr, @intCast(arg.len), null),
             else => @compileError("TODO"),
