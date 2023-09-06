@@ -38,6 +38,27 @@ pub const Context = struct {
         return matchPath(pattern, self.path);
     }
 
+    pub fn route(self: *Context, comptime routes: type) !void {
+        inline for (@typeInfo(routes).Struct.decls) |d| {
+            const method = comptime d.name[0 .. std.mem.indexOfScalar(u8, d.name, ' ') orelse unreachable];
+            const pattern = d.name[method.len + 1 ..];
+
+            if (self.res.request.method == @field(std.http.Method, method)) {
+                if (self.match(pattern)) |matches| {
+                    const handler = comptime @field(api, d.name);
+
+                    var args: std.meta.ArgsTuple(@TypeOf(handler)) = undefined;
+                    args[0] = self;
+                    inline for (1..args.len) |i| args[i] = try parse(@TypeOf(args[i]), matches[i - 1]);
+
+                    return @call(.auto, @field(api, d.name), args);
+                }
+            }
+        }
+
+        return error.NotFound;
+    }
+
     /// Reads the request body as JSON.
     pub fn readJson(self: *Context, comptime T: type) !T {
         var reader = std.json.reader(self.arena, self.res.reader());
@@ -156,26 +177,19 @@ pub const Server = struct {
                 if (e == error.OutOfMemory) return e;
 
                 std.log.debug("handleRequest: {}", .{e});
-                ctx.res.status = .internal_server_error;
+                ctx.res.status = switch (e) {
+                    error.NotFound => .not_found,
+                    else => .internal_server_error,
+                };
             };
         }
     }
 
-    fn handleRequest(ctx: *Context) !void {
+    fn handleRequest(ctx: *Context) anyerror!void {
         // handle API requests
         if (ctx.match("/api/*")) |_| {
             ctx.path = ctx.path[4..];
-
-            inline for (@typeInfo(api).Struct.decls) |d| {
-                const method = comptime d.name[0 .. std.mem.indexOfScalar(u8, d.name, ' ') orelse unreachable];
-                const pattern = d.name[method.len + 1 ..];
-
-                if (ctx.res.request.method == @field(std.http.Method, method)) {
-                    if (ctx.match(pattern)) |_| return @field(api, d.name)(ctx);
-                }
-            }
-
-            return error.NotFound;
+            return ctx.route(api);
         }
 
         // TODO: should be .get() but it's not implemented yet
@@ -197,8 +211,8 @@ fn matchPath(pattern: []const u8, path: []const u8) ?[][]const u8 {
     var matches: [16][]const u8 = undefined;
     var len: usize = 0;
 
-    while (true) : (len += 1) {
-        const pat = pattern_parts.next() orelse return matches[0..len];
+    while (true) {
+        const pat = pattern_parts.next() orelse return if (pattern[pattern.len - 1] == '*' or path_parts.next() == null) matches[0..len] else null;
         const pth = path_parts.next() orelse return null;
         const dynamic = pat[0] == ':' or pat[0] == '*';
 
@@ -206,15 +220,25 @@ fn matchPath(pattern: []const u8, path: []const u8) ?[][]const u8 {
             const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return null;
 
             if (matchPath(pat[i + 1 ..], pth[j + 1 ..])) |m| {
-                for (m) |s| {
-                    matches[len] = s;
-                    len += 1;
-                }
+                for (m, len..) |s, l| matches[l] = s;
+                len += m.len;
             } else return null;
         }
 
         if (!dynamic and !std.mem.eql(u8, pat, pth)) return null;
+
+        if (pat[0] == ':') {
+            matches[len] = pth;
+            len += 1;
+        }
     }
+}
+
+fn parse(comptime T: type, s: []const u8) !T {
+    return switch (@typeInfo(T)) {
+        .Int => std.fmt.parseInt(T, s, 10),
+        else => s,
+    };
 }
 
 fn mime(comptime ext: []const u8) []const u8 {

@@ -48,11 +48,15 @@ pub fn @"GET /prompts"(ctx: *server.Context) !void {
 }
 
 pub fn @"POST /prompts"(ctx: *server.Context) !void {
-    _ = ctx;
-    // TODO
+    const data = try ctx.readJson(struct {
+        name: []const u8,
+        prompt: []const u8,
+    });
+
+    try db.exec("INSERT INTO Prompt (name, prompt) VALUES (?, ?)", .{ data.name, data.prompt });
 }
 
-pub fn @"DELETE /models/:id"(ctx: *server.Context) !void {
+pub fn @"DELETE /prompts/:id"(ctx: *server.Context, id: u32) !void {
     _ = ctx;
-    // TODO
+    try db.exec("DELETE FROM Prompt WHERE id = ?", .{id});
 }
