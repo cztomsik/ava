@@ -11,7 +11,7 @@ export const Playground = () => {
   const { data: prompts, loading, post: createPrompt, del } = useApi("prompts")
   const { generate, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
-  const id = useSignal(null)
+  const selection = useSignal(null)
   const variables = useSignal({})
   const result = useSignal("")
 
@@ -24,7 +24,7 @@ export const Playground = () => {
   }
 
   const handleSaveAs = async () => {
-    const name = window.prompt("Name this prompt", "Untitled")
+    const name = window.prompt("Name this prompt", selection.value?.name ?? "Untitled")
 
     if (name) {
       await createPrompt({ name, prompt: prompt.value })
@@ -32,14 +32,14 @@ export const Playground = () => {
   }
 
   const handleDelete = async () => {
-    await del(id.value)
-    id.value = null
+    await del(selection.value.id)
+    selection.value = null
   }
 
   return (
     <>
       <PageHeader title="Playground" description="Try out new ideas quickly">
-        {id.value > 0 && <Button onClick={handleDelete}>Delete</Button>}
+        {selection.value?.id > 0 && <Button onClick={handleDelete}>Delete</Button>}
         <Button onClick={handleSaveAs}>Save As</Button>
         {DEV && <Button>Create a Tool</Button>}
       </PageHeader>
@@ -50,10 +50,10 @@ export const Playground = () => {
             <PromptSelect
               prompts={prompts}
               loading={loading}
-              value={{ id: id.value }}
+              value={selection.value}
               onChange={item => {
                 prompt.value = item.prompt
-                id.value = item.id
+                selection.value = item
               }}
             />
 
@@ -64,7 +64,7 @@ export const Playground = () => {
               value={prompt}
               onInput={e => {
                 prompt.value = e.target.value
-                id.value = null
+                selection.value = null
               }}
             ></textarea>
 
