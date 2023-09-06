@@ -97,9 +97,13 @@ pub const Context = struct {
 
         if (comptime std.meta.trait.hasFn("next")(@TypeOf(body))) {
             var copy = body;
+            var i: usize = 0;
 
             try writer.writeAll("[");
-            while (try copy.next()) |item| try std.json.stringify(item, .{}, writer);
+            while (try copy.next()) |item| : (i += 1) {
+                if (i != 0) try writer.writeAll(",");
+                try std.json.stringify(item, .{}, writer);
+            }
             try writer.writeAll("]");
         } else {
             try std.json.stringify(body, .{}, writer);
