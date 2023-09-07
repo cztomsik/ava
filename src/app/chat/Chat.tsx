@@ -46,10 +46,9 @@ export const Chat = () => {
         <GenerationProgress class="mt-4" {...progress} />
       </PageContent>
 
-      {/* Always visible, because we are always either in a previous chat or in a new chat. */}
-      <footer class="p-4 pt-0 lg:px-10">
+      <PageFooter class="pt-0">
         <ChatInput onSend={handleSend} />
-      </footer>
+      </PageFooter>
     </>
   )
 }
