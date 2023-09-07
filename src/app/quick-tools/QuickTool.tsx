@@ -11,7 +11,8 @@ export const QuickTool = ({ params: { id } }) => {
 
   return (
     <>
-      <PageHeader title={spec.name} description={spec.description}>
+      {/* TODO: maybe we can re-introduce page header here, just for the sake of quick tools description */}
+      <PageHeader title={spec.name}>
         <Button href="./edit">Edit</Button>
       </PageHeader>
 

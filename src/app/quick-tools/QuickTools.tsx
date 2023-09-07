@@ -4,7 +4,7 @@ import { examples } from "./_examples"
 export const QuickTools = () => {
   return (
     <>
-      <PageHeader title="Quick Tools" description="Shortcuts for common tasks">
+      <PageHeader title="Quick Tools">
         <Button href="/quick-tools/new">Create New</Button>
       </PageHeader>
 

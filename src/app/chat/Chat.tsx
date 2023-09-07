@@ -28,7 +28,7 @@ export const Chat = () => {
 
   return (
     <>
-      <PageHeader title="Chat" description="Dialog-based interface" />
+      <PageHeader title="Chat" />
 
       <PageContent>
         <ChatLog

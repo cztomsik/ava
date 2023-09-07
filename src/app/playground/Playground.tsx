@@ -38,7 +38,7 @@ export const Playground = () => {
 
   return (
     <>
-      <PageHeader title="Playground" description="Try out new ideas quickly">
+      <PageHeader title="Playground">
         {selection.value?.id > 0 && <Button onClick={handleDelete}>Delete</Button>}
         <Button onClick={handleSaveAs}>Save As</Button>
         {DEV && <Button>Create a Tool</Button>}

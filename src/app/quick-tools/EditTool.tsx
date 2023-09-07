@@ -7,7 +7,7 @@ export const EditTool = ({ params: { id } }) => {
 
   return (
     <>
-      <PageHeader title="Edit Tool" description="Edit Tool"></PageHeader>
+      <PageHeader title="Edit Tool"></PageHeader>
 
       <PageContent>
         <ToolForm tool={tool} onSubmit={() => {}} />

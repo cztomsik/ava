@@ -6,7 +6,7 @@ export const CreateTool = () => {
 
   return (
     <>
-      <PageHeader title="New Tool" description="Create a new Tool"></PageHeader>
+      <PageHeader title="New Tool"></PageHeader>
 
       <PageContent>
         <ToolForm tool={tool} onSubmit={() => {}} />
