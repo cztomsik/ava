@@ -21,8 +21,9 @@ cp ./src/Info.plist "${APP_PATH}/Contents/"
 cp ./zig-out/bin/ava "${APP_PATH}/Contents/MacOS/"
 cp ./zig-out/bin/*.nib ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
 
-# TODO: Notarization
-codesign -fs "Ava PLS" --deep "${APP_PATH}"
+# Sign app
+# Note it still needs to be notarized
+codesign -fs "Developer ID Application: KAMIL TOMSIK (RYT4H286GA)" --deep --options=runtime --timestamp "${APP_PATH}"
 
 # Create temp DMG and perform some customizations
 # Adapted from https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools
@@ -54,3 +55,7 @@ hdiutil convert "${DMG_TMP_PATH}" -format UDZO -imagekey zlib-level=9 -o "${DMG_
 rm "${DMG_TMP_PATH}"
 
 echo "DMG created at ${DMG_FINAL_PATH}"
+
+# Notarize (if run with --notarize)
+if [ "$1" != "--notarize" ]; then exit 0; fi
+xcrun notarytool submit --wait --keychain-profile "KAMIL TOMSIK" "${DMG_FINAL_PATH}"
