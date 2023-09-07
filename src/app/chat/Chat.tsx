@@ -35,7 +35,7 @@ export const Chat = () => {
           chat={{ messages }}
           fallbackContent={
             <div class="text-neutral-400">
-              <div>They conversation is empty.</div>
+              <div>The conversation is empty.</div>
               <ul class="list-disc mt-2 ml-4">
                 <li>Use the input below to start chatting.</li>
                 <li>You can type multi-line messages with Shift+Enter.</li>
