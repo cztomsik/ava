@@ -10,6 +10,19 @@ pub const Prompt = struct {
     prompt: []const u8,
 };
 
+pub const Chat = struct {
+    id: u32,
+    name: []const u8,
+};
+
+pub const ChatMessage = struct {
+    id: u32,
+    chat_id: u32,
+    prev_id: u32,
+    role: []const u8,
+    content: []const u8,
+};
+
 var db: sqlite.SQLite3 = undefined;
 
 pub fn init(allocator: std.mem.Allocator) !void {

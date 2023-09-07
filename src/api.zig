@@ -40,6 +40,20 @@ pub fn @"POST /generate"(ctx: *server.Context) !void {
     }
 }
 
+pub fn @"GET /chat"(ctx: *server.Context) !void {
+    var stmt = try db.query("SELECT * FROM Chat ORDER BY id", .{});
+    defer stmt.deinit();
+
+    return ctx.sendJson(stmt.iterator(db.Chat));
+}
+
+pub fn @"GET /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
+    var stmt = try db.query("SELECT * FROM ChatMessage WHERE chat_id = ? ORDER BY id", .{id});
+    defer stmt.deinit();
+
+    return ctx.sendJson(stmt.iterator(db.ChatMessage));
+}
+
 pub fn @"GET /prompts"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Prompt ORDER BY id", .{});
     defer stmt.deinit();
