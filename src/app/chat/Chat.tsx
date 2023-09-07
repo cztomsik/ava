@@ -1,5 +1,5 @@
 import { signal, useSignal } from "@preact/signals"
-import { GenerationProgress, PageContent, PageHeader } from "../_components"
+import { GenerationProgress, PageContent, PageFooter, PageHeader } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useGenerate } from "../_hooks"
