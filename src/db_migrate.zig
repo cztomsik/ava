@@ -23,7 +23,7 @@ pub fn migrate(db: *sqlite.SQLite3) !void {
         }
     }
 
-    // try db.exec("PRAGMA journal_mode = WAL", .{});
-    // try db.exec("PRAGMA synchronous = FULL", .{});
-    // try db.exec("PRAGMA foreign_keys = ON", .{});
+    try db.exec("PRAGMA journal_mode = WAL", .{});
+    try db.exec("PRAGMA synchronous = FULL", .{});
+    try db.exec("PRAGMA foreign_keys = ON", .{});
 }
