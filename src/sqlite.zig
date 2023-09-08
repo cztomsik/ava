@@ -100,7 +100,13 @@ pub const Statement = struct {
             u32, i64 => c.sqlite3_bind_int64(self.stmt, i, arg),
             f64 => c.sqlite3_bind_double(self.stmt, i, arg),
             []const u8 => c.sqlite3_bind_text(self.stmt, i, arg.ptr, @intCast(arg.len), null),
-            else => @compileError("TODO"),
+            else => |T| {
+                if (comptime std.meta.trait.is(.Optional)(T)) {
+                    return if (arg == null) check(c.sqlite3_bind_null(self.stmt, i)) else self.bind(index, arg.?);
+                }
+
+                @compileError("TODO " ++ @typeName(T));
+            },
         });
     }
 
