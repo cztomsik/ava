@@ -4,14 +4,6 @@ import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useGenerate } from "../_hooks"
 
-const defaultPrompt =
-  "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
-
-const serializePrompt = messages =>
-  messages
-    .reduce((res, m) => res + (m.role === "system" ? m.content : `${m.role.toUpperCase()}: ${m.content}\n`), "")
-    .trimEnd()
-
 export const Chat = () => {
   const { generate, ...progress } = useGenerate()
   const messages = useSignal([{ role: "system", content: defaultPrompt }])
@@ -52,3 +44,11 @@ export const Chat = () => {
     </>
   )
 }
+
+const defaultPrompt =
+  "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
+
+const serializePrompt = messages =>
+  messages
+    .reduce((res, m) => res + (m.role === "system" ? m.content : `${m.role.toUpperCase()}: ${m.content}\n`), "")
+    .trimEnd()
