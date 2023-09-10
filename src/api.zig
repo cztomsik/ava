@@ -54,6 +54,30 @@ pub fn @"GET /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
     return ctx.sendJson(stmt.iterator(db.ChatMessage));
 }
 
+pub fn @"POST /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
+    const data = try ctx.readJson(struct {
+        prev_id: ?u32,
+        role: []const u8,
+        content: []const u8,
+    });
+
+    try db.exec("INSERT INTO ChatMessage (chat_id, prev_id, role, content) VALUES (?, ?, ?, ?)", .{ id, data.prev_id, data.role, data.content });
+}
+
+pub fn @"PUT /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, message_id: u32) !void {
+    const data = try ctx.readJson(struct {
+        role: []const u8,
+        content: []const u8,
+    });
+
+    try db.exec("UPDATE ChatMessage SET role = ?, content = ? WHERE id = ? AND chat_id = ?", .{ data.role, data.content, message_id, id });
+}
+
+pub fn @"DELETE /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, message_id: u32) !void {
+    _ = ctx;
+    try db.exec("DELETE FROM ChatMessage WHERE id = ? AND chat_id = ?", .{ message_id, id });
+}
+
 pub fn @"GET /prompts"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Prompt ORDER BY id", .{});
     defer stmt.deinit();
