@@ -3,7 +3,6 @@ const platform = @import("platform.zig");
 const sqlite = @import("sqlite.zig");
 const migrate = @import("db_migrate.zig").migrate;
 
-// TODO: comptime from db schema?
 pub const Prompt = struct {
     id: u32,
     name: []const u8,
@@ -47,10 +46,31 @@ pub fn query(sql: []const u8, args: anytype) !sqlite.Statement {
     return db.query(sql, args);
 }
 
-pub fn delete(comptime T: type, id: std.meta.FieldType(T, .id)) !void {
-    return exec("DELETE FROM {s} WHERE id = ?", .{ tableName(T), id });
-}
-
-fn tableName(comptime T: type) []const u8 {
-    return std.fs.path.extension(@typeName(T));
-}
+// TODO: later
+// pub fn insert(comptime T: type, values: anytype) !std.meta.FieldType(T, .id) {
+//     comptime var fields: []const u8 = "";
+//     comptime var placeholders: []const u8 = "";
+//
+//     inline for (std.meta.fields(T), 0..) |f, i| {
+//         if (i != 0) {
+//             fields = fields ++ ", ";
+//             placeholders = placeholders ++ ", ";
+//         }
+//
+//         fields = fields ++ f.name;
+//         placeholders = placeholders ++ "?";
+//     }
+//
+//     var stmt = try db.query(comptime "INSERT INTO " ++ tableName(T) ++ "(" ++ fields ++ ") VALUES(" ++ placeholders ++ ") RETURNING id", values);
+//     defer stmt.deinit();
+//
+//     return stmt.read(std.meta.FieldType(T, .id));
+// }
+//
+// pub fn delete(comptime T: type, id: std.meta.FieldType(T, .id)) !void {
+//     return exec("DELETE FROM " ++ tableName(T) ++ " WHERE id = ?", .{id});
+// }
+//
+// fn tableName(comptime T: type) []const u8 {
+//     return std.fs.path.extension(@typeName(T))[1..];
+// }

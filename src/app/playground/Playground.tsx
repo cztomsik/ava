@@ -8,7 +8,7 @@ const VAR = /\{\{(\w+)\}\}/g
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
-  const { data: prompts, loading, post: createPrompt, del } = useApi("prompts")
+  const { post: createPrompt, del } = useApi("prompts")
   const { generate, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
   const selection = useSignal(null)
@@ -27,13 +27,14 @@ export const Playground = () => {
     const name = window.prompt("Name this prompt", selection.value?.name ?? "Untitled")
 
     if (name) {
-      await createPrompt({ name, prompt: prompt.value })
+      selection.value = await createPrompt({ name, prompt: prompt.value })
     }
   }
 
   const handleDelete = async () => {
-    await del(selection.value.id)
+    const { id } = selection.value
     selection.value = null
+    await del(id)
   }
 
   return (
@@ -48,8 +49,6 @@ export const Playground = () => {
         <Form class="flex-1 max-h-full row" onSubmit={handleSubmit}>
           <div class="col vstack">
             <PromptSelect
-              prompts={prompts}
-              loading={loading}
               value={selection.value}
               onChange={item => {
                 prompt.value = item.prompt
@@ -95,10 +94,12 @@ export const Playground = () => {
   )
 }
 
-const PromptSelect = ({ prompts, loading, value, onChange }) => {
+const PromptSelect = ({ value, onChange }) => {
+  const { data, loading } = useApi("prompts")
+
   const handleChange = e => {
     const id = +e.target.value
-    const arr = id > 0 ? prompts : examples
+    const arr = id > 0 ? data : examples
 
     onChange(arr.find(p => p.id === id))
   }
@@ -112,7 +113,7 @@ const PromptSelect = ({ prompts, loading, value, onChange }) => {
       <optgroup label="Saved Prompts">
         {loading && <option>Loading ...</option>}
 
-        {prompts?.map(({ id, name }) => (
+        {data?.map(({ id, name }) => (
           <option value={id}>{name}</option>
         ))}
       </optgroup>

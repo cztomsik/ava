@@ -1,42 +1,75 @@
-import { useSignal } from "@preact/signals"
-import { useCallback, useEffect } from "preact/hooks"
+import { Signal } from "@preact/signals"
+import { useEffect } from "preact/hooks"
 
 export const API_URL = `${window.location.protocol}//${window.location.host}/api`
 
-export const useApi = basePath => {
-  const baseUrl = `${API_URL}/${basePath}`
+const cache: Map<string, WeakRef<Context>> = new Map()
 
-  const signal = useSignal({
-    data: null,
-    error: null,
-    loading: false,
-  })
+interface Context {
+  data: any
+  loading: boolean
+  refetch: () => Promise<void>
+  post: (row: any) => Promise<void>
+  del: (row: any) => Promise<void>
+}
 
-  const refetch = useCallback(async () => {
-    signal.value = { ...signal.value, error: null, loading: true }
-    signal.value = { ...signal.value, data: await fetch(baseUrl).then(res => res.json()), loading: false }
-  }, [])
+export const useApi = (path: string) => {
+  const context = cache.get(path)?.deref() ?? createContext(path)
+  useEffect(() => void context.refetch(), [])
 
-  const post = useCallback(async (data, options = {}) => {
-    signal.value = { ...signal.value, error: null, loading: true }
-    await fetch(baseUrl, {
-      method: "POST",
-      body: JSON.stringify(data),
-    })
-    refetch()
-  }, [])
+  return context
+}
 
-  const del = useCallback(async (id, options = {}) => {
-    signal.value = { ...signal.value, error: null, loading: true }
-    await fetch(`${baseUrl}/${id}`, {
-      method: "DELETE",
-    })
-    refetch()
-  }, [])
+const createContext = (path: string) => {
+  const state = new Signal({ data: null, loading: false })
 
-  useEffect(() => {
-    refetch()
-  }, [])
+  const context = {
+    get data() {
+      return state.value.data
+    },
 
-  return { ...signal.value, refetch, post, del }
+    get loading() {
+      return state.value.loading
+    },
+
+    async refetch() {
+      state.value = { ...state.value, loading: true }
+      state.value = { ...state.value, data: await callApi(path), loading: false }
+    },
+
+    async post(row: any) {
+      try {
+        return await callApi(path, { method: "POST", body: JSON.stringify(row) })
+      } finally {
+        invalidate(path)
+      }
+    },
+
+    async del(id) {
+      try {
+        return await callApi(`${path}/${id}`, { method: "DELETE" })
+      } finally {
+        invalidate(path)
+      }
+    },
+  }
+
+  cache.set(path, new WeakRef(context))
+  return context
+}
+
+const callApi = async (path: string, options: RequestInit = {}) => {
+  const res = await window.fetch(`${API_URL}/${path}`, options)
+
+  return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
+}
+
+const invalidate = (path: string) => {
+  for (const [key, value] of cache.entries()) {
+    const context = value.deref()
+
+    if (context && key.startsWith(path)) {
+      context.refetch()
+    }
+  }
 }

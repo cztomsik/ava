@@ -91,7 +91,10 @@ pub fn @"POST /prompts"(ctx: *server.Context) !void {
         prompt: []const u8,
     });
 
-    try db.exec("INSERT INTO Prompt (name, prompt) VALUES (?, ?)", .{ data.name, data.prompt });
+    var stmt = try db.query("INSERT INTO Prompt (name, prompt) VALUES (?, ?) RETURNING *", .{ data.name, data.prompt });
+    defer stmt.deinit();
+
+    try ctx.sendJson(try stmt.read(db.Prompt));
 }
 
 pub fn @"DELETE /prompts/:id"(ctx: *server.Context, id: u32) !void {
