@@ -1,30 +1,22 @@
 import { Markdown } from "../_components"
 
-export const ChatLog = ({ chat, class: className = "", fallbackContent = null }) => {
-  const items = chat.messages.value
+export const ChatLog = ({ messages, draft, class: className = "" }) => (
+  <div class={`vstack ${className}`}>
+    {messages.map(message => (
+      <Message {...message} />
+    ))}
 
-  return (
-    <div class={`vstack ${className}`}>
-      {items.map(message => (
-        <Message {...message} />
-      ))}
-
-      {items.length === 1 && fallbackContent}
-    </div>
-  )
-}
+    {draft && <Message {...draft} />}
+  </div>
+)
 
 // TODO: onEdit, onDelete
-export const Message = ({ role, content }) => {
-  return role == "system" ? (
-    <div class="text(neutral-400 lg:lg) mb-4">{content}</div>
-  ) : (
-    <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border(y neutral-200) bg-neutral-50 -mx-10 px-10)`}>
-      <Avatar class="mr-4" role={role} />
-      <Markdown class="flex-1" input={"" + content} />
-    </div>
-  )
-}
+export const Message = ({ role, content }) => (
+  <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border(y neutral-200) bg-neutral-50 -mx-10 px-10)`}>
+    <Avatar class="mr-4" role={role} />
+    <Markdown class="flex-1" input={"" + content} />
+  </div>
+)
 
 export const Avatar = ({ role, class: className = "" }) => {
   const src = role === "user" ? userImg : assistantImg
