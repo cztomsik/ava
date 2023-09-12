@@ -17,7 +17,6 @@ pub const Chat = struct {
 pub const ChatMessage = struct {
     id: u32,
     chat_id: u32,
-    prev_id: u32,
     role: []const u8,
     content: []const u8,
 };
