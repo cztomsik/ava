@@ -47,6 +47,24 @@ pub fn @"GET /chat"(ctx: *server.Context) !void {
     return ctx.sendJson(stmt.iterator(db.Chat));
 }
 
+pub fn @"POST /chat"(ctx: *server.Context) !void {
+    const data = try ctx.readJson(struct {
+        name: []const u8,
+    });
+
+    var stmt = try db.query("INSERT INTO Chat (name) VALUES (?) RETURNING *", .{data.name});
+    defer stmt.deinit();
+
+    try ctx.sendJson(try stmt.read(db.Chat));
+}
+
+pub fn @"GET /chat/:id"(ctx: *server.Context, id: u32) !void {
+    var stmt = try db.query("SELECT * FROM Chat WHERE id = ?", .{id});
+    defer stmt.deinit();
+
+    return ctx.sendJson(try stmt.read(db.Chat));
+}
+
 pub fn @"GET /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
     var stmt = try db.query("SELECT * FROM ChatMessage WHERE chat_id = ? ORDER BY id", .{id});
     defer stmt.deinit();
@@ -56,12 +74,14 @@ pub fn @"GET /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
 
 pub fn @"POST /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
     const data = try ctx.readJson(struct {
-        prev_id: ?u32,
         role: []const u8,
         content: []const u8,
     });
 
-    try db.exec("INSERT INTO ChatMessage (chat_id, prev_id, role, content) VALUES (?, ?, ?, ?)", .{ id, data.prev_id, data.role, data.content });
+    var stmt = try db.query("INSERT INTO ChatMessage (chat_id, role, content) VALUES (?, ?, ?) RETURNING *", .{ id, data.role, data.content });
+    defer stmt.deinit();
+
+    try ctx.sendJson(try stmt.read(db.ChatMessage));
 }
 
 pub fn @"PUT /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, message_id: u32) !void {
