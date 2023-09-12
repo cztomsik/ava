@@ -2,10 +2,11 @@ import { css } from "@twind/core"
 
 const styles = css`
   & a {
-    @apply inline-block p-4 border-b-2 border-transparent;
+    @apply inline-block p-4 border(b-2 transparent);
+    margin-top: -2px;
 
     &.active {
-      @apply text-blue(600 dark:500) border(b-2 blue-600 dark:blue-500);
+      @apply text-blue(600 dark:500) border-blue(600 dark:500);
     }
   }
 `

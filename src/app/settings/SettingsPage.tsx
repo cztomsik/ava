@@ -4,7 +4,7 @@ export const SettingsPage = ({ children }) => {
   return (
     <>
       <PageHeader title="Settings">
-        <Tabs class="-mb-2">
+        <Tabs class="-my-2">
           <NavLink href="/settings" exact>
             Models
           </NavLink>

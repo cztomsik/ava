@@ -60,7 +60,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
       base: ["14px", "1.25rem"],
       lg: ["16px", "1.5rem"],
       xl: ["18px", "1.5rem"],
-      "2xl": ["24px", "1.5rem"],
+      "2xl": ["20px", "1.5rem"],
     },
   },
 }
