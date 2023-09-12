@@ -14,7 +14,7 @@ export const useGenerate = () => {
   const generate = useCallback(async function* (prompt, { stop = null, trimFirst = true } = {}) {
     let stopQueue = stop?.slice()
     ctrl.value?.abort()
-    ctrl.value = new AbortController()
+    const thisCtrl = (ctrl.value = new AbortController())
     data.value = { status: "Sending..." }
     yield (result.value = "")
 
@@ -47,7 +47,7 @@ export const useGenerate = () => {
     } finally {
       data.value = null
       // stop the http request if it's still running
-      if (!ctrl.value.signal.aborted) abort()
+      if (!thisCtrl.signal.aborted) thisCtrl.abort()
     }
   }, [])
 
