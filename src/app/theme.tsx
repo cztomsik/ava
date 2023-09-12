@@ -27,7 +27,7 @@ const styles = css`
   input,
   select,
   textarea {
-    @apply inline-block appearance-none outline-none text-ellipsis px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring rounded-md;
+    @apply inline-block appearance-none outline-none text-ellipsis px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
   }
 `
 
