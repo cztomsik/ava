@@ -3,27 +3,27 @@ import { useEffect } from "preact/hooks"
 
 export const API_URL = `${window.location.protocol}//${window.location.host}/api`
 
-const cache: Map<string, WeakRef<Context>> = new Map()
+const cache: Map<string, WeakRef<Context<any>>> = new Map()
 
-interface Context {
-  data: any
+interface Context<T> {
+  data: T | undefined
   loading: boolean
   refetch: () => Promise<void>
-  post: (row: any) => Promise<void>
+  post: (row: any) => Promise<T>
   del: (row: any) => Promise<void>
 }
 
-export const useApi = (path: string) => {
-  const context = cache.get(path)?.deref() ?? createContext(path)
-  useEffect(() => void context.refetch(), [])
+export const useApi = <T = any>(path: string) => {
+  const context: Context<T> = cache.get(path)?.deref() ?? createContext<T>(path)
+  useEffect(() => void context.refetch(), [path])
 
   return context
 }
 
-const createContext = (path: string) => {
-  const state = new Signal({ data: null, loading: false })
+const createContext = <T>(path: string) => {
+  const state = new Signal({ data: undefined, loading: false })
 
-  const context = {
+  const context: Context<T> = {
     get data() {
       return state.value.data
     },
