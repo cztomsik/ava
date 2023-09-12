@@ -11,6 +11,7 @@ import { Api } from "./settings/Api"
 
 const routes = [
   { path: "/chat", component: Chat },
+  { path: "/chat/:id", component: Chat },
   DEV && { path: "/quick-tools", component: QuickTools },
   DEV && { path: "/quick-tools/new", component: CreateTool },
   DEV && { path: "/quick-tools/:id", component: QuickTool },
