@@ -7,7 +7,8 @@ const styles = css`
   overscroll-behavior: none;
 
   &.oof #app {
-    opacity: 0.8;
+    opacity: 0.7;
+    filter: grayscale(0.85) contrast(0.85);
   }
 
   *,
@@ -27,7 +28,7 @@ const styles = css`
   input,
   select,
   textarea {
-    @apply inline-block appearance-none outline-none text-ellipsis px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
+    @apply inline-block appearance-none outline-none text(ellipsis neutral-700) px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
   }
 `
 

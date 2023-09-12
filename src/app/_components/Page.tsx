@@ -4,7 +4,7 @@ export const PageHeader = ({ title, children = null }) => {
       class="flex(& wrap) gap-2 items-end px(4 lg:6) py-2 border(b-1 neutral-200 dark:neutral-700)"
       data-drag-window
     >
-      <h2 class="mt-2 mr-auto text-xl font-medium">{title}</h2>
+      <h2 class="mt-2 mr-auto text(xl neutral(800 dark:300)) font-medium">{title}</h2>
 
       {children}
     </header>

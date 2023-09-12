@@ -42,7 +42,7 @@ const SidebarHeader = ({ title, class: className = "" }) => (
 )
 
 const SidebarLink = props => (
-  <NavLink class="rounded font-semibold py-2 px-3 text-neutral-900" activeClass="bg-neutral(200 dark:600)" {...props} />
+  <NavLink class="rounded font-semibold py-2 px-3 text-neutral-700" activeClass="bg-neutral(200 dark:600)" {...props} />
 )
 
 const BuyButton = () =>

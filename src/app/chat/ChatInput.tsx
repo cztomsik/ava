@@ -10,7 +10,7 @@ export const ChatInput = ({ onSend }) => {
   }
 
   return (
-    <Form class="flex relative shadow-2xl" onSubmit={handleSubmit}>
+    <Form class="flex relative shadow-lg" onSubmit={handleSubmit}>
       <textarea
         class="w-full py-2 pr-10"
         rows={Math.min(6, text.value.split("\n").length)}
