@@ -43,10 +43,15 @@ pub const Pool = struct {
     }
 
     /// Returns a context for the given model. The context must be released
-    /// after use. This function is thread-safe. Fails if the context is already
-    /// in use.
-    pub fn get(model_path: []const u8) !*Context {
-        if (!mutex.tryLock()) return error.ContextBusy;
+    /// after use. This function is thread-safe. Fails if the context is busy
+    /// for more than `timeout` milliseconds.
+    pub fn get(model_path: []const u8, timeout: u64) !*Context {
+        const start = std.time.milliTimestamp();
+
+        while (!mutex.tryLock()) {
+            if (std.time.milliTimestamp() - start > timeout) return error.ContextBusy;
+            std.time.sleep(100_000_000);
+        }
         errdefer mutex.unlock();
 
         // Reset if the model has changed.
