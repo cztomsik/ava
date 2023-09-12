@@ -1,4 +1,5 @@
 import { useEffect } from "preact/hooks"
+import { Select } from "."
 import { useApi, selectedModel } from "../_hooks"
 
 export const ModelSelect = ({ class: className = "" }) => {
@@ -13,8 +14,8 @@ export const ModelSelect = ({ class: className = "" }) => {
   }, [models])
 
   return (
-    <select
-      class={`form-select ${className}`}
+    <Select
+      class={className}
       value={selectedModel.value}
       onClick={refetch}
       onChange={e => (selectedModel.value = e.target.value)}
@@ -26,6 +27,6 @@ export const ModelSelect = ({ class: className = "" }) => {
           {model.name}
         </option>
       ))}
-    </select>
+    </Select>
   )
 }

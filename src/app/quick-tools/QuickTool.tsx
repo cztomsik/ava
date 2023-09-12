@@ -22,11 +22,7 @@ export const QuickTool = ({ params: { id } }) => {
             {variableNames.map((name, i) => (
               <>
                 <label class="text-capitalize">{name}</label>
-                {name.endsWith("text") ? (
-                  <textarea class="form-control" rows={5} />
-                ) : (
-                  <input type="text" class="form-control" />
-                )}
+                {name.endsWith("text") ? <textarea rows={5} /> : <input type="text" />}
               </>
             ))}
 

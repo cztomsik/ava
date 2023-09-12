@@ -1,3 +1,3 @@
 export const SearchField = ({ class: className = "" }) => (
-  <input class={`form-control px-2 py-1 ${className}`} placeholder="Search" />
+  <input class={`px-2 py-1 ${className}`} placeholder="Search" />
 )

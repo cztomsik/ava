@@ -1,6 +1,6 @@
 import { useCallback } from "preact/hooks"
 
-export const TextField = ({ name, class: className = "", ...props }) => {
+export const TextField = ({ name, ...props }) => {
   // const form = useContext(Form.Context)
 
   const handleChange = useCallback(event => {
@@ -8,5 +8,5 @@ export const TextField = ({ name, class: className = "", ...props }) => {
     // setValues(values => ({ ...values, [name]: value }))
   }, [])
 
-  return <input name={name} className={`form-control ${className}`} {...props} />
+  return <input name={name} {...props} />
 }

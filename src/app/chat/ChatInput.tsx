@@ -12,7 +12,7 @@ export const ChatInput = ({ onSend }) => {
   return (
     <Form onSubmit={handleSubmit}>
       <textarea
-        class="form-control mb-2"
+        class="w-full mb-2"
         rows={3}
         placeholder="Ask anything..."
         value={text.value}

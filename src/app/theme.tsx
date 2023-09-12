@@ -24,8 +24,10 @@ const styles = css`
     white-space: nowrap;
   }
 
-  input:focus {
-    border-color: transparent;
+  input,
+  select,
+  textarea {
+    @apply inline-block appearance-none outline-none text-ellipsis px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring rounded-md;
   }
 `
 
@@ -34,12 +36,10 @@ const cfg: TwindUserConfig<TailwindTheme> = {
   darkColor: autoDarkColor,
   rules: [
     // mini-bootstrap
-    ["hstack", "flex flex-row items-center"],
-    ["vstack", "flex flex-col"],
-    ["row", "flex flex-row -mx-2"],
+    ["hstack", "flex(& row) items-center"],
+    ["vstack", "flex(& col)"],
+    ["row", "flex(& row) -mx-2"],
     ["col", { flex: "1", padding: "0 0.5rem" }],
-    ["form-control", "block w-full px-2 py-1.5 border bg-neutral-50 border-neutral-300 rounded-md"],
-    ["form-select", "form-control appearance-none"],
 
     // custom
     ["shadow-thin", { boxShadow: "0 1px 1px 0 rgba(0, 0, 0, 0.3)" }],

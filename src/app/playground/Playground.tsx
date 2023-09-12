@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { Button, Form, GenerationProgress, Markdown, PageContent, PageHeader } from "../_components"
+import { Button, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
 import { useApi, useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
@@ -9,17 +9,15 @@ const VAR = /\{\{(\w+)\}\}/g
 // TODO: json, grammar, json-schema
 export const Playground = () => {
   const { post: createPrompt, del } = useApi("prompts")
-  const { generate, ...progress } = useGenerate()
+  const { generate, result, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
   const selection = useSignal(null)
   const variables = useSignal({})
-  const result = useSignal("")
 
   const variableNames = prompt.value.match(VAR)?.map(v => v.slice(2, -2)) ?? []
 
   const handleSubmit = async () => {
     for await (const res of generate(prompt.value.replace(VAR, (_, name) => variables[name]))) {
-      result.value = res
     }
   }
 
@@ -57,7 +55,7 @@ export const Playground = () => {
             />
 
             <textarea
-              class="form-control flex-1"
+              class="flex-1"
               placeholder="Type your prompt here..."
               rows={16}
               value={prompt}
@@ -76,7 +74,7 @@ export const Playground = () => {
             {variableNames.map(name => (
               <input
                 type="text"
-                class="form-control mb-2"
+                class="mb-2"
                 placeholder={name}
                 value={variables[name]}
                 onInput={e => (variables[name] = e.target.value)}
@@ -105,7 +103,7 @@ const PromptSelect = ({ value, onChange }) => {
   }
 
   return (
-    <select class="form-select mb-2" value={value?.id ?? ""} onChange={handleChange}>
+    <Select class="mb-2" value={value?.id ?? ""} onChange={handleChange}>
       <option selected value="">
         Load from ...
       </option>
@@ -123,6 +121,6 @@ const PromptSelect = ({ value, onChange }) => {
           <option value={id}>{name}</option>
         ))}
       </optgroup>
-    </select>
+    </Select>
   )
 }
