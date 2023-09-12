@@ -17,7 +17,7 @@ const styles = css`
   }
 
   & code {
-    @apply font-mono;
+    @apply font(mono bold);
   }
 
   & a {
