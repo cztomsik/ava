@@ -21,7 +21,7 @@ const routes = [
   { path: "/settings/api", component: Api },
 ].filter(Boolean)
 
-const current = signal({ route: routes[0], params: {} })
+const current = signal({ route: routes[0], params: {} as any })
 
 const patternCache: Record<string, RegExp> = {}
 
@@ -46,7 +46,7 @@ export const router = {
     for (const r of routes) {
       const match = this.match(r.path)
       if (match) {
-        current.value = { route: r, params: match.groups }
+        current.value = { route: r, params: match.groups ?? {} }
         return
       }
     }
