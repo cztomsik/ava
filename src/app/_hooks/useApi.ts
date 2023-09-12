@@ -13,11 +13,13 @@ interface Context<T> {
   del: (row: any) => Promise<void>
 }
 
-export const useApi = <T = any>(path: string) => {
-  const context: Context<T> = cache.get(path)?.deref() ?? createContext<T>(path)
-  useEffect(() => void context.refetch(), [path])
+export const getApiContext = <T = any>(path: string) => cache.get(path)?.deref() ?? createContext<T>(path)
 
-  return context
+export const useApi = <T = any>(path: string | null) => {
+  const context: Context<T> = path && getApiContext(path)
+  useEffect(() => void context?.refetch(), [path])
+
+  return context ?? ({} as Context<T>)
 }
 
 const createContext = <T>(path: string) => {
