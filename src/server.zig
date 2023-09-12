@@ -9,9 +9,13 @@ pub const Context = struct {
     path: []const u8,
     query: ?[]const u8,
 
-    pub fn init(http: *std.http.Server, arena: std.mem.Allocator) !Context {
+    pub fn init(http: *std.http.Server) !*Context {
+        // accidental moving/copying would invalidate pointers inside
+        var arena = try http.allocator.create(std.heap.ArenaAllocator);
+        arena.* = std.heap.ArenaAllocator.init(http.allocator);
+
         var res = try http.accept(.{
-            .allocator = arena,
+            .allocator = arena.allocator(),
             .header_strategy = .{ .dynamic = 10_000 },
         });
         try res.headers.append("Connection", "close");
@@ -19,19 +23,24 @@ pub const Context = struct {
 
         const uri = try std.Uri.parseWithoutScheme(res.request.target);
 
-        return .{
-            .arena = arena,
+        var ctx = try arena.allocator().create(Context);
+        ctx.* = .{
+            .arena = arena.allocator(),
             .res = res,
-
-            // TODO: check lifetime, maybe we need to dupe this?
             .path = uri.path,
             .query = uri.query,
         };
+
+        return ctx;
     }
 
     pub fn deinit(self: *Context) void {
         _ = self.res.reset();
         self.res.deinit();
+
+        var arena: *std.heap.ArenaAllocator = @ptrCast(@alignCast(self.arena.ptr));
+        arena.deinit();
+        arena.child_allocator.destroy(arena);
     }
 
     pub fn match(self: *const Context, pattern: []const u8) ?[][]const u8 {
@@ -163,30 +172,30 @@ pub const Server = struct {
 
     fn run(self: *Server) !void {
         while (true) {
-            // arena contains pointers so let's keep it on stack to avoid
-            // accidental moving & copying which would invalidate the pointers
-            var arena = std.heap.ArenaAllocator.init(self.http.allocator);
-            defer arena.deinit();
-
-            var ctx = try Context.init(&self.http, arena.allocator());
-            defer ctx.deinit();
-
-            defer {
-                if (ctx.res.state == .waited) ctx.res.do() catch {};
-                ctx.res.finish() catch {};
-                std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
-            }
-
-            handleRequest(&ctx) catch |e| {
-                if (e == error.OutOfMemory) return e;
-
-                std.log.debug("handleRequest: {}", .{e});
-                ctx.res.status = switch (e) {
-                    error.NotFound => .not_found,
-                    else => .internal_server_error,
-                };
-            };
+            var ctx = try Context.init(&self.http);
+            var thread = try std.Thread.spawn(.{}, runInThread, .{ctx});
+            thread.detach();
         }
+    }
+
+    fn runInThread(ctx: *Context) !void {
+        defer ctx.deinit();
+
+        defer {
+            if (ctx.res.state == .waited) ctx.res.do() catch {};
+            ctx.res.finish() catch {};
+            std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
+        }
+
+        handleRequest(ctx) catch |e| {
+            if (e == error.OutOfMemory) return e;
+
+            std.log.debug("handleRequest: {}", .{e});
+            ctx.res.status = switch (e) {
+                error.NotFound => .not_found,
+                else => .internal_server_error,
+            };
+        };
     }
 
     fn handleRequest(ctx: *Context) anyerror!void {
