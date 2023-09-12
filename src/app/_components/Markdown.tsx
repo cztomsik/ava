@@ -98,7 +98,7 @@ const parse = (input, target = []) => {
     p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => <H>{parse(text)}</H>)
 
     // Lists
-    p(/^(((\s*((\*|\+|\-)|\d(\.|\))) [^\n]+)\n)+)/gm, m => parseList(m))
+    p(/^(((\s*((\*|\+|\-)|\d(\.|\))) [^\n]+)$)+)/gm, m => parseList(m))
 
     // TODO: Paragraphs
     p(/\n/g, () => <br />)
