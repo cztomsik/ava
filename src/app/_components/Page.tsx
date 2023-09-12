@@ -11,10 +11,10 @@ export const PageHeader = ({ title, children = null }) => {
   )
 }
 
-export const PageContent = ({ class: className = "", children }) => (
-  <div class={`vstack max-w-full overflow-x-hidden overflow-y-auto p-4 lg:(py-6 px-6) ${className}`}>{children}</div>
+export const PageContent = ({ class: className = "", ...props }) => (
+  <div class={`vstack max-w-full overflow-x-hidden overflow-y-auto p-4 lg:(py-6 px-6) ${className}`} {...props} />
 )
 
-export const PageFooter = ({ class: className = "", children }) => (
-  <footer class={`p-4 lg:px-6 ${className}`}>{children}</footer>
+export const PageFooter = ({ class: className = "", ...props }) => (
+  <footer class={`p-4 lg:px-6 ${className}`} {...props} />
 )
