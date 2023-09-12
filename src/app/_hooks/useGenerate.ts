@@ -46,6 +46,8 @@ export const useGenerate = () => {
       }
     } finally {
       data.value = null
+      // stop the http request if it's still running
+      if (!ctrl.value.signal.aborted) abort()
     }
   }, [])
 
