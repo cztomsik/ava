@@ -39,7 +39,7 @@ export const Chat = ({ params: { id } }) => {
         <div class="text(neutral-400 lg:lg) mb-4">{defaultPrompt}</div>
 
         {messages.length === 0 && (
-          <div class="text-neutral-400">
+          <div class="text-neutral-400 p-4 mt-4 border(1 neutral-400) rounded ">
             <div>The conversation is empty.</div>
             <ul class="list-disc mt-2 ml-4">
               <li>Use the input below to start chatting.</li>
