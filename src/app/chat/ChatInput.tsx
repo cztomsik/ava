@@ -10,18 +10,18 @@ export const ChatInput = ({ onSend }) => {
   }
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form class="flex relative shadow-2xl" onSubmit={handleSubmit}>
       <textarea
-        class="w-full mb-2"
-        rows={3}
+        class="w-full py-2 pr-10"
+        rows={Math.min(6, text.value.split("\n").length)}
         placeholder="Ask anything..."
         value={text.value}
         onInput={e => (text.value = e.target.value)}
         onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
       ></textarea>
-      <div class="hstack gap-2">
-        <Button submit>Send</Button>
-      </div>
+      <Button class="absolute top-1 right-1" submit>
+        Send
+      </Button>
     </Form>
   )
 }
