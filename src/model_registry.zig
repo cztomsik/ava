@@ -7,7 +7,7 @@ pub const Model = struct {
 };
 
 pub fn getModelPath(allocator: std.mem.Allocator, model_name: []const u8) ![]const u8 {
-    return std.fmt.allocPrintZ(allocator, "{s}/{s}/{s}.ggmlv3.q4_0.bin", .{
+    return std.fmt.allocPrintZ(allocator, "{s}/{s}/{s}.gguf", .{
         platform.getHome(),
         "Downloads",
         std.fs.path.basename(model_name),
@@ -25,9 +25,9 @@ pub fn getModels(allocator: std.mem.Allocator) ![]Model {
     var it = dir.iterate();
 
     while (try it.next()) |entry| {
-        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".ggmlv3.q4_0.bin")) {
+        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".gguf")) {
             try list.append(.{
-                .name = try allocator.dupe(u8, entry.name[0 .. entry.name.len - 16]),
+                .name = try allocator.dupe(u8, entry.name[0 .. entry.name.len - 5]),
                 .path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ path, entry.name }),
             });
         }
