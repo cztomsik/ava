@@ -1,4 +1,4 @@
-import { ErrorBoundary, Layout, ModelSelect, NavLink, SearchField } from "./_components"
+import { ErrorBoundary, Layout, ModalBackdrop, ModelSelect, NavLink, SearchField } from "./_components"
 import { router } from "./router"
 
 export const App = () => {
@@ -8,6 +8,8 @@ export const App = () => {
         <Sidebar />
         <router.currentRoute.component params={router.params} />
       </Layout>
+
+      <ModalBackdrop />
     </ErrorBoundary>
   )
 }
