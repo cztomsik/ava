@@ -32,8 +32,15 @@ const styles = css`
   }
 `
 
+const autoprefix = ({ stringify }) => ({
+  stringify: (prop, value, ctx) => {
+    const prefix = CSS.supports(`${prop}: unset`) ? "" : "-webkit-"
+    return prefix + stringify(prop, value, ctx)
+  },
+})
+
 const cfg: TwindUserConfig<TailwindTheme> = {
-  presets: [presetTailwind()],
+  presets: [presetTailwind(), autoprefix],
   darkColor: autoDarkColor,
   rules: [
     // mini-bootstrap
