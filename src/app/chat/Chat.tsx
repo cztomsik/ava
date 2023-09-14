@@ -22,8 +22,6 @@ export const Chat = ({ params: { id } }) => {
 
     // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
     for await (const x of generate(serializePrompt([...messages, msg, draft]), { stop: ["USER", ":"] })) {
-      // TODO: the generate keeps going even after the stop condition is met
-      console.log(x)
     }
 
     await pushMessage(draft)
