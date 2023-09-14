@@ -2,9 +2,10 @@ import { Alert, Button, Link, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 
 const urls = [
-  "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGML/blob/main/wizardlm-13b-v1.2.ggmlv3.q4_0.bin",
-  "https://huggingface.co/TheBloke/orca_mini_3B-GGML/blob/main/orca-mini-3b.ggmlv3.q4_0.bin",
-  "https://huggingface.co/s3nh/mamba-gpt-3b-v3-GGML/blob/main/mamba-gpt-3b-v3.ggmlv3.q4_0.bin",
+  "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/blob/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
+  "https://huggingface.co/TheBloke/CodeLlama-7B-Instruct-GGUF/blob/main/codellama-7b-instruct.Q6_K.gguf",
+  "https://huggingface.co/NikolayKozloff/falcon-7b-GGUF/blob/main/falcon-7b-Q4_0-GGUF.gguf",
+  "https://huggingface.co/juanjgit/orca_mini_3B-GGUF/blob/main/orca-mini-3b.q4_0.gguf",
 ]
 
 export const Models = () => {
@@ -30,7 +31,7 @@ export const Models = () => {
         <tbody>
           {urls.map(url => (
             <tr>
-              <td>{url.split("/")[4]}</td>
+              <td class="capitalize">{url.split("/")[4].replace(/-GGUF/g, "").replace(/[-_]/g, " ")}</td>
               <td>{url.split("/")[3]}</td>
               <td>
                 <Button href={url}>Download</Button>
