@@ -34,11 +34,11 @@ export const Chat = ({ params: { id } }) => {
         <ChatSelect value={id} />
       </PageHeader>
       <PageContent>
-        <div class="text(neutral-400 lg:lg) mb-4">{defaultPrompt}</div>
+        <div class="text(neutral-400 lg:lg) mt-3 mb-6">{defaultPrompt}</div>
 
         {messages.length === 0 && (
-          <div class="text-neutral-400 p-4 mt-4 border(1 neutral-400) rounded ">
-            <div>The conversation is empty.</div>
+          <div class="text-neutral-600 bg-neutral-100 -mx-6 p-6 border(y-1 neutral-300)">
+            <strong>The conversation is empty.</strong>
             <ul class="list-disc mt-2 ml-4">
               <li>Use the input below to start chatting.</li>
               <li>Use the dropdown above to load a previous chat.</li>
