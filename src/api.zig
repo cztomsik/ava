@@ -20,7 +20,9 @@ pub fn @"POST /generate"(ctx: *server.Context) !void {
     defer sampler.deinit();
 
     try ctx.sendJson(.{ .status = "Waiting for the model..." });
-    var cx = try llama.Pool.get(try registry.getModelPath(ctx.arena, params.model), 30_000);
+    var cx = llama.Pool.get(try registry.getModelPath(ctx.arena, params.model), 30_000) catch |e| {
+        return ctx.sendJson(.{ .@"error" = @errorName(e) });
+    };
     defer llama.Pool.release(cx);
 
     try ctx.sendJson(.{ .status = "Reading the history..." });

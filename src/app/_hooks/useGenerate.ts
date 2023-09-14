@@ -22,6 +22,10 @@ export const useGenerate = () => {
       for await (let d of await callApi(selectedModel.value, prompt, ctrl.value.signal)) {
         data.value = d
 
+        if ("error" in d) {
+          throw new Error(`Unexpected error: ${d.error}`)
+        }
+
         if ("content" in d) {
           // Strip the initial space which is always emitted at the beginning of the stream
           if (trimFirst) {
