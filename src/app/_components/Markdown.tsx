@@ -33,7 +33,6 @@ const styles = css`
   & * {
     cursor: text;
     user-select: auto;
-    -webkit-user-select: auto;
   }
 `
 

@@ -16,8 +16,7 @@ const styles = css`
   button {
     cursor: default;
     user-select: none;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
+    user-drag: none;
   }
 
   a,
