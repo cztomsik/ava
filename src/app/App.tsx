@@ -15,7 +15,7 @@ export const App = () => {
 }
 
 const Sidebar = () => (
-  <aside class="vstack gap-2 p-4 bg-neutral(100 dark:700) border(r-1 neutral-300) shadow-inner" data-drag-window>
+  <aside class="vstack gap-2 p-3 bg-neutral(100 dark:700) border(r-1 neutral-300) shadow-inner" data-drag-window>
     {DEV ? <SearchField class="mt-6 mb-4" /> : <div class="mt-4" />}
 
     <SidebarHeader title="Main" />
