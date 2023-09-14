@@ -2,35 +2,6 @@ import { options } from "preact"
 import { tw, install, css, autoDarkColor, TwindUserConfig } from "@twind/core"
 import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind"
 
-// TODO: some of these should be webview-only
-const styles = css`
-  overscroll-behavior: none;
-
-  &.oof #app {
-    opacity: 0.7;
-    filter: grayscale(0.85) contrast(0.85);
-  }
-
-  *,
-  a,
-  button {
-    cursor: default;
-    user-select: none;
-    user-drag: none;
-  }
-
-  a,
-  button {
-    white-space: nowrap;
-  }
-
-  input,
-  select,
-  textarea {
-    @apply inline-block appearance-none outline-none text(ellipsis neutral-700) px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
-  }
-`
-
 const autoprefix = ({ stringify }) => ({
   stringify: (prop, value, ctx) => {
     const prefix = CSS.supports(`${prop}: unset`) ? "" : "-webkit-"
@@ -38,8 +9,51 @@ const autoprefix = ({ stringify }) => ({
   },
 })
 
+const globals = () => ({
+  preflight: preflight => css`
+    ${preflight}
+
+    html {
+      overscroll-behavior: none;
+    }
+
+    input,
+    select,
+    textarea {
+      @apply inline-block appearance-none outline-none text(ellipsis neutral-700) px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
+    }
+  `,
+})
+
+const macos = () => ({
+  preflight: preflight =>
+    "webkit" in window
+      ? css`
+          ${preflight}
+
+          html.oof #app {
+            opacity: 0.7;
+            filter: grayscale(0.85) contrast(0.85);
+          }
+
+          *,
+          a,
+          button {
+            cursor: default;
+            user-select: none;
+            user-drag: none;
+          }
+
+          a,
+          button {
+            white-space: nowrap;
+          }
+        `
+      : preflight,
+})
+
 const cfg: TwindUserConfig<TailwindTheme> = {
-  presets: [presetTailwind(), autoprefix],
+  presets: [autoprefix, presetTailwind(), globals, macos],
   darkColor: autoDarkColor,
   rules: [
     // mini-bootstrap
@@ -73,7 +87,6 @@ const cfg: TwindUserConfig<TailwindTheme> = {
 }
 
 install(cfg, !DEV)
-document.documentElement.classList.add(styles)
 
 options.vnode = vnode => {
   if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)
