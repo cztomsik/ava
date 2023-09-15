@@ -32,6 +32,7 @@ export const Playground = () => {
   const handleDelete = async () => {
     const { id } = selection.value
     selection.value = null
+    prompt.value = ""
     await del(id)
   }
 
