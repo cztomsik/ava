@@ -8,6 +8,7 @@ const urls = [
   "https://huggingface.co/NikolayKozloff/falcon-7b-GGUF/blob/main/falcon-7b-Q4_0-GGUF.gguf",
   "https://huggingface.co/Aryanne/Mamba-gpt-3B-v4-ggml-and-gguf/blob/main/q4_0-gguf-mamba-gpt-3B_v4.gguf",
   "https://huggingface.co/juanjgit/orca_mini_3B-GGUF/blob/main/orca-mini-3b.q4_0.gguf",
+  "https://huggingface.co/klosax/tinyllamas-stories-gguf/blob/main/tinyllamas-stories-15m-f32.gguf",
 ]
 
 export const Models = () => {
