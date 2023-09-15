@@ -25,9 +25,14 @@ export const Models = () => {
     webkit.messageHandlers.event.postMessage(`download ${url}`)
   }
 
+  const cancel = () => {
+    progress.value = null
+    webkit.messageHandlers.event.postMessage(`cancel`)
+  }
+
   return (
     <SettingsPage>
-      {progress.value && <ProgressModal {...progress.value} />}
+      {progress.value && <ProgressModal {...progress.value} onCancel={cancel} />}
 
       <Alert class="mb-8">
         <strong>This page is under construction.</strong> <br />
@@ -73,9 +78,9 @@ export const Models = () => {
   )
 }
 
-const ProgressModal = ({ url, percent }) => {
+const ProgressModal = ({ url, percent, onCancel }) => {
   return (
-    <Modal title={`Download in Progress`} onClose={() => {}}>
+    <Modal title={`Download in Progress`} onClose={onCancel}>
       <p>
         Downloading {url} {percent}%
       </p>

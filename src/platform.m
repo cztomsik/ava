@@ -6,6 +6,7 @@
 @property (nonatomic) BOOL debug;
 @property (strong, nonatomic) NSWindow *window;
 @property (strong, nonatomic) WKWebView *webview;
+@property (strong, nonatomic) WKDownload *download;
 @end
 
 @implementation AppDelegate
@@ -92,9 +93,14 @@
         [self.window performZoom:nil];
     }
 
+    if ([message.body isEqualToString:@"cancel"]) {
+        [self.download.progress cancel];
+    }
+
     if ([message.body hasPrefix:@"download "]) {
         NSString *url = [message.body substringFromIndex:9];
         [self.webview startDownloadUsingRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]] completionHandler:^(WKDownload *download) {
+            self.download = download;
             download.delegate = (id)self;
         }];
     }
@@ -114,10 +120,12 @@
 }
 
 - (void)reportProgress:(WKDownload *)download {
-    [self.webview evaluateJavaScript:[NSString stringWithFormat:@"reportProgress(Math.floor(%f * 100))", download.progress.fractionCompleted] completionHandler:nil];
+    if (!download.progress.isCancelled) {
+        [self.webview evaluateJavaScript:[NSString stringWithFormat:@"reportProgress(Math.floor(%f))", download.progress.fractionCompleted * 100] completionHandler:nil];
 
-    if (!(download.progress.isCancelled || download.progress.isFinished)) {
-        [self performSelector:@selector(reportProgress:) withObject:download afterDelay:1];
+        if (!download.progress.isFinished) {
+            [self performSelector:@selector(reportProgress:) withObject:download afterDelay:1];
+        }
     }
 }
 
