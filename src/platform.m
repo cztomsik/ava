@@ -91,6 +91,36 @@
     if ([message.body isEqualToString:@"dblclick"]) {
         [self.window performZoom:nil];
     }
+
+    if ([message.body hasPrefix:@"download "]) {
+        NSString *url = [message.body substringFromIndex:9];
+        [self.webview startDownloadUsingRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]] completionHandler:^(WKDownload *download) {
+            download.delegate = (id)self;
+        }];
+    }
+}
+
+- (void)download:(WKDownload *)download decideDestinationUsingResponse:(NSURLResponse *)response suggestedFilename:(NSString *)suggestedFilename completionHandler:(void (^)(NSURL * _Nullable destination))completionHandler {
+    NSLog(@"Expected content length: %lld", response.expectedContentLength);
+
+    NSURL *modelsURL = [[NSFileManager defaultManager] URLForDirectory:NSDownloadsDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    NSURL *fileURL = [modelsURL URLByAppendingPathComponent:suggestedFilename];
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileURL.path]) {
+        NSLog(@"Removing existing file at %@", fileURL);
+        [[NSFileManager defaultManager] removeItemAtURL:fileURL error:nil];
+    }
+
+    NSLog(@"Downloading %@ to %@", suggestedFilename, fileURL);
+    completionHandler(fileURL);
+}
+
+- (void)download:(WKDownload *)download didFailWithError:(NSError *)error resumeData:(NSData *)resumeData {
+    NSLog(@"Download failed: %@", error);
+}
+
+- (void)downloadDidFinish:(WKDownload *)download; {
+    NSLog(@"Download finished");
 }
 
 @end
