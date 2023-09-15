@@ -17,7 +17,8 @@ export const ModelSelect = ({ class: className = "" }) => {
     <Select
       class={className}
       value={selectedModel.value}
-      onClick={refetch}
+      // onClick doesn't work in Safari
+      onMouseDown={refetch}
       onChange={e => (selectedModel.value = e.target.value)}
     >
       {<option value={models?.length === 0 ? selectedModel.value : ""}>Select a model</option>}
