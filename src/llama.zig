@@ -102,17 +102,24 @@ pub const Model = struct {
         params.n_ctx = 2048; // TODO: make this configurable
         params.n_batch = 512; // TODO: @min(512, xxx)
 
-        if (builtin.os.tag == .macos) {
-            params.n_gpu_layers = 1;
-        }
-
         var path = try allocator.dupeZ(u8, model_path);
+
+        const ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
+
+        if (builtin.os.tag == .macos) {
+            // Metal does not support F32 yet
+            var desc: [256:0]u8 = undefined;
+            _ = c.llama_model_desc(ptr, &desc, desc.len);
+
+            params.n_gpu_layers =
+                if (std.mem.indexOf(u8, &desc, "F32") == null) 1 else 0;
+        }
 
         return .{
             .allocator = allocator,
             .path = path,
             .params = params,
-            .ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel,
+            .ptr = ptr,
         };
     }
 
