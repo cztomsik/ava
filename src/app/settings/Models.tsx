@@ -13,20 +13,21 @@ const urls = [
 ]
 
 export const Models = () => {
-  const inProgress = useSignal(null)
+  const progress = useSignal(null)
 
   const download = (url: string) => {
+    progress.value = { url, percent: 0 }
+
+    window["reportProgress"] = percent => {
+      progress.value = percent === 100 ? null : { url, percent }
+    }
+
     webkit.messageHandlers.event.postMessage(`download ${url}`)
-    inProgress.value = url
   }
 
   return (
     <SettingsPage>
-      {inProgress.value && (
-        <Modal title={`Downloading`} onClose={() => {}}>
-          <p>Downloading {inProgress.value}</p>
-        </Modal>
-      )}
+      {progress.value && <ProgressModal {...progress.value} />}
 
       <Alert class="mb-8">
         <strong>This page is under construction.</strong> <br />
@@ -69,5 +70,19 @@ export const Models = () => {
         </strong>
       </p>
     </SettingsPage>
+  )
+}
+
+const ProgressModal = ({ url, percent }) => {
+  return (
+    <Modal title={`Download in Progress`} onClose={() => {}}>
+      <p>
+        Downloading {url} {percent}%
+      </p>
+
+      <div class="mt-4 h-1 w-full bg-neutral-200 dark:bg-neutral-600">
+        <div class="h-1 bg-blue-400" style={`width: ${percent}%`}></div>
+      </div>
+    </Modal>
   )
 }
