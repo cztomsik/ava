@@ -73,13 +73,15 @@ export const Playground = () => {
 
           <div class="col vstack">
             {variableNames.map(name => (
-              <input
-                type="text"
-                class="mb-2"
-                placeholder={name}
-                value={variables[name]}
-                onInput={e => (variables[name] = e.target.value)}
-              />
+              <div class="flex mb-2">
+                <div class="p-1.5 px-3 bg-neutral-100 border(1 neutral-300 r-0) rounded-l-md">{name}</div>
+                <input
+                  type="text"
+                  class="w-full rounded-none rounded-r-md"
+                  value={variables[name]}
+                  onInput={e => (variables[name] = e.target.value)}
+                />
+              </div>
             ))}
 
             <div class="flex-1 overflow-auto">
