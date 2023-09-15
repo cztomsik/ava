@@ -10,9 +10,7 @@ const autoprefix = ({ stringify }) => ({
 })
 
 const globals = () => ({
-  preflight: preflight => css`
-    ${preflight}
-
+  preflight: css`
     html {
       overscroll-behavior: none;
     }
@@ -26,11 +24,9 @@ const globals = () => ({
 })
 
 const macos = () => ({
-  preflight: preflight =>
+  preflight:
     "webkit" in window
       ? css`
-          ${preflight}
-
           html.oof #app {
             opacity: 0.7;
             filter: grayscale(0.85) contrast(0.85);
@@ -49,7 +45,7 @@ const macos = () => ({
             white-space: nowrap;
           }
         `
-      : preflight,
+      : "",
 })
 
 const cfg: TwindUserConfig<TailwindTheme> = {
