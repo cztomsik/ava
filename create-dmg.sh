@@ -11,8 +11,8 @@ rm -rf ./zig-out
 
 # Build JS, x86_64, aarch64, and universal binary
 npm run build
-zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.13.3
-zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.13.3
+zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.12.6
+zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.12.6
 lipo -create ./zig-out/bin/ava_aarch64 ./zig-out/bin/ava_x86_64 -output ./zig-out/bin/ava
 
 mkdir -p "${APP_PATH}/Contents/MacOS"
