@@ -134,12 +134,10 @@ pub const Model = struct {
         var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
         errdefer tokens.deinit();
 
-        var c_input = try allocator.dupeZ(u8, input);
-        defer allocator.free(c_input);
-
         const n_tokens = c.llama_tokenize_with_model(
             self.ptr,
-            c_input,
+            input.ptr,
+            @intCast(input.len),
             tokens.items.ptr,
             @intCast(max_tokens),
             true,
