@@ -1,36 +1,56 @@
 import { signal } from "@preact/signals"
-import { useEffect } from "preact/hooks"
+import { useCallback, useEffect } from "preact/hooks"
 
 /**
- * Simple wrapper for Bootstrap modals.
+ * Simple modal component
  */
 export const Modal = ({ title, class: className = "", children, onClose }) => {
   useEffect(() => {
+    const prevActive = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    prevActive?.blur()
     count.value++
-    return () => count.value--
+
+    return () => {
+      count.value--
+      prevActive?.focus()
+    }
   }, [])
 
+  const preventDrag = useCallback(e => e.stopPropagation(), [])
+
   return (
-    <div
-      tabIndex={-1}
-      aria-hidden="true"
-      class={`fixed inset-0 z-50 p-10 flex items-start justify-center ${className}`}
-    >
-      <div class="rounded-lg bg-neutral-100 text-neutral-700 border-1 border-neutral-300 shadow-lg md:w-2/5">
-        <div class="hstack px-5 pt-5">
-          <h5 class="text-lg font-medium">{title}</h5>
-          <button type="button" class="ml-auto" onClick={onClose}>
-            X
-          </button>
+    <div tabIndex={-1} aria-hidden="true" class="fixed inset-0 z-50 flex" data-drag-window>
+      <div class="w-full flex items-start justify-center pointer-events-none p-10">
+        <div
+          class={`rounded-lg bg-neutral-100 text-neutral-700 border-1 border-neutral-300 shadow-lg pointer-events-auto ${className}`}
+        >
+          <div class="hstack px-5 pt-5">
+            <h5 class="text-lg font-medium">{title}</h5>
+            <button type="button" class="ml-auto" onClick={onClose}>
+              {cross}
+            </button>
+          </div>
+          <div class="p-5" onMouseDown={preventDrag}>
+            {children}
+          </div>
         </div>
-        <div class="p-5">{children}</div>
       </div>
     </div>
   )
 }
 
+const cross = (
+  <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <line x1="2" y1="14" x2="14" y2="2" stroke-width="1" stroke="#000" />
+    <line x1="2" y1="2" x2="14" y2="14" stroke-width="1" stroke="#000" />
+  </svg>
+)
+
 const count = signal(0)
 
+/**
+ * Animated backdrop with blur, this is just a visual effect, it doesn't prevent clicks or anything
+ */
 export const ModalBackdrop = () => {
   const show = count.value > 0
   return (
