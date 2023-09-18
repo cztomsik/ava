@@ -9,6 +9,11 @@ pub fn @"GET /models"(ctx: *server.Context) !void {
     return ctx.sendJson(models);
 }
 
+pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
+    try registry.deleteModel(ctx.arena, id);
+    return ctx.noContent();
+}
+
 pub fn @"POST /generate"(ctx: *server.Context) !void {
     const params = try ctx.readJson(struct {
         model: []const u8,
@@ -84,8 +89,8 @@ pub fn @"PUT /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, mess
 }
 
 pub fn @"DELETE /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, message_id: u32) !void {
-    _ = ctx;
     try db.exec("DELETE FROM ChatMessage WHERE id = ? AND chat_id = ?", .{ message_id, id });
+    return ctx.noContent();
 }
 
 pub fn @"GET /prompts"(ctx: *server.Context) !void {
@@ -108,6 +113,6 @@ pub fn @"POST /prompts"(ctx: *server.Context) !void {
 }
 
 pub fn @"DELETE /prompts/:id"(ctx: *server.Context, id: u32) !void {
-    _ = ctx;
     try db.exec("DELETE FROM Prompt WHERE id = ?", .{id});
+    return ctx.noContent();
 }

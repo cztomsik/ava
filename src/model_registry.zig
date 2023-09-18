@@ -35,3 +35,8 @@ pub fn getModels(allocator: std.mem.Allocator) ![]Model {
 
     return list.toOwnedSlice();
 }
+
+pub fn deleteModel(allocator: std.mem.Allocator, model_name: []const u8) !void {
+    const path = try getModelPath(allocator, model_name);
+    try std.fs.deleteFileAbsolute(path);
+}

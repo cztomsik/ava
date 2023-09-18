@@ -134,6 +134,12 @@ pub const Context = struct {
         });
     }
 
+    /// Sends an empty response.
+    pub fn noContent(self: *Context) !void {
+        self.res.status = .no_content;
+        try self.res.do();
+    }
+
     /// Adds no-cache headers to the response.
     pub fn noCache(self: *Context) !void {
         try self.res.headers.append("Cache-Control", "no-cache, no-store, must-revalidate");

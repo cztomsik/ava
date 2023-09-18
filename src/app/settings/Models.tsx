@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals"
 import { Alert, Button, Link, Modal, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
+import { useApi } from "../_hooks"
 
 const urls = [
   "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
@@ -13,13 +14,19 @@ const urls = [
 ]
 
 export const Models = () => {
+  const { data: models = [], refetch, del } = useApi("models")
   const progress = useSignal(null)
 
   const download = (url: string) => {
     progress.value = { url, percent: 0 }
 
     window["reportProgress"] = percent => {
-      progress.value = percent === 100 ? null : { url, percent }
+      if (percent === 100) {
+        progress.value = null
+        return refetch()
+      }
+
+      progress.value = { url, percent }
     }
 
     webkit.messageHandlers.event.postMessage(`download ${url}`)
@@ -34,35 +41,61 @@ export const Models = () => {
     <SettingsPage>
       {progress.value && <ProgressModal {...progress.value} onCancel={cancel} />}
 
-      <Alert class="mb-8">
+      <Alert>
         <strong>This page is under construction.</strong> <br />
-        For now, you need to download the models manually and put them into your Downloads folder. <br />
+        For now, the models are searched in and downloaded to your Downloads folder. <br />
         <br />
         You can download one of the models below, or you can find more models on the Wiki page below. <br />
         <br />
         <Button href="https://www.reddit.com/r/LocalLLaMA/wiki/models/">Open LocallLama Reddit</Button>
       </Alert>
 
+      <h2 class="mt-10 mb-2 text-xl">Installed models</h2>
+      <Table class="max-w-5xl">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="w-40"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {!models.length && (
+            <tr>
+              <td colSpan={2}>No models installed. Download one from the catalog below.</td>
+            </tr>
+          )}
+
+          {models.map(m => (
+            <tr>
+              <td class="capitalize">{humanize(m.name)}</td>
+              <td>
+                <Button onClick={() => del(m.name)}>Delete</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      <h2 class="mt-10 mb-2 text-xl">Catalog</h2>
       <Table class="max-w-5xl">
         <thead>
           <tr>
             <th>Model</th>
             <th>Uploader</th>
-            <th></th>
+            <th class="w-40"></th>
           </tr>
         </thead>
         <tbody>
           {urls.map(url => (
             <tr>
-              <td class="capitalize">
-                {url
-                  .split("/")[4]
-                  .replace(/-(GGML|GGUF).*$/gi, "")
-                  .replace(/[-_]/g, " ")}
-              </td>
+              <td class="capitalize">{humanize(basename(url.slice(0, -5)))}</td>
               <td>{url.split("/")[3]}</td>
               <td>
-                <Button onClick={() => download(url)}>Download</Button>
+                {models.find(m => m.name === basename(url).slice(0, -5)) ? (
+                  <strong class="ml-3 text-green-10">Installed</strong>
+                ) : (
+                  <Button onClick={() => download(url)}>Download</Button>
+                )}
               </td>
             </tr>
           ))}
@@ -79,12 +112,10 @@ export const Models = () => {
 }
 
 const ProgressModal = ({ url, percent, onCancel }) => {
-  const basename = url.split("/").pop()
-
   return (
     <Modal class="w-[30rem]" title={`Download in Progress`} onClose={onCancel}>
       <div class="flex justify-between">
-        <span>Downloading {basename}</span>
+        <span>Downloading {basename(url)}</span>
         <span>{percent.toFixed(2)}%</span>
       </div>
 
@@ -94,3 +125,6 @@ const ProgressModal = ({ url, percent, onCancel }) => {
     </Modal>
   )
 }
+
+const basename = url => url.split("/").pop()
+const humanize = basename => basename.replace(/-(GGML|GGUF).*$/gi, "").replace(/[-_]/g, " ")
