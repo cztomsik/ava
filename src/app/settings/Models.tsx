@@ -65,7 +65,7 @@ export const Models = () => {
 
           {models.map(m => (
             <tr>
-              <td class="capitalize">{humanize(m.name)}</td>
+              <td class="capitalize">{m.name}</td>
               <td>
                 <Button onClick={() => del(m.name)}>Delete</Button>
               </td>
@@ -86,7 +86,7 @@ export const Models = () => {
         <tbody>
           {urls.map(url => (
             <tr>
-              <td class="capitalize">{humanize(basename(url.slice(0, -5)))}</td>
+              <td class="capitalize">{basename(url.slice(0, -5))}</td>
               <td>{url.split("/")[3]}</td>
               <td>
                 {models.find(m => m.name === basename(url).slice(0, -5)) ? (
@@ -125,4 +125,3 @@ const ProgressModal = ({ url, percent, onCancel }) => {
 }
 
 const basename = url => url.split("/").pop()
-const humanize = basename => basename.replace(/-(GGML|GGUF).*$/gi, "").replace(/[-_]/g, " ")
