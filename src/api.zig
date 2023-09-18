@@ -93,6 +93,11 @@ pub fn @"DELETE /chat/:id/messages/:message_id"(ctx: *server.Context, id: u32, m
     return ctx.noContent();
 }
 
+pub fn @"DELETE /chat/:id"(ctx: *server.Context, id: u32) !void {
+    try db.exec("DELETE FROM Chat WHERE id = ?", .{id});
+    return ctx.noContent();
+}
+
 pub fn @"GET /prompts"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Prompt ORDER BY id", .{});
     defer stmt.deinit();

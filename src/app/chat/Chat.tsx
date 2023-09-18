@@ -1,11 +1,11 @@
-import { GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
+import { Button, GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useApi, getApiContext, useGenerate } from "../_hooks"
 import { router } from "../router"
 
 export const Chat = ({ params: { id } }) => {
-  const { post: createChat } = useApi("chat")
+  const { post: createChat, del } = useApi("chat")
   let { data: messages = [], loading, post: pushMessage } = useApi(id && `chat/${id}/messages`)
   const { generate, result, ...progress } = useGenerate()
   const draft = { role: "assistant", content: result }
@@ -28,9 +28,19 @@ export const Chat = ({ params: { id } }) => {
     draft.content.value = ""
   }
 
+  const handleDelete = async id => {
+    await del(id)
+    router.navigate("/chat", true)
+  }
+
   return (
     <>
       <PageHeader title="Chat">
+        {id && (
+          <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
+            Delete
+          </a>
+        )}
         <ChatSelect value={id} />
       </PageHeader>
       <PageContent>
