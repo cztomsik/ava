@@ -121,10 +121,10 @@
 
 - (void)reportProgress:(WKDownload *)download {
     if (!download.progress.isCancelled) {
-        [self.webview evaluateJavaScript:[NSString stringWithFormat:@"reportProgress(Math.floor(%f))", download.progress.fractionCompleted * 100] completionHandler:nil];
+        [self.webview evaluateJavaScript:[NSString stringWithFormat:@"reportProgress(%f)", download.progress.fractionCompleted * 100] completionHandler:nil];
 
         if (!download.progress.isFinished) {
-            [self performSelector:@selector(reportProgress:) withObject:download afterDelay:1];
+            [self performSelector:@selector(reportProgress:) withObject:download afterDelay:0.25];
         }
     }
 }

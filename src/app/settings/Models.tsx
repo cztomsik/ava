@@ -79,11 +79,14 @@ export const Models = () => {
 }
 
 const ProgressModal = ({ url, percent, onCancel }) => {
+  const basename = url.split("/").pop()
+
   return (
-    <Modal title={`Download in Progress`} onClose={onCancel}>
-      <p>
-        Downloading {url} {percent}%
-      </p>
+    <Modal class="w-[30rem]" title={`Download in Progress`} onClose={onCancel}>
+      <div class="flex justify-between">
+        <span>Downloading {basename}</span>
+        <span>{percent.toFixed(2)}%</span>
+      </div>
 
       <div class="mt-4 h-1 w-full bg-neutral-200 dark:bg-neutral-600">
         <div class="h-1 bg-blue-400" style={`width: ${percent}%`}></div>
