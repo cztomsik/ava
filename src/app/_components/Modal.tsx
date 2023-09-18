@@ -38,9 +38,9 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
 }
 
 const cross = (
-  <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-    <line x1="2" y1="14" x2="14" y2="2" stroke-width="1" stroke="#000" />
-    <line x1="2" y1="2" x2="14" y2="14" stroke-width="1" stroke="#000" />
+  <svg class="stroke-neutral-12" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <line x1="2" y1="14" x2="14" y2="2" stroke-width="1" />
+    <line x1="2" y1="2" x2="14" y2="14" stroke-width="1" />
   </svg>
 )
 
