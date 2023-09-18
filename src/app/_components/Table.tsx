@@ -16,5 +16,5 @@ const styles = css`
 `
 
 export const Table = ({ children, class: className = "" }) => (
-  <table class={`border-collapse ${styles} ${className}`}>{children}</table>
+  <table class={`table-fixed border-collapse ${styles} ${className}`}>{children}</table>
 )
