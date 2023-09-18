@@ -10,7 +10,7 @@ interface Context<T> {
   loading: boolean
   refetch: () => Promise<void>
   post: (row: any) => Promise<T>
-  del: (row: any) => Promise<void>
+  del: (id: any) => Promise<void>
 }
 
 export const getApiContext = <T = any>(path: string) => cache.get(path)?.deref() ?? createContext<T>(path)
