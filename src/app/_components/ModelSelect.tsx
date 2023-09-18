@@ -1,6 +1,7 @@
 import { useEffect } from "preact/hooks"
 import { Select } from "."
 import { useApi, selectedModel } from "../_hooks"
+import { router } from "../router"
 
 export const ModelSelect = ({ class: className = "" }) => {
   const { data: models, refetch } = useApi("models")
@@ -13,15 +14,27 @@ export const ModelSelect = ({ class: className = "" }) => {
     }
   }, [models])
 
+  const handleChange = e => {
+    if (e.target.value === "/download") {
+      e.target.value = selectedModel.value
+      router.navigate("/settings")
+      return
+    }
+
+    selectedModel.value = e.target.value
+  }
+
   return (
     <Select
       class={className}
       value={selectedModel.value}
       // onClick doesn't work in Safari
       onMouseDown={refetch}
-      onChange={e => (selectedModel.value = e.target.value)}
+      onChange={handleChange}
     >
-      {<option value={models?.length === 0 ? selectedModel.value : ""}>Select a model</option>}
+      <option value={models?.length === 0 ? selectedModel.value : ""}>Select a model...</option>
+      <option value="/download">Download a model...</option>
+      <hr />
 
       {models?.map(model => (
         <option key={model.name} value={model.name}>
