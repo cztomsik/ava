@@ -30,7 +30,7 @@ const globals = () => ({
     input,
     select,
     textarea {
-      @apply inline-block appearance-none outline-none text(ellipsis neutral-11) px-2 py-1.5 bg-neutral-1 border(1 neutral-8 focus:transparent) focus:ring(& primary-10) rounded-md resize-none;
+      @apply inline-block appearance-none outline-none text(ellipsis neutral-12) px-2 py-1.5 bg-neutral-1 border(1 neutral-8 focus:transparent) focus:ring(& primary-10) rounded-md resize-none;
     }
   `,
 })
