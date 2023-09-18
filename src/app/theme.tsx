@@ -1,6 +1,18 @@
 import { options } from "preact"
-import { tw, install, css, autoDarkColor, TwindUserConfig } from "@twind/core"
-import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind"
+import { tw, install, css, TwindUserConfig } from "@twind/core"
+import presetTailwind, { TailwindTheme } from "@twind/preset-tailwind/base"
+import * as radix from "@twind/preset-radix-ui/colors"
+import darkColor from "@twind/preset-radix-ui/darkColor"
+
+const colors = {
+  ...radix,
+  primary: radix.blue,
+  primaryDark: radix.blueDark,
+  warning: radix.yellow,
+  warningDark: radix.yellowDark,
+  neutral: radix.gray,
+  neutralDark: radix.grayDark,
+}
 
 const autoprefix = ({ stringify }) => ({
   stringify: (prop, value, ctx) => {
@@ -18,7 +30,7 @@ const globals = () => ({
     input,
     select,
     textarea {
-      @apply inline-block appearance-none outline-none text(ellipsis neutral-700) px-2 py-1.5 bg-neutral-50 border(1 neutral-300 focus:transparent) focus:ring(& blue-500) rounded-md resize-none;
+      @apply inline-block appearance-none outline-none text(ellipsis neutral-11) px-2 py-1.5 bg-neutral-1 border(1 neutral-8 focus:transparent) focus:ring(& primary-10) rounded-md resize-none;
     }
   `,
 })
@@ -29,7 +41,7 @@ const macos = () => ({
       ? css`
           html.oof #app {
             opacity: 0.7;
-            filter: grayscale(0.85) contrast(0.85);
+            filter: grayscale(0.85) contrast(0.9);
           }
 
           *,
@@ -49,8 +61,8 @@ const macos = () => ({
 })
 
 const cfg: TwindUserConfig<TailwindTheme> = {
-  presets: [autoprefix, presetTailwind(), globals, macos],
-  darkColor: autoDarkColor,
+  presets: [autoprefix, presetTailwind({ colors }), globals, macos],
+  darkColor,
   rules: [
     // mini-bootstrap
     ["hstack", "flex(& row) items-center"],

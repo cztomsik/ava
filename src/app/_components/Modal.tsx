@@ -21,9 +21,7 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
   return (
     <div tabIndex={-1} aria-hidden="true" class="fixed inset-0 z-50 flex" data-drag-window>
       <div class="w-full flex items-start justify-center pointer-events-none p-10">
-        <div
-          class={`rounded-lg bg-neutral-100 text-neutral-700 border-1 border-neutral-300 shadow-lg pointer-events-auto ${className}`}
-        >
+        <div class={`rounded-lg bg-neutral-1 text-neutral-12 shadow-lg pointer-events-auto ${className}`}>
           <div class="hstack px-5 pt-5">
             <h5 class="text-lg font-medium">{title}</h5>
             <button type="button" class="ml-auto" onClick={onClose}>

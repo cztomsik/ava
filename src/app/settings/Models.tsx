@@ -88,8 +88,8 @@ const ProgressModal = ({ url, percent, onCancel }) => {
         <span>{percent.toFixed(2)}%</span>
       </div>
 
-      <div class="mt-4 h-1 w-full bg-neutral-200 dark:bg-neutral-600">
-        <div class="h-1 bg-blue-400" style={`width: ${percent}%`}></div>
+      <div class="mt-4 h-1 w-full bg-neutral-7">
+        <div class="h-1 bg-blue-9" style={`width: ${percent}%`}></div>
       </div>
     </Modal>
   )

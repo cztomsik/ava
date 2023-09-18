@@ -22,11 +22,11 @@ const styles = css`
 
   & a {
     cursor: pointer;
-    @apply text-blue-500;
+    @apply text-blue-11;
   }
 
   & pre {
-    @apply font-mono rounded p-2 my-2 bg-gray-800 text-gray-100 dark:(bg-gray-800 text-gray-100 border(& gray-600);
+    @apply font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
   }
 
   &,

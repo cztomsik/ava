@@ -15,7 +15,7 @@ export const License = () => {
   return (
     <SettingsPage>
       <h1 class="text-lg font-bold">License</h1>
-      <div class="flex-1 p-4 border rounded-md overflow-auto shadow-inner my-4">
+      <div class="flex-1 p-4 border(1 neutral-6) rounded-md overflow-auto shadow-inner my-4">
         <Markdown class="max-w-2xl" input={license.value}></Markdown>
       </div>
 

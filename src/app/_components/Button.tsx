@@ -5,8 +5,8 @@ export const Button = ({ class: className = "", submit = false, primary = submit
 
   props.class = `border rounded-md inline-flex items-center justify-center px-3 py-1.5 text-sm bg-gradient-to-b ${
     primary
-      ? "bg-blue-500 from-blue-400 text-neutral-100 border-blue-400 dark:(bg-blue-700 text-white)"
-      : "bg-neutral-100 from-white text-neutral-900 border-neutral-200 shadow-thin dark:from-neutral-700"
+      ? "bg-primary(10 dark:11) from-primary(8 dark:9) text-sky(1 dark:4) border-primary(8 dark:10)"
+      : "bg-neutral-5 from(white dark:neutral-11) text-neutral-12 border-neutral-6 shadow-thin"
   } ${className}`
 
   return props.href ? <Link {...props} /> : <button {...props} />

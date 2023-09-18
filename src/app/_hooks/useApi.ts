@@ -23,7 +23,8 @@ export const useApi = <T = any>(path: string | null) => {
 }
 
 const createContext = <T>(path: string) => {
-  const state = new Signal({ data: undefined, loading: false })
+  // true will prevent flash of empty state before we start fetching
+  const state = new Signal({ data: undefined, loading: true })
 
   const context: Context<T> = {
     get data() {

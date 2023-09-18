@@ -6,7 +6,7 @@ import { router } from "../router"
 
 export const Chat = ({ params: { id } }) => {
   const { post: createChat } = useApi("chat")
-  let { data: messages = [], post: pushMessage } = useApi(id && `chat/${id}/messages`)
+  let { data: messages = [], loading, post: pushMessage } = useApi(id && `chat/${id}/messages`)
   const { generate, result, ...progress } = useGenerate()
   const draft = { role: "assistant", content: result }
 
@@ -34,10 +34,10 @@ export const Chat = ({ params: { id } }) => {
         <ChatSelect value={id} />
       </PageHeader>
       <PageContent>
-        <div class="text(neutral-400 lg:lg) mt-3 mb-6">{defaultPrompt}</div>
+        <div class="text(neutral-9 lg:lg) mt-3 mb-6">{defaultPrompt}</div>
 
-        {messages.length === 0 && (
-          <div class="text-neutral-500 bg-neutral-50 -mx-6 p-6 px-8 border(y-1 neutral-200)">
+        {!loading && messages.length === 0 && (
+          <div class="text-sky-11 bg-sky-1 -mx-6 p-6 px-8 border(y-1 sky-6)">
             <strong>The conversation is empty.</strong>
             <ul class="list-disc mt-2 ml-4">
               <li>Select model in the bottom left corner.</li>

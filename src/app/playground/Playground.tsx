@@ -74,7 +74,7 @@ export const Playground = () => {
           <div class="col vstack">
             {variableNames.map(name => (
               <div class="flex mb-2">
-                <div class="p-1.5 px-3 bg-neutral-100 border(1 neutral-300 r-0) rounded-l-md">{name}</div>
+                <div class="p-1.5 px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
                 <input
                   type="text"
                   class="w-full rounded-none rounded-r-md"
@@ -85,7 +85,7 @@ export const Playground = () => {
             ))}
 
             <div class="flex-1 overflow-auto">
-              <Markdown input={result.value} class="p-4 mb-2 border rounded-md empty:hidden" />
+              <Markdown input={result.value} class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" />
               <GenerationProgress {...progress} />
             </div>
           </div>
@@ -107,9 +107,7 @@ const PromptSelect = ({ value, onChange }) => {
 
   return (
     <Select class="mb-2" value={value?.id ?? ""} onChange={handleChange}>
-      <option selected value="">
-        Load from ...
-      </option>
+      <option value="">Load from ...</option>
 
       <optgroup label="Saved Prompts">
         {loading && <option>Loading ...</option>}

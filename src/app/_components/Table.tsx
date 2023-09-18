@@ -3,8 +3,7 @@ import { css } from "@twind/core"
 const styles = css`
   th,
   td {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
+    @apply p-2 border(1 neutral-7);
   }
 
   th {
@@ -12,18 +11,7 @@ const styles = css`
   }
 
   tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    th,
-    td {
-      border-color: #333;
-    }
-
-    tr:nth-child(even) {
-      background-color: #444;
-    }
+    @apply bg-neutral-3;
   }
 `
 

@@ -96,8 +96,7 @@ async function* noModelSelected() {
     It looks like you haven't selected a model yet.
     Please select a model from the dropdown in the bottom left.
 
-    In case you don't have a model yet, you can get one from **[Hugging Face](https://huggingface.co/models)**.
-    Go to **[Settings](/settings)** for more information.
+    In case you don't have a model yet, you can download one in the **[Settings](/settings)** tab.
 
     In the meantime, here's a little poem for you:
 
