@@ -10,7 +10,7 @@ export const AutoScroll = () => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) {
-          entry.target.scrollIntoView({ behavior: "smooth", block: "end" })
+          keepScrollingUntilInView(entry.target as HTMLElement)
         }
       },
       { root: ref.current.parentElement, threshold: [0, 1] }
@@ -20,9 +20,12 @@ export const AutoScroll = () => {
     return () => observer.disconnect()
   }, [])
 
-  // TODO: This works in safari webview but chrome only scrolls sometimes
-  // data.subscribe(() => ref.current?.scrollIntoView({ behavior: "smooth", block: "end" }))
+  return <div class="min-h-[1px]" ref={ref} />
+}
 
-  // TODO: it only works with 2rem, 1px is too small?
-  return <div class="min-h-[2rem]" ref={ref} />
+const keepScrollingUntilInView = (element: HTMLElement) => {
+  if (element.parentElement.scrollTop < element.offsetTop) {
+    element.scrollIntoView({ behavior: "smooth", block: "end" })
+    setTimeout(() => keepScrollingUntilInView(element), 100)
+  }
 }
