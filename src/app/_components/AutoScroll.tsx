@@ -10,32 +10,43 @@ export const AutoScroll = () => {
   const ref = useRef(null)
 
   useEffect(() => {
-    console.log("mounted")
+    const el = ref.current
+    const root = el.parentElement
 
-    const root = ref.current.parentElement
+    const handleWheel = e => {
+      if (e.deltaY < 0) {
+        // Disable auto-scrolling when scrolling up
+        enabled.value = false
+      }
+    }
 
-    const handleScroll = () => {
-      // enabled.value = root.scrollTop + root.clientHeight >= root.scrollHeight - 10
+    const handleScrollEnd = e => {
+      if (enabled.value && !inView.value) {
+        // Keep scrolling to the bottom if still not in view
+        el.scrollIntoView()
+      }
+
+      // Re-enable auto-scrolling if this was triggered by the user
+      if (root.scrollHeight - root.scrollTop - root.clientHeight <= 200) {
+        enabled.value = true
+      }
     }
 
     const handleIntersect = ([entry]: IntersectionObserverEntry[]) => {
       inView.value = entry.isIntersecting
-      keepScrollingUntilInView(entry.target as HTMLElement)
-    }
-
-    const keepScrollingUntilInView = (element: HTMLElement) => {
-      if (!inView.value) {
-        element.scrollIntoView({ behavior: "smooth", block: "start" })
-        setTimeout(() => keepScrollingUntilInView(element), 1_000)
+      if (enabled.value) {
+        el.scrollIntoView()
       }
     }
 
     const observer = new IntersectionObserver(handleIntersect, { root, threshold: [0, 1] })
-    root.addEventListener("scroll", handleScroll)
+    root.addEventListener("wheel", handleWheel)
+    root.addEventListener("scrollend", handleScrollEnd)
     observer.observe(ref.current)
 
     return () => {
-      root.removeEventListener("scroll", handleScroll)
+      root.removeEventListener("wheel", handleWheel)
+      root.removeEventListener("scrollend", handleScrollEnd)
       observer.disconnect()
     }
   }, [])
