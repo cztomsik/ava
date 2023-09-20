@@ -33,6 +33,7 @@ const Sidebar = () => (
 
     <SidebarHeader title="Other" class="mt-6" />
     <SidebarLink href="/settings">Settings</SidebarLink>
+    <SidebarLink href="https://discord.com/invite/C47qUJPkkf">Discord</SidebarLink>
 
     <SidebarHeader title="Model" class="mt-auto" />
     <ModelSelect class="mt-2 w(40 lg:52)" />
