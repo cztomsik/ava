@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { Button, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
+import { AutoScroll, Button, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
 import { useApi, useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
@@ -87,6 +87,7 @@ export const Playground = () => {
             <div class="flex-1 overflow-auto">
               <Markdown input={result.value} class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" />
               <GenerationProgress {...progress} />
+              <AutoScroll />
             </div>
           </div>
         </Form>

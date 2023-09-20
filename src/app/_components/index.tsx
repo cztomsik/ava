@@ -1,4 +1,5 @@
 export { Alert } from "./Alert"
+export { AutoScroll } from "./AutoScroll"
 export { Button } from "./Button"
 export { ErrorBoundary } from "./ErrorBoundary"
 export { Form } from "./Form"

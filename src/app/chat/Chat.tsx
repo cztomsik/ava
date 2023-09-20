@@ -1,4 +1,4 @@
-import { Button, GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
+import { AutoScroll, Button, GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useApi, getApiContext, useGenerate } from "../_hooks"
@@ -60,6 +60,7 @@ export const Chat = ({ params: { id } }) => {
 
         <ChatLog messages={messages} draft={progress.data.value && draft} />
         <GenerationProgress class="mt-4" {...progress} />
+        <AutoScroll />
       </PageContent>
       <PageFooter class="pt-2">
         <ChatInput onSend={handleSend} />
