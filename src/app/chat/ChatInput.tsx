@@ -9,6 +9,13 @@ export const ChatInput = ({ onSend }) => {
     text.value = ""
   }
 
+  const handleKeyDown = e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSubmit(e)
+    }
+  }
+
   return (
     <Form class="flex relative" onSubmit={handleSubmit}>
       <textarea
@@ -17,8 +24,8 @@ export const ChatInput = ({ onSend }) => {
         placeholder="Ask anything..."
         value={text.value}
         onInput={e => (text.value = e.target.value)}
-        onKeyUp={e => e.key === "Enter" && !e.shiftKey && handleSubmit(e)}
-      ></textarea>
+        onKeyDown={handleKeyDown}
+      />
       <Button class="absolute top-1 right-1" submit>
         Send
       </Button>
