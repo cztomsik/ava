@@ -1,4 +1,4 @@
-import { Link } from "."
+import { Link } from "./Link"
 
 export const Button = ({ class: className = "", submit = false, primary = submit, ...props }) => {
   props.type = submit ? "submit" : "button"

@@ -1,4 +1,4 @@
-import { Button } from "."
+import { Button } from "./Button"
 
 export const GenerationProgress = ({ data, abort, class: className = "" }) => {
   return (

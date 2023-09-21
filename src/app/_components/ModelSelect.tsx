@@ -1,5 +1,5 @@
 import { useEffect } from "preact/hooks"
-import { Select } from "."
+import { Select } from "./Select"
 import { useApi, selectedModel } from "../_hooks"
 import { router } from "../router"
 

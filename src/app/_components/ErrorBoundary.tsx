@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useErrorBoundary } from "preact/hooks"
 import { useSignal } from "@preact/signals"
-import { Modal } from "."
+import { Modal } from "./Modal"
 
 const fetch = window.fetch
 

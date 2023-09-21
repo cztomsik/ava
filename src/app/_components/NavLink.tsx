@@ -1,4 +1,4 @@
-import { Link } from "."
+import { Link } from "./Link"
 import { router } from "../router"
 
 /**

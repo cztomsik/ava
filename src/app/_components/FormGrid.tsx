@@ -1,5 +1,5 @@
 import { css } from "@twind/core"
-import { Grid } from "."
+import { Grid } from "./Grid"
 
 // align-self would work too but it wouldn't add margin when the label is on top
 const styles = css`

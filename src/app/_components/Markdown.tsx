@@ -1,5 +1,5 @@
 import { useMemo } from "preact/hooks"
-import { Table } from "."
+import { Table } from "./Table"
 import { css } from "@twind/core"
 
 const headings = ["text-2xl", "text-xl", "text-lg", "text-base", "text-base", "text-base"]
