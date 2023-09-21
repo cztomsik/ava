@@ -1,15 +1,15 @@
 {
   "private": true,
   "name": "ava",
-  "module": "index.ts",
+  "module": "main.tsx",
   "type": "module",
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
     "bundle": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/app",
-    "build": "npm run bundle -- --minify --define:DEV=false --define:EXP=false",
+    "build": "npm run check && npm test && npm run bundle -- --minify --define:DEV=false --define:EXP=false",
     "watch": "npm run bundle -- --sourcemap=inline --watch --define:DEV=true --define:EXP=true",
     "check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --loader ./src/app/_test-util/loader.js --test ./src/app/*/*.test.*"
   },
   "prettier": {
     "semi": false,
@@ -24,8 +24,9 @@
     "preact": "^10.16.0"
   },
   "devDependencies": {
-    "esbuild": "^0.18.19",
-    "typescript": "^5.0.2"
+    "esbuild": "^0.18.20",
+    "typescript": "^5.0.2",
+    "undom": "^0.4.0"
   },
   "overrides": {
     "typescript": "^5.0.2"
