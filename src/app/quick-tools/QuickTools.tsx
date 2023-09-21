@@ -22,7 +22,7 @@ export const QuickTools = () => {
                 <td>
                   <Link href={`/quick-tools/${i}`}>{spec.name}</Link>
                 </td>
-                <td>{spec.description}</td>
+                <td>TODO: description</td>
               </tr>
             ))}
           </tbody>
