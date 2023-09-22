@@ -41,7 +41,7 @@ fn addExe(srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
     });
 
     swiftc.addFileArg(.{ .path = "src/macos/entry.swift" });
-    swiftc.addFileArg(.{ .path = "src/macos/content.swift" });
+    swiftc.addFileArg(.{ .path = "src/macos/webview.swift" });
     swiftc.step.dependOn(&srv.step);
 
     return swiftc;

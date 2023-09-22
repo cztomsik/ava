@@ -7,7 +7,7 @@ struct Main: App {
 
     var body: some Scene {
         WindowGroup {
-            Content(url: "http://127.0.0.1:\(state.port)/")
+            WebViewContent(url: "http://127.0.0.1:\(state.port)/")
                 .frame(
                     minWidth: 700, idealWidth: 900, 
                     minHeight: 480, idealHeight: 800)
