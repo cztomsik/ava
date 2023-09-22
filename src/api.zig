@@ -3,6 +3,7 @@ const server = @import("server.zig");
 const db = @import("db.zig");
 const registry = @import("model_registry.zig");
 const llama = @import("llama.zig");
+const platform = @import("platform.zig");
 
 pub fn @"GET /models"(ctx: *server.Context) !void {
     const models = try registry.getModels(ctx.arena);
@@ -12,6 +13,55 @@ pub fn @"GET /models"(ctx: *server.Context) !void {
 pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
     try registry.deleteModel(ctx.arena, id);
     return ctx.noContent();
+}
+
+pub fn @"POST /download"(ctx: *server.Context) !void {
+    const params = try ctx.readJson(struct {
+        url: []const u8,
+        headers: []struct { []const u8, []const u8 },
+    });
+
+    var headers = std.http.Headers.init(ctx.arena);
+    for (params.headers) |header| {
+        try headers.append(header[0], header[1]);
+    }
+
+    std.log.debug("Downloading model from `{s}`", .{params.url});
+    std.log.debug("Headers: {}", .{ctx.res.request.headers});
+
+    var client: std.http.Client = .{ .allocator = ctx.arena };
+    var req = try client.request(.GET, try std.Uri.parse(params.url), headers, .{});
+    defer req.deinit();
+
+    try req.start();
+    try req.wait();
+
+    if (req.response.status != .ok) {
+        return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
+    }
+
+    const content_type = req.response.headers.getFirstValue("Content-Type") orelse return ctx.sendJson(.{ .@"error" = "Missing Content-Type header" });
+    std.log.debug("Content-Type: {s}", .{content_type});
+    std.log.debug("Content-Length: {?}", .{req.response.content_length});
+
+    var path = try std.fmt.allocPrintZ(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(params.url) });
+    var file = try std.fs.createFileAbsolute(path, .{});
+    var reader = req.reader();
+    var writer = file.writer();
+
+    var buf: [512 * 1024]u8 = undefined;
+    var received: usize = 0;
+    var progress: f32 = 0;
+    while (reader.read(&buf)) |n| {
+        if (n == 0) break;
+
+        try writer.writeAll(buf[0..n]);
+
+        received += n;
+        progress = @floatFromInt(received);
+        progress /= @floatFromInt(req.response.content_length orelse std.math.maxInt(usize));
+        try ctx.sendJson(.{ .progress = progress });
+    } else |_| return ctx.sendJson(.{ .@"error" = "Failed to read the model" });
 }
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {

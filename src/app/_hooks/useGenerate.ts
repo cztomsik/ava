@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
+import { jsonLines } from "../_util"
 
 export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
 effect(() => localStorage.setItem("selectedModel", selectedModel.value))
@@ -66,28 +67,10 @@ async function callApi(model: string, prompt: string, signal: AbortSignal) {
   const response = await fetch("/api/generate", {
     method: "POST",
     body: JSON.stringify({ model, prompt }),
-    headers: {
-      Connection: "keep-alive",
-      "Content-Type": "application/json",
-    },
     signal,
   })
 
   return jsonLines(response.body.getReader())
-}
-
-async function* jsonLines(reader: ReadableStreamDefaultReader<Uint8Array>) {
-  for await (const chunk of chunks(reader)) {
-    for (const line of chunk.split("\n")) {
-      if (line) yield JSON.parse(line)
-    }
-  }
-}
-
-async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>, decoder = new TextDecoder()) {
-  for (let res; !(res = await reader.read()).done; ) {
-    yield decoder.decode(res.value)
-  }
 }
 
 async function* noModelSelected() {

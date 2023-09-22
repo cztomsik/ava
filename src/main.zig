@@ -2,7 +2,6 @@ const std = @import("std");
 // const cli = @import("cli.zig");
 const db = @import("db.zig");
 const llama = @import("llama.zig");
-const platform = @import("platform.zig");
 const Server = @import("server.zig").Server;
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};

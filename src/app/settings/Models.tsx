@@ -2,6 +2,7 @@ import { useSignal } from "@preact/signals"
 import { Alert, Button, Link, Modal, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { useApi } from "../_hooks"
+import { jsonLines } from "../_util"
 
 const urls = [
   "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
@@ -14,25 +15,38 @@ const urls = [
 export const Models = () => {
   const { data: models = [], refetch, del } = useApi("models")
   const progress = useSignal(null)
+  const ctrl = useSignal(null)
 
-  const download = (url: string) => {
+  const download = async (url: string) => {
     progress.value = { url, percent: 0 }
+    ctrl.value = new AbortController()
 
-    window["reportProgress"] = percent => {
-      if (percent === 100) {
-        progress.value = null
-        return refetch()
+    try {
+      const res = await fetch("/api/download", {
+        method: "POST",
+        body: JSON.stringify({ url, headers }),
+        signal: ctrl.value.signal,
+      })
+
+      for await (const d of jsonLines(res.body.getReader())) {
+        if ("error" in d) {
+          throw new Error(`Unexpected error: ${d.error}`)
+        }
+
+        if ("progress" in d) {
+          progress.value = { url, percent: d.progress * 100 }
+        }
       }
 
-      progress.value = { url, percent }
+      await refetch()
+    } finally {
+      progress.value = null
     }
-
-    webkit.messageHandlers.event.postMessage(`download ${url}`)
   }
 
   const cancel = () => {
     progress.value = null
-    webkit.messageHandlers.event.postMessage(`cancel`)
+    ctrl.value?.abort()
   }
 
   return (
@@ -125,3 +139,12 @@ const ProgressModal = ({ url, percent, onCancel }) => {
 }
 
 const basename = url => url.split("/").pop()
+
+const headers = [
+  ["Accept", "*/*"],
+  ["Sec-Fetch-Site", "same-origin"],
+  ["Accept-Language", "en-GB,en;q=0.9"],
+  ["Accept-Encoding", "gzip, deflate"],
+  ["User-Agent", navigator.userAgent],
+  ["Sec-Fetch-Dest", "empty"],
+]
