@@ -9,57 +9,64 @@ pub fn build(builder: *std.Build) !void {
     target = b.standardTargetOptions(.{});
     optimize = b.standardOptimizeOption(.{});
 
+    if (target.getOsTag() == .macos and target.os_version_min == null) {
+        target.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
+        std.log.debug("Setting macOS deployment target to {}", .{target.os_version_min.?});
+    }
+
     const llama = try addLlama();
-    const exe = try addExe(llama);
+    const srv = try addServer(llama);
+    const exe = try addExe(srv);
 
-    const run_cmd = b.addRunArtifact(exe);
-    run_cmd.step.dependOn(b.getInstallStep());
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cmd.step);
-
-    // const unit_tests = b.addTest(.{
-    //     .root_source_file = .{ .path = "src/main.zig" },
-    //     .target = target,
-    //     .optimize = optimize,
-    // });
-    // const run_unit_tests = b.addRunArtifact(unit_tests);
-    // const test_step = b.step("test", "Run unit tests");
-    // test_step.dependOn(&run_unit_tests.step);
+    b.getInstallStep().dependOn(&exe.step);
 }
 
-fn addExe(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
-    const exe = b.addExecutable(.{
-        .name = b.fmt("ava_{s}", .{@tagName(target.getCpuArch())}),
+fn addExe(srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
+    // TODO: windows, linux
+
+    const swiftc = b.addSystemCommand(&.{
+        "swiftc",
+        if (optimize == .ReleaseFast) "-O" else "-Onone",
+        "-import-objc-header",
+        "src/macos/ava.h",
+        "-L",
+        "zig-out/lib",
+        "-lava_server",
+        "-lllama",
+        "-lsqlite3",
+        "-target",
+        b.fmt("{s}-apple-macosx{}", .{ @tagName(target.getCpuArch()), target.os_version_min.?.semver }),
+        "-o",
+        b.fmt("zig-out/bin/ava_{s}", .{@tagName(target.getCpuArch())}),
+    });
+
+    swiftc.addFileArg(.{ .path = "src/macos/entry.swift" });
+    swiftc.addFileArg(.{ .path = "src/macos/content.swift" });
+    swiftc.step.dependOn(&srv.step);
+
+    return swiftc;
+}
+
+fn addServer(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
+    const srv = b.addStaticLibrary(.{
+        .name = "ava_server",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
     });
-    exe.main_pkg_path = .{ .path = "." };
-    exe.addIncludePath(.{ .path = "llama.cpp" });
-    exe.addCSourceFiles(&.{"src/platform.m"}, &.{ "-std=c11", "-Werror" });
-
-    exe.linkLibrary(llama);
-    b.installArtifact(exe);
+    srv.bundle_compiler_rt = true; // needed for everything
+    srv.main_pkg_path = .{ .path = "." }; // needed for @embedFile
+    srv.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
 
     if (target.getOsTag() == .macos) {
-        useMacSDK(exe);
-
-        exe.linkSystemLibrary("sqlite3");
-        exe.linkSystemLibrary("objc");
-        exe.linkFramework("Foundation");
-        exe.linkFramework("CoreFoundation");
-        exe.linkFramework("AppKit");
-        exe.linkFramework("WebKit");
-
-        const ibtool = b.addSystemCommand(&.{ "ibtool", "--compile" });
-        const nib = ibtool.addOutputFileArg("MainMenu.nib");
-        ibtool.addFileArg(.{ .path = "src/platform.xib" });
-        const copy_nib = b.addInstallBinFile(nib, "MainMenu.nib");
-        copy_nib.step.dependOn(&ibtool.step);
-        b.getInstallStep().dependOn(&copy_nib.step);
+        useMacSDK(srv);
+        srv.linkSystemLibrary("sqlite3");
     }
 
-    return exe;
+    srv.linkLibrary(llama);
+    b.installArtifact(srv);
+
+    return srv;
 }
 
 fn addLlama() !*std.Build.Step.Compile {
@@ -82,10 +89,7 @@ fn addLlama() !*std.Build.Step.Compile {
     try cxxflags.appendSlice(&.{ "-Ofast", "-fPIC", "-DNDEBUG" });
 
     // TODO: windows
-    if (target.getOsTag() != .windows) {
-        try cflags.append("-pthread");
-        try cxxflags.append("-pthread");
-    }
+    if (target.getOsTag() != .windows) {}
 
     // Use Metal on macOS
     if (target.getOsTag() == .macos) {
@@ -108,6 +112,7 @@ fn addLlama() !*std.Build.Step.Compile {
     llama.addIncludePath(.{ .path = "llama.cpp" });
     llama.addCSourceFiles(&.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/k_quants.c" }, cflags.items);
     llama.addCSourceFiles(&.{"llama.cpp/llama.cpp"}, cxxflags.items);
+    b.installArtifact(llama);
 
     return llama;
 }

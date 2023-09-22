@@ -11,7 +11,7 @@ Air-gapped Virtual Assistant / Personal language server
 
 Make sure you have:
 
-- [Zig 0.12.0-dev.464+a63a1c5cb](https://ziglang.org/download/)
+- [Zig 0.11.0](https://ziglang.org/download/)
 - [Node.js 20.5.1](https://nodejs.org/)
 - Xcode (for macOS)
 - pkg-config (`brew install pkg-config`)

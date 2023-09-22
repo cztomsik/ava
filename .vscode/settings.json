@@ -4,7 +4,7 @@
   "[javascript][json][jsonc][typescript][typescriptreact][javascriptreact][html][css][markdown]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[objective-c]": {
+  "[swift]": {
     "editor.tabSize": 4
   },
   "[sql]": {

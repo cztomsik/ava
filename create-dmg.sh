@@ -19,7 +19,7 @@ mkdir -p "${APP_PATH}/Contents/MacOS"
 mkdir -p "${APP_PATH}/Contents/Resources"
 cp ./src/Info.plist "${APP_PATH}/Contents/"
 cp ./zig-out/bin/ava "${APP_PATH}/Contents/MacOS/"
-cp ./zig-out/bin/*.nib ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
+cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
 
 # Sign app
 # Note it still needs to be notarized
