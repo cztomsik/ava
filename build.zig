@@ -40,6 +40,10 @@ fn addExe(srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
         b.fmt("zig-out/bin/ava_{s}", .{@tagName(target.getCpuArch())}),
     });
 
+    if (optimize == .Debug) {
+        swiftc.addArgs(&.{ "-D", "DEBUG" });
+    }
+
     swiftc.addFileArg(.{ .path = "src/macos/entry.swift" });
     swiftc.addFileArg(.{ .path = "src/macos/webview.swift" });
     swiftc.step.dependOn(&srv.step);

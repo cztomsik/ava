@@ -21,6 +21,10 @@ struct WebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let cfg = WKWebViewConfiguration()
         cfg.userContentController.add(self.scriptMessageHandler, name: "event")
+
+        #if DEBUG
+            cfg.preferences.setValue(true, forKey: "developerExtrasEnabled")
+        #endif
         
         let webview = WKWebView(frame: .zero, configuration: cfg)
         webview.navigationDelegate = self.navigationDelegate
