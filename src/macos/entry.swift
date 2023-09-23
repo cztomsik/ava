@@ -26,6 +26,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             exit(1)
         }
 
+        signal(SIGPIPE) { _ in
+            // Ignore SIGPIPE which is sent when the client closes the connection (which is normal)
+        }
+
         AppState.shared.port = ava_get_port()
     }
 
