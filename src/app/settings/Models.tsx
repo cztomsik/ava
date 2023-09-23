@@ -24,7 +24,7 @@ export const Models = () => {
     try {
       const res = await fetch("/api/download", {
         method: "POST",
-        body: JSON.stringify({ url, headers }),
+        body: JSON.stringify(url),
         signal: ctrl.value.signal,
       })
 
@@ -39,6 +39,10 @@ export const Models = () => {
       }
 
       await refetch()
+    } catch (e) {
+      if (e.code !== DOMException.ABORT_ERR) {
+        throw e
+      }
     } finally {
       progress.value = null
     }
@@ -139,12 +143,3 @@ const ProgressModal = ({ url, percent, onCancel }) => {
 }
 
 const basename = url => url.split("/").pop()
-
-const headers = [
-  ["Accept", "*/*"],
-  ["Sec-Fetch-Site", "same-origin"],
-  ["Accept-Language", "en-GB,en;q=0.9"],
-  ["Accept-Encoding", "gzip, deflate"],
-  ["User-Agent", navigator.userAgent],
-  ["Sec-Fetch-Dest", "empty"],
-]

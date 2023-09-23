@@ -16,21 +16,16 @@ pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
 }
 
 pub fn @"POST /download"(ctx: *server.Context) !void {
-    const params = try ctx.readJson(struct {
-        url: []const u8,
-        headers: []struct { []const u8, []const u8 },
-    });
-
-    var headers = std.http.Headers.init(ctx.arena);
-    for (params.headers) |header| {
-        try headers.append(header[0], header[1]);
+    const url = try ctx.readJson([]const u8);
+    inline for (.{ "Content-Type", "Content-Length", "Host", "Referer", "Origin" }) |h| {
+        _ = ctx.res.request.headers.delete(h);
     }
 
-    std.log.debug("Downloading model from `{s}`", .{params.url});
+    std.log.debug("Downloading model from `{s}`", .{url});
     std.log.debug("Headers: {}", .{ctx.res.request.headers});
 
     var client: std.http.Client = .{ .allocator = ctx.arena };
-    var req = try client.request(.GET, try std.Uri.parse(params.url), headers, .{});
+    var req = try client.request(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
     defer req.deinit();
 
     try req.start();
@@ -44,10 +39,12 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     std.log.debug("Content-Type: {s}", .{content_type});
     std.log.debug("Content-Length: {?}", .{req.response.content_length});
 
-    var path = try std.fmt.allocPrintZ(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(params.url) });
+    var path = try std.fmt.allocPrintZ(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(url) });
     var file = try std.fs.createFileAbsolute(path, .{});
     var reader = req.reader();
     var writer = file.writer();
+    defer file.close();
+    errdefer std.fs.deleteFileAbsolute(path) catch {};
 
     var buf: [512 * 1024]u8 = undefined;
     var received: usize = 0;
