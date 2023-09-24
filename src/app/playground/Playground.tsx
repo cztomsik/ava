@@ -74,7 +74,7 @@ export const Playground = () => {
           <div class="col vstack">
             {variableNames.map(name => (
               <div class="flex mb-2">
-                <div class="p-1.5 px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
+                <div class="p-[5px] px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
                 <input
                   type="text"
                   class="w-full rounded-none rounded-r-md"
