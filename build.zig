@@ -65,7 +65,6 @@ fn addServer() !*std.Build.Step.Compile {
 
     if (target.getOsTag() == .macos) {
         useMacSDK(srv);
-        srv.linkSystemLibrary("sqlite3");
     }
 
     b.installArtifact(srv);
@@ -103,10 +102,6 @@ fn addLlama() !*std.Build.Step.Compile {
         try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
 
         llama.addCSourceFiles(&.{"llama.cpp/ggml-metal.m"}, cflags.items);
-        llama.linkFramework("Foundation");
-        llama.linkFramework("Metal");
-        llama.linkFramework("MetalKit");
-        llama.linkFramework("MetalPerformanceShaders");
 
         // Copy the *.metal file so that it can be loaded at runtime
         const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
