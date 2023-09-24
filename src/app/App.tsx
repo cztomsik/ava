@@ -15,8 +15,8 @@ export const App = () => {
 }
 
 const Sidebar = () => (
-  <aside class="vstack gap-2 p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner" data-drag-window>
-    {EXP ? <SearchField class="mt-6 mb-4" /> : <div class="mt-4" />}
+  <aside class="vstack p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner" data-drag-window>
+    {EXP ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
 
     <SidebarHeader title="Main" />
     <SidebarLink href="/chat">Chat</SidebarLink>
@@ -33,6 +33,9 @@ const Sidebar = () => (
 
     <SidebarHeader title="Other" class="mt-6" />
     <SidebarLink href="/settings">Settings</SidebarLink>
+
+    <SidebarHeader title="Get in touch" class="mt-6" />
+    <SidebarLink href="https://twitter.com/cztomsik">Twitter</SidebarLink>
     <SidebarLink href="https://discord.com/invite/C47qUJPkkf">Discord</SidebarLink>
 
     <SidebarHeader title="Model" class="mt-auto" />
@@ -41,11 +44,11 @@ const Sidebar = () => (
 )
 
 const SidebarHeader = ({ title, class: className = "" }) => (
-  <h2 class={`pl-3 font-bold text(xs neutral-9) ${className}`}>{title}</h2>
+  <h2 class={`pl-3 mb-2 font-bold text(xs neutral-9) ${className}`}>{title}</h2>
 )
 
 const SidebarLink = props => (
-  <NavLink class="rounded font-semibold py-1.5 px-3 text-neutral-12" activeClass="bg-neutral-5" {...props} />
+  <NavLink class="rounded font-semibold py-1.5 px-3 mb-2 text-neutral-12" activeClass="bg-neutral-5" {...props} />
 )
 
 const BuyButton = () =>
