@@ -69,7 +69,7 @@ pub fn @"POST /generate"(ctx: *server.Context) !void {
     defer llama.Pool.release(cx);
 
     try ctx.sendJson(.{ .status = "Reading the history..." });
-    try cx.prepare(params.prompt);
+    try cx.prepare(params.prompt, params.sampling.add_bos);
 
     while (try cx.generate(&params.sampling)) |content| {
         try ctx.sendJson(.{ .content = content });

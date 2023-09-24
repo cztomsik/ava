@@ -13,6 +13,7 @@ pub const SamplingParams = struct {
     temperature: f32 = 0.7,
     repeat_n_last: usize = 256,
     repeat_penalty: f32 = 1.05,
+    add_bos: bool = true,
     stop_eos: bool = true,
 };
 
@@ -130,7 +131,7 @@ pub const Model = struct {
     }
 
     /// Returns a list of tokens for the given input.
-    pub fn tokenize(self: *Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize) !std.ArrayList(Token) {
+    pub fn tokenize(self: *Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize, add_bos: bool) !std.ArrayList(Token) {
         var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
         errdefer tokens.deinit();
 
@@ -140,7 +141,7 @@ pub const Model = struct {
             @intCast(input.len),
             tokens.items.ptr,
             @intCast(max_tokens),
-            true,
+            add_bos,
         );
 
         if (n_tokens >= 0) {
@@ -183,8 +184,8 @@ pub const Context = struct {
     }
 
     /// Prepares the context for inference.
-    pub fn prepare(self: *Context, prompt: []const u8) !void {
-        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)));
+    pub fn prepare(self: *Context, prompt: []const u8, add_bos: bool) !void {
+        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)), add_bos);
         self.buf.shrinkRetainingCapacity(0);
 
         // Find the common part and set n_past accordingly.
