@@ -71,6 +71,11 @@ pub fn @"POST /generate"(ctx: *server.Context) !void {
     try ctx.sendJson(.{ .status = "Reading the history..." });
     try cx.prepare(params.prompt, params.sampling.add_bos);
 
+    while (cx.n_past < cx.tokens.items.len) {
+        try ctx.sendJson(.{ .status = try std.fmt.allocPrint(ctx.arena, "Reading the history... ({}/{})", .{ cx.n_past, cx.tokens.items.len }) });
+        _ = try cx.evalOnce();
+    }
+
     while (try cx.generate(&params.sampling)) |content| {
         try ctx.sendJson(.{ .content = content });
     }

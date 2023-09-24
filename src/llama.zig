@@ -101,7 +101,7 @@ pub const Model = struct {
     pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
         var params = c.llama_context_default_params();
         params.n_ctx = 2048; // TODO: make this configurable
-        params.n_batch = 512; // TODO: @min(512, xxx)
+        params.n_batch = 64; // 512; // TODO: @min(512, xxx)
 
         var path = try allocator.dupeZ(u8, model_path);
 
@@ -204,14 +204,22 @@ pub const Context = struct {
     }
 
     /// Runs the inference.
+    /// Does nothing if the context is already up-to-date.
     pub fn eval(self: *Context) !void {
-        while (self.n_past < self.tokens.items.len) {
-            const toks = self.tokens.items[self.n_past..];
+        while (try self.evalOnce() > 0) {}
+    }
 
-            const n_eval = @min(
-                @as(usize, @intCast(self.model.params.n_batch)),
-                self.tokens.items.len - self.n_past,
-            );
+    /// Runs one step of inference.
+    /// Does nothing if the context is already up-to-date.
+    /// Returns the number of tokens evaluated.
+    pub fn evalOnce(self: *Context) !usize {
+        const n_eval = @min(
+            @as(usize, @intCast(self.model.params.n_batch)),
+            self.tokens.items.len - self.n_past,
+        );
+
+        if (n_eval > 0) {
+            const toks = self.tokens.items[self.n_past..];
 
             if (c.llama_eval(
                 self.ptr,
@@ -225,9 +233,11 @@ pub const Context = struct {
 
             self.n_past += n_eval;
         }
+
+        return n_eval;
     }
 
-    // Generates next utf-8 valid chunk of text.
+    /// Generates next utf-8 valid chunk of text.
     pub fn generate(self: *Context, params: *const SamplingParams) !?[]const u8 {
         const token = try self.generateToken(params) orelse return null;
         const piece = std.mem.span(c.llama_token_get_text(self.ptr, token));
