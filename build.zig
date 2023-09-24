@@ -15,13 +15,13 @@ pub fn build(builder: *std.Build) !void {
     }
 
     const llama = try addLlama();
-    const srv = try addServer(llama);
-    const exe = try addExe(srv);
+    const srv = try addServer();
+    const exe = try addExe(llama, srv);
 
     b.getInstallStep().dependOn(&exe.step);
 }
 
-fn addExe(srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
+fn addExe(llama: *std.Build.Step.Compile, srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
     // TODO: windows, linux
 
     const swiftc = b.addSystemCommand(&.{
@@ -46,12 +46,13 @@ fn addExe(srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
 
     swiftc.addFileArg(.{ .path = "src/macos/entry.swift" });
     swiftc.addFileArg(.{ .path = "src/macos/webview.swift" });
+    swiftc.step.dependOn(&llama.step);
     swiftc.step.dependOn(&srv.step);
 
     return swiftc;
 }
 
-fn addServer(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
+fn addServer() !*std.Build.Step.Compile {
     const srv = b.addStaticLibrary(.{
         .name = "ava_server",
         .root_source_file = .{ .path = "src/main.zig" },
@@ -67,7 +68,6 @@ fn addServer(llama: *std.Build.Step.Compile) !*std.Build.Step.Compile {
         srv.linkSystemLibrary("sqlite3");
     }
 
-    srv.linkLibrary(llama);
     b.installArtifact(srv);
 
     return srv;
