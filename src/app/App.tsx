@@ -36,7 +36,7 @@ const Sidebar = () => (
     <SidebarLink href="https://discord.com/invite/C47qUJPkkf">Discord</SidebarLink>
 
     <SidebarHeader title="Model" class="mt-auto" />
-    <ModelSelect class="mt-2 w(40 lg:52)" />
+    <ModelSelect class="w(40 lg:52)" />
   </aside>
 )
 
@@ -45,7 +45,7 @@ const SidebarHeader = ({ title, class: className = "" }) => (
 )
 
 const SidebarLink = props => (
-  <NavLink class="rounded font-semibold py-2 px-3 text-neutral-12" activeClass="bg-neutral-5" {...props} />
+  <NavLink class="rounded font-semibold py-1.5 px-3 text-neutral-12" activeClass="bg-neutral-5" {...props} />
 )
 
 const BuyButton = () =>
