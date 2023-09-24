@@ -21,9 +21,6 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         _ = ctx.res.request.headers.delete(h);
     }
 
-    std.log.debug("Downloading model from `{s}`", .{url});
-    std.log.debug("Headers: {}", .{ctx.res.request.headers});
-
     var client: std.http.Client = .{ .allocator = ctx.arena };
     var req = try client.request(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
     defer req.deinit();
@@ -32,12 +29,13 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     try req.wait();
 
     if (req.response.status != .ok) {
-        return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
+        return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid status code: `{d}`", .{req.response.status}) });
     }
 
-    const content_type = req.response.headers.getFirstValue("Content-Type") orelse return ctx.sendJson(.{ .@"error" = "Missing Content-Type header" });
-    std.log.debug("Content-Type: {s}", .{content_type});
-    std.log.debug("Content-Length: {?}", .{req.response.content_length});
+    const content_type = req.response.headers.getFirstValue("Content-Type") orelse "";
+    if (!std.mem.eql(u8, content_type, "binary/octet-stream")) {
+        return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
+    }
 
     var path = try std.fmt.allocPrintZ(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(url) });
     var file = try std.fs.createFileAbsolute(path, .{});
@@ -47,18 +45,14 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     errdefer std.fs.deleteFileAbsolute(path) catch {};
 
     var buf: [512 * 1024]u8 = undefined;
-    var received: usize = 0;
-    var progress: f32 = 0;
+    var progress: usize = 0;
     while (reader.read(&buf)) |n| {
         if (n == 0) break;
-
         try writer.writeAll(buf[0..n]);
 
-        received += n;
-        progress = @floatFromInt(received);
-        progress /= @floatFromInt(req.response.content_length orelse std.math.maxInt(usize));
+        progress += n;
         try ctx.sendJson(.{ .progress = progress });
-    } else |_| return ctx.sendJson(.{ .@"error" = "Failed to read the model" });
+    } else |_| return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
 }
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {

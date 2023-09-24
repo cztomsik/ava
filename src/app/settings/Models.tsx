@@ -4,12 +4,27 @@ import { SettingsPage } from "./SettingsPage"
 import { useApi } from "../_hooks"
 import { jsonLines } from "../_util"
 
-const urls = [
-  "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
-  "https://huggingface.co/TheBloke/Airoboros-L2-7B-2.2-GGUF/resolve/main/airoboros-l2-7b-2.2.Q4_K_M.gguf",
-  "https://huggingface.co/NikolayKozloff/falcon-7b-GGUF/resolve/main/falcon-7b-Q4_0-GGUF.gguf",
-  "https://huggingface.co/Aryanne/Mamba-gpt-3B-v4-ggml-and-gguf/resolve/main/q4_0-gguf-mamba-gpt-3B_v4.gguf",
-  "https://huggingface.co/klosax/tinyllamas-stories-gguf/resolve/main/tinyllamas-stories-15m-f32.gguf",
+const catalog = [
+  {
+    url: "https://huggingface.co/TheBloke/WizardLM-13B-V1.2-GGUF/resolve/main/wizardlm-13b-v1.2.Q4_K_M.gguf",
+    size: 7865956224,
+  },
+  {
+    url: "https://huggingface.co/TheBloke/Airoboros-L2-7B-2.2-GGUF/resolve/main/airoboros-l2-7b-2.2.Q4_K_M.gguf",
+    size: 4081004256,
+  },
+  {
+    url: "https://huggingface.co/NikolayKozloff/falcon-7b-GGUF/resolve/main/falcon-7b-Q4_0-GGUF.gguf",
+    size: 4062813440,
+  },
+  {
+    url: "https://huggingface.co/Aryanne/Mamba-gpt-3B-v4-ggml-and-gguf/resolve/main/q4_0-gguf-mamba-gpt-3B_v4.gguf",
+    size: 1979924096,
+  },
+  {
+    url: "https://huggingface.co/klosax/tinyllamas-stories-gguf/resolve/main/tinyllamas-stories-15m-f32.gguf",
+    size: 98229216,
+  },
 ]
 
 export const Models = () => {
@@ -17,8 +32,8 @@ export const Models = () => {
   const progress = useSignal(null)
   const ctrl = useSignal(null)
 
-  const download = async (url: string) => {
-    progress.value = { url, percent: 0 }
+  const download = async ({ url, size }) => {
+    progress.value = { url, size, progress: 0 }
     ctrl.value = new AbortController()
 
     try {
@@ -33,9 +48,7 @@ export const Models = () => {
           throw new Error(`Unexpected error: ${d.error}`)
         }
 
-        if ("progress" in d) {
-          progress.value = { url, percent: d.progress * 100 }
-        }
+        progress.value = { ...progress.value, ...d }
       }
 
       await refetch()
@@ -71,20 +84,22 @@ export const Models = () => {
         <thead>
           <tr>
             <th>Model</th>
-            <th class="w-40"></th>
+            <th class="w-24 text-right">Size</th>
+            <th class="w-32"></th>
           </tr>
         </thead>
         <tbody>
           {!models.length && (
             <tr>
-              <td colSpan={2}>No models installed. Download one from the catalog below.</td>
+              <td colSpan={3}>No models installed. Download one from the catalog below.</td>
             </tr>
           )}
 
           {models.map(m => (
             <tr>
               <td class="capitalize">{m.name}</td>
-              <td>
+              <td class="text-right">{humanSize(m.size)}</td>
+              <td class="text-center">
                 <Button onClick={() => del(m.name)}>Delete</Button>
               </td>
             </tr>
@@ -98,19 +113,21 @@ export const Models = () => {
           <tr>
             <th>Model</th>
             <th>Uploader</th>
-            <th class="w-40"></th>
+            <th class="w-24 text-right">Size</th>
+            <th class="w-32"></th>
           </tr>
         </thead>
         <tbody>
-          {urls.map(url => (
+          {catalog.map(m => (
             <tr>
-              <td class="capitalize">{basename(url.slice(0, -5))}</td>
-              <td>{url.split("/")[3]}</td>
-              <td>
-                {models.find(m => m.name === basename(url).slice(0, -5)) ? (
-                  <strong class="ml-3 text-green-10">Installed</strong>
+              <td class="capitalize">{basename(m.url.slice(0, -5))}</td>
+              <td>{m.url.split("/")[3]}</td>
+              <td class="text-right">{humanSize(m.size)}</td>
+              <td class="text-center">
+                {models.find(({ name }) => name === basename(m.url).slice(0, -5)) ? (
+                  <strong class="text-green-10">Installed</strong>
                 ) : (
-                  <Button onClick={() => download(url)}>Download</Button>
+                  <Button onClick={() => download(m)}>Download</Button>
                 )}
               </td>
             </tr>
@@ -127,7 +144,9 @@ export const Models = () => {
   )
 }
 
-const ProgressModal = ({ url, percent, onCancel }) => {
+const ProgressModal = ({ url, size, progress, onCancel }) => {
+  const percent = (progress / size) * 100
+
   return (
     <Modal class="w-[30rem]" title={`Download in Progress`} onClose={onCancel}>
       <div class="flex justify-between">
@@ -138,8 +157,28 @@ const ProgressModal = ({ url, percent, onCancel }) => {
       <div class="mt-4 h-1 w-full bg-neutral-7">
         <div class="h-1 bg-blue-9" style={`width: ${percent}%`}></div>
       </div>
+
+      <div class="mt-4 flex justify-between">
+        <span>
+          {humanSize(progress)} / {humanSize(size)}
+        </span>
+        <Button onClick={onCancel}>Cancel</Button>
+      </div>
     </Modal>
   )
 }
 
 const basename = url => url.split("/").pop()
+
+const humanSize = size => {
+  switch (true) {
+    case size / 1024 < 1:
+      return `${size} B`
+    case size / 1024 / 1024 < 1:
+      return `${(size / 1024).toFixed(2)} KB`
+    case size / 1024 / 1024 / 1024 < 1:
+      return `${(size / 1024 / 1024).toFixed(2)} MB`
+    default:
+      return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
+  }
+}

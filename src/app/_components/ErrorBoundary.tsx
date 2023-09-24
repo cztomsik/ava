@@ -12,7 +12,7 @@ export const ErrorBoundary = ({ children, ...props }) => {
   const lastError = useSignal(null)
 
   // Errors in the component tree (render, event handlers, etc.)
-  useErrorBoundary(err => (lastError.value = err))
+  useErrorBoundary(err => console.error((lastError.value = err)))
 
   // Unhandled promise rejections (fetch, async, etc.)
   useEffect(() => {

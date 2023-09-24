@@ -3,7 +3,7 @@ const platform = @import("platform.zig");
 
 pub const Model = struct {
     name: []const u8,
-    path: []const u8,
+    size: usize,
 };
 
 pub fn getModelPath(allocator: std.mem.Allocator, model_name: []const u8) ![]const u8 {
@@ -25,10 +25,13 @@ pub fn getModels(allocator: std.mem.Allocator) ![]Model {
     var it = dir.iterate();
 
     while (try it.next()) |entry| {
+        const file = try dir.dir.openFile(entry.name, .{ .mode = .read_only });
+        defer file.close();
+
         if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".gguf")) {
             try list.append(.{
                 .name = try allocator.dupe(u8, entry.name[0 .. entry.name.len - 5]),
-                .path = try std.fmt.allocPrint(allocator, "{s}/{s}", .{ path, entry.name }),
+                .size = (try file.stat()).size,
             });
         }
     }
