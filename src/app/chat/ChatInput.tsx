@@ -22,12 +22,7 @@ export const ChatInput = ({ onSend }) => {
   )
 
   return (
-    <Form
-      class={`vstack relative p-2 pr-16 ${autoGrow}`}
-      style="max-height: 30vh"
-      onSubmit={handleSubmit}
-      data-value={text}
-    >
+    <Form class={`vstack relative p-2 pr-16 ${autoGrow}`} onSubmit={handleSubmit} data-value={text}>
       <textarea
         class="absolute inset-0 py-2 pr-16 bg-transparent"
         rows={1}
@@ -50,5 +45,7 @@ const autoGrow = css`
     visibility: hidden;
     content: attr(data-value) " ";
     white-space: pre-wrap;
+    max-height: 30vh;
+    overflow-y: hidden;
   }
 `
