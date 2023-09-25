@@ -113,7 +113,8 @@ pub const Model = struct {
             _ = c.llama_model_desc(ptr, &desc, desc.len);
 
             params.n_gpu_layers =
-                if (std.mem.indexOf(u8, &desc, "F32") == null) 1 else 0;
+                // there are some issues with intel-based macs
+                if (builtin.cpu.arch == .aarch64 and std.mem.indexOf(u8, &desc, "F32") == null) 1 else 0;
         }
 
         return .{
