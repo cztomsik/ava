@@ -6,8 +6,8 @@
   "scripts": {
     "postinstall": "git submodule update --init --recursive",
     "bundle": "esbuild ./src/app/main.tsx --bundle --outdir=./zig-out/app",
-    "build": "npm run check && npm test && npm run bundle -- --minify --define:DEV=false --define:EXP=false",
-    "watch": "npm run bundle -- --sourcemap=inline --watch --define:DEV=true --define:EXP=true",
+    "build": "npm run check && npm test && npm run bundle -- --minify --define:DEV=false --define:NEXT=false",
+    "watch": "npm run bundle -- --sourcemap=inline --watch --define:DEV=true --define:NEXT=true",
     "check": "tsc --noEmit",
     "test": "node --loader ./src/app/_test-util/loader.js --test ./src/app/*/*.test.*"
   },

@@ -41,7 +41,7 @@ export const Playground = () => {
       <PageHeader title="Playground">
         {selection.value?.id > 0 && <Button onClick={handleDelete}>Delete</Button>}
         <Button onClick={handleSaveAs}>Save As</Button>
-        {EXP && <Button>Create a Tool</Button>}
+        {NEXT && <Button>Create a Tool</Button>}
       </PageHeader>
 
       <PageContent>

@@ -15,7 +15,7 @@ interface EventTarget {
 
 // feature flags
 var DEV: boolean
-var EXP: boolean
+var NEXT: boolean
 
 // preact factory
 var h

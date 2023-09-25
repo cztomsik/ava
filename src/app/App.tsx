@@ -16,14 +16,14 @@ export const App = () => {
 
 const Sidebar = () => (
   <aside class="vstack p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner" data-drag-window>
-    {EXP ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
+    {NEXT ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
 
     <SidebarHeader title="Main" />
     <SidebarLink href="/chat">Chat</SidebarLink>
-    {EXP && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
+    {NEXT && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
     <SidebarLink href="/playground">Playground</SidebarLink>
 
-    {EXP && (
+    {NEXT && (
       <>
         <SidebarHeader title="Pinned" />
         <SidebarLink href="/pinned/1">Copywriting</SidebarLink>
@@ -52,7 +52,7 @@ const SidebarLink = props => (
 )
 
 const BuyButton = () =>
-  EXP && (
+  NEXT && (
     <a class="me-2" href="http://www.avapls.com/">
       Buy License
     </a>

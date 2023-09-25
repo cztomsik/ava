@@ -52,7 +52,7 @@ export const examples = [
 //   `,
 // },
 
-// if (EXP) {
+// if (NEXT) {
 //   examples.push(
 //     {
 //       id: -4,
