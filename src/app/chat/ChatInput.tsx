@@ -31,7 +31,7 @@ export const ChatInput = ({ onSend }) => {
         onInput={e => (text.value = e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      <Button class="absolute bottom-1 right-1" style="height: 28px" submit>
+      <Button class="absolute bottom-1 right-1" style="height: 30px" submit>
         Send
       </Button>
     </Form>
@@ -45,6 +45,7 @@ const autoGrow = css`
     visibility: hidden;
     content: attr(data-value) " ";
     white-space: pre-wrap;
+    border: 1px solid transparent;
     max-height: 30vh;
     overflow-y: hidden;
   }
