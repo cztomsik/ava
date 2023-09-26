@@ -7,6 +7,7 @@ test("template", () => {
   assert.strictEqual(template("{{foo}}", { foo: 0 }), "0")
   assert.strictEqual(template("{{foo}}", { foo: null }), "")
   assert.strictEqual(template("{{foo}}", { foo: undefined }), "")
+  assert.strictEqual(template("{{ foo }}", { foo: "bar" }), "bar")
 
   assert.strictEqual(template("{{#foo}}bar{{/foo}}", { foo: true }), "bar")
   assert.strictEqual(template("{{#foo}}bar{{/foo}}", { foo: false }), "")
@@ -37,8 +38,10 @@ test("template", () => {
 })
 
 test("parseVars", () => {
+  assert.deepStrictEqual(parseVars("foo"), [])
   assert.deepStrictEqual(parseVars("{{foo}}"), ["foo"])
   assert.deepStrictEqual(parseVars("{{foo}} {{bar}}"), ["foo", "bar"])
+  assert.deepStrictEqual(parseVars("{{ foo }}"), ["foo"])
   assert.deepStrictEqual(parseVars("{{#a}}foo{{#b}}bar{{/b}}{{/a}}"), ["a", "b"])
   assert.deepStrictEqual(parseVars("{{^a}}foo{{^b}}bar{{/b}}{{/a}}"), ["a", "b"])
 })

@@ -7,8 +7,8 @@ export const template = (tpl: string, data: Record<string, any>) => {
   let depth = 0
   let stack = [{ key: "", inverted: false, inner: "" }]
 
-  for (const [_, prev, op, key] of tpl.matchAll(/([\s\S]*?)(?:{{(#|\^|\/)(.*?)}}|$)/g)) {
-    stack[depth].inner += prev.replace(/{{(.*?)}}/g, (_, k) => data[k] ?? "")
+  for (const [_, prev, op, key] of tpl.matchAll(/([\s\S]*?)(?:{{\s*(#|\^|\/)(.*?)\s*}}|$)/g)) {
+    stack[depth].inner += prev.replace(/{{\s*(.*?)\s*}}/g, (_, k) => data[k] ?? "")
 
     if (op === "/") {
       if (key != stack[depth].key) {
@@ -35,4 +35,6 @@ export const template = (tpl: string, data: Record<string, any>) => {
 /**
  * Extracts all variables from a template
  */
-export const parseVars = (tpl: string) => [...new Set(Array.from(tpl.matchAll(/{{(?:#|\^|\/)?(.*?)}}/g), m => m[1]))]
+export const parseVars = (tpl: string) => [
+  ...new Set(Array.from(tpl.matchAll(/{{\s*(?:#|\^|\/)?(.*?)\s*}}/g), m => m[1])),
+]
