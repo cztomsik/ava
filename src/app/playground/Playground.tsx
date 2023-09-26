@@ -3,8 +3,7 @@ import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, PageC
 import { useApi, useGenerate } from "../_hooks"
 import { useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
-
-const VAR = /\{\{(\w+)\}\}/g
+import { useEffect } from "preact/hooks"
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
@@ -16,6 +15,9 @@ export const Playground = () => {
   const selection = useSignal(null)
 
   const variableNames = parseVars(prompt.value)
+
+  // Auto-clear result whenever the prompt changes
+  useEffect(() => prompt.subscribe(() => (result.value = "")), [])
 
   const handleSubmit = async () => {
     for await (const res of generate(template(prompt.value, data.value))) {
