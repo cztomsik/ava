@@ -1,9 +1,8 @@
 import { useSignal } from "@preact/signals"
 import { AutoScroll, Button, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
 import { useApi, useGenerate } from "../_hooks"
-import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
-import { parseVars, template } from "../_util"
+import { dedent, parseVars, template } from "../_util"
 
 const VAR = /\{\{(\w+)\}\}/g
 
@@ -127,3 +126,45 @@ const PromptSelect = ({ value, onChange }) => {
     </Select>
   )
 }
+
+const examples = [
+  {
+    id: -1,
+    name: "Story Writing",
+    prompt: dedent`
+      The following is an excerpt from a story about Bob, the cat, flying to space.
+    `,
+  },
+
+  {
+    id: -2,
+    name: "Top 10 Movies To Watch",
+    prompt: dedent`
+      The top 10 movies to watch in 2025 are:
+    `,
+  },
+
+  {
+    id: -3,
+    name: "Question Answering",
+    prompt: dedent`
+      Q: What is the capital of France?
+      A: Paris.
+      Q: {{question}}
+      A:
+    `,
+  },
+
+  // TODO: Writing technical documentation, product announcement, etc.
+  {
+    id: -4,
+    name: "Copywriting",
+    prompt: dedent`
+      User needs help with copywriting.
+
+      ASSISTANT: Hello.
+      USER: Write a blog post about {{subject}}.
+      ASSISTANT: Ok, here is a draft of the post.
+    `,
+  },
+]
