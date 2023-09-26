@@ -9,6 +9,7 @@ declare var WeakRef: {
 // so we don't need to typecast event.target every time
 interface EventTarget {
   value: any
+  checked: boolean
   matches
   closest
 }

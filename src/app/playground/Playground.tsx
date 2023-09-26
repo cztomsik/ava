@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { AutoScroll, Button, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
+import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
 import { useApi, useGenerate } from "../_hooks"
 import { useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
@@ -11,13 +11,14 @@ export const Playground = () => {
   const { post: createPrompt, del } = useApi("prompts")
   const { generate, result, ...progress } = useGenerate()
   const prompt = useLocalStorage("playground.prompt", "")
+  const showPrompt = useSignal(false)
+  const data = useSignal({})
   const selection = useSignal(null)
-  const variables = useSignal({})
 
   const variableNames = parseVars(prompt.value)
 
   const handleSubmit = async () => {
-    for await (const res of generate(template(prompt.value, variables))) {
+    for await (const res of generate(template(prompt.value, data.value))) {
     }
   }
 
@@ -77,15 +78,22 @@ export const Playground = () => {
                 <div class="p-[5px] px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
                 <input
                   type="text"
-                  class="w-full rounded-none rounded-r-md"
-                  value={variables[name]}
-                  onInput={e => (variables[name] = e.target.value)}
+                  class="w-full !rounded-none !rounded-r-md"
+                  value={data.value[name]}
+                  onInput={e => (data.value = { ...data.value, [name]: e.target.value })}
                 />
               </div>
             ))}
 
+            <div class="flex mb-2">
+              <Checkbox label="Show Prompt" value={showPrompt} onChange={v => (showPrompt.value = v)} />
+            </div>
+
             <div class="flex-1 overflow-auto">
-              <Markdown input={result.value} class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" />
+              <Markdown
+                input={showPrompt.value ? template(prompt.value, data.value) + result.value : result.value}
+                class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden"
+              />
               <GenerationProgress {...progress} />
               <AutoScroll />
             </div>
@@ -163,7 +171,7 @@ const examples = [
       User needs help with copywriting.
 
       ASSISTANT: Hello.
-      USER: Write a blog post about {{subject}}.
+      USER: Write a blog post{{#subject}} about {{subject}}{{/subject}}.
       ASSISTANT: Ok, here is a draft of the post.
     `,
   },
