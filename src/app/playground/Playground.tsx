@@ -3,6 +3,7 @@ import { AutoScroll, Button, Form, GenerationProgress, Markdown, PageContent, Pa
 import { useApi, useGenerate } from "../_hooks"
 import { examples } from "../quick-tools/_examples"
 import { useLocalStorage } from "../_hooks"
+import { parseVars, template } from "../_util"
 
 const VAR = /\{\{(\w+)\}\}/g
 
@@ -14,10 +15,10 @@ export const Playground = () => {
   const selection = useSignal(null)
   const variables = useSignal({})
 
-  const variableNames = prompt.value.match(VAR)?.map(v => v.slice(2, -2)) ?? []
+  const variableNames = parseVars(prompt.value)
 
   const handleSubmit = async () => {
-    for await (const res of generate(prompt.value.replace(VAR, (_, name) => variables[name]))) {
+    for await (const res of generate(template(prompt.value, variables))) {
     }
   }
 
