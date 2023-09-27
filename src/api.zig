@@ -52,6 +52,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
 
         progress += n;
         try ctx.sendJson(.{ .progress = progress });
+        std.time.sleep(10_000_000);
     } else |_| return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
 }
 
