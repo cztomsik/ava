@@ -12,6 +12,7 @@ if ("webkit" in window) {
     if (e.target.matches("a, button, input, select, textarea")) return
     if (!e.target.closest("[data-drag-window]")) return
 
+    e.preventDefault()
     webkit.messageHandlers.event.postMessage(e.type)
   }
 
