@@ -1,10 +1,10 @@
 import { css } from "@twind/core"
-import { useSignal } from "@preact/signals"
 import { useCallback } from "preact/hooks"
 import { Button, Form } from "../_components"
+import { useLocalStorage } from "../_hooks"
 
-export const ChatInput = ({ onSend }) => {
-  const text = useSignal("")
+export const ChatInput = ({ id, onSend }) => {
+  const text = useLocalStorage(`chat.${id}.input`, "")
 
   const handleSubmit = useCallback(() => {
     onSend(text.value.trim())

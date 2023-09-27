@@ -1,8 +1,9 @@
-import { AutoScroll, Button, GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
+import { AutoScroll, GenerationProgress, List, Page, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
 import { router } from "../router"
+import { useCallback } from "preact/hooks"
 
 export const Chat = ({ params: { id } }) => {
   const { post: createChat, del } = useApi("chat")
@@ -28,6 +29,10 @@ export const Chat = ({ params: { id } }) => {
     draft.content.value = ""
   }
 
+  const handleSelect = id => {
+    router.navigate(`/chat/${id}`)
+  }
+
   const handleDelete = useConfirm(
     "Are you sure you want to delete this chat?",
     async id => {
@@ -37,18 +42,30 @@ export const Chat = ({ params: { id } }) => {
     []
   )
 
+  const focusInput = useCallback((e: KeyboardEvent) => {
+    const input = e.currentTarget.parentElement.querySelector("textarea")!
+    e.preventDefault()
+    input.focus()
+    input.value += e.key
+  }, [])
+
   return (
-    <>
-      <PageHeader title="Chat">
+    <Page>
+      <Page.Header title="Chat">
         {id && (
           <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
             Delete
           </a>
         )}
-        <ChatSelect value={id} />
-      </PageHeader>
-      <PageContent>
-        <div class="text(neutral-9 lg:lg) mt-3 mb-6">{defaultPrompt}</div>
+        <ChatSelect value={id} onSelect={handleSelect} />
+      </Page.Header>
+
+      <nav class="hidden lg:flex" onKeyPress={focusInput}>
+        <ChatList class="w(64 xl:80)" value={id} onSelect={handleSelect} />
+      </nav>
+
+      <Page.Content>
+        <div class="text(neutral-9 lg:lg) mt-3 mb-6 whitespace-pre-wrap">{defaultPrompt}</div>
 
         {!loading && messages.length === 0 && (
           <div class="text-sky-12 bg-sky-1 -mx-6 p-6 px-8 border(y-1 sky-6)">
@@ -65,19 +82,40 @@ export const Chat = ({ params: { id } }) => {
         <ChatLog messages={messages} draft={progress.data.value && draft} />
         <GenerationProgress class="mt-4" {...progress} />
         <AutoScroll />
-      </PageContent>
-      <PageFooter class="pt-2">
-        <ChatInput onSend={handleSend} />
-      </PageFooter>
-    </>
+      </Page.Content>
+
+      <Page.Footer class="pt-2">
+        <ChatInput id={id} onSend={handleSend} />
+      </Page.Footer>
+    </Page>
   )
 }
 
-const ChatSelect = ({ value }) => {
+const ChatList = ({ class: className = "", value, onSelect }) => {
   const { data } = useApi("chat")
 
   return (
-    <Select value={value} onChange={e => router.navigate(`/chat/${e.target.value}`)}>
+    <List class={className}>
+      <List.Item active={!value} onFocus={() => onSelect("")}>
+        <List.Item.Title>New chat</List.Item.Title>
+        <p>Start a new chat with a model.</p>
+      </List.Item>
+
+      {data?.map(({ id, name }) => (
+        <List.Item key={id} active={value === "" + id} onFocus={() => onSelect(id)}>
+          <List.Item.Title>{name}</List.Item.Title>
+          <p>Some last message</p>
+        </List.Item>
+      ))}
+    </List>
+  )
+}
+
+const ChatSelect = ({ value, onSelect }) => {
+  const { data } = useApi("chat")
+
+  return (
+    <Select value={value} onChange={e => onSelect(e.target.value)}>
       <option value="">Previous chats...</option>
       {data?.map(({ id, name }) => (
         <option key={id} value={id}>
