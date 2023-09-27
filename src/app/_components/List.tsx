@@ -10,10 +10,12 @@ const List = ({ class: className = "", children, ...props }) => {
       const item = el.querySelector("[role=listitem][aria-selected=true]")
 
       if (e.key === "ArrowDown") {
+        e.preventDefault()
         item?.nextElementSibling?.focus()
       }
 
       if (e.key === "ArrowUp") {
+        e.preventDefault()
         item?.previousElementSibling?.focus()
       }
     }
