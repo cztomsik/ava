@@ -8,10 +8,11 @@ declare var WeakRef: {
 
 // so we don't need to typecast event.target every time
 interface EventTarget {
+  parentElement: HTMLElement | null
+  matches(selector: string): boolean
+  closest(selector: string): HTMLElement | null
   value: any
   checked: boolean
-  matches
-  closest
 }
 
 // feature flags
