@@ -43,10 +43,12 @@ export const Chat = ({ params: { id } }) => {
   )
 
   const focusInput = useCallback((e: KeyboardEvent) => {
-    const input = e.currentTarget.parentElement.querySelector("textarea")!
-    e.preventDefault()
-    input.focus()
-    input.value += e.key
+    if (!e.altKey && !e.metaKey) {
+      const input = e.currentTarget.parentElement.querySelector("textarea")!
+      e.preventDefault()
+      input.focus()
+      input.value += e.key
+    }
   }, [])
 
   return (
