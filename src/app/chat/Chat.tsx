@@ -1,7 +1,7 @@
 import { AutoScroll, Button, GenerationProgress, PageContent, PageFooter, PageHeader, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
-import { useApi, getApiContext, useGenerate } from "../_hooks"
+import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
 import { router } from "../router"
 
 export const Chat = ({ params: { id } }) => {
@@ -28,10 +28,14 @@ export const Chat = ({ params: { id } }) => {
     draft.content.value = ""
   }
 
-  const handleDelete = async id => {
-    await del(id)
-    router.navigate("/chat", true)
-  }
+  const handleDelete = useConfirm(
+    "Are you sure you want to delete this chat?",
+    async id => {
+      await del(id)
+      router.navigate("/chat", true)
+    },
+    []
+  )
 
   return (
     <>

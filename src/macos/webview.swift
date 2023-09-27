@@ -87,6 +87,17 @@ final class NavigationDelegate: NSObject, WKNavigationDelegate {
 }
 
 final class WebViewUIDelegate: NSObject, WKUIDelegate {
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame: WKFrameInfo,
+                 completionHandler: @escaping (Bool) -> Void) {
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+        alert.beginSheetModal(for: webView.window!) { response in
+            completionHandler(response == .alertFirstButtonReturn)
+        }
+    }
+
     func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame: WKFrameInfo,
                  completionHandler: @escaping (String?) -> Void) {
         let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))

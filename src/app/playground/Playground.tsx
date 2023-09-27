@@ -1,7 +1,6 @@
 import { useSignal } from "@preact/signals"
 import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
-import { useApi, useGenerate } from "../_hooks"
-import { useLocalStorage } from "../_hooks"
+import { useApi, useConfirm, useGenerate, useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
 import { useEffect } from "preact/hooks"
 
@@ -32,12 +31,16 @@ export const Playground = () => {
     }
   }
 
-  const handleDelete = async () => {
-    const { id } = selection.value
-    selection.value = null
-    prompt.value = ""
-    await del(id)
-  }
+  const handleDelete = useConfirm(
+    "Are you sure you want to delete this prompt?",
+    async () => {
+      const { id } = selection.value
+      selection.value = null
+      prompt.value = ""
+      await del(id)
+    },
+    []
+  )
 
   return (
     <>
