@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef } from "preact/hooks"
 const List = ({ class: className = "", children, ...props }) => {
   const ref = useRef(null)
 
+  // TODO: maybe we could do this globally for all aria lists?
+  //       <ListBehavior /> in root component or something like that?
   useEffect(() => {
     const el = ref.current!
 
