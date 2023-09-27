@@ -14,7 +14,7 @@
   "prettier": {
     "semi": false,
     "arrowParens": "avoid",
-    "printWidth": 130
+    "printWidth": 120
   },
   "dependencies": {
     "@preact/signals": "^1.1.5",

@@ -1,4 +1,4 @@
-import { Button, Form, FormGrid, PageContent, PageHeader } from "../_components"
+import { Button, Form, FormGrid, Page } from "../_components"
 import { examples } from "./_examples"
 
 export const QuickTool = ({ params: { id } }) => {
@@ -12,11 +12,11 @@ export const QuickTool = ({ params: { id } }) => {
   return (
     <>
       {/* TODO: maybe we can re-introduce page header here, just for the sake of quick tools description */}
-      <PageHeader title={spec.name}>
+      <Page.Header title={spec.name}>
         <Button href="./edit">Edit</Button>
-      </PageHeader>
+      </Page.Header>
 
-      <PageContent>
+      <Page.Content>
         <Form class="row" onSubmit={() => alert("TODO")}>
           <FormGrid class="col">
             {variableNames.map((name, i) => (
@@ -34,7 +34,7 @@ export const QuickTool = ({ params: { id } }) => {
             <pre class="card p-3">{result}</pre>
           </div>
         </Form>
-      </PageContent>
+      </Page.Content>
     </>
   )
 }

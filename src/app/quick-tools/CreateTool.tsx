@@ -1,16 +1,16 @@
-import { PageContent, PageHeader } from "../_components"
+import { Page } from "../_components"
 import { ToolForm } from "./ToolForm"
 
 export const CreateTool = () => {
   const tool = {}
 
   return (
-    <>
-      <PageHeader title="New Tool"></PageHeader>
+    <Page>
+      <Page.Header title="New Tool"></Page.Header>
 
-      <PageContent>
+      <Page.Content>
         <ToolForm tool={tool} onSubmit={() => {}} />
-      </PageContent>
-    </>
+      </Page.Content>
+    </Page>
   )
 }

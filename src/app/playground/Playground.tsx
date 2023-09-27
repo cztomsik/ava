@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals"
-import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, PageContent, PageHeader, Select } from "../_components"
+import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, Page, Select } from "../_components"
 import { useApi, useConfirm, useGenerate, useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
 import { useEffect } from "preact/hooks"
@@ -43,14 +43,14 @@ export const Playground = () => {
   )
 
   return (
-    <>
-      <PageHeader title="Playground">
+    <Page>
+      <Page.Header title="Playground">
         {selection.value?.id > 0 && <Button onClick={handleDelete}>Delete</Button>}
         <Button onClick={handleSaveAs}>Save As</Button>
         {NEXT && <Button>Create a Tool</Button>}
-      </PageHeader>
+      </Page.Header>
 
-      <PageContent>
+      <Page.Content>
         <Form class="flex-1 max-h-full row" onSubmit={handleSubmit}>
           <div class="col vstack">
             <PromptSelect
@@ -104,8 +104,8 @@ export const Playground = () => {
             </div>
           </div>
         </Form>
-      </PageContent>
-    </>
+      </Page.Content>
+    </Page>
   )
 }
 

@@ -1,14 +1,14 @@
-import { Button, Link, PageContent, PageHeader, Table } from "../_components"
+import { Button, Link, Page, Table } from "../_components"
 import { examples } from "./_examples"
 
 export const QuickTools = () => {
   return (
-    <>
-      <PageHeader title="Quick Tools">
+    <Page>
+      <Page.Header title="Quick Tools">
         <Button href="/quick-tools/new">Create New</Button>
-      </PageHeader>
+      </Page.Header>
 
-      <PageContent>
+      <Page.Content>
         <Table>
           <thead>
             <tr>
@@ -27,7 +27,7 @@ export const QuickTools = () => {
             ))}
           </tbody>
         </Table>
-      </PageContent>
-    </>
+      </Page.Content>
+    </Page>
   )
 }
