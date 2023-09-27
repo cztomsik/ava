@@ -44,11 +44,12 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     defer file.close();
     errdefer std.fs.deleteFileAbsolute(path) catch {};
 
-    var buf: [512 * 1024]u8 = undefined;
+    // connection buffer seems to be 80KB anyway
+    var buf: [100 * 1024]u8 = undefined;
     var progress: usize = 0;
-    while (reader.read(&buf)) |n| {
-        if (n == 0) break;
+    while (reader.readAll(&buf)) |n| {
         try writer.writeAll(buf[0..n]);
+        if (n < buf.len) break;
 
         progress += n;
         try ctx.sendJson(.{ .progress = progress });
