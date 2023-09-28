@@ -87,10 +87,14 @@ pub fn @"POST /generate"(ctx: *server.Context) !void {
 }
 
 pub fn @"GET /chat"(ctx: *server.Context) !void {
-    var stmt = try db.query("SELECT * FROM Chat ORDER BY id", .{});
+    var stmt = try db.query(
+        \\SELECT id, name,
+        \\(SELECT content FROM ChatMessage WHERE chat_id = Chat.id ORDER BY id DESC LIMIT 1) as last_message
+        \\FROM Chat ORDER BY id
+    , .{});
     defer stmt.deinit();
 
-    return ctx.sendJson(stmt.iterator(db.Chat));
+    return ctx.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: []const u8 }));
 }
 
 pub fn @"POST /chat"(ctx: *server.Context) !void {
