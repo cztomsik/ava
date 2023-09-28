@@ -3,7 +3,7 @@ import { useLocalStorage, useResize } from "./_hooks"
 
 export const Sidebar = () => {
   const width = useLocalStorage("sidebar.width", 200)
-  const { style, resizeHandle } = useResize({ width, minWidth: 150, maxWidth: 400 })
+  const { style, resizeHandle } = useResize({ width, minWidth: 150, maxWidth: 300 })
 
   return (
     <aside class="vstack relative p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner" style={style} data-drag-window>
