@@ -12,7 +12,7 @@ export const ChatLog = ({ messages, draft, class: className = "" }) => (
 
 // TODO: onEdit, onDelete
 export const Message = ({ role, content }) => (
-  <div class={`hstack py-2 md:py-4 lg:py-6 odd:(border(y neutral-6) bg-neutral-1 -mx-10 px-10)`}>
+  <div class={`hstack py-6 odd:(border(y neutral-6) bg-neutral-1 -mx-10 px-10)`}>
     <Avatar class="mr-4" role={role} />
     <Markdown class="flex-1" input={"" + content} />
   </div>
@@ -21,7 +21,7 @@ export const Message = ({ role, content }) => (
 export const Avatar = ({ role, class: className = "" }) => {
   const src = role === "user" ? userImg : assistantImg
 
-  return <img class={`w-6 h-6 md:(w-8 h-8) lg:(w-10 h-10) rounded self-start ${className}`} alt={role} src={src} />
+  return <img class={`w-9 h-9 rounded self-start ${className}`} alt={role} src={src} />
 }
 
 const fallbackAvatar = (text, bg, fg) =>
