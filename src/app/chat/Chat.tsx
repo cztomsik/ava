@@ -93,7 +93,7 @@ export const Chat = ({ params: { id } }) => {
 
 const ChatList = ({ class: className = "", value, onSelect, ...props }) => {
   const width = useLocalStorage("chat.list.width", 200)
-  const { style, resizeHandle } = useResize({ width, minWidth: 200, maxWidth: 350 })
+  const { style, resizeHandle } = useResize({ width, minWidth: 200, maxWidth: 600 })
   const { data } = useApi("chat")
 
   return (
