@@ -53,7 +53,7 @@ export const Chat = ({ params: { id } }) => {
 
   return (
     <Page>
-      <Page.Header title="Chat">
+      <Page.Header title="Chat" onKeyPress={focusInput}>
         {id && (
           <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
             Delete
@@ -62,9 +62,9 @@ export const Chat = ({ params: { id } }) => {
         <ChatSelect value={id} onSelect={handleSelect} />
       </Page.Header>
 
-      <ChatList class="hidden lg:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
+      <ChatList class="hidden md:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
 
-      <Page.Content>
+      <Page.Content onKeyPress={focusInput}>
         <div class="text(neutral-9 lg:lg) mt-3 mb-6 whitespace-pre-wrap">{defaultPrompt}</div>
 
         {!loading && messages.length === 0 && (
@@ -91,14 +91,14 @@ export const Chat = ({ params: { id } }) => {
   )
 }
 
-const ChatList = ({ value, onSelect, ...props }) => {
+const ChatList = ({ class: className = "", value, onSelect, ...props }) => {
   const width = useLocalStorage("chat.list.width", 200)
   const { style, resizeHandle } = useResize({ width, minWidth: 200, maxWidth: 350 })
   const { data } = useApi("chat")
 
   return (
-    <nav {...props}>
-      <List class="relative" style={style}>
+    <nav class={`relative ${className}`} {...props}>
+      <List style={style}>
         <List.Item active={!value} onFocus={() => onSelect("")}>
           <List.Item.Title>New chat</List.Item.Title>
           <p>Start a new chat with a model.</p>
