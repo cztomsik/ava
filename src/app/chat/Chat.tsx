@@ -104,10 +104,10 @@ const ChatList = ({ class: className = "", value, onSelect, ...props }) => {
           <p>Start a new chat with a model.</p>
         </List.Item>
 
-        {data?.map(({ id, name }) => (
+        {data?.map(({ id, name, last_message }) => (
           <List.Item key={id} active={value === "" + id} onFocus={() => onSelect(id)}>
             <List.Item.Title>{name}</List.Item.Title>
-            <p>Some last message</p>
+            <p class="whitespace-nowrap overflow-hidden text-ellipsis">{last_message}</p>
           </List.Item>
         ))}
 
