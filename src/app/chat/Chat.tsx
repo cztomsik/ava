@@ -1,7 +1,7 @@
 import { AutoScroll, GenerationProgress, List, Page, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
-import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
+import { useApi, getApiContext, useGenerate, useConfirm, useResize, useLocalStorage } from "../_hooks"
 import { router } from "../router"
 import { useCallback } from "preact/hooks"
 
@@ -62,9 +62,7 @@ export const Chat = ({ params: { id } }) => {
         <ChatSelect value={id} onSelect={handleSelect} />
       </Page.Header>
 
-      <nav class="hidden lg:flex" onKeyPress={focusInput}>
-        <ChatList class="w(64 xl:80)" value={id} onSelect={handleSelect} />
-      </nav>
+      <ChatList class="hidden lg:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
 
       <Page.Content>
         <div class="text(neutral-9 lg:lg) mt-3 mb-6 whitespace-pre-wrap">{defaultPrompt}</div>
@@ -93,23 +91,29 @@ export const Chat = ({ params: { id } }) => {
   )
 }
 
-const ChatList = ({ class: className = "", value, onSelect }) => {
+const ChatList = ({ value, onSelect, ...props }) => {
+  const width = useLocalStorage("chat.list.width", 200)
+  const { style, resizeHandle } = useResize({ width, minWidth: 200, maxWidth: 350 })
   const { data } = useApi("chat")
 
   return (
-    <List class={className}>
-      <List.Item active={!value} onFocus={() => onSelect("")}>
-        <List.Item.Title>New chat</List.Item.Title>
-        <p>Start a new chat with a model.</p>
-      </List.Item>
-
-      {data?.map(({ id, name }) => (
-        <List.Item key={id} active={value === "" + id} onFocus={() => onSelect(id)}>
-          <List.Item.Title>{name}</List.Item.Title>
-          <p>Some last message</p>
+    <nav {...props}>
+      <List class="relative" style={style}>
+        <List.Item active={!value} onFocus={() => onSelect("")}>
+          <List.Item.Title>New chat</List.Item.Title>
+          <p>Start a new chat with a model.</p>
         </List.Item>
-      ))}
-    </List>
+
+        {data?.map(({ id, name }) => (
+          <List.Item key={id} active={value === "" + id} onFocus={() => onSelect(id)}>
+            <List.Item.Title>{name}</List.Item.Title>
+            <p>Some last message</p>
+          </List.Item>
+        ))}
+
+        {resizeHandle}
+      </List>
+    </nav>
   )
 }
 
