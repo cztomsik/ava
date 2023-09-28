@@ -53,7 +53,7 @@ const ListItem = ({ class: className = "", children, active = false, ...props })
     <div
       role="listitem"
       tabIndex={-1}
-      class="px-6 py-3 border(b-1 neutral-6) outline-none aria-selected:(bg-neutral-6 focus:(bg-primary-10 text-white))"
+      class="group px-6 py-3 border(b-1 neutral-6) outline-none aria-selected:(bg-neutral-6 focus:(bg-primary-10 text-white))"
       {...props}
     >
       {children}
@@ -63,6 +63,11 @@ const ListItem = ({ class: className = "", children, active = false, ...props })
 
 const ListItemTitle = ({ children }) => <h4 class="font-semibold">{children}</h4>
 
+const ListItemSubtitle = ({ children }) => (
+  <p class="whitespace-nowrap overflow-hidden text(sm ellipsis neutral-11 group-focus:neutral-6)">{children}</p>
+)
+
 export { List }
 List.Item = ListItem
 ListItem.Title = ListItemTitle
+ListItem.Subtitle = ListItemSubtitle
