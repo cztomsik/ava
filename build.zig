@@ -26,7 +26,7 @@ fn addExe(llama: *std.Build.Step.Compile, srv: *std.Build.Step.Compile) !*std.Bu
 
     const swiftc = b.addSystemCommand(&.{
         "swiftc",
-        if (optimize == .ReleaseFast) "-O" else "-Onone",
+        if (optimize == .Debug) "-Onone" else "-O",
         "-import-objc-header",
         "src/macos/ava.h",
         "-L",
