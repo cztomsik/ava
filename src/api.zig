@@ -37,12 +37,14 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
     }
 
-    var path = try std.fmt.allocPrintZ(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(url) });
-    var file = try std.fs.createFileAbsolute(path, .{});
+    var path = try std.fmt.allocPrint(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(url) });
+    var tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
+    var file = try std.fs.createFileAbsolute(tmp_path, .{});
+    defer file.close();
+    errdefer std.fs.deleteFileAbsolute(tmp_path) catch {};
+
     var reader = req.reader();
     var writer = file.writer();
-    defer file.close();
-    errdefer std.fs.deleteFileAbsolute(path) catch {};
 
     // connection buffer seems to be 80KB so let's do two reads per write
     var buf: [160 * 1024]u8 = undefined;
@@ -54,6 +56,8 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         progress += n;
         try ctx.sendJson(.{ .progress = progress });
     } else |_| return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
+
+    try std.fs.renameAbsolute(tmp_path, path);
 }
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {
