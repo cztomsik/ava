@@ -3,13 +3,15 @@ import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
 import { useApi, getApiContext, useGenerate, useConfirm, useResize, useLocalStorage } from "../_hooks"
 import { router } from "../router"
-import { useCallback } from "preact/hooks"
+import { useCallback, useEffect } from "preact/hooks"
+import { useSignal } from "@preact/signals"
 
 export const Chat = ({ params: { id } }) => {
   const { post: createChat, del } = useApi("chat")
+  let { data: chat, put: updateChat } = useApi(id && `chat/${id}`)
   let { data: messages = [], loading, post: pushMessage } = useApi(id && `chat/${id}/messages`)
   const { generate, result, ...progress } = useGenerate()
-  const draft = { role: "assistant", content: result }
+  const draft = useSignal(null)
 
   const handleSend = async text => {
     if (!id) {
@@ -20,14 +22,26 @@ export const Chat = ({ params: { id } }) => {
 
     const msg = { role: "user", content: text }
     await pushMessage(msg)
+    draft.value = { role: "assistant", content: result }
 
     // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
-    for await (const x of generate(serializePrompt([...messages, msg, draft]), { stop: ["USER", ":"] })) {
-    }
-
-    await pushMessage(draft)
-    draft.content.value = ""
+    await generate(serializePrompt([...messages, msg, draft.value]), { stop: ["USER", ":"] })
+    await pushMessage(draft.value)
+    draft.value = null
   }
+
+  useEffect(() => {
+    // if (messages.length === 2) {
+    //   generate(serializePrompt(messages) + "\n\nSummary:", {
+    //     maxTokens: 64,
+    //     stop: ["USER", ":"],
+    //   }).then(summary => {
+    //     if (summary) {
+    //       updateChat({ name: summary[0].toUpperCase() + summary.slice(1).replace(/[\.\n].*/, "") })
+    //     }
+    //   })
+    // }
+  }, [messages])
 
   const handleSelect = id => {
     router.navigate(`/chat/${id}`)
@@ -53,7 +67,7 @@ export const Chat = ({ params: { id } }) => {
 
   return (
     <Page>
-      <Page.Header title="Chat" onKeyPress={focusInput}>
+      <Page.Header title={chat?.name ?? "Chat"} onKeyPress={focusInput}>
         {id && (
           <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
             Delete
@@ -79,7 +93,7 @@ export const Chat = ({ params: { id } }) => {
           </div>
         )}
 
-        <ChatLog messages={messages} draft={progress.data.value && draft} />
+        <ChatLog messages={messages} draft={progress.data.value && draft.value} />
         <GenerationProgress class="mt-4" {...progress} />
         <AutoScroll />
       </Page.Content>
@@ -122,7 +136,7 @@ const ChatSelect = ({ value, onSelect }) => {
   const { data } = useApi("chat")
 
   return (
-    <Select value={value} onChange={e => onSelect(e.target.value)}>
+    <Select class="max-w-[200px]" value={value} onChange={e => onSelect(e.target.value)}>
       <option value="">Previous chats...</option>
       {data?.map(({ id, name }) => (
         <option key={id} value={id}>

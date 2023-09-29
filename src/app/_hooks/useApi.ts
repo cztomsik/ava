@@ -10,6 +10,7 @@ interface Context<T> {
   loading: boolean
   refetch: () => Promise<void>
   post: (row: any) => Promise<T>
+  put: (row: any) => Promise<T>
   del: (id: any) => Promise<void>
 }
 
@@ -50,6 +51,14 @@ const createContext = <T>(path: string) => {
     async post(row: any) {
       try {
         return await callApi(path, { method: "POST", body: JSON.stringify(row) })
+      } finally {
+        invalidate(path)
+      }
+    },
+
+    async put(row: any) {
+      try {
+        return await callApi(path, { method: "PUT", body: JSON.stringify(row) })
       } finally {
         invalidate(path)
       }

@@ -115,6 +115,14 @@ pub fn @"GET /chat/:id"(ctx: *server.Context, id: u32) !void {
     return ctx.sendJson(try stmt.read(db.Chat));
 }
 
+pub fn @"PUT /chat/:id"(ctx: *server.Context, id: u32) !void {
+    const data = try ctx.readJson(struct {
+        name: []const u8,
+    });
+
+    try db.exec("UPDATE Chat SET name = ? WHERE id = ?", .{ data.name, id });
+}
+
 pub fn @"GET /chat/:id/messages"(ctx: *server.Context, id: u32) !void {
     var stmt = try db.query("SELECT * FROM ChatMessage WHERE chat_id = ? ORDER BY id", .{id});
     defer stmt.deinit();

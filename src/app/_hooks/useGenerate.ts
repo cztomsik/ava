@@ -12,14 +12,16 @@ export const useGenerate = () => {
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, []) // Cancel any generation when the component is unmounted
 
-  const generate = useCallback(async function* (prompt, { stop = null, trimFirst = true } = {}) {
+  const generate = useCallback(async (prompt, { stop = null, trimFirst = true, maxTokens = 2048 } = {}) => {
     let stopQueue = stop?.slice()
     ctrl.value?.abort()
     const thisCtrl = (ctrl.value = new AbortController())
     data.value = { status: "Sending..." }
-    yield (result.value = "")
+    result.value = ""
 
     try {
+      let tokens = 0
+
       for await (let d of await callApi(selectedModel.value, prompt, ctrl.value.signal)) {
         data.value = d
 
@@ -42,7 +44,11 @@ export const useGenerate = () => {
             } else stopQueue = stop.slice()
           }
 
-          yield (result.value += d.content)
+          result.value += d.content
+
+          if (++tokens >= maxTokens) {
+            break
+          }
         }
       }
     } catch (e) {
@@ -54,6 +60,8 @@ export const useGenerate = () => {
       // stop the http request if it's still running
       if (!thisCtrl.signal.aborted) thisCtrl.abort()
     }
+
+    return result.value
   }, [])
 
   return { generate, data, result, abort } as const

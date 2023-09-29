@@ -18,10 +18,7 @@ export const Playground = () => {
   // Auto-clear result whenever the prompt changes
   useEffect(() => prompt.subscribe(() => (result.value = "")), [])
 
-  const handleSubmit = async () => {
-    for await (const res of generate(template(prompt.value, data.value))) {
-    }
-  }
+  const handleSubmit = () => generate(template(prompt.value, data.value))
 
   const handleSaveAs = async () => {
     const name = window.prompt("Name this prompt", selection.value?.name ?? "Untitled")
