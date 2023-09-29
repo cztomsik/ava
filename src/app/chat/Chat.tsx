@@ -32,12 +32,13 @@ export const Chat = ({ params: { id } }) => {
 
   useEffect(() => {
     // if (messages.length === 2) {
-    //   generate(serializePrompt(messages) + "\n\nSummary:", {
-    //     maxTokens: 64,
+    //   generate(serializePrompt(messages) + '\n\nThe first message could be summarized as "', {
+    //     maxTokens: 32,
     //     stop: ["USER", ":"],
     //   }).then(summary => {
     //     if (summary) {
-    //       updateChat({ name: summary[0].toUpperCase() + summary.slice(1).replace(/[\.\n].*/, "") })
+    //       console.log(summary)
+    //       updateChat({ name: summary[0].toUpperCase() + summary.slice(1).replace(/["\.:\n].*/s, "") })
     //     }
     //   })
     // }
