@@ -2,6 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 const c = @cImport({
+    @cDefine("GGML_UNREACHABLE", "unreachable");
     @cInclude("llama.h");
 });
 
@@ -94,17 +95,13 @@ pub const Pool = struct {
 pub const Model = struct {
     allocator: std.mem.Allocator,
     path: [:0]const u8,
-    params: c.llama_context_params,
+    params: c.llama_model_params,
     ptr: *c.llama_model,
 
     /// Loads a model from a file.
     pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
-        var params = c.llama_context_default_params();
-        params.n_ctx = 2048; // TODO: make this configurable
-        params.n_batch = 64; // 512; // TODO: @min(512, xxx)
-
-        var path = try allocator.dupeZ(u8, model_path);
-
+        var params = c.llama_model_default_params();
+        const path = try allocator.dupeZ(u8, model_path);
         const ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
 
         if (builtin.os.tag == .macos) {
@@ -136,7 +133,7 @@ pub const Model = struct {
         var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
         errdefer tokens.deinit();
 
-        const n_tokens = c.llama_tokenize_with_model(
+        const n_tokens = c.llama_tokenize(
             self.ptr,
             input.ptr,
             @intCast(input.len),
@@ -157,22 +154,27 @@ pub const Model = struct {
 
 pub const Context = struct {
     model: *Model,
+    params: c.llama_context_params,
     ptr: *c.llama_context,
     tokens: std.ArrayList(Token),
     n_past: usize = 0,
     candidates: std.ArrayList(c.llama_token_data),
     buf: std.ArrayList(u8),
-    n_threads: usize,
 
     /// Initializes the context.
     pub fn init(allocator: std.mem.Allocator, model: *Model, n_threads: usize) !Context {
+        var params = c.llama_context_default_params();
+        params.n_ctx = 2048; // TODO: make this configurable
+        params.n_batch = 64; // 512; // TODO: @min(512, xxx)
+        params.n_threads = @intCast(n_threads);
+
         return .{
             .model = model,
-            .ptr = c.llama_new_context_with_model(model.ptr, model.params) orelse return error.UnexpectedError,
+            .params = params,
+            .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
             .tokens = std.ArrayList(Token).init(allocator),
             .candidates = std.ArrayList(c.llama_token_data).init(allocator),
             .buf = std.ArrayList(u8).init(allocator),
-            .n_threads = n_threads,
         };
     }
 
@@ -215,7 +217,7 @@ pub const Context = struct {
     /// Returns the number of tokens evaluated.
     pub fn evalOnce(self: *Context) !usize {
         const n_eval = @min(
-            @as(usize, @intCast(self.model.params.n_batch)),
+            @as(usize, @intCast(self.params.n_batch)),
             self.tokens.items.len - self.n_past,
         );
 
@@ -227,7 +229,6 @@ pub const Context = struct {
                 toks.ptr,
                 @intCast(n_eval),
                 @intCast(self.n_past),
-                @intCast(self.n_threads),
             ) != 0) {
                 return error.FailedToEval;
             }
@@ -247,7 +248,7 @@ pub const Context = struct {
         switch (c.llama_token_get_type(self.ptr, token)) {
             c.LLAMA_TOKEN_TYPE_NORMAL => {
                 // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
-                if (c.llama_vocab_type(self.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
+                if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
                     try self.buf.ensureUnusedCapacity(piece.len);
                     self.buf.items.len += piece.len;
                     self.buf.items.len -= std.mem.replace(u8, piece, "▁", " ", self.buf.items[start..]) * 2;
@@ -296,7 +297,7 @@ pub const Context = struct {
     /// Samples a token from the context.
     pub fn sampleToken(self: *Context, params: *const SamplingParams) !?Token {
         const logits = c.llama_get_logits(self.ptr);
-        try self.candidates.resize(@intCast(c.llama_n_vocab(self.ptr)));
+        try self.candidates.resize(@intCast(c.llama_n_vocab(self.model.ptr)));
 
         for (self.candidates.items, 0..) |*candidate, i| {
             candidate.* = .{
