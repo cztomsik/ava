@@ -26,6 +26,9 @@ const createContext = <T>(path: string) => {
   // true will prevent flash of empty state before we start fetching
   const state = new Signal({ data: undefined, loading: true })
 
+  // dedupe refetch calls during the same tick
+  let p: any = null
+
   const context: Context<T> = {
     get data() {
       return state.value.data
@@ -37,7 +40,11 @@ const createContext = <T>(path: string) => {
 
     async refetch() {
       state.value = { ...state.value, loading: true }
-      state.value = { ...state.value, data: await callApi(path), loading: false }
+      state.value = {
+        ...state.value,
+        data: await (p ?? (p = Promise.resolve().then(() => ((p = null), callApi(path))))),
+        loading: false,
+      }
     },
 
     async post(row: any) {
@@ -71,7 +78,7 @@ const invalidate = (path: string) => {
   for (const [key, value] of cache.entries()) {
     const context = value.deref()
 
-    if (context && key.startsWith(path)) {
+    if (context && path.startsWith(key)) {
       context.refetch()
     }
   }
