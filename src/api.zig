@@ -94,7 +94,7 @@ pub fn @"GET /chat"(ctx: *server.Context) !void {
     , .{});
     defer stmt.deinit();
 
-    return ctx.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: []const u8 }));
+    return ctx.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: ?[]const u8 }));
 }
 
 pub fn @"POST /chat"(ctx: *server.Context) !void {
