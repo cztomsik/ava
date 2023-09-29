@@ -154,20 +154,18 @@ pub const Statement = struct {
     pub fn column(self: *Statement, comptime T: type, index: usize) !T {
         const i: c_int = @intCast(index);
 
-        return switch (@typeInfo(T)) {
-            .Bool => c.sqlite3_column_int(self.stmt, i) != 0,
-            .Int => @intCast(c.sqlite3_column_int64(self.stmt, i)),
-            .Float => c.sqlite3_column_double(self.stmt, i),
-            else => {
-                if (T == []const u8) {
-                    const len = c.sqlite3_column_bytes(self.stmt, i);
-                    const data = c.sqlite3_column_text(self.stmt, i);
+        return switch (T) {
+            bool => c.sqlite3_column_int(self.stmt, i) != 0,
+            u32, i32 => @intCast(c.sqlite3_column_int64(self.stmt, i)),
+            f32, f64 => @floatCast(c.sqlite3_column_double(self.stmt, i)),
+            []const u8 => try self.column(?[]const u8, index) orelse error.NullPointer,
+            ?[]const u8 => {
+                const len = c.sqlite3_column_bytes(self.stmt, i);
+                const data = c.sqlite3_column_text(self.stmt, i);
 
-                    return if (data != null) data[0..@intCast(len)] else error.NullPointer;
-                }
-
-                @compileError("TODO");
+                return if (data != null) data[0..@intCast(len)] else null;
             },
+            else => @compileError("TODO: " ++ @typeName(T)),
         };
     }
 

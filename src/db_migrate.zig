@@ -17,7 +17,7 @@ pub fn migrate(db: *sqlite.SQLite3) !void {
 
     var it = tables.iterator(struct { []const u8, []const u8 });
     while (try it.next()) |row| {
-        if (try db.get(usize, "SELECT COUNT(*) FROM sqlite_master WHERE name = ?", .{row[0]}) == 0) {
+        if (try db.get(u32, "SELECT COUNT(*) FROM sqlite_master WHERE name = ?", .{row[0]}) == 0) {
             std.log.debug("Creating table: {s}", .{row[0]});
             try db.exec(row[1], .{});
         }
