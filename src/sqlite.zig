@@ -77,6 +77,7 @@ pub const SQLite3 = struct {
 
         return .{
             .stmt = stmt.?,
+            .sql = sql,
         };
     }
 };
@@ -84,6 +85,7 @@ pub const SQLite3 = struct {
 /// A prepared statement.
 pub const Statement = struct {
     stmt: *c.sqlite3_stmt,
+    sql: []const u8,
 
     /// Deinitializes the prepared statement.
     pub fn deinit(self: *Statement) void {
@@ -160,7 +162,8 @@ pub const Statement = struct {
                 if (T == []const u8) {
                     const len = c.sqlite3_column_bytes(self.stmt, i);
                     const data = c.sqlite3_column_text(self.stmt, i);
-                    return data[0..@intCast(len)];
+
+                    return if (data != null) data[0..@intCast(len)] else error.NullPointer;
                 }
 
                 @compileError("TODO");
@@ -187,6 +190,8 @@ pub fn RowIterator(comptime T: type) type {
         stmt: *Statement,
 
         pub fn next(self: *RowIterator(T)) !?T {
+            errdefer std.log.err("Failed to read row: {s}\n", .{self.stmt.sql});
+
             return self.stmt.read(T) catch |e| if (e == error.NoRows) null else e;
         }
     };
