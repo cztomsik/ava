@@ -1,10 +1,11 @@
-import { AutoScroll, GenerationProgress, List, Page, Select } from "../_components"
+import { AutoScroll, GenerationProgress, Page, Select } from "../_components"
 import { ChatLog } from "./ChatLog"
 import { ChatInput } from "./ChatInput"
-import { useApi, getApiContext, useGenerate, useConfirm, useResize, useLocalStorage } from "../_hooks"
+import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
 import { router } from "../router"
 import { useCallback, useEffect } from "preact/hooks"
 import { useSignal } from "@preact/signals"
+import { ChatList } from "./ChatList"
 
 export const Chat = ({ params: { id } }) => {
   const { post: createChat, del } = useApi("chat")
@@ -103,33 +104,6 @@ export const Chat = ({ params: { id } }) => {
         <ChatInput id={id} onSend={handleSend} />
       </Page.Footer>
     </Page>
-  )
-}
-
-const ChatList = ({ class: className = "", value, onSelect, ...props }) => {
-  const width = useLocalStorage("chat.list.width", 200)
-  const { style, resizeHandle } = useResize({ width, minWidth: 200, maxWidth: 600 })
-
-  const { data } = useApi("chat")
-
-  return (
-    <nav class={`relative ${className}`} {...props}>
-      <List style={style}>
-        <List.Item active={!value} onFocus={() => onSelect("")}>
-          <List.Item.Title>New chat</List.Item.Title>
-          <List.Item.Subtitle>Start a new chat with a model.</List.Item.Subtitle>
-        </List.Item>
-
-        {data?.map(({ id, name, last_message }) => (
-          <List.Item key={id} active={value === "" + id} onFocus={() => onSelect(id)}>
-            <List.Item.Title>{name}</List.Item.Title>
-            <List.Item.Subtitle>{last_message}</List.Item.Subtitle>
-          </List.Item>
-        ))}
-
-        {resizeHandle}
-      </List>
-    </nav>
   )
 }
 
