@@ -23,6 +23,7 @@ export const Chat = ({ params: { id } }) => {
 
     const msg = { role: "user", content: text }
     await pushMessage(msg)
+    result.value = ""
     draft.value = { role: "assistant", content: result }
 
     // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
