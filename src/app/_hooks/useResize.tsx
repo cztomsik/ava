@@ -22,4 +22,4 @@ export const useResize = ({ width, minWidth = 0, maxWidth = Number.MAX_SAFE_INTE
     const resizeHandle = <div class="absolute right-0 inset-y-0 w-2 cursor-col-resize" onMouseDown={onMouseDown} />
 
     return { style, resizeHandle, onMouseDown }
-  }, [width, minWidth])
+  }, [width, minWidth, maxWidth])
