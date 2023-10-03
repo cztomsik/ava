@@ -81,11 +81,11 @@ export const Chat = ({ params: { id } }) => {
 
       <ChatList class="hidden md:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
 
-      <Page.Content onKeyPress={focusInput}>
-        <div class="text(neutral-9 lg:lg) mt-3 mb-6 whitespace-pre-wrap">{defaultPrompt}</div>
+      <Page.Content class="!p-0" onKeyPress={focusInput}>
+        <div class="p-6 text-neutral-9 whitespace-pre-wrap">{defaultPrompt}</div>
 
         {!loading && messages.length === 0 && (
-          <div class="text-sky-12 bg-sky-1 -mx-6 p-6 px-8 border(y-1 sky-6)">
+          <div class="text-sky-12 bg-sky-1 p-6 px-8 border(y-1 sky-6)">
             <strong>The conversation is empty.</strong>
             <ul class="list-disc mt-2 ml-4">
               <li>Select model in the bottom left corner.</li>
