@@ -3,7 +3,7 @@ const Page = ({ children }) => <>{children}</>
 const PageHeader = ({ title, children = null, ...props }) => {
   return (
     <header
-      class="flex(& max-sm:wrap) gap-2 items-end px-3 py-2 lg:pl-6 border(b-1 neutral-6) min-w-0"
+      class="flex(& max-sm:wrap) gap-2 items-end pl-4 pr-3 py-2 border(b-1 neutral-6) min-w-0"
       data-drag-window
       {...props}
     >
@@ -15,10 +15,10 @@ const PageHeader = ({ title, children = null, ...props }) => {
 }
 
 const PageContent = ({ class: className = "", ...props }) => (
-  <div class={`vstack max-w-full overflow-x-hidden overflow-y-auto p-3 lg:pl-6 ${className}`} {...props} />
+  <div class={`vstack max-w-full overflow-x-hidden overflow-y-auto p-3 pl-4 ${className}`} {...props} />
 )
 
-const PageFooter = ({ class: className = "", ...props }) => <footer class={`p-3 lg:pl-6 ${className}`} {...props} />
+const PageFooter = ({ class: className = "", ...props }) => <footer class={`p-3 pl-4 ${className}`} {...props} />
 
 export { Page }
 Page.Header = PageHeader
