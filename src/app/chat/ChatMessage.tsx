@@ -1,17 +1,7 @@
 import { Markdown } from "../_components"
 
-export const ChatLog = ({ messages, draft, class: className = "" }) => (
-  <div class={`vstack ${className}`}>
-    {messages.map(message => (
-      <Message {...message} />
-    ))}
-
-    {draft && <Message {...draft} />}
-  </div>
-)
-
 // TODO: onEdit, onDelete
-export const Message = ({ role, content }) => (
+export const ChatMessage = ({ id, role, content }) => (
   <div class={`hstack px-4 py-6 odd:(border(y neutral-6) bg-neutral-1)`}>
     <Avatar class="mr-4" role={role} />
     <Markdown class="flex-1" input={"" + content} />

@@ -1,11 +1,11 @@
-import { AutoScroll, GenerationProgress, Page, Select } from "../_components"
-import { ChatLog } from "./ChatLog"
-import { ChatInput } from "./ChatInput"
-import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
-import { router } from "../router"
 import { useCallback, useEffect } from "preact/hooks"
 import { useSignal } from "@preact/signals"
+import { AutoScroll, GenerationProgress, Page, Select } from "../_components"
+import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
+import { router } from "../router"
 import { ChatList } from "./ChatList"
+import { ChatMessage } from "./ChatMessage"
+import { ChatInput } from "./ChatInput"
 
 export const Chat = ({ params: { id } }) => {
   const { post: createChat, del } = useApi("chat")
@@ -96,7 +96,12 @@ export const Chat = ({ params: { id } }) => {
           </div>
         )}
 
-        <ChatLog messages={messages} draft={progress.data.value && draft.value} />
+        {messages.map(m => (
+          <ChatMessage key={m.id} {...m} />
+        ))}
+
+        {draft.value && <ChatMessage {...draft.value} />}
+
         <GenerationProgress class="mt-4" {...progress} />
         <AutoScroll />
       </Page.Content>
