@@ -1,6 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const api = @import("api.zig");
+const log = std.log.scoped(.server);
 
 /// A context for handling a request.
 pub const Context = struct {
@@ -190,13 +191,13 @@ pub const Server = struct {
         defer {
             if (ctx.res.state == .waited) ctx.res.do() catch {};
             ctx.res.finish() catch {};
-            std.log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
+            log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
         }
 
         handleRequest(ctx) catch |e| {
             if (e == error.OutOfMemory) return e;
 
-            std.log.debug("handleRequest: {}", .{e});
+            log.debug("handleRequest: {}", .{e});
 
             ctx.res.status = switch (e) {
                 error.NotFound => .not_found,

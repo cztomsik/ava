@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const log = std.log.scoped(.llama);
 
 const c = @cImport({
     @cDefine("GGML_UNREACHABLE", "unreachable");
@@ -199,7 +200,7 @@ pub const Context = struct {
             n_past = i;
         }
 
-        std.log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
+        log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
 
         self.tokens.deinit();
         self.tokens = tokens;
@@ -284,7 +285,7 @@ pub const Context = struct {
             self.tokens.items.len = cutoff;
             self.n_past = 0;
 
-            std.log.debug("truncated input to {}", .{cutoff});
+            log.debug("truncated input to {}", .{cutoff});
         }
 
         try self.eval();
