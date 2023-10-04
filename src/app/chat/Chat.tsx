@@ -59,6 +59,7 @@ export const Chat = ({ params: { id } }) => {
     []
   )
 
+  // do not use this in PageContent, it doesn't work and it messes up the onInput event
   const focusInput = useCallback((e: KeyboardEvent) => {
     if (!e.altKey && !e.metaKey && !e.ctrlKey && e.key.length === 1) {
       const input = e.currentTarget.parentElement.querySelector("textarea")!
@@ -70,7 +71,7 @@ export const Chat = ({ params: { id } }) => {
 
   return (
     <Page>
-      <Page.Header title={chat?.name ?? "Chat"} onKeyPress={focusInput}>
+      <Page.Header title={chat?.name ?? "Chat"}>
         {id && (
           <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
             Delete
@@ -81,7 +82,7 @@ export const Chat = ({ params: { id } }) => {
 
       <ChatList class="hidden md:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
 
-      <Page.Content class="!p-0" onKeyPress={focusInput}>
+      <Page.Content class="!p-0">
         <div class="p-6 text-neutral-9 whitespace-pre-wrap">{defaultPrompt}</div>
 
         {!loading && messages.length === 0 && (
