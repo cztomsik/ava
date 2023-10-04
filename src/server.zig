@@ -43,24 +43,24 @@ pub const Context = struct {
         arena.child_allocator.destroy(arena);
     }
 
-    pub fn match(self: *const Context, pattern: []const u8) ?[][]const u8 {
-        return matchPath(pattern, self.path);
+    pub fn match(self: *const Context, pattern: []const u8) ?Params {
+        return Params.match(pattern, self.path);
     }
 
-    pub fn route(self: *Context, comptime routes: type) !void {
+    pub fn router(self: *Context, comptime routes: type) !void {
         inline for (@typeInfo(routes).Struct.decls) |d| {
             const method = comptime d.name[0 .. std.mem.indexOfScalar(u8, d.name, ' ') orelse unreachable];
             const pattern = d.name[method.len + 1 ..];
 
             if (self.res.request.method == @field(std.http.Method, method)) {
-                if (self.match(pattern)) |matches| {
+                if (self.match(pattern)) |params| {
                     const handler = comptime @field(api, d.name);
 
                     var args: std.meta.ArgsTuple(@TypeOf(handler)) = undefined;
                     args[0] = self;
-                    inline for (1..args.len) |i| args[i] = try parse(@TypeOf(args[i]), matches[i - 1]);
+                    inline for (1..args.len) |i| args[i] = try params.get(i - 1, @TypeOf(args[i]));
 
-                    return @call(.auto, @field(api, d.name), args);
+                    return @call(.auto, handler, args);
                 }
             }
         }
@@ -208,7 +208,7 @@ pub const Server = struct {
         // handle API requests
         if (ctx.match("/api/*")) |_| {
             ctx.path = ctx.path[4..];
-            return ctx.route(api);
+            return ctx.router(api);
         }
 
         // TODO: should be .get() but it's not implemented yet
@@ -224,41 +224,47 @@ pub const Server = struct {
     }
 };
 
-fn matchPath(pattern: []const u8, path: []const u8) ?[][]const u8 {
-    var pattern_parts = std.mem.tokenizeScalar(u8, pattern, '/');
-    var path_parts = std.mem.tokenizeScalar(u8, path, '/');
-    var matches: [16][]const u8 = undefined;
-    var len: usize = 0;
+const Params = struct {
+    matches: [16][]const u8 = undefined,
+    len: usize = 0,
 
-    while (true) {
-        const pat = pattern_parts.next() orelse return if (pattern[pattern.len - 1] == '*' or path_parts.next() == null) matches[0..len] else null;
-        const pth = path_parts.next() orelse return null;
-        const dynamic = pat[0] == ':' or pat[0] == '*';
+    fn match(pattern: []const u8, path: []const u8) ?Params {
+        var res = Params{};
+        var pattern_parts = std.mem.tokenizeScalar(u8, pattern, '/');
+        var path_parts = std.mem.tokenizeScalar(u8, path, '/');
 
-        if (std.mem.indexOfScalar(u8, pat, '.')) |i| {
-            const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return null;
+        while (true) {
+            const pat = pattern_parts.next() orelse return if (pattern[pattern.len - 1] == '*' or path_parts.next() == null) res else null;
+            const pth = path_parts.next() orelse return null;
+            const dynamic = pat[0] == ':' or pat[0] == '*';
 
-            if (matchPath(pat[i + 1 ..], pth[j + 1 ..])) |m| {
-                for (m, len..) |s, l| matches[l] = s;
-                len += m.len;
-            } else return null;
-        }
+            if (std.mem.indexOfScalar(u8, pat, '.')) |i| {
+                const j = (if (dynamic) std.mem.lastIndexOfScalar(u8, pth, '.') else std.mem.indexOfScalar(u8, pth, '.')) orelse return null;
 
-        if (!dynamic and !std.mem.eql(u8, pat, pth)) return null;
+                if (match(pat[i + 1 ..], pth[j + 1 ..])) |ch| {
+                    for (ch.matches, res.len..) |s, l| res.matches[l] = s;
+                    res.len += ch.len;
+                } else return null;
+            }
 
-        if (pat[0] == ':') {
-            matches[len] = pth;
-            len += 1;
+            if (!dynamic and !std.mem.eql(u8, pat, pth)) return null;
+
+            if (pat[0] == ':') {
+                res.matches[res.len] = pth;
+                res.len += 1;
+            }
         }
     }
-}
 
-fn parse(comptime T: type, s: []const u8) !T {
-    return switch (@typeInfo(T)) {
-        .Int => std.fmt.parseInt(T, s, 10),
-        else => s,
-    };
-}
+    fn get(self: *const Params, index: usize, comptime T: type) !T {
+        const s = if (index < self.len) self.matches[index] else return error.NoMatch;
+
+        return switch (@typeInfo(T)) {
+            .Int => std.fmt.parseInt(T, s, 10),
+            else => s,
+        };
+    }
+};
 
 fn mime(comptime ext: []const u8) []const u8 {
     const mime_types = std.ComptimeStringMap([]const u8, .{
