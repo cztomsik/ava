@@ -103,7 +103,7 @@ export const Chat = ({ params: { id } }) => {
 
         {draft.value && <ChatMessage {...draft.value} />}
 
-        <GenerationProgress class="mt-4" {...progress} />
+        <GenerationProgress class="ml-4 mt-4" {...progress} />
         <AutoScroll />
       </Page.Content>
 
