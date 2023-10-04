@@ -34,7 +34,7 @@ const EditMessage = ({ id, chat_id, onClose }) => {
     onClose()
   }
 
-  const handleDelete = useConfirm("Are you sure you want to delete this message?", del, [])
+  const handleDelete = useConfirm("Are you sure you want to delete this message?", () => del(), [])
 
   return (
     <Form class="flex-1 vstack gap-2" onSubmit={handleSubmit}>

@@ -11,7 +11,7 @@ interface Context<T> {
   refetch: () => Promise<void>
   post: (row: any) => Promise<T>
   put: (row: any) => Promise<T>
-  del: (id: any) => Promise<void>
+  del: (id?: any) => Promise<void>
 }
 
 export const getApiContext = <T = any>(path: string) => cache.get(path)?.deref() ?? createContext<T>(path)
@@ -65,12 +65,10 @@ const createContext = <T>(path: string) => {
     },
 
     async del(id?) {
-      const target = id ? `${path}/${id}` : path
-
       try {
-        return await callApi(target, { method: "DELETE" })
+        return await callApi(id ? `${path}/${id}` : path, { method: "DELETE" })
       } finally {
-        invalidate(target)
+        invalidate(id ? path : path.split("/").slice(0, -1).join("/"))
       }
     },
   }
