@@ -64,11 +64,13 @@ const createContext = <T>(path: string) => {
       }
     },
 
-    async del(id) {
+    async del(id?) {
+      const target = id ? `${path}/${id}` : path
+
       try {
-        return await callApi(`${path}/${id}`, { method: "DELETE" })
+        return await callApi(target, { method: "DELETE" })
       } finally {
-        invalidate(path)
+        invalidate(target)
       }
     },
   }
