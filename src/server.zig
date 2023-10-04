@@ -197,10 +197,13 @@ pub const Server = struct {
             if (e == error.OutOfMemory) return e;
 
             std.log.debug("handleRequest: {}", .{e});
+
             ctx.res.status = switch (e) {
                 error.NotFound => .not_found,
                 else => .internal_server_error,
             };
+
+            ctx.sendJson(.{ .@"error" = e }) catch {};
         };
     }
 
