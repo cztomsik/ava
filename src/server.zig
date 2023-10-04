@@ -76,7 +76,7 @@ pub const Context = struct {
             T,
             self.arena,
             &reader,
-            .{},
+            .{ .ignore_unknown_fields = true },
         );
     }
 
