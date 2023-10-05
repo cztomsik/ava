@@ -5,7 +5,7 @@ export const IconButton = ({ class: className = "", icon, ...props }) => {
   const svg = toVdom(icon)
 
   return (
-    <Button class={`!px-1 text-neutral-10 ${className}`} text {...props}>
+    <Button class={`!px-1 text-neutral-11 ${className}`} text {...props}>
       {svg}
     </Button>
   )
