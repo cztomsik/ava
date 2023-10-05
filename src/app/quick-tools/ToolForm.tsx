@@ -16,7 +16,9 @@ export const ToolForm = ({ tool, onSubmit }) => {
         <div />
         <div class="hstack gap-2">
           <Button submit>Save</Button>
-          <Button href="..">Cancel</Button>
+          <Button href=".." text>
+            Cancel
+          </Button>
         </div>
       </FormGrid>
     </Form>

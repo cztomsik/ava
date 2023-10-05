@@ -42,7 +42,9 @@ const EditMessage = ({ id, chat_id, onClose }) => {
 
       <div class="hstack gap-2">
         <Button submit>Save</Button>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} text>
+          Cancel
+        </Button>
 
         <a class="ml-auto p-1.5 text-red-11" onClick={handleDelete}>
           Delete
