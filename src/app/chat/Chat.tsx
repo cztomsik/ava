@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "preact/hooks"
 import { useSignal } from "@preact/signals"
-import { AutoScroll, GenerationProgress, Page, Select } from "../_components"
+import { Trash2 } from "lucide"
+import { AutoScroll, GenerationProgress, IconButton, Page } from "../_components"
 import { useApi, getApiContext, useGenerate, useConfirm } from "../_hooks"
 import { router } from "../router"
 import { ChatList } from "./ChatList"
@@ -72,12 +73,7 @@ export const Chat = ({ params: { id } }) => {
   return (
     <Page>
       <Page.Header title={chat?.name ?? "Chat"}>
-        {id && (
-          <a class="py-1.5 text-red-11" onClick={() => handleDelete(id)}>
-            Delete
-          </a>
-        )}
-        <ChatSelect value={id} onSelect={handleSelect} />
+        {id && <IconButton icon={Trash2} onClick={() => handleDelete(id)} />}
       </Page.Header>
 
       <ChatList class="hidden md:flex" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
@@ -111,21 +107,6 @@ export const Chat = ({ params: { id } }) => {
         <ChatInput id={id} onSend={handleSend} />
       </Page.Footer>
     </Page>
-  )
-}
-
-const ChatSelect = ({ value, onSelect }) => {
-  const { data } = useApi("chat")
-
-  return (
-    <Select class="max-w-[200px]" value={value} onChange={e => onSelect(e.target.value)}>
-      <option value="">Previous chats...</option>
-      {data?.map(({ id, name }) => (
-        <option key={id} value={id}>
-          {name}
-        </option>
-      ))}
-    </Select>
   )
 }
 
