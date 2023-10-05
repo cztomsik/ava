@@ -17,6 +17,7 @@ pub const SamplingParams = struct {
     repeat_penalty: f32 = 1.05,
     add_bos: bool = true,
     stop_eos: bool = true,
+    stop: []const []const u8 = &.{},
 };
 
 pub fn init(allocator: std.mem.Allocator) void {
@@ -262,9 +263,25 @@ pub const Context = struct {
             else => {},
         }
 
-        // Keep generating until we have valid utf-8 chunk, but not more than 10 times.
-        for (0..10) |_| {
-            if (std.unicode.utf8ValidateSlice(self.buf.items[start..])) return self.buf.items[start..];
+        // Keep generating until we have valid chunk, but not more than 32 times.
+        for (0..32) |_| {
+            if (std.unicode.utf8ValidateSlice(self.buf.items[start..])) {
+                const chunk = self.buf.items[start..];
+
+                for (params.stop) |s| {
+                    // Stop if the chunk contains the stop suffix.
+                    if (std.mem.indexOf(u8, chunk, s) != null) {
+                        return null;
+                    }
+
+                    // Current chunk might be a start of the stop suffix, so let's generate one more token.
+                    if (std.mem.startsWith(u8, s, chunk)) {
+                        break;
+                    }
+                } else return chunk;
+            }
+
+            // Generate next token or stop if we can't.
             if (try self.generate(params) == null) break;
         }
 

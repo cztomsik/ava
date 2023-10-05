@@ -12,8 +12,7 @@ export const useGenerate = () => {
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, []) // Cancel any generation when the component is unmounted
 
-  const generate = useCallback(async (prompt, { stop = null, trimFirst = true, maxTokens = 2048 } = {}) => {
-    let stopQueue = stop?.slice()
+  const generate = useCallback(async (prompt, { trimFirst = true, maxTokens = 2048, ...sampling } = {}) => {
     ctrl.value?.abort()
     const thisCtrl = (ctrl.value = new AbortController())
     data.value = { status: "Sending..." }
@@ -22,7 +21,7 @@ export const useGenerate = () => {
     try {
       let tokens = 0
 
-      for await (let d of await callApi(selectedModel.value, prompt, ctrl.value.signal)) {
+      for await (let d of await callApi({ model: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
         data.value = d
 
         if ("error" in d) {
@@ -34,14 +33,6 @@ export const useGenerate = () => {
           if (trimFirst) {
             d.content = d.content.trimStart()
             trimFirst = false
-          }
-
-          if (stop) {
-            if (stopQueue[0] === d.content) {
-              stopQueue.shift()
-              if (stopQueue.length === 0) break
-              else continue
-            } else stopQueue = stop.slice()
           }
 
           result.value += d.content
@@ -67,14 +58,14 @@ export const useGenerate = () => {
   return { generate, data, result, abort } as const
 }
 
-async function callApi(model: string, prompt: string, signal: AbortSignal) {
-  if (!model) {
+async function callApi(params, signal: AbortSignal) {
+  if (!params.model) {
     return noModelSelected()
   }
 
   const response = await fetch("/api/generate", {
     method: "POST",
-    body: JSON.stringify({ model, prompt }),
+    body: JSON.stringify(params),
     signal,
   })
 

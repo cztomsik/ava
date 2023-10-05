@@ -27,8 +27,7 @@ export const Chat = ({ params: { id } }) => {
     result.value = ""
     draft.value = { role: "assistant", content: result }
 
-    // TODO: use /tokenize because every model has its own tokenizer and this might work just by accident
-    await generate(serializePrompt([...messages, msg, draft.value]), { stop: ["USER", ":"] })
+    await generate(serializePrompt([...messages, msg, draft.value]), { stop: ["USER:"] })
     await pushMessage(draft.value)
     draft.value = null
   }
