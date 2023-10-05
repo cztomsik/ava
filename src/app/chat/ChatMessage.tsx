@@ -8,7 +8,7 @@ export const ChatMessage = ({ id, chat_id, role, content }) => {
 
   return (
     <div class={`hstack px-4 py-6 odd:(border(y neutral-6) bg-neutral-1)`} onDblClick={() => (isEditing.value = true)}>
-      <Avatar class="mr-4" role={role} />
+      <Avatar class="mr-3 mt-0.5" role={role} />
       {isEditing.value ? (
         <EditMessage id={id} chat_id={chat_id} onClose={() => (isEditing.value = false)} />
       ) : (
