@@ -17,7 +17,7 @@ const styles = css`
   }
 
   & code {
-    @apply font(mono bold);
+    @apply text-sm font(mono bold);
   }
 
   & a {
@@ -26,7 +26,7 @@ const styles = css`
   }
 
   & pre {
-    @apply font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
+    @apply text-sm font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
   }
 
   &,
