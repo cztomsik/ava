@@ -1,8 +1,9 @@
 import { useSignal } from "@preact/signals"
-import { AutoScroll, Button, Checkbox, Form, GenerationProgress, Markdown, Page, Select } from "../_components"
+import { useEffect } from "preact/hooks"
+import { Play, Save, Trash2 } from "lucide"
+import { AutoScroll, Button, Checkbox, Form, GenerationProgress, IconButton, Markdown, Page, Select } from "../_components"
 import { useApi, useConfirm, useGenerate, useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
-import { useEffect } from "preact/hooks"
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
@@ -42,8 +43,9 @@ export const Playground = () => {
   return (
     <Page>
       <Page.Header title="Playground">
-        {selection.value?.id > 0 && <Button onClick={handleDelete}>Delete</Button>}
-        <Button onClick={handleSaveAs}>Save As</Button>
+        {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
+        <IconButton icon={Play} onClick={handleSubmit} />
+        <IconButton icon={Save} onClick={handleSaveAs} />
         {NEXT && <Button>Create a Tool</Button>}
       </Page.Header>
 
@@ -68,10 +70,6 @@ export const Playground = () => {
                 selection.value = null
               }}
             ></textarea>
-
-            <Button class="mt-2" submit>
-              Generate
-            </Button>
           </div>
 
           <div class="col vstack">
