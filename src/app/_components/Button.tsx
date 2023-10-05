@@ -1,10 +1,12 @@
 import { Link } from "./Link"
 
-export const Button = ({ class: className = "", submit = false, primary = submit, ...props }) => {
+export const Button = ({ class: className = "", submit = false, primary = submit, text = false, ...props }) => {
   props.type = submit ? "submit" : "button"
 
-  props.class = `border rounded-md inline-flex items-center justify-center px-3 py-[7px] text-sm bg-gradient-to-b ${
-    primary
+  props.class = `h-8 border rounded-md inline-flex items-center justify-center px-3 text-sm bg-gradient-to-b ${
+    text
+      ? "border-transparent"
+      : primary
       ? "bg-primary(10 dark:11) from-primary(8 dark:9) text-sky(1 dark:4) border-primary(8 dark:10)"
       : "bg-neutral-5 from(white dark:neutral-11) text-neutral-12 border-neutral-6 shadow-thin"
   } ${className}`
