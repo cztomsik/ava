@@ -30,7 +30,7 @@ pub fn init(allocator: std.mem.Allocator) !void {
     std.fs.makeDirAbsolute(std.fs.path.dirname(db_file).?) catch {};
     db = try sqlite.SQLite3.open(db_file);
 
-    try migrate(&db);
+    try migrate(allocator, &db);
 }
 
 pub fn deinit() void {
