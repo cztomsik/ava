@@ -7,12 +7,12 @@ export const ChatMessage = ({ id, chat_id, role, content }) => {
   const isEditing = useSignal(false)
 
   return (
-    <div class={`hstack px-4 py-6 odd:(border(y neutral-6) bg-neutral-1)`} onDblClick={() => (isEditing.value = true)}>
-      <Avatar class="mr-3 mt-0.5" role={role} />
+    <div class={`flex px-4 py-6 odd:(border(y neutral-6) bg-neutral-1)`} onDblClick={() => (isEditing.value = true)}>
+      <Avatar class="mr-3" role={role} />
       {isEditing.value ? (
         <EditMessage id={id} chat_id={chat_id} onClose={() => (isEditing.value = false)} />
       ) : (
-        <Markdown class="flex-1" input={"" + content} />
+        <Markdown class="flex-1 mt-2" input={"" + content} />
       )}
     </div>
   )
