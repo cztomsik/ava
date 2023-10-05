@@ -26,7 +26,7 @@ const styles = css`
   }
 
   & pre {
-    @apply text-sm font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
+    @apply overflow-x-auto text-sm font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
   }
 
   &,
@@ -53,7 +53,7 @@ export const Markdown = ({ input, class: className = "", ...props }) => {
   //       if that happens again, we might need to use a key here
   //       (and do some incremental parsing, which would be nice anyway)
   return (
-    <div class={`${styles} ${className}`} {...props}>
+    <div class={`overflow-x-hidden ${styles} ${className}`} {...props}>
       {nodes}
     </div>
   )
