@@ -1,4 +1,5 @@
 const std = @import("std");
+const log = std.log.scoped(.sqlite);
 
 const c = @cImport(
     @cInclude("sqlite3.h"),
@@ -63,7 +64,7 @@ pub const SQLite3 = struct {
 
     /// Creates a prepared statement from the given SQL.
     pub fn prepare(self: *SQLite3, sql: []const u8) !Statement {
-        errdefer std.log.err("Failed to prepare SQL: {s}\n", .{sql});
+        errdefer log.err("Failed to prepare SQL: {s}\n", .{sql});
 
         var stmt: ?*c.sqlite3_stmt = null;
         var tail: [*c]const u8 = null;
@@ -71,7 +72,7 @@ pub const SQLite3 = struct {
 
         if (tail != null and tail != sql.ptr + sql.len) {
             const rest = sql[@intFromPtr(tail) - @intFromPtr(sql.ptr) ..];
-            std.log.err("Trailing SQL({}): {s}\n", .{ rest.len, rest });
+            log.err("Trailing SQL({}): {s}\n", .{ rest.len, rest });
             return error.SQLiteError;
         }
 
@@ -188,7 +189,7 @@ pub fn RowIterator(comptime T: type) type {
         stmt: *Statement,
 
         pub fn next(self: *RowIterator(T)) !?T {
-            errdefer std.log.err("Failed to read row: {s}\n", .{self.stmt.sql});
+            errdefer log.err("Failed to read row: {s}\n", .{self.stmt.sql});
 
             return self.stmt.read(T) catch |e| if (e == error.NoRows) null else e;
         }
@@ -199,7 +200,7 @@ pub fn check(code: c_int) !void {
     switch (code) {
         c.SQLITE_OK, c.SQLITE_DONE, c.SQLITE_ROW => return,
         else => {
-            std.log.err("SQLite error: {} {s}", .{ code, c.sqlite3_errstr(code) });
+            log.err("SQLite error: {} {s}", .{ code, c.sqlite3_errstr(code) });
             return error.SQLiteError;
         },
     }
