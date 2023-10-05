@@ -1,6 +1,7 @@
 import { css } from "@twind/core"
 import { useCallback } from "preact/hooks"
-import { Button, Form } from "../_components"
+import { SendHorizontal } from "lucide"
+import { Form, IconButton } from "../_components"
 import { useLocalStorage } from "../_hooks"
 
 export const ChatInput = ({ id, onSend }) => {
@@ -31,9 +32,7 @@ export const ChatInput = ({ id, onSend }) => {
         onInput={e => (text.value = e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      <Button class="absolute bottom-1 right-1" style="height: 30px" submit>
-        Send
-      </Button>
+      <IconButton icon={SendHorizontal} class="absolute bottom-1 right-1" submit />
     </Form>
   )
 }
