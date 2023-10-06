@@ -9,11 +9,11 @@ import { useEffect, useRef } from "preact/hooks"
 export const AutoScroll = () => {
   const enabled = useSignal(true)
   const inView = useSignal(false)
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const el = ref.current
-    const root = el.parentElement
+    const el = ref.current!
+    const root = el.parentElement!
 
     const handleWheel = e => {
       if (e.deltaY < 0) {
@@ -45,7 +45,7 @@ export const AutoScroll = () => {
 
     const observer = new IntersectionObserver(handleIntersect, { root, threshold: [0, 1] })
     root.addEventListener("wheel", handleWheel)
-    observer.observe(ref.current)
+    observer.observe(el)
 
     return () => {
       root.removeEventListener("wheel", handleWheel)

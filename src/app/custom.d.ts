@@ -1,3 +1,11 @@
+// Thank you TypeScript, but you are making my life miserable
+interface Element {
+  previousElementSibling: HTMLElement | null
+  nextElementSibling: HTMLElement | null
+  focus(): void
+  scrollIntoView(): void
+}
+
 // so we don't need to typecast event.target every time
 interface EventTarget {
   parentElement: HTMLElement | null

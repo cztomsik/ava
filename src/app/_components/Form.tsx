@@ -11,7 +11,7 @@ export const Form = ({ onSubmit, ...props }) => {
 
     // Focus the first element with autofocus or the first input
     // TODO: maybe <select> should be here too but it doesn't feel right
-    const input: HTMLElement = form.querySelector("[autofocus]") ?? form.querySelector("input, textarea")
+    const input: HTMLElement | null = form.querySelector("[autofocus]") ?? form.querySelector("input, textarea")
     input?.focus()
   }, [])
 

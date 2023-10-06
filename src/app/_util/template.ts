@@ -15,7 +15,7 @@ export const template = (tpl: string, data: Record<string, any>) => {
         throw new Error()
       }
 
-      const section = stack.pop()
+      const section = stack.pop()!
       stack[--depth].inner += (section.inverted ? !data[key] : data[key]) ? section.inner : ""
       continue
     }
@@ -35,6 +35,4 @@ export const template = (tpl: string, data: Record<string, any>) => {
 /**
  * Extracts all variables from a template
  */
-export const parseVars = (tpl: string) => [
-  ...new Set(Array.from(tpl.matchAll(/{{\s*(?:#|\^|\/)?(.*?)\s*}}/g), m => m[1])),
-]
+export const parseVars = (tpl: string) => [...new Set(Array.from(tpl.matchAll(/{{\s*(?:#|\^|\/)?(.*?)\s*}}/g), m => m[1]))]

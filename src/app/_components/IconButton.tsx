@@ -11,7 +11,7 @@ export const IconButton = ({ class: className = "", icon, ...props }) => {
   )
 }
 
-const toVdom = ([Tag, attrs, children = null]) => <Tag {...attrs}>{children?.map(toVdom)}</Tag>
+const toVdom = ([Tag, attrs, children = null as any]) => <Tag {...attrs}>{children?.map(toVdom)}</Tag>
 
 // TODO: fix this hack
 X[1].width = X[1].height = 20

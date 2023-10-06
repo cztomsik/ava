@@ -20,7 +20,7 @@ const routes = [
   { path: "/settings", component: Models },
   { path: "/settings/license", component: License },
   { path: "/settings/api", component: Api },
-].filter(Boolean)
+].filter(Boolean) as Array<{ path; component }>
 
 const current = signal({ route: routes[0], params: {} as any })
 
@@ -37,9 +37,7 @@ export const router = {
   match(pattern: string) {
     const regex =
       patternCache[pattern] ||
-      (patternCache[pattern] = new RegExp(
-        `^${pattern.replace(/:(\w+)/g, "(?<$1>[^/]+)").replace(/\*/g, "(?<all>.*)")}$`
-      ))
+      (patternCache[pattern] = new RegExp(`^${pattern.replace(/:(\w+)/g, "(?<$1>[^/]+)").replace(/\*/g, "(?<all>.*)")}$`))
     return location.pathname.match(regex)
   },
 

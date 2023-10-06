@@ -22,6 +22,6 @@ if ("webkit" in window) {
 
 if (!DEV) {
   addEventListener("contextmenu", e => {
-    if (!e.target.matches("input, textarea")) e.preventDefault()
+    if (!e.target!.matches("input, textarea")) e.preventDefault()
   })
 }

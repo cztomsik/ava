@@ -65,7 +65,7 @@ export const Markdown = ({ input, class: className = "", ...props }) => {
 /**
  * Parse markdown into a list of vnodes
  */
-const parse = (input, target = []) => {
+const parse = (input, target = [] as any) => {
   let match, pos
 
   // Match regex and set match

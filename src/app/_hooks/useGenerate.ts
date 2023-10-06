@@ -6,8 +6,8 @@ export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
 effect(() => localStorage.setItem("selectedModel", selectedModel.value))
 
 export const useGenerate = () => {
-  const ctrl = useSignal(null)
-  const data = useSignal(null)
+  const ctrl = useSignal<AbortController | null>(null)
+  const data = useSignal<any>(null)
   const result = useSignal("")
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, []) // Cancel any generation when the component is unmounted

@@ -1,6 +1,6 @@
 import { dedent } from "../_util"
 
-export const examples = []
+export const examples = [] as any
 
 // {
 //   id: -2,

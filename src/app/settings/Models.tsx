@@ -7,8 +7,8 @@ import { catalog } from "./catalog"
 
 export const Models = () => {
   const { data: models = [], refetch, del } = useApi("models")
-  const progress = useSignal(null)
-  const ctrl = useSignal(null)
+  const progress = useSignal<any>(null)
+  const ctrl = useSignal<AbortController | null>(null)
 
   const download = async ({ url, size }) => {
     progress.value = { url, size, progress: 0 }

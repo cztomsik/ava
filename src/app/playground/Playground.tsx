@@ -44,8 +44,8 @@ export const Playground = () => {
     <Page>
       <Page.Header title="Playground">
         {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
-        <IconButton icon={Play} onClick={handleSubmit} />
-        <IconButton icon={Save} onClick={handleSaveAs} />
+        <IconButton title="Generate" icon={Play} onClick={handleSubmit} />
+        <IconButton title="Save As" icon={Save} onClick={handleSaveAs} />
         {NEXT && <Button>Create a Tool</Button>}
       </Page.Header>
 
@@ -66,7 +66,7 @@ export const Playground = () => {
               rows={16}
               value={prompt}
               onInput={e => {
-                prompt.value = e.target.value
+                prompt.value = e.target!.value
                 selection.value = null
               }}
             ></textarea>
@@ -80,7 +80,7 @@ export const Playground = () => {
                   type="text"
                   class="w-full !rounded-none !rounded-r-md"
                   value={data.value[name]}
-                  onInput={e => (data.value = { ...data.value, [name]: e.target.value })}
+                  onInput={e => (data.value = { ...data.value, [name]: e.target!.value })}
                 />
               </div>
             ))}

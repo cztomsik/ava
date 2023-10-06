@@ -9,7 +9,7 @@ const fetch = window.fetch
  * rejections and displays them in a modal.
  */
 export const ErrorBoundary = ({ children, ...props }) => {
-  const lastError = useSignal(null)
+  const lastError = useSignal<Error | null>(null)
 
   // Errors in the component tree (render, event handlers, etc.)
   useErrorBoundary(err => console.error((lastError.value = err)))
