@@ -12,7 +12,7 @@ export const Playground = () => {
   const prompt = useLocalStorage("playground.prompt", "")
   const showPrompt = useSignal(false)
   const data = useSignal({})
-  const selection = useSignal(null)
+  const selection = useSignal<any>(null)
 
   const variableNames = parseVars(prompt.value)
 

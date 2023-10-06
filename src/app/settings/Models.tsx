@@ -21,7 +21,7 @@ export const Models = () => {
         signal: ctrl.value.signal,
       })
 
-      for await (const d of jsonLines(res.body.getReader())) {
+      for await (const d of jsonLines(res.body!.getReader())) {
         if ("error" in d) {
           throw new Error(`Unexpected error: ${d.error}`)
         }

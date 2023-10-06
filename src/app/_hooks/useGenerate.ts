@@ -69,7 +69,7 @@ async function callApi(params, signal: AbortSignal) {
     signal,
   })
 
-  return jsonLines(response.body.getReader())
+  return jsonLines(response.body!.getReader())
 }
 
 async function* noModelSelected() {
