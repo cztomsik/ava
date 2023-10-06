@@ -88,7 +88,7 @@ pub fn @"GET /chat"(ctx: *server.Context) !void {
     var stmt = try db.query(
         \\SELECT id, name,
         \\(SELECT content FROM ChatMessage WHERE chat_id = Chat.id ORDER BY id DESC LIMIT 1) as last_message
-        \\FROM Chat ORDER BY id
+        \\FROM Chat ORDER BY id DESC
     , .{});
     defer stmt.deinit();
 
