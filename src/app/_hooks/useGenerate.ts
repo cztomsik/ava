@@ -5,6 +5,17 @@ import { jsonLines } from "../_util"
 export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
 effect(() => localStorage.setItem("selectedModel", selectedModel.value))
 
+interface GenerateOptions {
+  trimFirst?: boolean
+  maxTokens?: number
+  temperature?: number
+  repeat_n_last?: number
+  repeat_penalty?: number
+  add_bos?: boolean
+  stop_eos?: boolean
+  stop?: string[]
+}
+
 export const useGenerate = () => {
   const ctrl = useSignal<AbortController | null>(null)
   const data = useSignal<any>(null)
@@ -12,7 +23,7 @@ export const useGenerate = () => {
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, []) // Cancel any generation when the component is unmounted
 
-  const generate = useCallback(async (prompt, { trimFirst = true, maxTokens = 2048, ...sampling } = {}) => {
+  const generate = useCallback(async (prompt, { trimFirst = true, maxTokens = 2048, ...sampling }: GenerateOptions = {}) => {
     ctrl.value?.abort()
     const thisCtrl = (ctrl.value = new AbortController())
     data.value = { status: "Sending..." }

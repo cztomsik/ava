@@ -89,7 +89,7 @@ export const useChat = id => {
           editing.value = null
           await ctx.updateMessage({
             ...message,
-            content: message.content + (await generate(prompt, { stop: ["USER:", "ASSISTANT:"] } as any)),
+            content: message.content + (await generate(prompt, { stop: ["USER:", "ASSISTANT:"] })),
           })
         } finally {
           generating.value = null
