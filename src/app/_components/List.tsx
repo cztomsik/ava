@@ -66,7 +66,7 @@ const ListItemTitle = ({ children }) => (
 )
 
 const ListItemSubtitle = ({ children }) => (
-  <p class="whitespace-nowrap overflow-hidden text(sm ellipsis neutral-11 group-focus:neutral-6)">{children}</p>
+  <p class="whitespace-nowrap overflow-hidden text(sm ellipsis neutral-11 group-focus:neutral(6 dark:6))">{children}</p>
 )
 
 export { List }
