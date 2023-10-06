@@ -22,7 +22,12 @@ export const EditMessage = ({ message: m }) => {
           Cancel
         </Button>
 
-        <IconButton title="Continue" class="ml-auto" icon={StepForward} onClick={() => chat.generateMessage(m)} />
+        <IconButton
+          title="Continue"
+          class="ml-auto"
+          icon={StepForward}
+          onClick={() => chat.generateMessage(m, content.value)}
+        />
         <IconButton title="Regenerate" icon={RotateCcw} onClick={() => chat.generateMessage(m)} />
         <IconButton title="Delete" class="ml-6" icon={Trash2} onClick={handleDelete} />
       </div>

@@ -6,6 +6,7 @@ export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
 effect(() => localStorage.setItem("selectedModel", selectedModel.value))
 
 interface GenerateOptions {
+  startWith?: string
   trimFirst?: boolean
   maxTokens?: number
   temperature?: number
@@ -23,48 +24,51 @@ export const useGenerate = () => {
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, []) // Cancel any generation when the component is unmounted
 
-  const generate = useCallback(async (prompt, { trimFirst = true, maxTokens = 2048, ...sampling }: GenerateOptions = {}) => {
-    ctrl.value?.abort()
-    const thisCtrl = (ctrl.value = new AbortController())
-    data.value = { status: "Sending..." }
-    result.value = ""
+  const generate = useCallback(
+    async (prompt, { startWith = "", trimFirst = true, maxTokens = 2048, ...sampling }: GenerateOptions = {}) => {
+      ctrl.value?.abort()
+      const thisCtrl = (ctrl.value = new AbortController())
+      data.value = { status: "Sending..." }
+      result.value = startWith
 
-    try {
-      let tokens = 0
+      try {
+        let tokens = 0
 
-      for await (let d of await callApi({ model: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
-        data.value = d
+        for await (let d of await callApi({ model: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
+          data.value = d
 
-        if ("error" in d) {
-          throw new Error(`Unexpected error: ${d.error}`)
-        }
-
-        if ("content" in d) {
-          // Strip the initial space which is always emitted at the beginning of the stream
-          if (trimFirst) {
-            d.content = d.content.trimStart()
-            trimFirst = false
+          if ("error" in d) {
+            throw new Error(`Unexpected error: ${d.error}`)
           }
 
-          result.value += d.content
+          if ("content" in d) {
+            // Strip the initial space which is always emitted at the beginning of the stream
+            if (trimFirst) {
+              d.content = d.content.trimStart()
+              trimFirst = false
+            }
 
-          if (++tokens >= maxTokens) {
-            break
+            result.value += d.content
+
+            if (++tokens >= maxTokens) {
+              break
+            }
           }
         }
+      } catch (e) {
+        if (e.code !== DOMException.ABORT_ERR) {
+          throw e
+        }
+      } finally {
+        data.value = null
+        // stop the http request if it's still running
+        if (!thisCtrl.signal.aborted) thisCtrl.abort()
       }
-    } catch (e) {
-      if (e.code !== DOMException.ABORT_ERR) {
-        throw e
-      }
-    } finally {
-      data.value = null
-      // stop the http request if it's still running
-      if (!thisCtrl.signal.aborted) thisCtrl.abort()
-    }
 
-    return result.value
-  }, [])
+      return result.value
+    },
+    []
+  )
 
   return { generate, data, result, abort } as const
 }

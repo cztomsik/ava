@@ -80,17 +80,16 @@ export const useChat = id => {
         editing.value = null
       },
 
-      async generateMessage(message: any) {
+      async generateMessage(message: any, startWith = "") {
         try {
           const index = messages.data.indexOf(message)
-          const prompt = serializePrompt(messages.data.slice(0, index + 1))
+          const prompt = serializePrompt([...messages.data.slice(0, index), { ...message, content: startWith }])
 
           generating.value = message
           editing.value = null
-          await ctx.updateMessage({
-            ...message,
-            content: message.content + (await generate(prompt, { stop: ["USER:", "ASSISTANT:"] })),
-          })
+
+          await generate(prompt, { startWith, trimFirst: !!startWith.match(/\s$/), stop: ["USER:", "ASSISTANT:"] })
+          await ctx.updateMessage({ ...message, content: result.value })
         } finally {
           generating.value = null
         }
