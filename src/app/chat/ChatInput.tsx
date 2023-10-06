@@ -2,37 +2,32 @@ import { css } from "@twind/core"
 import { useCallback } from "preact/hooks"
 import { SendHorizontal } from "lucide"
 import { Form, IconButton } from "../_components"
-import { useLocalStorage } from "../_hooks"
+import { useChatContext } from "./useChat"
 
-export const ChatInput = ({ id, onSend }) => {
-  const text = useLocalStorage(`chat.${id}.input`, "")
-
-  const handleSubmit = useCallback(() => {
-    onSend(text.value.trim())
-    text.value = ""
-  }, [onSend])
+export const ChatInput = () => {
+  const chat = useChatContext()
 
   const handleKeyDown = useCallback(
     e => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault()
-        handleSubmit()
+        chat.send()
       }
     },
-    [onSend]
+    [chat]
   )
 
   return (
-    <Form class={`vstack relative p-2 pr-16 ${autoGrow}`} onSubmit={handleSubmit} data-value={text}>
+    <Form class={`vstack relative p-2 pr-16 ${autoGrow}`} onSubmit={chat.send} data-value={chat.input}>
       <textarea
         class="absolute inset-0 py-2 pr-16 bg-transparent"
         rows={1}
         placeholder="Ask anything..."
-        value={text}
-        onInput={e => (text.value = e.target.value)}
+        value={chat.input}
+        onInput={e => (chat.input.value = e.target!.value)}
         onKeyDown={handleKeyDown}
       />
-      <IconButton icon={SendHorizontal} class="absolute bottom-1 right-1" submit />
+      <IconButton title="Send" icon={SendHorizontal} class="absolute bottom-1 right-1" submit />
     </Form>
   )
 }
