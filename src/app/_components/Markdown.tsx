@@ -150,7 +150,7 @@ const parseList = (input, level = 0) => {
 }
 
 const mkList = ord =>
-  ord ? <ol class="py-2 ml-4 list-decimal" children={[]} /> : <ul class="py-2 ml-4 list-disc" children={[]} />
+  ord ? <ol class="py-2 pl-5 list-decimal" children={[]} /> : <ul class="py-2 pl-5 list-disc" children={[]} />
 
 // TODO: we can cache this and preact will skip diffing then
 const parseTable = input => {
