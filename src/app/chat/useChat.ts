@@ -22,6 +22,7 @@ export const useChat = id => {
     return {
       input,
       result,
+      progress,
 
       get loading() {
         return id && (chat.loading || messages.loading)
@@ -73,7 +74,7 @@ export const useChat = id => {
         }
 
         await messages.post({ role: "user", content })
-        await messages.post({ role: "assistant", content: "" })
+        await messages.post({ role: "assistant", content: "..." })
 
         await ctx.generateMessage(messages.data![messages.data!.length - 1])
       },

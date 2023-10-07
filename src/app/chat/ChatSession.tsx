@@ -1,5 +1,5 @@
 import { PenSquare, Trash2, Undo } from "lucide"
-import { AutoScroll, IconButton, Page } from "../_components"
+import { AutoScroll, GenerationProgress, IconButton, Page } from "../_components"
 import { useConfirm } from "../_hooks"
 import { router } from "../router"
 import { ChatMessage } from "./ChatMessage"
@@ -53,6 +53,7 @@ export const ChatSession = ({ id }) => {
               <ChatMessage key={m.id} message={m} />
             ))}
 
+            <GenerationProgress class="ml-4 mt-4" {...chat.progress} />
             <AutoScroll />
           </>
         )}
