@@ -41,15 +41,21 @@ export const ChatSession = ({ id }) => {
       </Page.Header>
 
       <Page.Content class="!p-0">
-        <div class="p-6 text-neutral-9 whitespace-pre-wrap">{chat.system_prompt}</div>
+        {chat.loading ? (
+          <div class="p-4 text-neutral-9">Loading...</div>
+        ) : (
+          <>
+            <div class="p-4 text-neutral-9">{chat.system_prompt}</div>
 
-        {(!id || chat.messages?.length === 0) && <NoMessages />}
+            {(!id || chat.messages?.length === 0) && <NoMessages />}
 
-        {chat.messages?.map(m => (
-          <ChatMessage key={m.id} message={m} />
-        ))}
+            {chat.messages?.map(m => (
+              <ChatMessage key={m.id} message={m} />
+            ))}
 
-        <AutoScroll />
+            <AutoScroll />
+          </>
+        )}
       </Page.Content>
 
       <Page.Footer class="pt-2">

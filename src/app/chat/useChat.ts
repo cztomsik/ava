@@ -21,6 +21,10 @@ export const useChat = id => {
       input,
       result,
 
+      get loading() {
+        return id && (chat.loading || messages.loading)
+      },
+
       get data() {
         return chat.data
       },
