@@ -111,7 +111,7 @@ const PromptSelect = ({ value, onChange }) => {
     const id = +e.target.value
     const arr = id > 0 ? data : examples
 
-    onChange(arr.find(p => p.id === id))
+    onChange(arr?.find(p => p.id === id))
   }
 
   return (

@@ -12,7 +12,7 @@ export const ChatSession = ({ id }) => {
   const chat = useChat(id)
 
   const handleRename = useCallback(async () => {
-    const name = window.prompt("Name this chat", chat.data.name ?? "Untitled")
+    const name = window.prompt("Name this chat", chat.data?.name ?? "Untitled")
 
     if (name) {
       await chat.updateChat({ name })
@@ -41,7 +41,7 @@ export const ChatSession = ({ id }) => {
       </Page.Header>
 
       <Page.Content class="!p-0">
-        <div class="p-6 text-neutral-9 whitespace-pre-wrap">{chat.data?.system_prompt}</div>
+        <div class="p-6 text-neutral-9 whitespace-pre-wrap">{chat.system_prompt}</div>
 
         {(!id || chat.messages?.length === 0) && <NoMessages />}
 

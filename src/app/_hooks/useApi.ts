@@ -5,11 +5,12 @@ export const API_URL = `${window.location.protocol}//${window.location.host}/api
 
 const cache: Map<string, WeakRef<any>> = new Map()
 
-type Context<T> = ReturnType<typeof createContext<T>>
+type AnyRes = Record<string | number, any>
+type Context<T extends AnyRes> = ReturnType<typeof createContext<T>>
 
-export const getApiContext = <T = any>(path: string) => cache.get(path)?.deref() ?? createContext<T>(path)
+export const getApiContext = <T extends AnyRes>(path: string) => cache.get(path)?.deref() ?? createContext<T>(path)
 
-export const useApi = <T = any>(path: string | null) => {
+export const useApi = <T extends AnyRes>(path: string | null) => {
   const context: Context<T> = path && getApiContext(path)
   useEffect(() => void context?.refetch(), [path])
 
