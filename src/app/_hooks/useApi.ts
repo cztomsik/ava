@@ -19,7 +19,7 @@ export const useApi = <T extends AnyRes>(path: string | null) => {
 
 const createContext = <T>(path: string) => {
   // true will prevent flash of empty state before we start fetching
-  const state = new Signal({ data: undefined as T | undefined, loading: true })
+  const state = new Signal({ data: undefined as T | undefined, fetching: true })
 
   // dedupe refetch calls during the same tick
   let p: any = null
@@ -34,15 +34,19 @@ const createContext = <T>(path: string) => {
     },
 
     get loading() {
-      return state.value.loading
+      return state.value.fetching && state.value.data === undefined
+    },
+
+    get fetching() {
+      return state.value.fetching
     },
 
     async refetch() {
-      state.value = { ...state.value, loading: true }
+      state.value = { ...state.value, fetching: true }
       state.value = {
         ...state.value,
         data: await (p ?? (p = Promise.resolve().then(() => ((p = null), callApi(path))))),
-        loading: false,
+        fetching: false,
       }
     },
 
