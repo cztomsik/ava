@@ -21,7 +21,7 @@ const createContext = <T>(path: string) => {
   // true will prevent flash of empty state before we start fetching
   const state = new Signal({ data: undefined as T | undefined, fetching: true })
 
-  // dedupe refetch calls during the same tick
+  // Dedupe refetch calls during the same tick
   let p: any = null
 
   const context = {
@@ -50,47 +50,26 @@ const createContext = <T>(path: string) => {
       }
     },
 
-    async post(row: any) {
-      try {
-        return await callApi(path, { method: "POST", body: JSON.stringify(row) })
-      } finally {
-        await invalidate(path)
-      }
-    },
-
-    async put(row: any) {
-      try {
-        return await callApi(path, { method: "PUT", body: JSON.stringify(row) })
-      } finally {
-        await invalidate(path)
-      }
-    },
-
-    async putAt(id: any, row: any) {
-      try {
-        return await callApi(`${path}/${id}`, { method: "PUT", body: JSON.stringify(row) })
-      } finally {
-        await invalidate(path)
-      }
-    },
-
-    async del(id?) {
-      try {
-        return await callApi(id ? `${path}/${id}` : path, { method: "DELETE" })
-      } finally {
-        await invalidate(id ? path : path.split("/").slice(0, -1).join("/"))
-      }
-    },
+    // Helpers, there's no difference between calling these and calling callApi directly
+    post: (row: any) => callApi(path, { method: "POST", body: JSON.stringify(row) }),
+    put: (row: any) => callApi(path, { method: "PUT", body: JSON.stringify(row) }),
+    putAt: (id: any, row: any) => callApi(`${path}/${id}`, { method: "PUT", body: JSON.stringify(row) }),
+    del: (id?) => callApi(id ? `${path}/${id}` : path, { method: "DELETE" }),
   }
 
   cache.set(path, new WeakRef(context))
   return context
 }
 
-const callApi = async (path: string, options: RequestInit = {}) => {
-  const res = await window.fetch(`${API_URL}/${path}`, options)
-
-  return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
+export const callApi = async (path: string, { method = "GET", ...init }: RequestInit = {}) => {
+  try {
+    const res = await window.fetch(`${API_URL}/${path}`, { method, ...init })
+    return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
+  } finally {
+    if (method !== "GET") {
+      await invalidate(method == "DELETE" ? path.split("/").slice(0, -1).join("/") : path)
+    }
+  }
 }
 
 const invalidate = (path: string) =>
