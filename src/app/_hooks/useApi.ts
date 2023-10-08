@@ -54,7 +54,7 @@ const createContext = <T>(path: string) => {
     post: (row: any) => callApi(path, { method: "POST", body: JSON.stringify(row) }),
     put: (row: any) => callApi(path, { method: "PUT", body: JSON.stringify(row) }),
     putAt: (id: any, row: any) => callApi(`${path}/${id}`, { method: "PUT", body: JSON.stringify(row) }),
-    del: (id?) => callApi(id ? `${path}/${id}` : path, { method: "DELETE" }),
+    del: (id?) => callApi(id !== undefined ? `${path}/${id}` : path, { method: "DELETE" }),
   }
 
   cache.set(path, new WeakRef(context))
