@@ -9,7 +9,7 @@ export const ChatList = ({ class: className = "", value, onSelect, ...props }) =
 
   return (
     <nav class={`relative overflow-hidden ${className}`} {...props}>
-      <List class="max-h-full" style={style}>
+      <List class="h-full max-h-full" style={style}>
         <List.Item active={!value} onFocus={() => onSelect("")}>
           <List.Item.Title>New chat</List.Item.Title>
           <List.Item.Subtitle>Start a new chat with a model.</List.Item.Subtitle>
