@@ -67,7 +67,7 @@ export const callApi = async (path: string, { method = "GET", ...init }: Request
     return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
   } finally {
     if (method !== "GET") {
-      await invalidate(method == "DELETE" ? path.split("/").slice(0, -1).join("/") : path)
+      await invalidate(method === "DELETE" ? path.split("/").slice(0, -1).join("/") : path)
     }
   }
 }
