@@ -20,8 +20,8 @@ const EditPrompt = ({ onClose }) => {
   const chat = useChatContext()
   const prompt = useMemo(() => signal(chat.data?.prompt ?? defaultPrompt), [chat])
 
-  const handleSubmit = () => {
-    chat.updateChat({ ...chat.data, prompt: prompt.value === defaultPrompt ? null : prompt.value })
+  const handleSubmit = async () => {
+    await chat.updateChat({ ...chat.data, prompt: prompt.value === defaultPrompt ? null : prompt.value })
     onClose()
   }
 

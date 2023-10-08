@@ -98,9 +98,10 @@ pub fn @"GET /chat"(ctx: *server.Context) !void {
 pub fn @"POST /chat"(ctx: *server.Context) !void {
     const data = try ctx.readJson(struct {
         name: []const u8,
+        prompt: []const u8,
     });
 
-    var stmt = try db.query("INSERT INTO Chat (name) VALUES (?) RETURNING *", .{data.name});
+    var stmt = try db.query("INSERT INTO Chat (name, prompt) VALUES (?, ?) RETURNING *", .{ data.name, data.prompt });
     defer stmt.deinit();
 
     try ctx.sendJson(try stmt.read(db.Chat));
