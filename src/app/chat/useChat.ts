@@ -108,7 +108,7 @@ export const useChat = id => {
           generating.value = message
           editing.value = null
 
-          await generate(prompt, { startWith, trimFirst: !!startWith.match(/\s$/), stop: ["USER:", "ASSISTANT:"] })
+          await generate(prompt, { startWith, trimFirst: !!startWith.match(/(^|\s)$/), stop: ["USER:", "ASSISTANT:"] })
           await ctx.updateMessage({ ...message, content: result.value })
         } finally {
           generating.value = null
