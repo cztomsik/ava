@@ -11,7 +11,7 @@ CREATE TABLE "Prompt" (
 CREATE TABLE "Chat" (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  system_prompt TEXT
+  prompt TEXT
 ) STRICT;
 
 CREATE TABLE "ChatMessage" (

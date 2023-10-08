@@ -32,10 +32,6 @@ export const useChat = id => {
         return chat.data
       },
 
-      get system_prompt() {
-        return chat.data?.system_prompt ?? defaultPrompt
-      },
-
       get messages() {
         return messages.data
       },
@@ -49,7 +45,7 @@ export const useChat = id => {
       },
 
       async updateChat(data) {
-        await chat.put({ ...chat.data, ...data })
+        return id ? chat.put(data) : (chat.data = data)
       },
 
       async deleteChat() {
@@ -62,8 +58,8 @@ export const useChat = id => {
 
         if (!id) {
           const { id } = await getApiContext("chat").post({
-            name: `New chat ${new Date().toLocaleDateString()}`,
-            system_prompt: ctx.system_prompt,
+            name: chat.data?.name ?? `New chat ${new Date().toLocaleDateString()}`,
+            prompt: chat.data?.prompt ?? null,
           })
 
           // This will trigger a re-render, so everything below will happen in
@@ -103,7 +99,8 @@ export const useChat = id => {
         try {
           const index = messages.data!.indexOf(message)
           const prompt =
-            ctx.system_prompt + serializePrompt([...messages.data!.slice(0, index), { ...message, content: startWith }])
+            (chat.data?.prompt ?? defaultPrompt) +
+            serializePrompt([...messages.data!.slice(0, index), { ...message, content: startWith }])
 
           generating.value = message
           editing.value = null
@@ -130,7 +127,8 @@ export const useChat = id => {
   return ctx
 }
 
-const defaultPrompt =
+export const defaultPrompt =
   "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
+
 const serializePrompt = messages =>
   messages.reduce((res, m) => res + `${m.role.toUpperCase()}: ${m.content}\n`, "").trimEnd()

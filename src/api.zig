@@ -116,7 +116,7 @@ pub fn @"GET /chat/:id"(ctx: *server.Context, id: u32) !void {
 pub fn @"PUT /chat/:id"(ctx: *server.Context, id: u32) !void {
     const data = try ctx.readJson(db.Chat);
 
-    try db.exec("UPDATE Chat SET name = ?, system_prompt = ? WHERE id = ?", .{ data.name, data.system_prompt, id });
+    try db.exec("UPDATE Chat SET name = ?, prompt = ? WHERE id = ?", .{ data.name, data.prompt, id });
     return ctx.noContent();
 }
 

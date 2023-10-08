@@ -12,7 +12,7 @@ pub const Prompt = struct {
 pub const Chat = struct {
     id: u32,
     name: []const u8,
-    system_prompt: ?[]const u8,
+    prompt: ?[]const u8,
 };
 
 pub const ChatMessage = struct {

@@ -1,12 +1,13 @@
 import { PenSquare, Trash2, Undo } from "lucide"
+import { useCallback } from "preact/hooks"
 import { AutoScroll, GenerationProgress, IconButton, Page } from "../_components"
 import { useConfirm } from "../_hooks"
 import { router } from "../router"
+import { ChatContext, useChat } from "./useChat"
+import { ChatPrompt } from "./ChatPrompt"
 import { ChatMessage } from "./ChatMessage"
 import { ChatInput } from "./ChatInput"
 import { NoMessages } from "./NoMessages"
-import { ChatContext, useChat } from "./useChat"
-import { useCallback } from "preact/hooks"
 
 export const ChatSession = ({ id }) => {
   const chat = useChat(id)
@@ -15,7 +16,7 @@ export const ChatSession = ({ id }) => {
     const name = window.prompt("Name this chat", chat.data?.name ?? "Untitled")
 
     if (name) {
-      await chat.updateChat({ name })
+      await chat.updateChat({ ...chat.data, name })
     }
   }, [chat])
 
@@ -41,7 +42,7 @@ export const ChatSession = ({ id }) => {
           <div class="p-4 text-neutral-9">Loading...</div>
         ) : (
           <>
-            <div class="p-4 text-neutral-9">{chat.system_prompt}</div>
+            <ChatPrompt />
 
             {(!id || chat.messages?.length === 0) && <NoMessages />}
 
