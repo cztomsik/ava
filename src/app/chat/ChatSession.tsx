@@ -19,14 +19,10 @@ export const ChatSession = ({ id }) => {
     }
   }, [chat])
 
-  const handleDelete = useConfirm(
-    "Are you sure you want to delete this chat?",
-    async id => {
-      await chat.deleteChat()
-      router.navigate("/chat", true)
-    },
-    []
-  )
+  const handleDelete = useConfirm("Are you sure you want to delete this chat?", async id => {
+    await chat.deleteChat()
+    router.navigate("/chat", true)
+  })
 
   return (
     <ChatContext.Provider value={chat}>

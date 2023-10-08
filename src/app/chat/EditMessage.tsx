@@ -10,7 +10,7 @@ export const EditMessage = ({ message: m }) => {
 
   const content = useMemo(() => signal(m.content), [m.content])
 
-  const handleDelete = useConfirm("Are you sure you want to delete this message?", () => chat.deleteMessage(m), [])
+  const handleDelete = useConfirm("Are you sure you want to delete this message?", () => chat.deleteMessage(m))
 
   return (
     <Form class="flex-1 vstack gap-2" onSubmit={() => chat.updateMessage({ ...m, content: content.value })}>

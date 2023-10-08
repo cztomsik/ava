@@ -29,16 +29,12 @@ export const Playground = () => {
     }
   }
 
-  const handleDelete = useConfirm(
-    "Are you sure you want to delete this prompt?",
-    async () => {
-      const { id } = selection.value
-      selection.value = null
-      prompt.value = ""
-      await del(id)
-    },
-    []
-  )
+  const handleDelete = useConfirm("Are you sure you want to delete this prompt?", async () => {
+    const { id } = selection.value
+    selection.value = null
+    prompt.value = ""
+    await del(id)
+  })
 
   return (
     <Page>
