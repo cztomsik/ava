@@ -1,5 +1,5 @@
 import { signal } from "@preact/signals"
-import { useCallback, useEffect } from "preact/hooks"
+import { useEffect } from "preact/hooks"
 
 /**
  * Simple modal component
@@ -15,8 +15,6 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
       prevActive?.focus()
     }
   }, [])
-
-  const preventDrag = useCallback(e => e.stopPropagation(), [])
 
   return (
     <div tabIndex={-1} aria-hidden="true" class="fixed inset-0 z-50 flex" data-drag-window>
@@ -36,6 +34,8 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
     </div>
   )
 }
+
+const preventDrag = e => e.stopPropagation()
 
 const cross = (
   <svg class="stroke-neutral-12" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">

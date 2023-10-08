@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useErrorBoundary } from "preact/hooks"
+import { useEffect, useErrorBoundary } from "preact/hooks"
 import { useSignal } from "@preact/signals"
 import { Modal } from "./Modal"
 
@@ -40,7 +40,7 @@ export const ErrorBoundary = ({ children, ...props }) => {
   }, [])
 
   // Clear the error when the user closes the modal
-  const reset = useCallback(() => (lastError.value = null), [])
+  const reset = () => (lastError.value = null)
 
   return (
     <div {...props}>
