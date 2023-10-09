@@ -1,5 +1,5 @@
 export const NoMessages = () => (
-  <div class="text-sky-12 bg-sky-1 p-6 px-8 border(y-1 sky-6)">
+  <div class="text-sky-12 bg-sky-2 p-6 px-8 border(y-1 sky-6)">
     <strong>The conversation is empty.</strong>
     <ul class="list-disc mt-2 ml-4">
       <li>Select model in the bottom left corner.</li>
