@@ -16,40 +16,17 @@ pub fn build(builder: *std.Build) !void {
 
     const llama = try addLlama();
     const srv = try addServer();
-    const exe = try addExe(llama, srv);
 
-    b.getInstallStep().dependOn(&exe.step);
-}
+    const exe = switch (target.getOsTag()) {
+        .windows => @import("src/windows/BuildWindows.zig").create(b, target, optimize),
+        .macos => @import("src/macos/BuildMacOS.zig").create(b, target, optimize),
+        else => return error.UnsupportedOs,
+    };
 
-fn addExe(llama: *std.Build.Step.Compile, srv: *std.Build.Step.Compile) !*std.Build.Step.Run {
-    // TODO: windows, linux
+    exe.dependOn(&llama.step);
+    exe.dependOn(&srv.step);
 
-    const swiftc = b.addSystemCommand(&.{
-        "swiftc",
-        if (optimize == .Debug) "-Onone" else "-O",
-        "-import-objc-header",
-        "src/macos/ava.h",
-        "-L",
-        "zig-out/lib",
-        "-lava_server",
-        "-lllama",
-        "-lsqlite3",
-        "-target",
-        b.fmt("{s}-apple-macosx{}", .{ @tagName(target.getCpuArch()), target.os_version_min.?.semver }),
-        "-o",
-        b.fmt("zig-out/bin/ava_{s}", .{@tagName(target.getCpuArch())}),
-    });
-
-    if (optimize == .Debug) {
-        swiftc.addArgs(&.{ "-D", "DEBUG" });
-    }
-
-    swiftc.addFileArg(.{ .path = "src/macos/entry.swift" });
-    swiftc.addFileArg(.{ .path = "src/macos/webview.swift" });
-    swiftc.step.dependOn(&llama.step);
-    swiftc.step.dependOn(&srv.step);
-
-    return swiftc;
+    b.getInstallStep().dependOn(exe);
 }
 
 fn addServer() !*std.Build.Step.Compile {

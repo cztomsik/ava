@@ -1,4 +1,4 @@
-// API for the AVA server, currently only for macOS.
+// API for the AVA HTTP server
 
 int ava_start();
 int ava_stop();
