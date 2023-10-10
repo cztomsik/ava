@@ -17,7 +17,7 @@ lipo -create ./zig-out/bin/ava_aarch64 ./zig-out/bin/ava_x86_64 -output ./zig-ou
 
 mkdir -p "${APP_PATH}/Contents/MacOS"
 mkdir -p "${APP_PATH}/Contents/Resources"
-cp ./src/Info.plist "${APP_PATH}/Contents/"
+cp ./src/macos/Info.plist "${APP_PATH}/Contents/"
 cp ./zig-out/bin/ava "${APP_PATH}/Contents/MacOS/"
 cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
 
