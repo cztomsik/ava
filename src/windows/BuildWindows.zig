@@ -1,24 +1,31 @@
 const std = @import("std");
+const root = @import("../../build.zig");
 
-pub fn create(b: *std.Build, target: std.zig.CrossTarget, optimize: std.builtin.Mode) *std.build.Step {
+pub fn create(b: *std.Build) !*std.build.Step {
+    const download_deps = b.addSystemCommand(&.{ "bash", "src/windows/download_deps.sh" });
+    download_deps.has_side_effects = true;
+
     const exe = b.addExecutable(.{
-        .name = b.fmt("ava_{s}", .{@tagName(target.getCpuArch())}),
-        .target = target,
-        .optimize = optimize,
+        .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
+        .target = root.target,
+        .optimize = root.optimize,
     });
 
     exe.subsystem = .Windows;
-
-    // mkdir -p webview2
-    // curl -sSL "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2" | tar -xf - -C webview2
-    // TODO: linux
+    exe.linkLibC();
     exe.linkLibCpp();
-    exe.addIncludePath(.{ .path = "../webview2/build/native/include" });
-    exe.addLibraryPath(.{ .path = "../webview2/build/native/x64" });
+    exe.addIncludePath(.{ .path = "zig-out/webview2_loader/include" });
+    exe.addLibraryPath(.{ .path = "zig-out/webview2_loader/x64" });
     exe.linkSystemLibrary("WebView2Loader.dll");
-    exe.addCSourceFiles(&.{"src/windows/winmain.cpp"}, &.{"-std=c++17"});
+    exe.addCSourceFiles(&.{"src/windows/winmain.cpp"}, &.{"-std=c++11"});
 
     b.installArtifact(exe);
+
+    std.log.debug("Adding sqlite include path to the server task", .{});
+    root.srv.addIncludePath(.{ .path = "zig-out/sqlite" });
+    root.srv.step.dependOn(&download_deps.step);
+
+    exe.step.dependOn(&download_deps.step);
 
     return &exe.step;
 }

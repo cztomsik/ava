@@ -1,26 +1,26 @@
 const std = @import("std");
 
-var b: *std.Build = undefined;
-var target: std.zig.CrossTarget = undefined;
-var optimize: std.builtin.Mode = undefined;
+pub var target: std.zig.CrossTarget = undefined;
+pub var optimize: std.builtin.Mode = undefined;
+pub var llama: *std.Build.Step.Compile = undefined;
+pub var srv: *std.Build.Step.Compile = undefined;
 
-pub fn build(builder: *std.Build) !void {
-    b = builder;
+pub fn build(b: *std.Build) !void {
     target = b.standardTargetOptions(.{});
     optimize = b.standardOptimizeOption(.{});
 
     if (target.getOsTag() == .macos and target.os_version_min == null) {
-        target.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
         std.log.debug("Setting macOS deployment target to {}", .{target.os_version_min.?});
+        target.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
     }
 
-    const llama = try addLlama();
-    const srv = try addServer();
+    try addLlama(b);
+    try addServer(b);
 
-    const exe = switch (target.getOsTag()) {
-        .windows => @import("src/windows/BuildWindows.zig").create(b, target, optimize),
-        .macos => @import("src/macos/BuildMacOS.zig").create(b, target, optimize),
-        else => return error.UnsupportedOs,
+    const exe = try switch (target.getOsTag()) {
+        .windows => @import("src/windows/BuildWindows.zig").create(b),
+        .macos => @import("src/macos/BuildMacOS.zig").create(b),
+        else => error.UnsupportedOs,
     };
 
     exe.dependOn(&llama.step);
@@ -29,28 +29,23 @@ pub fn build(builder: *std.Build) !void {
     b.getInstallStep().dependOn(exe);
 }
 
-fn addServer() !*std.Build.Step.Compile {
-    const srv = b.addStaticLibrary(.{
+fn addServer(b: *std.Build) !void {
+    srv = b.addStaticLibrary(.{
         .name = "ava_server",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
     });
+    srv.linkLibC();
     srv.bundle_compiler_rt = true; // needed for everything
     srv.main_pkg_path = .{ .path = "." }; // needed for @embedFile
     srv.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
 
-    if (target.getOsTag() == .macos) {
-        useMacSDK(srv);
-    }
-
     b.installArtifact(srv);
-
-    return srv;
 }
 
-fn addLlama() !*std.Build.Step.Compile {
-    const llama = b.addStaticLibrary(.{
+fn addLlama(b: *std.Build) !void {
+    llama = b.addStaticLibrary(.{
         .name = "llama",
         .target = target,
         .optimize = .ReleaseFast, // otherwise it's too slow
@@ -58,23 +53,26 @@ fn addLlama() !*std.Build.Step.Compile {
 
     var cflags = std.ArrayList([]const u8).init(b.allocator);
     try cflags.append("-std=c11");
-    llama.linkLibC();
 
     var cxxflags = std.ArrayList([]const u8).init(b.allocator);
     try cxxflags.append("-std=c++11");
-    llama.linkLibCpp();
+
+    // https://github.com/ziglang/zig/issues/15448
+    if (target.getAbi() == .msvc) llama.linkLibC() else llama.linkLibCpp();
 
     // shared
-    try cflags.appendSlice(&.{ "-Ofast", "-fPIC", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
-    try cxxflags.appendSlice(&.{ "-Ofast", "-fPIC", "-DNDEBUG" });
+    try cflags.appendSlice(&.{ "-Ofast", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
+    try cxxflags.appendSlice(&.{ "-Ofast", "-DNDEBUG" });
 
-    // TODO: windows
-    if (target.getOsTag() != .windows) {}
+    if (target.getOsTag() == .windows) {
+        if (target.getAbi() != .msvc) llama.defineCMacro("_GNU_SOURCE", null);
+    } else {
+        try cflags.append("-fPIC");
+        try cxxflags.append("-fPIC");
+    }
 
     // Use Metal on macOS
     if (target.getOsTag() == .macos) {
-        useMacSDK(llama);
-
         try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
         try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
 
@@ -89,14 +87,4 @@ fn addLlama() !*std.Build.Step.Compile {
     llama.addCSourceFiles(&.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/k_quants.c" }, cflags.items);
     llama.addCSourceFiles(&.{"llama.cpp/llama.cpp"}, cxxflags.items);
     b.installArtifact(llama);
-
-    return llama;
-}
-
-fn useMacSDK(step: *std.Build.Step.Compile) void {
-    const macos_sdk = std.mem.trimRight(u8, b.exec(&.{ "xcrun", "--show-sdk-path" }), "\n");
-
-    step.addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{macos_sdk}) });
-    step.addFrameworkPath(.{ .path = b.fmt("{s}/System/Library/Frameworks", .{macos_sdk}) });
-    step.addLibraryPath(.{ .path = b.fmt("{s}/usr/lib", .{macos_sdk}) });
 }

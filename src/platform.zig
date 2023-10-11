@@ -4,6 +4,10 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 pub fn getHome() [*:0]const u8 {
+    if (builtin.os.tag == .windows) {
+        return "TODO: implement getHome() for Windows";
+    }
+
     return std.os.getenv("HOME") orelse ".";
 }
 
