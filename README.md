@@ -4,8 +4,8 @@ Air-gapped Virtual Assistant / Personal language server
 
 ## Tech stack
 
-- Zig, C++, Objective-C, SQLite
-- Preact, Preact Router, Preact Signals, Bootstrap 5, Goober
+- Zig, C++, Swift UI, SQLite
+- Preact, Preact Signals, Twind
 
 ## Local Development
 
@@ -24,7 +24,7 @@ zig build run
 
 ## macOS 12.6+ (Monterey)
 
-Xcode is needed (for ibtool)
+Xcode is needed because of Swift UI
 
 ```
 sudo xcode-select -switch /Applications/Xcode.app
