@@ -10,8 +10,8 @@ pub fn build(b: *std.Build) !void {
     optimize = b.standardOptimizeOption(.{});
 
     if (target.getOsTag() == .macos and target.os_version_min == null) {
-        std.log.debug("Setting macOS deployment target to {}", .{target.os_version_min.?});
         target.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
+        std.log.debug("Setting macOS deployment target to {}", .{target.os_version_min.?});
     }
 
     try addLlama(b);

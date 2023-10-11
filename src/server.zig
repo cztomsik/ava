@@ -13,7 +13,9 @@ pub const Context = struct {
     pub fn init(http: *std.http.Server) !*Context {
         // accidental moving/copying would invalidate pointers inside
         var arena = try http.allocator.create(std.heap.ArenaAllocator);
+        errdefer http.allocator.destroy(arena);
         arena.* = std.heap.ArenaAllocator.init(http.allocator);
+        errdefer arena.deinit();
 
         var res = try http.accept(.{
             .allocator = arena.allocator(),
