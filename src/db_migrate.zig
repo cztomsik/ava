@@ -1,4 +1,6 @@
-// inspired by https://david.rothlis.net/declarative-schema-migration-for-sqlite/
+// Inspired by https://david.rothlis.net/declarative-schema-migration-for-sqlite/
+// What we do is a bit simpler though, we always recreate the table if it's
+// different and we don't support indices yet
 
 const std = @import("std");
 const sqlite = @import("sqlite.zig");
