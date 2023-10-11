@@ -12,7 +12,6 @@ pub fn create(b: *std.Build) !*std.build.Step {
     });
 
     exe.subsystem = .Windows;
-    exe.linkLibC();
     exe.linkLibCpp();
     exe.addIncludePath(.{ .path = "zig-out/webview2_loader/include" });
     exe.addLibraryPath(.{ .path = "zig-out/webview2_loader/x64" });
