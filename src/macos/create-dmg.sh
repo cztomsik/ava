@@ -2,28 +2,44 @@
 
 # Variables
 APP_NAME="Ava"
-APP_PATH="./zig-out/${APP_NAME}.app"
-DMG_TMP_PATH="./zig-out/${APP_NAME}_tmp.dmg"
-DMG_FINAL_PATH="./zig-out/${APP_NAME}_$(date +%Y-%m-%d).dmg"
+ZIG_OUT="$(dirname "$0")/../../zig-out"
+APP_PATH="$ZIG_OUT/${APP_NAME}.app"
+DMG_TMP_PATH="$ZIG_OUT/${APP_NAME}_tmp.dmg"
+DMG_FINAL_PATH="$ZIG_OUT/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 
 # Clean
-rm -rf ./zig-out
+rm -rf "$ZIG_OUT"
 
 # Build JS, x86_64, aarch64, and universal binary
-npm run build
-zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.12.6
-zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.12.6
-lipo -create ./zig-out/bin/ava_aarch64 ./zig-out/bin/ava_x86_64 -output ./zig-out/bin/ava
+npm run build \
+&& zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.12.6 \
+&& zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.12.6 \
+&& lipo -create "$ZIG_OUT/bin/ava_aarch64" "$ZIG_OUT/bin/ava_x86_64" -output "$ZIG_OUT/bin/ava"
 
-mkdir -p "${APP_PATH}/Contents/MacOS"
-mkdir -p "${APP_PATH}/Contents/Resources"
-cp ./src/macos/Info.plist "${APP_PATH}/Contents/"
-cp ./zig-out/bin/ava "${APP_PATH}/Contents/MacOS/"
-cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
+if [ $? -ne 0 ]; then
+    echo "Build failed"
+    exit 1;
+fi
+
+mkdir -p "${APP_PATH}/Contents/MacOS" \
+&& mkdir -p "${APP_PATH}/Contents/Resources" \
+&& cp ./src/macos/Info.plist "${APP_PATH}/Contents/" \
+&& cp "$ZIG_OUT/bin/ava" "${APP_PATH}/Contents/MacOS/" \
+&& cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
+
+if [ $? -ne 0 ]; then
+    echo "Copy failed"
+    exit 1;
+fi
 
 # Sign app
 # Note it still needs to be notarized
 codesign -fs "Developer ID Application: KAMIL TOMSIK (RYT4H286GA)" --deep --options=runtime --timestamp "${APP_PATH}"
+
+if [ $? -ne 0 ]; then
+    echo "Signing failed"
+    exit 1;
+fi
 
 # Create temp DMG and perform some customizations
 # Adapted from https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools
