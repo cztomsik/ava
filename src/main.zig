@@ -9,6 +9,10 @@ const allocator = if (builtin.mode == .Debug) gpa.allocator() else std.heap.c_al
 
 var server: ?*Server = null;
 
+pub const std_options = struct {
+    pub const log_level = .debug;
+};
+
 pub export fn ava_start() c_int {
     if (server != null) {
         std.log.err("Server already started", .{});

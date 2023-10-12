@@ -22,10 +22,11 @@ pub fn create(b: *std.Build) !*std.build.Step {
     const exe = b.addExecutable(.{
         .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
         .target = root.target,
-        .optimize = root.optimize,
+        .optimize = .Debug, // Otherwise it just fails, no idea what's the problem there...
     });
 
-    exe.subsystem = .Windows;
+    // exe.subsystem = .Windows;
+    exe.want_lto = false; // Otherwise link will fail
     exe.linkLibCpp();
     exe.addIncludePath(.{ .path = "include" });
     exe.linkLibrary(sqlite);
