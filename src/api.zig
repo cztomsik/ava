@@ -11,6 +11,18 @@ pub fn @"GET /models"(ctx: *server.Context) !void {
     return ctx.sendJson(stmt.iterator(db.Model));
 }
 
+pub fn @"POST /models"(ctx: *server.Context) !void {
+    const data = try ctx.readJson(struct {
+        name: []const u8,
+        path: []const u8,
+    });
+
+    var stmt = try db.query("INSERT INTO Model (name, path) VALUES (?, ?) RETURNING *", .{ data.name, data.path });
+    defer stmt.deinit();
+
+    try ctx.sendJson(try stmt.read(db.Model));
+}
+
 pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
     const path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{id});
     try db.exec("DELETE FROM Chat WHERE id = ?", .{id});
@@ -40,7 +52,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
     }
 
-    var path = try platform.getHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
+    var path = try platform.getWritableHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
     var tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
     var file = try std.fs.createFileAbsolute(tmp_path, .{});
     defer file.close();
@@ -61,6 +73,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     } else |_| return ctx.sendJson(.{ .@"error" = "Failed to download the model" });
 
     try std.fs.renameAbsolute(tmp_path, path);
+    try ctx.sendJson(.{ .path = path });
 }
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {

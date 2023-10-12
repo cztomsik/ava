@@ -6,7 +6,7 @@ import { jsonLines } from "../_util"
 import { catalog } from "./catalog"
 
 export const Models = () => {
-  const { data: models = [], refetch, del } = useApi("models")
+  const { data: models = [], post, del } = useApi("models")
   const progress = useSignal<any>(null)
   const ctrl = useSignal<AbortController | null>(null)
 
@@ -26,10 +26,14 @@ export const Models = () => {
           throw new Error(`Unexpected error: ${d.error}`)
         }
 
-        progress.value = { ...progress.value, ...d }
-      }
+        if ("progress" in d) {
+          progress.value = { ...progress.value, ...d }
+        }
 
-      await refetch()
+        if ("path" in d) {
+          await post({ name: basename(url.slice(0, -5)), path: d.path })
+        }
+      }
     } catch (e) {
       if (e.code !== DOMException.ABORT_ERR) {
         throw e
