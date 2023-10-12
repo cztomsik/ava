@@ -53,9 +53,9 @@ pub fn migrate(allocator: std.mem.Allocator, db: *sqlite.SQLite3) !void {
         try db.exec(temp_sql, .{});
 
         // We want to copy data from the old table to the temp table so we need
-        // to know which columns are common to both and we need to it in a new
-        // block so it gets deinitialized and we can then drop and rename the
-        // temp table
+        // to know which columns are common to both and we need to do it in a
+        // new block so it gets deinitialized and we can then drop and rename
+        // the temp table
         {
             var cols = try db.query("SELECT GROUP_CONCAT(name) FROM (SELECT name FROM pragma_table_info(?) INTERSECT SELECT name FROM pragma_table_info('temp'))", .{row[0]});
             defer cols.deinit();
