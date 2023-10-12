@@ -54,6 +54,16 @@ pub const SQLite3 = struct {
         };
     }
 
+    /// Shorthand for `self.query(sql, args).read([]const u8)`. Returns the
+    /// first column of the first row returned by the query. The returned slice
+    /// needs to be freed by the caller.
+    pub fn getString(self: *SQLite3, allocator: std.mem.Allocator, sql: []const u8, args: anytype) ![]const u8 {
+        var stmt = try self.query(sql, args);
+        defer stmt.deinit();
+
+        return allocator.dupe(u8, try stmt.read([]const u8));
+    }
+
     /// Shorthand for `self.prepare(sql).bindAll(args)`. Returns the prepared
     /// statement which still needs to be executed (and deinitialized).
     pub fn query(self: *SQLite3, sql: []const u8, args: anytype) !Statement {

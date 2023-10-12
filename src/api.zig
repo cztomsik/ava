@@ -1,17 +1,20 @@
 const std = @import("std");
 const server = @import("server.zig");
 const db = @import("db.zig");
-const registry = @import("model_registry.zig");
 const llama = @import("llama.zig");
 const platform = @import("platform.zig");
 
 pub fn @"GET /models"(ctx: *server.Context) !void {
-    const models = try registry.getModels(ctx.arena);
-    return ctx.sendJson(models);
+    var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
+    defer stmt.deinit();
+
+    return ctx.sendJson(stmt.iterator(db.Model));
 }
 
 pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
-    try registry.deleteModel(ctx.arena, id);
+    const path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{id});
+    try db.exec("DELETE FROM Chat WHERE id = ?", .{id});
+    std.fs.deleteFileAbsolute(path) catch {};
     return ctx.noContent();
 }
 
@@ -37,7 +40,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
     }
 
-    var path = try std.fmt.allocPrint(ctx.arena, "{s}/{s}/{s}", .{ platform.getHome(), "Downloads", std.fs.path.basename(url) });
+    var path = try platform.getHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
     var tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
     var file = try std.fs.createFileAbsolute(tmp_path, .{});
     defer file.close();
@@ -62,13 +65,14 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {
     const params = try ctx.readJson(struct {
-        model: []const u8,
+        model_id: u32,
         prompt: []const u8,
         sampling: llama.SamplingParams = .{},
     });
 
     try ctx.sendJson(.{ .status = "Waiting for the model..." });
-    var cx = try llama.Pool.get(try registry.getModelPath(ctx.arena, params.model), 60_000);
+    var model_path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
+    var cx = try llama.Pool.get(model_path, 60_000);
     defer llama.Pool.release(cx);
 
     try ctx.sendJson(.{ .status = "Reading the history..." });

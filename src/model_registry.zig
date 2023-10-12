@@ -7,16 +7,12 @@ pub const Model = struct {
 };
 
 pub fn getModelPath(allocator: std.mem.Allocator, model_name: []const u8) ![]const u8 {
-    return std.fmt.allocPrintZ(allocator, "{s}/{s}/{s}.gguf", .{
-        platform.getHome(),
-        "Downloads",
-        std.fs.path.basename(model_name),
-    });
+    return platform.getHomePath(allocator, &.{ "models", std.fs.path.basename(model_name) });
 }
 
 pub fn getModels(allocator: std.mem.Allocator) ![]Model {
     var list = std.ArrayList(Model).init(allocator);
-    var path = try std.fmt.allocPrintZ(allocator, "{s}/{s}", .{ platform.getHome(), "Downloads" });
+    var path = try platform.getHomePath(allocator, &.{"models"});
     defer allocator.free(path);
 
     var dir = try std.fs.openIterableDirAbsoluteZ(path, .{});

@@ -3,6 +3,12 @@ const platform = @import("platform.zig");
 const sqlite = @import("sqlite.zig");
 const migrate = @import("db_migrate.zig").migrate;
 
+pub const Model = struct {
+    id: u32,
+    name: []const u8,
+    path: []const u8,
+};
+
 pub const Prompt = struct {
     id: u32,
     name: []const u8,
@@ -25,12 +31,10 @@ pub const ChatMessage = struct {
 var db: sqlite.SQLite3 = undefined;
 
 pub fn init(allocator: std.mem.Allocator) !void {
-    var db_file = try std.fmt.allocPrintZ(allocator, "{s}/Library/Application Support/AvaPLS/db", .{platform.getHome()});
+    var db_file = try platform.getWritableHomePath(allocator, &.{"db"});
     defer allocator.free(db_file);
 
-    std.fs.makeDirAbsolute(std.fs.path.dirname(db_file).?) catch {};
     db = try sqlite.SQLite3.open(db_file);
-
     try migrate(allocator, &db);
 }
 
@@ -44,6 +48,14 @@ pub fn exec(sql: []const u8, args: anytype) !void {
 
 pub fn query(sql: []const u8, args: anytype) !sqlite.Statement {
     return db.query(sql, args);
+}
+
+pub fn get(comptime T: type, sql: []const u8, args: anytype) !T {
+    return db.get(T, sql, args);
+}
+
+pub fn getString(allocator: std.mem.Allocator, sql: []const u8, args: anytype) ![]const u8 {
+    return db.getString(allocator, sql, args);
 }
 
 // TODO: later

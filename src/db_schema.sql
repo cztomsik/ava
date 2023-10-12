@@ -2,6 +2,12 @@
 -- IMPORTANT:
 -- Table names need to be quoted in order to work with our migration tool.
 --
+CREATE Table "Model" (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  path TEXT NOT NULL
+) STRICT;
+
 CREATE TABLE "Prompt" (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,

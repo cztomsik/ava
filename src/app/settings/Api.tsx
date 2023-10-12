@@ -31,6 +31,7 @@ Returns a list of available models.
 \`\`\`json
 [
   {
+    "id": 123,
     "name": "model_name",
     "path": "path/to/model",
   }
@@ -43,7 +44,7 @@ Generates text from a prompt.
 
 \`\`\`json
 {
-  "model": "model_name",
+  "model_id": 123,
   "prompt": "prompt text",
   "sampling": {
     "top_k": 40,
@@ -58,7 +59,7 @@ Generates text from a prompt.
 
 | Field               | Type        | Description |
 | ------------------- | ----------- | ----------- |
-| \`model\`           | \`string\`  | The name of the model to use. See the Models section for the list of available models. |
+| \`model_id\`        | \`number\`  | The id of the model to use. See the Models section for the list of available models. |
 | \`prompt\`          | \`string\`  | The text to generate from. |
 | \`sampling\`        | \`object\`  | The sampling parameters. |
 | \`.top_k\`          | \`number\`  | The number of tokens to consider for each step. |
