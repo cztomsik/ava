@@ -21,5 +21,4 @@ else
   echo "Downloading SQLite to $SQLITE"
   mkdir -p $SQLITE
   curl -sSL "https://www.sqlite.org/2023/sqlite-amalgamation-3430200.zip" | tar -xf - -C $SQLITE --strip-components=1
-  curl -sSL "https://www.sqlite.org/2023/sqlite-dll-win64-x64-3430200.zip" | tar -xf - -C $SQLITE
 fi
