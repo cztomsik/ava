@@ -1,7 +1,9 @@
 #include <functional>
+#include <string>
 #include <windows.h>
 #include <tchar.h>
 #include <WebView2.h>
+#include <ava.h>
 #include "util.h"
 
 // Globals
@@ -21,11 +23,11 @@ int createWindow(HINSTANCE hInstance, int nCmdShow) {
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.lpfnWndProc = WindowProc;
-    if (!RegisterClassEx(&wc)) return ShowError(_T("Failed to register window class"));
+    RegisterClassEx(&wc);
 
     // Create window
     hWnd = CreateWindowEx(0, CLASS_NAME, TITLE, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
-    if (!hWnd) return ShowError(_T("Failed to create window"));
+    if (!hWnd) return 1;
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
     SetFocus(hWnd);
@@ -58,9 +60,13 @@ int createWebView() {
 
                             if (webview != NULL) {
                                 controller->AddRef();
-                                webview->Navigate(L"https://www.google.com");
                                 webview->AddRef();
                                 resize();
+
+                                // Load the webui which is running at http://127.0.0.1:<ava_port()>
+                                std::wstring url = L"http://127.0.0.1:";
+                                url += std::to_wstring(ava_get_port());
+                                webview->Navigate(url.c_str());
                             }
 
                             wait.clear();
@@ -78,10 +84,13 @@ int createWebView() {
 
 // Application entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    if (createWindow(hInstance, nCmdShow) || createWebView()) return 1;
+    if (ava_start()) return ShowError(_T("Failed to start server"));
+    if (createWindow(hInstance, nCmdShow)) return ShowError(_T("Failed to create window"));
+    if (createWebView()) return ShowError(_T("Failed to create webview"));
 
     while (tick()) {}
 
+    ava_stop();
     webview->Release();
     controller->Release();
     return 0;
