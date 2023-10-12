@@ -50,47 +50,39 @@ int createWebView() {
     CreateCoreWebView2Environment(
         Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, HRESULT, ICoreWebView2Environment*>(
             [&](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
-                printf("WebView2 environment completed %d\n", result);
+                if (result != S_OK) {
+                    printf("Failed to create WebView2 environment %d\n", result);
+                    return result;
+                }
 
                 env->CreateCoreWebView2Controller(hWnd, 
                     Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler, HRESULT, ICoreWebView2Controller*>(
                         [&](HRESULT result, ICoreWebView2Controller* ctrl) -> HRESULT {
-                            printf("WebView2 controller completed %d\n", result);
+                            if (result != S_OK) {
+                                printf("Failed to create WebView2 controller %d\n", result);
+                                return result;
+                            }
 
                             if (ctrl != NULL) {
-                                printf("WebView2 controller created\n");
                                 controller = ctrl;
                                 controller->get_CoreWebView2(&webview);
                             }
 
                             if (webview != NULL) {
-                                printf("WebView2 created\n");
                                 controller->AddRef();
                                 webview->AddRef();
-
-                                printf("WebView2 resizing\n");
                                 resize();
 
-                                // Load the webui which is running at http://127.0.0.1:<ava_port()>
-                                printf("Constructing URL\n");
-                                std::wstring url = L"http://127.0.0.1:";
-                                url += std::to_wstring(ava_get_port());
-                                printf("Navigating to %ls\n", url.c_str());
-                                webview->Navigate(url.c_str());
-
-                                printf("Disabling dev tools\n");
                                 ICoreWebView2Settings *settings = nullptr;
                                 webview->get_Settings(&settings);
                                 settings->put_AreDevToolsEnabled(FALSE);
                             }
 
-                            printf("WebView2 environment ready\n");
                             wait.clear();
                             return S_OK;
                         }).Get());
 
                 // Pump for a while
-                printf("WebView2 environment waiting\n");
                 while (wait.test_and_set() && tick()) {}
 
                 return S_OK;
@@ -102,12 +94,21 @@ int createWebView() {
 // Application entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     if (ava_start()) return ShowError(_T("Failed to start server"));
+
     if (createWindow(hInstance, nCmdShow)) return ShowError(_T("Failed to create window"));
     if (createWebView()) return ShowError(_T("Failed to create webview"));
 
+    // Load the webui which is running at http://127.0.0.1:<ava_port()>
+    std::wstring url = L"http://127.0.0.1:";
+    url += std::to_wstring(ava_get_port());
+    webview->Navigate(url.c_str());
+
     while (tick()) {}
 
+    printf("Stopping server\n");
     ava_stop();
+
+    printf("Releasing COM objects\n");
     webview->Release();
     controller->Release();
     return 0;
@@ -116,9 +117,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 // Window handler
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
+        case WM_QUIT:
+            return 0;
         case WM_DESTROY:
             PostQuitMessage(0);
-            break;
+            return 0;
         case WM_SIZE:
             resize();
         default:

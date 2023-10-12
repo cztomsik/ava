@@ -4,7 +4,8 @@ int tick() {
     if (GetMessage(&msg, NULL, 0, 0) > 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        return 1;
+
+        return (msg.message == WM_QUIT) ? 0 : 1;
     } else {
         return 0;
     }
