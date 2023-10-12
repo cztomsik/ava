@@ -13,7 +13,7 @@ pub fn create(b: *std.Build) !*std.build.Step {
     const sqlite = b.addStaticLibrary(.{
         .name = "sqlite",
         .target = root.target,
-        .optimize = root.optimize,
+        .optimize = if (root.optimize == .Debug) .Debug else .ReleaseSmall,
     });
     sqlite.step.dependOn(&download_deps.step);
     sqlite.linkLibC();
