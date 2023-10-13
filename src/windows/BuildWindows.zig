@@ -22,12 +22,13 @@ pub fn create(b: *std.Build) !*std.build.Step {
     const exe = b.addExecutable(.{
         .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
         .target = root.target,
-        .optimize = .Debug, // Otherwise it just fails, no idea what's the problem there...
+        .optimize = root.optimize,
+        .root_source_file = .{
+            .path = "src/windows/winmain.zig",
+        },
     });
 
     // exe.subsystem = .Windows;
-    exe.want_lto = false; // Otherwise link will fail
-    exe.linkLibCpp();
     exe.addIncludePath(.{ .path = "include" });
     exe.linkLibrary(sqlite);
     exe.linkLibrary(root.llama);
@@ -36,11 +37,9 @@ pub fn create(b: *std.Build) !*std.build.Step {
     exe.linkSystemLibrary("ws2_32");
     exe.linkSystemLibrary("crypt32");
 
-    exe.addIncludePath(.{ .path = "zig-out/webview2_loader/include" });
     exe.addLibraryPath(.{ .path = "zig-out/webview2_loader/x64" });
     exe.linkSystemLibrary("WebView2Loader.dll");
 
-    exe.addCSourceFiles(.{ .files = &.{"src/windows/winmain.cpp"}, .flags = &.{"-std=c++11"} });
     b.installArtifact(exe);
 
     exe.step.dependOn(&download_deps.step);
