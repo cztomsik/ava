@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 const server = @import("server.zig");
 const db = @import("db.zig");
@@ -37,6 +38,14 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     }
 
     var client: std.http.Client = .{ .allocator = ctx.arena };
+
+    if (builtin.target.os.tag == .windows) {
+        try client.ca_bundle.rescan(ctx.arena);
+        const start = client.ca_bundle.bytes.items.len;
+        try client.ca_bundle.bytes.appendSlice(ctx.arena, @embedFile("windows/amazon1.cer"));
+        try client.ca_bundle.parseCert(ctx.arena, @intCast(start), std.time.timestamp());
+    }
+
     var req = try client.request(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
     defer req.deinit();
 
