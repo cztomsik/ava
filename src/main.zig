@@ -47,5 +47,6 @@ pub export fn ava_stop() c_int {
     db.deinit();
     llama.deinit();
     if (builtin.mode == .Debug) _ = gpa.deinit();
+    server = null;
     return 0;
 }
