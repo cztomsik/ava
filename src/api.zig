@@ -25,7 +25,7 @@ pub fn @"POST /models"(ctx: *server.Context) !void {
 
 pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
     const path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{id});
-    try db.exec("DELETE FROM Chat WHERE id = ?", .{id});
+    try db.exec("DELETE FROM Model WHERE id = ?", .{id});
     std.fs.deleteFileAbsolute(path) catch {};
     return ctx.noContent();
 }

@@ -82,7 +82,7 @@ export const Models = () => {
               <td class="capitalize">{m.name}</td>
               <td class="text-right">{humanSize(m.size)}</td>
               <td class="text-center">
-                <Button onClick={() => del(m.name)}>Delete</Button>
+                <Button onClick={() => del(m.id)}>Delete</Button>
               </td>
             </tr>
           ))}
