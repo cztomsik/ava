@@ -38,7 +38,7 @@ fn addServer(b: *std.Build) !void {
     });
     srv.linkLibC();
     srv.bundle_compiler_rt = true; // needed for everything
-    srv.main_pkg_path = .{ .path = "." }; // needed for @embedFile
+    srv.main_mod_path = .{ .path = "." }; // needed for @embedFile
     srv.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
 
     b.installArtifact(srv);
@@ -76,7 +76,7 @@ fn addLlama(b: *std.Build) !void {
         try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
         try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
 
-        llama.addCSourceFiles(&.{"llama.cpp/ggml-metal.m"}, cflags.items);
+        llama.addCSourceFiles(.{ .files = &.{"llama.cpp/ggml-metal.m"}, .flags = cflags.items });
 
         // Copy the *.metal file so that it can be loaded at runtime
         const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
@@ -84,7 +84,7 @@ fn addLlama(b: *std.Build) !void {
     }
 
     llama.addIncludePath(.{ .path = "llama.cpp" });
-    llama.addCSourceFiles(&.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/k_quants.c" }, cflags.items);
-    llama.addCSourceFiles(&.{"llama.cpp/llama.cpp"}, cxxflags.items);
+    llama.addCSourceFiles(.{ .files = &.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/k_quants.c" }, .flags = cflags.items });
+    llama.addCSourceFiles(.{ .files = &.{"llama.cpp/llama.cpp"}, .flags = cxxflags.items });
     b.installArtifact(llama);
 }

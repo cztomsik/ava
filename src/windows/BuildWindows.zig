@@ -17,7 +17,7 @@ pub fn create(b: *std.Build) !*std.build.Step {
     });
     sqlite.step.dependOn(&download_deps.step);
     sqlite.linkLibC();
-    sqlite.addCSourceFiles(&.{"zig-out/sqlite/sqlite3.c"}, &.{"-std=c99"});
+    sqlite.addCSourceFiles(.{ .files = &.{"zig-out/sqlite/sqlite3.c"}, .flags = &.{"-std=c99"} });
 
     const exe = b.addExecutable(.{
         .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
@@ -40,7 +40,7 @@ pub fn create(b: *std.Build) !*std.build.Step {
     exe.addLibraryPath(.{ .path = "zig-out/webview2_loader/x64" });
     exe.linkSystemLibrary("WebView2Loader.dll");
 
-    exe.addCSourceFiles(&.{"src/windows/winmain.cpp"}, &.{"-std=c++11"});
+    exe.addCSourceFiles(.{ .files = &.{"src/windows/winmain.cpp"}, .flags = &.{"-std=c++11"} });
     b.installArtifact(exe);
 
     exe.step.dependOn(&download_deps.step);

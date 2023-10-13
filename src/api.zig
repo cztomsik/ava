@@ -40,7 +40,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     var req = try client.request(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
     defer req.deinit();
 
-    try req.start();
+    try req.start(.{});
     try req.wait();
 
     if (req.response.status != .ok) {
