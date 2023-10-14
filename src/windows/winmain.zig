@@ -10,7 +10,7 @@ const c = struct {
         @cInclude("ava.h");
     });
 
-    extern "user32" fn GetClientRect(hWnd: ?c.HWND, lpRect: ?*c.RECT) callconv(@import("std").os.windows.WINAPI) c.BOOL;
+    extern "user32" fn GetClientRect(hWnd: ?c.HWND, lpRect: ?*c.RECT) callconv(c.WINAPI) c.BOOL;
     extern "WebView2Loader.dll" fn CreateCoreWebView2Environment(handler: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler) callconv(c.WINAPI) c.HRESULT;
 };
 
