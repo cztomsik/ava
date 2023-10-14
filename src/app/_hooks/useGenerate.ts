@@ -34,7 +34,7 @@ export const useGenerate = () => {
       try {
         let tokens = 0
 
-        for await (let d of await callApi({ model: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
+        for await (let d of await callApi({ model_id: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
           data.value = d
 
           if ("error" in d) {
@@ -74,7 +74,7 @@ export const useGenerate = () => {
 }
 
 async function callApi(params, signal: AbortSignal) {
-  if (!params.model) {
+  if (!params.model_id) {
     return noModelSelected()
   }
 
