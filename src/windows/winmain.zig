@@ -14,6 +14,10 @@ const c = struct {
     extern "WebView2Loader.dll" fn CreateCoreWebView2Environment(handler: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler) callconv(c.WINAPI) c.HRESULT;
 };
 
+pub const std_options = struct {
+    pub const log_level = .debug;
+};
+
 // Globals
 var window: c.HWND = undefined;
 var wait = std.Thread.Mutex{};
@@ -27,9 +31,11 @@ pub fn main() !u8 {
         return 1;
     };
 
+    std.log.debug("Navigating to webui", .{});
     // TODO: ava_port()
     _ = webview.call(.Navigate, .{L("http://127.0.0.1:3002")});
 
+    std.log.debug("Entering the main loop", .{});
     while (tick() > 0) {}
 
     std.log.debug("Stopping server", .{});
@@ -42,11 +48,16 @@ pub fn main() !u8 {
 }
 
 fn init() !void {
+    std.log.debug("Starting server", .{});
     if (c.ava_start() > 0) return error.FailedToStartServer;
 
+    std.log.debug("Creating window", .{});
     try createWindow();
+
+    std.log.debug("Creating webview", .{});
     try createWebView();
 
+    std.log.debug("Resizing", .{});
     initialized = true;
     resize();
 }
