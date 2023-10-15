@@ -156,14 +156,14 @@ fn resize() void {
 }
 
 // Do one tick of the message loop
-fn tick() c_int {
+fn tick() c.LRESULT {
     var msg: c.MSG = undefined;
 
-    if (c.GetMessageW(&msg, null, 0, 0) > 0) {
+    if (c.GetMessageW(&msg, null, 0, 0) >= 0) {
         _ = c.TranslateMessage(&msg);
-        _ = c.DispatchMessageW(&msg);
+        const res = c.DispatchMessageW(&msg);
 
-        return if (msg.message == c.WM_QUIT) 0 else 1;
+        return if (msg.message == c.WM_QUIT) res else 1;
     }
 
     return 0;
