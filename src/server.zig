@@ -155,7 +155,7 @@ pub const Context = struct {
 pub const Server = struct {
     http: std.http.Server,
     thread: std.Thread,
-    running: std.Thread.Mutex = .{},
+    status: std.atomic.Atomic(enum(u8) { starting, started, stopping, stopped }) = .{ .value = .starting },
 
     pub fn start(allocator: std.mem.Allocator, hostname: []const u8, port: u16) !*Server {
         var self = try allocator.create(Server);
@@ -172,16 +172,22 @@ pub const Server = struct {
             .thread = try std.Thread.spawn(.{}, run, .{self}),
         };
 
+        while (self.status.load(.Acquire) == .starting) {
+            std.time.sleep(100_000_000);
+        }
+
         return self;
     }
 
     pub fn deinit(self: *Server) void {
-        self.running.unlock();
+        self.status.store(.stopping, .Release);
 
-        if (builtin.os.tag == .windows) {
-            if (std.net.tcpConnectToAddress(self.http.socket.listen_address)) |conn| {
-                conn.close();
-            } else |e| log.err("stop err: {}", .{e});
+        if (std.net.tcpConnectToAddress(self.http.socket.listen_address)) |conn| {
+            conn.close();
+        } else |e| log.err("stop err: {}", .{e});
+
+        while (self.status.load(.Acquire) == .stopping) {
+            std.time.sleep(100_000_000);
         }
 
         self.http.deinit();
@@ -189,10 +195,19 @@ pub const Server = struct {
     }
 
     fn run(self: *Server) !void {
-        self.running.lock();
+        self.status.store(.started, .Release);
+        defer self.status.store(.stopped, .Release);
 
-        while (!self.running.tryLock()) {
-            var ctx = try Context.init(&self.http);
+        while (self.status.load(.Acquire) == .started) {
+            var ctx = Context.init(&self.http) catch |e| {
+                // Sent from Server.deinit() to awake the thread
+                if (e == error.EndOfStream and self.status.load(.Acquire) == .stopping) {
+                    return;
+                }
+
+                return e;
+            };
+
             var thread = try std.Thread.spawn(.{}, runInThread, .{ctx});
             thread.detach();
         }
