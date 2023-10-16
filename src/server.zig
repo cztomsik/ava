@@ -10,33 +10,6 @@ pub const Context = struct {
     path: []const u8,
     query: ?[]const u8,
 
-    pub fn init(http: *std.http.Server) !*Context {
-        // accidental moving/copying would invalidate pointers inside
-        var arena = try http.allocator.create(std.heap.ArenaAllocator);
-        errdefer http.allocator.destroy(arena);
-        arena.* = std.heap.ArenaAllocator.init(http.allocator);
-        errdefer arena.deinit();
-
-        var res = try http.accept(.{
-            .allocator = arena.allocator(),
-            .header_strategy = .{ .dynamic = 10_000 },
-        });
-        try res.headers.append("Connection", "close");
-        try res.wait();
-
-        const uri = try std.Uri.parseWithoutScheme(res.request.target);
-
-        var ctx = try arena.allocator().create(Context);
-        ctx.* = .{
-            .arena = arena.allocator(),
-            .res = res,
-            .path = uri.path,
-            .query = uri.query,
-        };
-
-        return ctx;
-    }
-
     pub fn deinit(self: *Context) void {
         _ = self.res.reset();
         self.res.deinit();
@@ -195,25 +168,42 @@ pub const Server = struct {
         defer self.status.store(.stopped, .Release);
 
         while (self.status.load(.Acquire) == .started) {
-            var ctx = Context.init(&self.http) catch |e| {
-                if (e == error.EndOfStream) {
-                    // Sent from Server.deinit() to awake the thread
-                    if (self.status.load(.Acquire) == .stopping) return;
+            // accidental moving/copying would invalidate pointers inside
+            var arena = try self.http.allocator.create(std.heap.ArenaAllocator);
+            errdefer self.http.allocator.destroy(arena);
+            arena.* = std.heap.ArenaAllocator.init(self.http.allocator);
+            errdefer arena.deinit();
 
-                    log.debug("EndOfStream", .{});
-                    continue;
-                }
+            const res = try self.http.accept(.{
+                .allocator = arena.allocator(),
+                .header_strategy = .{ .dynamic = 10_000 },
+            });
 
-                return e;
-            };
+            // Sent from Server.deinit() to awake the thread
+            if (self.status.load(.Acquire) == .stopping) return;
 
-            var thread = try std.Thread.spawn(.{}, runInThread, .{ctx});
+            var thread = try std.Thread.spawn(.{}, runInThread, .{res});
             thread.detach();
         }
     }
 
-    fn runInThread(ctx: *Context) !void {
+    fn runInThread(res: std.http.Server.Response) !void {
+        var ctx = Context{
+            .arena = res.allocator,
+            .res = res,
+            .path = undefined,
+            .query = undefined,
+        };
         defer ctx.deinit();
+
+        // Keep it simple
+        try ctx.res.headers.append("Connection", "close");
+
+        // Wait for the request to be fully read
+        try ctx.res.wait();
+        const uri = try std.Uri.parseWithoutScheme(ctx.res.request.target);
+        ctx.path = uri.path;
+        ctx.query = uri.query;
 
         defer {
             if (ctx.res.state == .waited) ctx.res.do() catch {};
@@ -221,7 +211,7 @@ pub const Server = struct {
             log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
         }
 
-        handleRequest(ctx) catch |e| {
+        handleRequest(&ctx) catch |e| {
             if (e == error.OutOfMemory) return e;
 
             log.debug("handleRequest: {}", .{e});
