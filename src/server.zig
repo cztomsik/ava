@@ -172,10 +172,6 @@ pub const Server = struct {
             .thread = try std.Thread.spawn(.{}, run, .{self}),
         };
 
-        while (self.status.load(.Acquire) == .starting) {
-            std.time.sleep(100_000_000);
-        }
-
         return self;
     }
 
@@ -200,9 +196,12 @@ pub const Server = struct {
 
         while (self.status.load(.Acquire) == .started) {
             var ctx = Context.init(&self.http) catch |e| {
-                // Sent from Server.deinit() to awake the thread
-                if (e == error.EndOfStream and self.status.load(.Acquire) == .stopping) {
-                    return;
+                if (e == error.EndOfStream) {
+                    // Sent from Server.deinit() to awake the thread
+                    if (self.status.load(.Acquire) == .stopping) return;
+
+                    log.debug("EndOfStream", .{});
+                    continue;
                 }
 
                 return e;

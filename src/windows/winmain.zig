@@ -2,11 +2,11 @@ const std = @import("std");
 const com = @import("com.zig");
 const L = std.unicode.utf8ToUtf16LeStringLiteral;
 const c = struct {
-    pub usingnamespace std.os.windows;
-    pub usingnamespace std.os.windows.kernel32;
-    pub usingnamespace std.os.windows.user32;
+    usingnamespace std.os.windows;
+    usingnamespace std.os.windows.kernel32;
+    usingnamespace std.os.windows.user32;
 
-    pub usingnamespace @cImport({
+    usingnamespace @cImport({
         @cInclude("ava.h");
     });
 
@@ -20,46 +20,36 @@ pub const std_options = struct {
 
 // Globals
 var window: c.HWND = undefined;
-var wait = std.Thread.Mutex{};
-var initialized = false;
 var webview: *com.ICoreWebView2 = undefined;
 var controller: *com.ICoreWebView2Controller = undefined;
+var webview_initialized = std.atomic.Atomic(bool).init(false);
 
 pub fn main() !u8 {
-    init() catch |e| {
-        showError(e);
-        return 1;
-    };
+    errdefer |e| showError(e);
 
-    std.log.debug("Navigating to webui", .{});
+    std.log.debug("Starting the server", .{});
+    if (c.ava_start() > 0) return error.FailedToStartServer;
+
+    std.log.debug("Creating the window", .{});
+    try createWindow();
+
+    std.log.debug("Creating the webview", .{});
+    try createWebView();
+
+    std.log.debug("Navigating to the webui", .{});
     // TODO: ava_port()
     _ = webview.call(.Navigate, .{L("http://127.0.0.1:3002")});
 
     std.log.debug("Entering the main loop", .{});
     while (tick() > 0) {}
 
-    std.log.debug("Stopping server", .{});
+    std.log.debug("Stopping the server", .{});
     _ = c.ava_stop();
 
     std.log.debug("Releasing COM objects", .{});
     _ = webview.Release();
     _ = controller.Release();
     return 0;
-}
-
-fn init() !void {
-    std.log.debug("Creating window", .{});
-    try createWindow();
-
-    std.log.debug("Creating webview", .{});
-    try createWebView();
-
-    std.log.debug("Resizing", .{});
-    initialized = true;
-    resize();
-
-    std.log.debug("Starting server", .{});
-    if (c.ava_start() > 0) return error.FailedToStartServer;
 }
 
 fn createWindow() !void {
@@ -116,7 +106,7 @@ fn createWebView() !void {
     _ = c.CreateCoreWebView2Environment(com.Callback(com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, environmentCompleted));
 
     // Wait for the environment to be created
-    while (!wait.tryLock() and tick() > 0) {}
+    while (!webview_initialized.load(.Acquire) and tick() > 0) {}
 }
 
 fn environmentCompleted(_: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, res: c.HRESULT, env: *com.ICoreWebView2Environment) callconv(c.WINAPI) c.HRESULT {
@@ -125,7 +115,6 @@ fn environmentCompleted(_: *com.ICoreWebView2CreateCoreWebView2EnvironmentComple
         return res;
     }
 
-    wait.lock();
     return env.call(.CreateCoreWebView2Controller, .{ window, com.Callback(com.ICoreWebView2CreateCoreWebView2ControllerCompletedHandler, controllerCompleted) });
 }
 
@@ -144,12 +133,16 @@ fn controllerCompleted(_: *com.ICoreWebView2CreateCoreWebView2ControllerComplete
         }
     }
 
-    wait.unlock();
+    webview_initialized.store(true, .Release);
+
+    std.log.debug("Resizing", .{});
+    resize();
+
     return res;
 }
 
 fn resize() void {
-    if (!initialized) return;
+    if (!webview_initialized.load(.Acquire)) return;
     var bounds: c.RECT = undefined;
     _ = c.GetClientRect(window, &bounds);
     _ = controller.call(.put_Bounds, .{bounds});
