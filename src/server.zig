@@ -155,6 +155,7 @@ pub const Context = struct {
 pub const Server = struct {
     http: std.http.Server,
     thread: std.Thread,
+    running: std.Thread.Mutex = .{},
 
     pub fn start(allocator: std.mem.Allocator, hostname: []const u8, port: u16) !*Server {
         var self = try allocator.create(Server);
@@ -175,12 +176,22 @@ pub const Server = struct {
     }
 
     pub fn deinit(self: *Server) void {
+        self.running.unlock();
+
+        if (builtin.os.tag == .windows) {
+            if (std.net.tcpConnectToAddress(self.http.socket.listen_address)) |conn| {
+                conn.close();
+            } else |e| log.err("stop err: {}", .{e});
+        }
+
         self.http.deinit();
         self.http.allocator.destroy(self);
     }
 
     fn run(self: *Server) !void {
-        while (true) {
+        self.running.lock();
+
+        while (!self.running.tryLock()) {
             var ctx = try Context.init(&self.http);
             var thread = try std.Thread.spawn(.{}, runInThread, .{ctx});
             thread.detach();
