@@ -48,9 +48,6 @@ pub fn main() !u8 {
 }
 
 fn init() !void {
-    std.log.debug("Starting server", .{});
-    if (c.ava_start() > 0) return error.FailedToStartServer;
-
     std.log.debug("Creating window", .{});
     try createWindow();
 
@@ -60,6 +57,9 @@ fn init() !void {
     std.log.debug("Resizing", .{});
     initialized = true;
     resize();
+
+    std.log.debug("Starting server", .{});
+    if (c.ava_start() > 0) return error.FailedToStartServer;
 }
 
 fn createWindow() !void {
