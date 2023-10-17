@@ -35,6 +35,13 @@ pub fn @"POST /models"(ctx: *server.Context) !void {
     try ctx.sendJson(try stmt.read(db.Model));
 }
 
+pub fn @"PUT /models/:id"(ctx: *server.Context, id: u32) !void {
+    const data = try ctx.readJson(db.Model);
+
+    try db.exec("UPDATE Model SET name = ?, path = ? WHERE id = ?", .{ data.name, data.path, id });
+    return ctx.noContent();
+}
+
 pub fn @"DELETE /models/:id"(ctx: *server.Context, id: []const u8) !void {
     const path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{id});
     try db.exec("DELETE FROM Model WHERE id = ?", .{id});
