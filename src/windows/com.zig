@@ -1,20 +1,8 @@
 const std = @import("std");
 const c = struct {
-    pub usingnamespace std.os.windows;
-    pub usingnamespace std.os.windows.ole32;
-    // pub const COINIT_APARTMENTTHREADED = 0x2;
+    usingnamespace std.os.windows;
+    usingnamespace std.os.windows.ole32;
 };
-
-// pub fn init() !void {
-//     if (c.CoInitializeEx(null, c.COINIT_APARTMENTTHREADED) != c.S_OK) {
-//         c.CoUninitialize();
-//         return error.FailedToInitializeCom;
-//     }
-// }
-
-// pub fn deinit() void {
-//     c.CoUninitialize();
-// }
 
 pub const ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler = Object(extern struct {
     Invoke: *const fn (self: *ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, res: c.HRESULT, env: *ICoreWebView2Environment) callconv(c.WINAPI) c.HRESULT,
