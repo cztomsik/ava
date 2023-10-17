@@ -16,17 +16,17 @@ export const ModelSelect = ({ class: className = "" }) => {
 
   const handleChange = e => {
     if (e.target.value === "/download") {
-      e.target.value = selectedModel.value
+      e.target.value = "" + (selectedModel.value ?? "")
       router.navigate("/settings")
       return
     }
 
-    selectedModel.value = e.target.value
+    selectedModel.value = +e.target.value || null
   }
 
   return (
     <Select class={className} value={selectedModel.value ?? ""} onChange={handleChange}>
-      <option value={models?.length === 0 ? selectedModel.value : ""}>Select a model...</option>
+      <option value={models?.length === 0 ? "" + selectedModel.value : ""}>Select a model...</option>
       <option value="/download">Download a model...</option>
       <hr />
 

@@ -2,8 +2,8 @@ import { useCallback, useEffect } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
 import { jsonLines } from "../_util"
 
-export const selectedModel = signal(localStorage.getItem("selectedModel") ?? "")
-effect(() => localStorage.setItem("selectedModel", selectedModel.value))
+export const selectedModel = signal<number | null>(+localStorage.getItem("selectedModel")! || null)
+effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
 
 interface GenerateOptions {
   startWith?: string
