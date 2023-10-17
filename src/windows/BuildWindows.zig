@@ -23,12 +23,14 @@ pub fn create(b: *std.Build) !*std.build.Step {
         .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
         .target = root.target,
         .optimize = root.optimize,
-        .root_source_file = .{
-            .path = "src/windows/winmain.zig",
-        },
+        .main_mod_path = .{ .path = "src" },
+        .root_source_file = .{ .path = "src/windows/winmain.zig" },
     });
 
-    // exe.subsystem = .Windows;
+    if (root.optimize != .Debug) {
+        exe.subsystem = .Windows;
+    }
+
     exe.addIncludePath(.{ .path = "include" });
     exe.linkLibrary(sqlite);
     exe.linkLibrary(root.llama);

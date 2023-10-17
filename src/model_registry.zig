@@ -1,5 +1,5 @@
 const std = @import("std");
-const platform = @import("platform.zig");
+const util = @import("util.zig");
 
 pub const Model = struct {
     name: []const u8,
@@ -7,12 +7,12 @@ pub const Model = struct {
 };
 
 pub fn getModelPath(allocator: std.mem.Allocator, model_name: []const u8) ![]const u8 {
-    return platform.getHomePath(allocator, &.{ "models", std.fs.path.basename(model_name) });
+    return util.getHomePath(allocator, &.{ "models", std.fs.path.basename(model_name) });
 }
 
 pub fn getModels(allocator: std.mem.Allocator) ![]Model {
     var list = std.ArrayList(Model).init(allocator);
-    var path = try platform.getHomePath(allocator, &.{"models"});
+    var path = try util.getHomePath(allocator, &.{"models"});
     defer allocator.free(path);
 
     var dir = try std.fs.openIterableDirAbsoluteZ(path, .{});

@@ -3,7 +3,6 @@ const std = @import("std");
 const server = @import("server.zig");
 const db = @import("db.zig");
 const llama = @import("llama.zig");
-const platform = @import("platform.zig");
 const util = @import("util.zig");
 
 pub fn @"GET /models"(ctx: *server.Context) !void {
@@ -72,7 +71,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
     }
 
-    var path = try platform.getWritableHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
+    var path = try util.getWritableHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
     var tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
     var file = try std.fs.createFileAbsolute(tmp_path, .{});
     defer file.close();

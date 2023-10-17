@@ -1,5 +1,5 @@
 const std = @import("std");
-const platform = @import("platform.zig");
+const util = @import("util.zig");
 const sqlite = @import("sqlite.zig");
 const migrate = @import("db_migrate.zig").migrate;
 
@@ -31,7 +31,7 @@ pub const ChatMessage = struct {
 var db: sqlite.SQLite3 = undefined;
 
 pub fn init(allocator: std.mem.Allocator) !void {
-    var db_file = try platform.getWritableHomePath(allocator, &.{"db"});
+    var db_file = try util.getWritableHomePath(allocator, &.{"db"});
     defer allocator.free(db_file);
 
     db = try sqlite.SQLite3.open(db_file);

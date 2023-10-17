@@ -1,5 +1,6 @@
 const std = @import("std");
 const com = @import("com.zig");
+const util = @import("../util.zig");
 const L = std.unicode.utf8ToUtf16LeStringLiteral;
 const c = struct {
     usingnamespace std.os.windows;
@@ -10,9 +11,15 @@ const c = struct {
         @cInclude("ava.h");
     });
 
+    const PAINTSTRUCT = extern struct { hdc: ?c.HDC, fErase: c.BOOL, rcPaint: c.RECT, fRestore: c.BOOL, fIncUpdate: c.BOOL, rgbReserved: [32]u8 };
     extern "user32" fn GetClientRect(hWnd: ?c.HWND, lpRect: ?*c.RECT) callconv(c.WINAPI) c.BOOL;
-    extern "WebView2Loader.dll" fn CreateCoreWebView2Environment(handler: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler) callconv(c.WINAPI) c.HRESULT;
+    extern "user32" fn GetUpdateRect(hWnd: ?c.HWND, lpRect: ?*c.RECT, erase: c.BOOL) callconv(c.WINAPI) c.BOOL;
+    extern "user32" fn BeginPaint(hWnd: ?c.HWND, lpPaint: ?*c.PAINTSTRUCT) callconv(c.WINAPI) c.HDC;
+    extern "user32" fn DrawTextA(hdc: ?c.HDC, lpchText: [*:0]const u8, cchText: i32, lprc: ?*c.RECT, format: u32) callconv(c.WINAPI) i32;
+    extern "user32" fn EndPaint(hWnd: ?c.HWND, lpPaint: ?*c.PAINTSTRUCT) callconv(c.WINAPI) c.BOOL;
+    extern "WebView2Loader.dll" fn CreateCoreWebView2EnvironmentWithOptions(browser_folder: ?c.PCWSTR, data_folder: ?c.PCWSTR, options: ?*anyopaque, handler: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler) callconv(c.WINAPI) c.HRESULT;
 };
+const allocator = std.heap.page_allocator;
 
 pub const std_options = struct {
     pub const log_level = .debug;
@@ -96,6 +103,19 @@ fn handleMessage(hWnd: c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPAR
             return 0;
         },
         c.WM_SIZE => resize(),
+        c.WM_PAINT => {
+            if (!webview_initialized.load(.Acquire)) {
+                var rect: c.RECT = undefined;
+                if (c.GetUpdateRect(window, &rect, c.FALSE) == 0) return 0;
+
+                var ps: c.PAINTSTRUCT = undefined;
+                const dc = c.BeginPaint(window, &ps);
+                _ = c.GetClientRect(window, &rect);
+                _ = c.DrawTextA(dc, "Loading...", -1, &rect, 1 | 4 | 32);
+                _ = c.EndPaint(window, &ps);
+                return 0;
+            }
+        },
         else => {},
     }
 
@@ -103,7 +123,18 @@ fn handleMessage(hWnd: c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPAR
 }
 
 fn createWebView() !void {
-    _ = c.CreateCoreWebView2Environment(com.Callback(com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, environmentCompleted));
+    const data_folder = try util.getWritableHomePath(allocator, &.{"webview"});
+    defer allocator.free(data_folder);
+
+    const data_folder_w = try std.unicode.utf8ToUtf16LeWithNull(allocator, data_folder);
+    defer allocator.free(data_folder_w);
+
+    _ = c.CreateCoreWebView2EnvironmentWithOptions(
+        null,
+        data_folder_w.ptr,
+        null,
+        com.Callback(com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, environmentCompleted),
+    );
 
     // Wait for the environment to be created
     while (!webview_initialized.load(.Acquire) and tick() > 0) {}
