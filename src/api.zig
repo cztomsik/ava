@@ -4,12 +4,23 @@ const server = @import("server.zig");
 const db = @import("db.zig");
 const llama = @import("llama.zig");
 const platform = @import("platform.zig");
+const util = @import("util.zig");
 
 pub fn @"GET /models"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
     defer stmt.deinit();
 
-    return ctx.sendJson(stmt.iterator(db.Model));
+    var rows = std.ArrayList(struct { name: []const u8, path: []const u8, size: ?u64 }).init(ctx.arena);
+    var it = stmt.iterator(db.Model);
+    while (try it.next()) |m| {
+        try rows.append(.{
+            .name = try ctx.arena.dupe(u8, m.name),
+            .path = m.path,
+            .size = util.getFileSize(m.path) catch null,
+        });
+    }
+
+    return ctx.sendJson(rows.items);
 }
 
 pub fn @"POST /models"(ctx: *server.Context) !void {
