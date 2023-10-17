@@ -4,6 +4,10 @@ export const catalog = [
     size: 7865956224,
   },
   {
+    url: "https://huggingface.co/TheBloke/MythoMax-L2-13B-GGUF/resolve/main/mythomax-l2-13b.Q4_K_M.gguf",
+    size: 7865956224,
+  },
+  {
     url: "https://huggingface.co/TheBloke/Airoboros-L2-7B-2.2-GGUF/resolve/main/airoboros-l2-7b-2.2.Q4_K_M.gguf",
     size: 4081004256,
   },
