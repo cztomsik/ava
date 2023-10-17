@@ -9,10 +9,11 @@ pub fn @"GET /models"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
     defer stmt.deinit();
 
-    var rows = std.ArrayList(struct { name: []const u8, path: []const u8, size: ?u64 }).init(ctx.arena);
+    var rows = std.ArrayList(struct { id: u32, name: []const u8, path: []const u8, size: ?u64 }).init(ctx.arena);
     var it = stmt.iterator(db.Model);
     while (try it.next()) |m| {
         try rows.append(.{
+            .id = m.id,
             .name = try ctx.arena.dupe(u8, m.name),
             .path = m.path,
             .size = util.getFileSize(m.path) catch null,
