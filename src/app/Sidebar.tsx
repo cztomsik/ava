@@ -6,7 +6,7 @@ export const Sidebar = () => {
   const { style, resizeHandle } = useResize({ width, minWidth: 150, maxWidth: 400 })
 
   return (
-    <aside class="vstack relative p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner" style={style} data-drag-window>
+    <aside class="vstack relative p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner-rtl" style={style} data-drag-window>
       {NEXT ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
 
       <SidebarHeader title="Main" />
