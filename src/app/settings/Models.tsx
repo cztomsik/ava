@@ -52,16 +52,16 @@ export const Models = () => {
     <SettingsPage>
       {progress.value && <ProgressModal {...progress.value} onCancel={cancel} />}
 
-      <Alert>
+      {/* <Alert>
         <strong>This page is under construction.</strong> <br />
         For now, the models are searched in and downloaded to your Downloads folder. <br />
         <br />
         You can download one of the models below, or you can find more models on the Wiki page below. <br />
         <br />
         <Button href="https://www.reddit.com/r/LocalLLaMA/wiki/models/">Open LocallLama Reddit</Button>
-      </Alert>
+      </Alert> */}
 
-      <h2 class="mt-10 mb-2 text-xl">Installed models</h2>
+      <h2 class="mt-4 mb-2 text-xl">Installed models</h2>
       <Table class="max-w-5xl">
         <thead>
           <tr>
