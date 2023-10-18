@@ -12,7 +12,6 @@ const c = struct {
     });
 
     const PAINTSTRUCT = extern struct { hdc: ?c.HDC, fErase: c.BOOL, rcPaint: c.RECT, fRestore: c.BOOL, fIncUpdate: c.BOOL, rgbReserved: [32]u8 };
-    extern "user32" fn SetProcessDpiAwarenessContext(value: c.INT) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn GetClientRect(hWnd: ?c.HWND, lpRect: ?*c.RECT) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn GetUpdateRect(hWnd: ?c.HWND, lpRect: ?*c.RECT, erase: c.BOOL) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn BeginPaint(hWnd: ?c.HWND, lpPaint: ?*c.PAINTSTRUCT) callconv(c.WINAPI) c.HDC;
@@ -37,10 +36,6 @@ pub fn main() !u8 {
 
     std.log.debug("Starting the server", .{});
     if (c.ava_start() > 0) return error.FailedToStartServer;
-
-    if (c.SetProcessDpiAwarenessContext(-4) == 0) {
-        std.log.warn("Failed to set DPI awareness", .{});
-    }
 
     std.log.debug("Creating the window", .{});
     try createWindow();

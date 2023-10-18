@@ -109,7 +109,7 @@ pub const Model = struct {
 
     /// Loads a model from a file.
     pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
-        const path = try allocator.dupeZ(u8, model_path);
+        const path = try translatePath(allocator, model_path);
         var params = c.llama_model_default_params();
 
         // It seems Metal never worked on Intel-based macs.
@@ -168,6 +168,27 @@ pub const Model = struct {
         }
 
         return tokens;
+    }
+
+    fn translatePath(allocator: std.mem.Allocator, path: []const u8) ![:0]const u8 {
+        // llama.cpp is using fopen() and it does not support UTF-8 paths on Windows
+        // so what we need to do is to call GetShortPathName() to get the short path
+        // and it should work
+        if (comptime builtin.os.tag == .windows) {
+            const w = struct {
+                extern "kernel32" fn GetShortPathNameW(lpszLongPath: ?[*:0]const u16, lpszShortPath: ?[*:0]u16, cchBuffer: u32) callconv(std.os.windows.WINAPI) u32;
+            };
+
+            const wpath = try std.unicode.utf8ToUtf16LeWithNull(allocator, path);
+            defer allocator.free(wpath);
+
+            var buf: [260:0]u16 = undefined;
+            _ = w.GetShortPathNameW(wpath, &buf, buf.len);
+
+            return std.unicode.utf16leToUtf8AllocZ(allocator, &buf);
+        }
+
+        return allocator.dupeZ(u8, path);
     }
 };
 

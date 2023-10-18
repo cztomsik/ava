@@ -25,6 +25,7 @@ pub fn create(b: *std.Build) !*std.build.Step {
         .optimize = root.optimize,
         .main_mod_path = .{ .path = "src" },
         .root_source_file = .{ .path = "src/windows/winmain.zig" },
+        .win32_manifest = .{ .path = "src/windows/winmain.manifest" },
     });
 
     if (root.optimize != .Debug) {
