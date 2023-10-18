@@ -21,7 +21,14 @@ pub const SamplingParams = struct {
 };
 
 pub fn init(allocator: std.mem.Allocator) void {
+    const H = struct {
+        fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
+            log.debug("{s}", .{data});
+        }
+    };
+
     c.llama_backend_init(false);
+    c.llama_log_set(H.trampoline, null);
     Pool.init(allocator);
 }
 
