@@ -3,6 +3,7 @@ const std = @import("std");
 const db = @import("db.zig");
 const llama = @import("llama.zig");
 const Server = @import("server.zig").Server;
+const util = @import("util.zig");
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = if (builtin.mode == .Debug) gpa.allocator() else std.heap.c_allocator;
@@ -11,6 +12,7 @@ var server: ?*Server = null;
 
 pub const std_options = struct {
     pub const log_level = .debug;
+    pub const logFn = util.Logger.log;
 };
 
 pub export fn ava_start() c_int {

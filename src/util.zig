@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 
 pub fn getHome(allocator: std.mem.Allocator) ![]const u8 {
@@ -29,3 +30,37 @@ pub fn getFileSize(path: []const u8) !u64 {
 
     return (try file.stat()).size;
 }
+
+pub const Logger = struct {
+    var mutex: std.Thread.Mutex = .{};
+    var file: ?std.fs.File = null;
+
+    fn writer() std.fs.File.Writer {
+        if (file == null) {
+            if (comptime builtin.mode == .Debug) {
+                file = std.io.getStdErr();
+            } else {
+                const path = getWritableHomePath(std.heap.page_allocator, &.{"log.txt"}) catch @panic("Failed to get log path");
+                var f = std.fs.createFileAbsolute(path, .{ .truncate = false }) catch @panic("Failed to open log file");
+                f.seekTo(f.getEndPos() catch 0) catch {};
+                f.writeAll("---\n\n") catch {};
+
+                file = f;
+            }
+        }
+
+        return file.?.writer();
+    }
+
+    pub fn log(
+        comptime level: std.log.Level,
+        comptime scope: @Type(.EnumLiteral),
+        comptime format: []const u8,
+        args: anytype,
+    ) void {
+        mutex.lock();
+        defer mutex.unlock();
+
+        writer().print(level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ format ++ "\n", args) catch return;
+    }
+};
