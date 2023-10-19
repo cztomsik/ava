@@ -2,7 +2,7 @@ import { Button, Modal } from "../_components"
 import { basename, humanSize } from "../_util"
 
 export const DownloadModal = ({ url, size, progress, onCancel }) => {
-  const percent = (progress / size) * 100
+  const percent = (progress.value / size) * 100
 
   return (
     <Modal class="w-[30rem]" title={`Download in Progress`} onClose={onCancel}>
@@ -17,7 +17,7 @@ export const DownloadModal = ({ url, size, progress, onCancel }) => {
 
       <div class="mt-4 flex justify-between">
         <span>
-          {humanSize(progress)} / {humanSize(size)}
+          {humanSize(progress.value)} / {humanSize(size)}
         </span>
         <Button onClick={onCancel}>Cancel</Button>
       </div>

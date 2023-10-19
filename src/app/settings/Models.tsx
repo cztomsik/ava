@@ -1,57 +1,17 @@
-import { useSignal } from "@preact/signals"
-import { Alert, Button, Link, Table } from "../_components"
+import { Alert, Button, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { DownloadModal } from "./DownloadModal"
 import { useApi } from "../_hooks"
-import { jsonLines, basename, humanSize } from "../_util"
+import { basename, humanSize } from "../_util"
 import { catalog } from "./catalog"
+import { abortCurrent, current, downloadModel } from "./download"
 
 export const Models = () => {
-  const { data: models = [], post, del } = useApi("models")
-  const progress = useSignal<any>(null)
-  const ctrl = useSignal<AbortController | null>(null)
-
-  const download = async ({ url, size }) => {
-    progress.value = { url, size, progress: 0 }
-    ctrl.value = new AbortController()
-
-    try {
-      const res = await fetch("/api/download", {
-        method: "POST",
-        body: JSON.stringify(url),
-        signal: ctrl.value.signal,
-      })
-
-      for await (const d of jsonLines(res.body!.getReader())) {
-        if ("error" in d) {
-          throw new Error(`Unexpected error: ${d.error}`)
-        }
-
-        if ("progress" in d) {
-          progress.value = { ...progress.value, ...d }
-        }
-
-        if ("path" in d) {
-          await post({ name: basename(url.slice(0, -5)), path: d.path })
-        }
-      }
-    } catch (e) {
-      if (e.code !== DOMException.ABORT_ERR) {
-        throw e
-      }
-    } finally {
-      progress.value = null
-    }
-  }
-
-  const cancel = () => {
-    progress.value = null
-    ctrl.value?.abort()
-  }
+  const { data: models = [], del } = useApi("models")
 
   return (
     <SettingsPage>
-      {progress.value && <DownloadModal {...progress.value} onCancel={cancel} />}
+      {current.value && <DownloadModal {...current.value} onCancel={abortCurrent} />}
 
       {/* <Alert>
         <strong>This page is under construction.</strong> <br />
@@ -110,7 +70,7 @@ export const Models = () => {
                 {models.find(({ name }) => name === basename(m.url).slice(0, -5)) ? (
                   <strong class="text-green-10">Installed</strong>
                 ) : (
-                  <Button onClick={() => download(m)}>Download</Button>
+                  <Button onClick={() => downloadModel(m)}>Download</Button>
                 )}
               </td>
             </tr>
