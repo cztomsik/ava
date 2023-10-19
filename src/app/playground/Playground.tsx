@@ -42,7 +42,6 @@ export const Playground = () => {
         {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
         <IconButton title="Generate" icon={Play} onClick={handleSubmit} />
         <IconButton title="Save As" icon={Save} onClick={handleSaveAs} />
-        {NEXT && <Button>Create a Tool</Button>}
       </Page.Header>
 
       <Page.Content>

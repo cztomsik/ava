@@ -7,20 +7,12 @@ export const Sidebar = () => {
 
   return (
     <aside class="vstack relative p-3 bg-neutral-2 border(r-1 neutral-6) shadow-inner-rtl" style={style} data-drag-window>
-      {NEXT ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
+      {false ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
 
       <SidebarHeader title="Main" />
       <SidebarLink href="/chat">Chat</SidebarLink>
       {NEXT && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
       <SidebarLink href="/playground">Playground</SidebarLink>
-
-      {NEXT && (
-        <>
-          <SidebarHeader title="Pinned" />
-          <SidebarLink href="/pinned/1">Copywriting</SidebarLink>
-          <SidebarLink href="/pinned/2">Debugging</SidebarLink>
-        </>
-      )}
 
       <SidebarHeader title="Other" class="mt-6" />
       <SidebarLink href="/settings">Settings</SidebarLink>
@@ -44,11 +36,3 @@ const SidebarHeader = ({ title, class: className = "" }) => (
 const SidebarLink = props => (
   <NavLink class="rounded font-semibold py-1.5 px-3 mb-2 text-neutral-12" activeClass="bg-neutral-5" {...props} />
 )
-
-// or donate/sponsor?
-const BuyButton = () =>
-  NEXT && (
-    <a class="me-2" href="http://www.avapls.com/">
-      Buy License
-    </a>
-  )

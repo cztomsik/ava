@@ -2,7 +2,7 @@ import { useSignal } from "@preact/signals"
 import { Alert, Button, Link, Modal, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { useApi } from "../_hooks"
-import { jsonLines } from "../_util"
+import { jsonLines, basename, humanSize } from "../_util"
 import { catalog } from "./catalog"
 
 export const Models = () => {
@@ -148,19 +148,4 @@ const ProgressModal = ({ url, size, progress, onCancel }) => {
       </div>
     </Modal>
   )
-}
-
-const basename = url => url.split("/").pop()
-
-const humanSize = size => {
-  switch (true) {
-    case size / 1024 < 1:
-      return `${size} B`
-    case size / 1024 / 1024 < 1:
-      return `${(size / 1024).toFixed(2)} KB`
-    case size / 1024 / 1024 / 1024 < 1:
-      return `${(size / 1024 / 1024).toFixed(2)} MB`
-    default:
-      return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
-  }
 }
