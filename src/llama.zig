@@ -159,6 +159,7 @@ pub const Model = struct {
             tokens.items.ptr,
             @intCast(max_tokens),
             add_bos,
+            true,
         );
 
         if (n_tokens >= 0) {
