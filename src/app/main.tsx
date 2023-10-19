@@ -9,7 +9,7 @@ render(<App />, document.querySelector("#app")!)
 // clicking on the app content.
 if ("webkit" in window) {
   const delegate = e => {
-    if (e.target.matches("a, button, input, select, textarea")) return
+    if (e.target.matches("a, button, button *, input, select, textarea")) return
     if (!e.target.closest("[data-drag-window]")) return
 
     e.preventDefault()
