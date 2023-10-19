@@ -1,3 +1,5 @@
 export { dedent } from "./dedent"
+export { humanSize } from "./human"
 export { jsonLines } from "./jsonLines"
+export { basename } from "./path"
 export { template, parseVars } from "./template"
