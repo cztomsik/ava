@@ -5,6 +5,7 @@ import { useApi } from "../_hooks"
 import { basename, humanSize } from "../_util"
 import { catalog } from "./catalog"
 import { abortCurrent, current, downloadModel } from "./download"
+import { ModelImporter } from "./ModelImporter"
 
 export const Models = () => {
   const { data: models = [], del } = useApi("models")
@@ -13,14 +14,7 @@ export const Models = () => {
     <SettingsPage>
       {current.value && <DownloadModal {...current.value} onCancel={abortCurrent} />}
 
-      {/* <Alert>
-        <strong>This page is under construction.</strong> <br />
-        For now, the models are searched in and downloaded to your Downloads folder. <br />
-        <br />
-        You can download one of the models below, or you can find more models on the Wiki page below. <br />
-        <br />
-        <Button href="https://www.reddit.com/r/LocalLLaMA/wiki/models/">Open LocallLama Reddit</Button>
-      </Alert> */}
+      <ModelImporter />
 
       <h2 class="mt-4 mb-2 text-xl">Installed models</h2>
       <Table class="max-w-5xl">
@@ -68,7 +62,7 @@ export const Models = () => {
               <td class="text-right">{humanSize(m.size)}</td>
               <td class="text-center">
                 {models.find(({ name }) => name === basename(m.url).slice(0, -5)) ? (
-                  <strong class="text-green-10">Installed</strong>
+                  <strong class="block py-1.5 text-green-10">Installed</strong>
                 ) : (
                   <Button onClick={() => downloadModel(m)}>Download</Button>
                 )}

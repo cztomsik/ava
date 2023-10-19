@@ -5,6 +5,17 @@ const db = @import("db.zig");
 const llama = @import("llama.zig");
 const util = @import("util.zig");
 
+pub fn @"GET /system-info"(ctx: *server.Context) !void {
+    const user_home = try std.process.getEnvVarOwned(ctx.arena, if (builtin.target.os.tag == .windows) "USERPROFILE" else "HOME");
+    const user_downloads = try std.fs.path.join(ctx.arena, &.{ user_home, "Downloads" });
+
+    return ctx.sendJson(.{
+        .os = builtin.os.tag,
+        .user_home = user_home,
+        .user_downloads = user_downloads,
+    });
+}
+
 pub fn @"GET /models"(ctx: *server.Context) !void {
     var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
     defer stmt.deinit();
@@ -15,7 +26,7 @@ pub fn @"GET /models"(ctx: *server.Context) !void {
         try rows.append(.{
             .id = m.id,
             .name = try ctx.arena.dupe(u8, m.name),
-            .path = m.path,
+            .path = try ctx.arena.dupe(u8, m.path),
             .size = util.getFileSize(m.path) catch null,
         });
     }
@@ -101,6 +112,31 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
 
     try std.fs.renameAbsolute(tmp_path, path);
     try ctx.sendJson(.{ .path = path });
+}
+
+pub fn @"POST /find-models"(ctx: *server.Context) !void {
+    var models_found = std.ArrayList(struct { path: []const u8, size: ?u64 }).init(ctx.arena);
+
+    const path = try ctx.readJson([]const u8);
+
+    var dir = try std.fs.openIterableDirAbsolute(path, .{});
+    defer dir.close();
+
+    var it = dir.iterate();
+
+    while (try it.next()) |entry| {
+        const file = try dir.dir.openFile(entry.name, .{ .mode = .read_only });
+        defer file.close();
+
+        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".gguf")) {
+            try models_found.append(.{
+                .path = try std.fs.path.join(ctx.arena, &.{ path, entry.name }),
+                .size = (try file.stat()).size,
+            });
+        }
+    }
+
+    return ctx.sendJson(models_found.items);
 }
 
 pub fn @"POST /generate"(ctx: *server.Context) !void {
