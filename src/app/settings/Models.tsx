@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals"
-import { Alert, Button, Link, Modal, Table } from "../_components"
+import { Alert, Button, Link, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
+import { DownloadModal } from "./DownloadModal"
 import { useApi } from "../_hooks"
 import { jsonLines, basename, humanSize } from "../_util"
 import { catalog } from "./catalog"
@@ -50,7 +51,7 @@ export const Models = () => {
 
   return (
     <SettingsPage>
-      {progress.value && <ProgressModal {...progress.value} onCancel={cancel} />}
+      {progress.value && <DownloadModal {...progress.value} onCancel={cancel} />}
 
       {/* <Alert>
         <strong>This page is under construction.</strong> <br />
@@ -123,29 +124,5 @@ export const Models = () => {
         </strong>
       </p>
     </SettingsPage>
-  )
-}
-
-const ProgressModal = ({ url, size, progress, onCancel }) => {
-  const percent = (progress / size) * 100
-
-  return (
-    <Modal class="w-[30rem]" title={`Download in Progress`} onClose={onCancel}>
-      <div class="flex justify-between">
-        <span>Downloading {basename(url)}</span>
-        <span>{percent.toFixed(2)}%</span>
-      </div>
-
-      <div class="mt-4 h-1 w-full bg-neutral-7">
-        <div class="h-1 bg-blue-9" style={`width: ${percent}%`}></div>
-      </div>
-
-      <div class="mt-4 flex justify-between">
-        <span>
-          {humanSize(progress)} / {humanSize(size)}
-        </span>
-        <Button onClick={onCancel}>Cancel</Button>
-      </div>
-    </Modal>
   )
 }
