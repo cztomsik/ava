@@ -1,14 +1,16 @@
-import { Alert, Button, Table } from "../_components"
+import { Button, Table } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { DownloadModal } from "./DownloadModal"
-import { useApi } from "../_hooks"
-import { basename, humanSize } from "../_util"
-import { catalog } from "./catalog"
-import { abortCurrent, current, downloadModel } from "./download"
+import { useApi, useConfirm } from "../_hooks"
+import { humanSize } from "../_util"
+import { abortCurrent, current } from "./download"
 import { ModelImporter } from "./ModelImporter"
+import { ModelCatalog } from "./ModelCatalog"
 
 export const Models = () => {
   const { data: models = [], del } = useApi("models")
+
+  const handleDelete = useConfirm("Are you sure you want to delete this model?", del)
 
   return (
     <SettingsPage>
@@ -37,34 +39,10 @@ export const Models = () => {
               <td class="capitalize">{m.name}</td>
               <td class="text-right">{humanSize(m.size)}</td>
               <td class="text-center">
-                <Button onClick={() => del(m.id)}>Delete</Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-
-      <h2 class="mt-10 mb-2 text-xl">Catalog</h2>
-      <Table class="max-w-5xl">
-        <thead>
-          <tr>
-            <th>Model</th>
-            <th>Uploader</th>
-            <th class="w-24 text-right">Size</th>
-            <th class="w-32"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {catalog.map(m => (
-            <tr>
-              <td class="capitalize">{basename(m.url.slice(0, -5))}</td>
-              <td>{m.url.split("/")[3]}</td>
-              <td class="text-right">{humanSize(m.size)}</td>
-              <td class="text-center">
-                {models.find(({ name }) => name === basename(m.url).slice(0, -5)) ? (
-                  <strong class="block py-1.5 text-green-10">Installed</strong>
+                {m.imported ? (
+                  <Button onClick={() => del(m.id)}>Remove</Button>
                 ) : (
-                  <Button onClick={() => downloadModel(m)}>Download</Button>
+                  <Button onClick={() => handleDelete(m.id)}>Delete</Button>
                 )}
               </td>
             </tr>
@@ -72,11 +50,7 @@ export const Models = () => {
         </tbody>
       </Table>
 
-      <p class="mt-4">
-        <strong>
-          Different models may have different licenses. Always check the license of each model before using it.
-        </strong>
-      </p>
+      <ModelCatalog />
     </SettingsPage>
   )
 }

@@ -7,6 +7,7 @@ pub const Model = struct {
     id: u32,
     name: []const u8,
     path: []const u8,
+    imported: bool,
 };
 
 pub const Prompt = struct {

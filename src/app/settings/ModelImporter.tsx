@@ -25,7 +25,7 @@ export const ModelImporter = () => {
           path,
           models?.find((m: any) => m.path === path)
         )
-        await post({ name: basename(path), path })
+        await post({ name: basename(path), path, imported: true })
       }
     }
   }
