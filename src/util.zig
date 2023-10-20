@@ -60,6 +60,11 @@ pub const Logger = struct {
         mutex.lock();
         defer mutex.unlock();
 
-        writer().print(level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ format ++ "\n", args) catch return;
+        const t = @mod(std.time.timestamp(), 86_400);
+        const s = @mod(t, 60);
+        const m = @divTrunc(@mod(t, 3_600), 60);
+        const h = @divTrunc(t, 3_600);
+
+        writer().print("{d:.2}:{d:.2}:{d:.2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ format ++ "\n", .{ h, m, s } ++ args) catch return;
     }
 };
