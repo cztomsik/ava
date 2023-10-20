@@ -115,6 +115,7 @@ pub const Model = struct {
         // It seems Metal never worked on Intel-based macs.
         // see https://github.com/ggerganov/llama.cpp/issues/3423#issuecomment-1745511586
         params.n_gpu_layers = if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) 1 else 0;
+        log.debug("n_gpu_layers = {}", .{params.n_gpu_layers});
 
         // Load the model
         var ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
@@ -127,6 +128,8 @@ pub const Model = struct {
 
             // We need to load the model again, with different params
             if (std.mem.indexOf(u8, &desc, "F32") != null) {
+                log.debug("Loading model again, because it contains F32 layers", .{});
+
                 c.llama_free_model(ptr);
                 params.n_gpu_layers = 0;
                 ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
