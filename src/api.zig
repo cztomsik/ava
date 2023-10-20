@@ -125,19 +125,22 @@ pub fn @"POST /find-models"(ctx: *server.Context) !void {
     var dir = try std.fs.openIterableDirAbsolute(path, .{});
     defer dir.close();
 
-    var it = dir.iterate();
+    var walker = try dir.walk(ctx.arena);
+    defer walker.deinit();
 
-    while (try it.next()) |entry| {
-        const file = try dir.dir.openFile(entry.name, .{ .mode = .read_only });
-        defer file.close();
+    while (try walker.next()) |entry| switch (entry.kind) {
+        .file => if (std.mem.endsWith(u8, entry.basename, ".gguf")) {
+            const file = try dir.dir.openFile(entry.path, .{ .mode = .read_only });
+            defer file.close();
 
-        if (entry.kind == .file and std.mem.endsWith(u8, entry.name, ".gguf")) {
             try models_found.append(.{
-                .path = try std.fs.path.join(ctx.arena, &.{ path, entry.name }),
+                .path = try std.fs.path.join(ctx.arena, &.{ path, entry.path }),
                 .size = (try file.stat()).size,
             });
-        }
-    }
+        },
+        .directory => _ = if (walker.stack.items.len > 3) walker.stack.pop(),
+        else => {},
+    };
 
     return ctx.sendJson(models_found.items);
 }

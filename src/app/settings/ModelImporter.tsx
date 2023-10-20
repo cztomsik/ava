@@ -20,11 +20,6 @@ export const ModelImporter = () => {
     // Import only models that are not already there
     for (const { path } of data) {
       if (!models?.find((m: any) => m.path === path)) {
-        console.log(
-          "Importing",
-          path,
-          models?.find((m: any) => m.path === path)
-        )
         await post({ name: basename(path), path, imported: true })
       }
     }
