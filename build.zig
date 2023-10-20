@@ -73,6 +73,10 @@ fn addLlama(b: *std.Build) !void {
 
     // Use Metal on macOS
     if (target.getOsTag() == .macos) {
+        // Looks like this is still needed
+        try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
+        try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
+
         llama.addCSourceFiles(.{ .files = &.{"llama.cpp/ggml-metal.m"}, .flags = cflags.items });
 
         // Copy the *.metal file so that it can be loaded at runtime
