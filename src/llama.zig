@@ -103,13 +103,13 @@ pub const Pool = struct {
 
 pub const Model = struct {
     allocator: std.mem.Allocator,
-    path: [:0]const u8,
+    path: []const u8,
     params: c.llama_model_params,
     ptr: *c.llama_model,
 
     /// Loads a model from a file.
-    pub fn loadFromFile(allocator: std.mem.Allocator, model_path: []const u8) !Model {
-        const path = try translatePath(allocator, model_path);
+    pub fn loadFromFile(allocator: std.mem.Allocator, path: []const u8) !Model {
+        const pathZ = try getShortPath(allocator, path);
         var params = c.llama_model_default_params();
 
         // It seems Metal never worked on Intel-based macs.
@@ -118,7 +118,7 @@ pub const Model = struct {
         log.debug("n_gpu_layers = {}", .{params.n_gpu_layers});
 
         // Load the model
-        var ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
+        var ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
 
         // Disable GPU if the model contains F32 layers and we are on macOS
         if (builtin.os.tag == .macos and params.n_gpu_layers == 1) {
@@ -132,13 +132,13 @@ pub const Model = struct {
 
                 c.llama_free_model(ptr);
                 params.n_gpu_layers = 0;
-                ptr = c.llama_load_model_from_file(path.ptr, params) orelse return error.InvalidModel;
+                ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
             }
         }
 
         return .{
             .allocator = allocator,
-            .path = path,
+            .path = try allocator.dupe(u8, path), // save original, long path
             .params = params,
             .ptr = ptr,
         };
@@ -174,7 +174,7 @@ pub const Model = struct {
         return tokens;
     }
 
-    fn translatePath(allocator: std.mem.Allocator, path: []const u8) ![:0]const u8 {
+    fn getShortPath(allocator: std.mem.Allocator, path: []const u8) ![:0]const u8 {
         // llama.cpp is using fopen() and it does not support UTF-8 paths on Windows
         // so what we need to do is to call GetShortPathName() to get the short path
         // and it should work
