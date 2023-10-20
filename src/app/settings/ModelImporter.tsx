@@ -32,9 +32,10 @@ export const ModelImporter = () => {
 
   return (
     <Alert>
-      <p class="mb-4">If you already have some GGUF files, you can import them here:</p>
+      <strong>Import models</strong>
+      <p class="mb-3">If you already have some GGUF files, you can import them here:</p>
       <div class="hstack gap-2">
-        <input class="flex-1 max-w-[400px]" value={path} onChange={e => (path.value = e.target!.value)} />
+        <input class="flex-1 max-w-[500px]" value={path} onChange={e => (path.value = e.target!.value)} />
         <Button onClick={handleImport}>Import</Button>
       </div>
     </Alert>
