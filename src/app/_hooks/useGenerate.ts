@@ -105,6 +105,6 @@ async function* noModelSelected() {
 
   for (const content of msg.split(/\b/g)) {
     yield { content }
-    await new Promise(resolve => setTimeout(resolve, 30))
+    await new Promise(resolve => setTimeout(resolve, 16))
   }
 }
