@@ -41,9 +41,8 @@ pub const Logger = struct {
                 file = std.io.getStdErr();
             } else {
                 const path = getWritableHomePath(std.heap.page_allocator, &.{"log.txt"}) catch @panic("Failed to get log path");
-                var f = std.fs.createFileAbsolute(path, .{ .truncate = false }) catch @panic("Failed to open log file");
-                f.seekTo(f.getEndPos() catch 0) catch {};
-                f.writeAll("---\n\n") catch {};
+                var f = std.fs.createFileAbsolute(path, .{}) catch @panic("Failed to open log file");
+                f.seekTo(0) catch {};
 
                 file = f;
             }
