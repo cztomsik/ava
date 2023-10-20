@@ -9,7 +9,7 @@ export const ModelSelect = ({ class: className = "" }) => {
   useEffect(() => {
     if (models) {
       if (!selectedModel.value || !models.find(model => model.id === selectedModel.value)) {
-        selectedModel.value = models[0]?.id
+        selectedModel.value = models[0]?.id ?? null
       }
     }
   }, [models])
@@ -26,7 +26,7 @@ export const ModelSelect = ({ class: className = "" }) => {
 
   return (
     <Select class={className} value={selectedModel.value ?? ""} onChange={handleChange}>
-      <option value={models?.length === 0 ? "" + selectedModel.value : ""}>Select a model...</option>
+      <option value={models?.length > 0 ? "" : "" + (selectedModel.value ?? "")}>Select a model...</option>
       <option value="/download">Download a model...</option>
       <hr />
 
