@@ -2,9 +2,11 @@ import { signal } from "@preact/signals"
 import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 import { QuickTools } from "./quick-tools/QuickTools"
+import { CreateTool } from "./quick-tools/CreateTool"
 import { QuickTool } from "./quick-tools/QuickTool"
 import { EditTool } from "./quick-tools/EditTool"
-import { CreateTool } from "./quick-tools/CreateTool"
+import { Workflows } from "./workflow/Workflows"
+import { Workflow } from "./workflow/Workflow"
 import { Models } from "./settings/Models"
 import { License } from "./settings/License"
 import { Api } from "./settings/Api"
@@ -16,6 +18,8 @@ const routes = [
   NEXT && { path: "/quick-tools/new", component: CreateTool },
   NEXT && { path: "/quick-tools/:id", component: QuickTool },
   NEXT && { path: "/quick-tools/:id/edit", component: EditTool },
+  NEXT && { path: "/workflows", component: Workflows },
+  NEXT && { path: "/workflows/:id", component: Workflow },
   { path: "/playground", component: Playground },
   { path: "/settings", component: Models },
   { path: "/settings/license", component: License },

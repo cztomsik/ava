@@ -13,3 +13,23 @@ export const humanSize = size => {
       return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
   }
 }
+
+export const humanDuration = (duration: number) => {
+  const timeUnits = [
+    ["day", 60 * 60 * 24],
+    ["hour", 60 * 60],
+    ["minute", 60],
+  ] as const
+
+  for (const [unit, value] of timeUnits) {
+    if (duration >= value) {
+      return (
+        pluralize(Math.floor(duration / value), unit) + (duration % value === 0 ? "" : " " + humanDuration(duration % value))
+      )
+    }
+  }
+
+  return pluralize(duration, "second")
+}
+
+const pluralize = (count, noun, suffix = "s") => `${count} ${noun}${count !== 1 ? suffix : ""}`

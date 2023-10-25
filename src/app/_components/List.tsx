@@ -61,12 +61,10 @@ const ListItem = ({ class: className = "", children, active = false, ...props })
   )
 }
 
-const ListItemTitle = ({ children }) => (
-  <h4 class="font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{children}</h4>
-)
+const ListItemTitle = ({ children }) => <h4 class="font-semibold truncate">{children}</h4>
 
 const ListItemSubtitle = ({ children }) => (
-  <p class="whitespace-nowrap overflow-hidden text(sm ellipsis neutral-11 group-focus:neutral(6 dark:6))">{children}</p>
+  <p class="truncate text(sm neutral-11 group-focus:neutral(6 dark:6))">{children}</p>
 )
 
 export { List }

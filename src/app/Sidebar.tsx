@@ -12,6 +12,7 @@ export const Sidebar = () => {
       <SidebarHeader title="Main" />
       <SidebarLink href="/chat">Chat</SidebarLink>
       {NEXT && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
+      {NEXT && <SidebarLink href="/workflows">Workflows</SidebarLink>}
       <SidebarLink href="/playground">Playground</SidebarLink>
 
       <SidebarHeader title="Other" class="mt-6" />
@@ -34,5 +35,5 @@ const SidebarHeader = ({ title, class: className = "" }) => (
 )
 
 const SidebarLink = props => (
-  <NavLink class="rounded font-semibold py-1.5 px-3 mb-2 text-neutral-12" activeClass="bg-neutral-5" {...props} />
+  <NavLink class="rounded font-semibold py-1.5 px-3 mb-1.5 text-neutral-12" activeClass="bg-neutral-5" {...props} />
 )

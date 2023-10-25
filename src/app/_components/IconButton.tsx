@@ -1,18 +1,10 @@
 import { Button } from "./Button"
-import { X } from "lucide"
+import { Icon } from "./Icon"
 
 export const IconButton = ({ class: className = "", icon, ...props }) => {
-  const svg = toVdom(icon)
-
   return (
     <Button class={`text-neutral-11 ${className}`} text {...props}>
-      {svg}
+      <Icon icon={icon} />
     </Button>
   )
 }
-
-const toVdom = ([Tag, attrs, children = null as any]) => <Tag {...attrs}>{children?.map(toVdom)}</Tag>
-
-// TODO: fix this hack
-X[1].width = X[1].height = 20
-X[1]["stroke-width"] = 1.75
