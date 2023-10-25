@@ -32,7 +32,7 @@ pub fn create(b: *std.Build) !*std.Build.Step {
 }
 
 fn useMacSDK(b: *std.Build, step: *std.Build.Step.Compile) void {
-    const macos_sdk = std.mem.trimRight(u8, b.exec(&.{ "xcrun", "--show-sdk-path" }), "\n");
+    const macos_sdk = std.mem.trimRight(u8, b.run(&.{ "xcrun", "--show-sdk-path" }), "\n");
 
     std.log.debug("Using macOS SDK {s} for step {s}", .{ macos_sdk, step.name });
 

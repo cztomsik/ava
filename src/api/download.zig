@@ -10,6 +10,7 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
     }
 
     var client: std.http.Client = .{ .allocator = ctx.arena };
+    defer client.deinit();
 
     if (builtin.target.os.tag == .windows) {
         try client.ca_bundle.rescan(ctx.arena);
@@ -18,10 +19,10 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         try client.ca_bundle.parseCert(ctx.arena, @intCast(start), std.time.timestamp());
     }
 
-    var req = try client.request(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
+    var req = try client.open(.GET, try std.Uri.parse(url), ctx.res.request.headers, .{});
     defer req.deinit();
 
-    try req.start(.{});
+    try req.send(.{});
     try req.wait();
 
     if (req.response.status != .ok) {

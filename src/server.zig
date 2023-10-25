@@ -61,7 +61,7 @@ pub const Context = struct {
     pub fn sendChunk(self: *Context, chunk: []const u8) !void {
         if (self.res.state == .waited) {
             self.res.transfer_encoding = .chunked;
-            try self.res.do();
+            try self.res.send();
         }
 
         // Response.write() will always write all of the data when the transfer
@@ -113,7 +113,7 @@ pub const Context = struct {
     /// Sends an empty response.
     pub fn noContent(self: *Context) !void {
         self.res.status = .no_content;
-        try self.res.do();
+        try self.res.send();
     }
 
     /// Adds no-cache headers to the response.
@@ -206,7 +206,7 @@ pub const Server = struct {
         ctx.query = uri.query;
 
         defer {
-            if (ctx.res.state == .waited) ctx.res.do() catch {};
+            if (ctx.res.state == .waited) ctx.res.send() catch {};
             ctx.res.finish() catch {};
             log.debug("{s} {s} {}", .{ @tagName(ctx.res.request.method), ctx.res.request.target, @intFromEnum(ctx.res.status) });
         }
