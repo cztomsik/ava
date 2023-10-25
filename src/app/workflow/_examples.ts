@@ -1,13 +1,35 @@
 export const examples = [
   {
     id: 1,
+    name: "Chuck Norris Jokes",
+    steps: [
+      { http_request: { method: "GET", url: "https://api.chucknorris.io/jokes/random" } },
+      // TODO
+      { generate: {} },
+    ],
+  },
+
+  {
+    id: 2,
+    name: "Local Llama Top Posts",
+    steps: [
+      { http_request: { method: "GET", url: "https://old.reddit.com/r/LocalLLaMA/top/" } },
+      { query_selector: { selector: ".thing" } },
+      // TODO
+      { generate: {} },
+    ],
+  },
+
+  {
+    id: 3,
     name: "Scrape Hacker News Jobs",
     steps: [
       { wait: { duration: 2 } },
-      { http_request: { method: "GET", url: "https://news.ycombinator.com/jobs" } },
-      { query_selector: { selector: "#hnmain > tbody > tr:nth-child(3) > td > table > tbody" } },
-      { extract: { fields: ["title", "company", "url"] } },
-      { for_each: { children: [] } },
+      { http_request: { method: "GET", url: "https://hn.svelte.dev/jobs/1" } },
+      { query_selector: { selector: "main article" } },
+      // { extract: { fields: ["title", "company", "url"] } },
+      // { for_each: { children: [{ extract: { fields: ["title", "company", "url"] } }] } },
+      // { for_each: { children: [] } },
     ],
   },
 ]

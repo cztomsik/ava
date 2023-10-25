@@ -1,32 +1,43 @@
 // TODO: this should be implemented on the server side
 
+import { parseHTML } from "../_util"
 import { examples } from "./_examples"
 
 const handlers = {
   wait: ({ seconds }) => new Promise(resolve => setTimeout(resolve, seconds * 1000)),
 
-  http_request: ({ url, method, body }) => fetch(url, { method, body }).then(res => res.text()),
+  generate: () => alert("TODO: implement generate"),
 
-  query_selector: ({ input, selector }) =>
-    new DOMParser().parseFromString(input, "text/html").querySelector(selector)?.innerHTML,
+  http_request: ({ url }) => fetch("/api/proxy", { method: "POST", body: JSON.stringify(url) }).then(res => res.text()),
+
+  query_selector: ({ selector, limit = 2, clean = true }, input) =>
+    [...parseHTML(input, clean).querySelectorAll(selector)]
+      .slice(0, limit)
+      .map(el => el.innerHTML)
+      .join(""),
 } as const
 
-export const run = async (id: number) => {
+export const runWorkflow = async (id: number) => {
   const workflow = examples.find(w => w.id === id)
 
   if (!workflow) {
     throw new Error(`Workflow with id ${id} not found`)
   }
 
+  let input = null
   for (const step of workflow.steps) {
-    await runStep(step)
+    input = await runStep(step, input)
   }
 }
 
-const runStep = step => {
+const runStep = async (step, input) => {
   for (const k in handlers) {
     if (k in step) {
-      return handlers[k](step[k])
+      console.log("Running step", step, input)
+      const res = await handlers[k](step[k], input)
+      console.log("Step result", res)
+
+      return res
     }
   }
 

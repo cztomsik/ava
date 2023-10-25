@@ -1,14 +1,15 @@
-import { Accessibility, Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties } from "lucide"
+import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2 } from "lucide"
 import { Icon, IconButton, Page } from "../_components"
 import { humanDuration } from "../_util"
 import { examples } from "./_examples"
+import { runWorkflow } from "./runner"
 
 export const Workflow = ({ params }) => {
   const id = +params.id
   const workflow = examples.find(w => w.id === id)
 
   const handleRun = () => {
-    alert("TODO: Run")
+    runWorkflow(id)
   }
 
   return (
@@ -54,6 +55,7 @@ const Step = ({ icon, title, subtitle = "", selected = false, children = null as
 
 const renderers = {
   wait: ({ duration, title = `Wait ${humanDuration(duration)}` }) => ({ title, icon: Clock }),
+  generate: ({ title = "Generate" }) => ({ title, icon: Wand2 }),
   http_request: ({ title = "HTTP Request", url }) => ({ title, icon: Cloud, subtitle: url }),
   query_selector: ({ title = "Query Selector", selector }) => ({ title, icon: MousePointerSquare, subtitle: selector }),
   extract: ({ fields }) => ({ title: "Extract", icon: TableProperties, subtitle: fields.join(", ") }),
