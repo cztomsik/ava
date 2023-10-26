@@ -8,7 +8,7 @@ export const SettingsPage = ({ children }) => {
           <NavLink href="/settings" exact>
             Models
           </NavLink>
-          {/* <NavLink href="/settings/personalization">Personalization</NavLink> */}
+          <NavLink href="/settings/system">System</NavLink>
           <NavLink href="/settings/api">API</NavLink>
           <NavLink href="/settings/license">License</NavLink>
         </Tabs>

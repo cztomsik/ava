@@ -8,8 +8,9 @@ import { EditTool } from "./quick-tools/EditTool"
 import { Workflows } from "./workflow/Workflows"
 import { Workflow } from "./workflow/Workflow"
 import { Models } from "./settings/Models"
-import { License } from "./settings/License"
+import { System } from "./settings/System"
 import { Api } from "./settings/Api"
+import { License } from "./settings/License"
 
 const routes = [
   { path: "/chat", component: Chat },
@@ -22,6 +23,7 @@ const routes = [
   NEXT && { path: "/workflows/:id", component: Workflow },
   { path: "/playground", component: Playground },
   { path: "/settings", component: Models },
+  { path: "/settings/system", component: System },
   { path: "/settings/license", component: License },
   { path: "/settings/api", component: Api },
 ].filter(Boolean) as Array<{ path; component }>
