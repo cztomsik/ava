@@ -8,6 +8,9 @@ pub fn @"GET /system-info"(ctx: *server.Context) !void {
 
     return ctx.sendJson(.{
         .os = builtin.os.tag,
+        .arch = builtin.cpu.arch,
+        .cpu_count = std.Thread.getCpuCount() catch 0,
+        .total_system_memory = std.process.totalSystemMemory() catch 0,
         .user_home = user_home,
         .user_downloads = user_downloads,
     });
