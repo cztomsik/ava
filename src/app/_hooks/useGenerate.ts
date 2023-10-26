@@ -1,90 +1,72 @@
-import { useCallback, useEffect } from "preact/hooks"
+import { useCallback, useEffect, useMemo } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
-import { jsonLines } from "../_util"
+import { callApi } from "./useApi"
 
 export const selectedModel = signal<number | null>(+localStorage.getItem("selectedModel")! || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
 
 interface GenerateOptions {
-  startWith?: string
-  trimFirst?: boolean
-  maxTokens?: number
-  temperature?: number
-  repeat_n_last?: number
-  repeat_penalty?: number
-  add_bos?: boolean
-  stop_eos?: boolean
-  stop?: string[]
+  prompt: string
+  start_with?: string
+  max_tokens?: number
+  trim_first?: boolean
+  sampling?: {
+    temperature?: number
+    repeat_n_last?: number
+    repeat_penalty?: number
+    add_bos?: boolean
+    stop_eos?: boolean
+    stop?: string[]
+  }
 }
 
-export const useGenerate = () => {
-  const ctrl = useSignal<AbortController | null>(null)
-  const data = useSignal<any>(null)
-  const result = useSignal("")
-  const abort = useCallback(() => ctrl.value?.abort(), [])
-  useEffect(() => abort, []) // Cancel any generation when the component is unmounted
+export const generate = async (options: GenerateOptions, result, status, signal?: AbortSignal) => {
+  try {
+    result.value = options.start_with ?? ""
 
-  const generate = useCallback(
-    async (prompt, { startWith = "", trimFirst = true, maxTokens = 2048, ...sampling }: GenerateOptions = {}) => {
-      ctrl.value?.abort()
-      const thisCtrl = (ctrl.value = new AbortController())
-      data.value = { status: "Sending..." }
-      result.value = startWith
+    const res = selectedModel.value
+      ? await callApi("generate", {
+          method: "POST",
+          body: JSON.stringify({ model_id: selectedModel.value, ...options }),
+          stream: true,
+          signal,
+        })
+      : await noModelSelected()
 
-      try {
-        let tokens = 0
-
-        for await (let d of await callApi({ model_id: selectedModel.value, prompt, sampling }, ctrl.value.signal)) {
-          data.value = d
-
-          if ("error" in d) {
-            throw new Error(`Unexpected error: ${d.error}`)
-          }
-
-          if ("content" in d) {
-            // Strip the initial space which is always emitted at the beginning of the stream
-            if (trimFirst) {
-              d.content = d.content.trimStart()
-              trimFirst = false
-            }
-
-            result.value += d.content
-
-            if (++tokens >= maxTokens) {
-              break
-            }
-          }
-        }
-      } catch (e) {
-        if (e.code !== DOMException.ABORT_ERR) {
-          throw e
-        }
-      } finally {
-        data.value = null
-        // stop the http request if it's still running
-        if (!thisCtrl.signal.aborted) thisCtrl.abort()
+    for await (let d of res) {
+      if ("status" in d) {
+        status.value = d.status
       }
 
-      return result.value
-    },
-    []
-  )
+      if ("error" in d) {
+        throw new Error(`Unexpected error: ${d.error}`)
+      }
 
-  return { generate, data, result, abort } as const
-}
-
-async function callApi(params, signal: AbortSignal) {
-  if (!params.model_id) {
-    return noModelSelected()
+      if ("content" in d) {
+        result.value += d.content
+      }
+    }
+  } catch (e) {
+    if (e.code !== DOMException.ABORT_ERR) {
+      throw e
+    }
   }
 
-  const response = await fetch("/api/generate", {
-    method: "POST",
-    body: JSON.stringify(params),
-    signal,
-  })
+  return result.value
+}
 
-  return jsonLines(response.body!.getReader())
+export const useGenerate = (deps = []) => {
+  const ctrl = useSignal<AbortController | null>(null)
+  const abort = useCallback(() => ctrl.value?.abort(), [])
+  useEffect(() => abort, deps) // Cancel when deps change or the component is unmounted
+
+  return useMemo(() => {
+    const result = signal("")
+    const status = signal<any>(null)
+    ctrl.value = new AbortController()
+
+    return { generate: opts => generate(opts, result, status, ctrl.value!.signal), result, status, abort } as const
+  }, deps)
 }
 
 async function* noModelSelected() {

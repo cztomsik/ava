@@ -25,6 +25,9 @@ pub fn @"POST /generate"(ctx: *server.Context, params: GenerateParams) !void {
         _ = try cx.evalOnce();
     }
 
+    // TODO: send enums/unions
+    try ctx.sendJson(.{ .status = "" });
+
     var tokens: u32 = 0;
 
     while (try cx.generate(&params.sampling)) |content| {
