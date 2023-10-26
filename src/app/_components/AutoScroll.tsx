@@ -8,12 +8,11 @@ import { useEffect, useRef } from "preact/hooks"
  */
 export const AutoScroll = () => {
   const enabled = useSignal(true)
-  const inView = useSignal(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const el = ref.current!
-    const root = el.parentElement!
+    const container = el.parentElement!
 
     const handleWheel = e => {
       if (e.deltaY < 0) {
@@ -23,32 +22,25 @@ export const AutoScroll = () => {
 
       setTimeout(() => {
         // Re-enable auto-scrolling if this was triggered by the user
-        if (root.scrollHeight - root.scrollTop - root.clientHeight <= 200) {
+        if (container.scrollHeight - container.scrollTop - container.clientHeight <= 200) {
           enabled.value = true
         }
       }, 100)
     }
 
-    const handleIntersect = ([entry]: IntersectionObserverEntry[]) => {
-      inView.value = entry.isIntersecting
-      scrollUntilInView()
-    }
-
-    // Safari does not have a scrollend event, so we need to use a timeout
-    const scrollUntilInView = () => {
-      if (enabled.value && !inView.value) {
+    const scrollToBottom = () => {
+      if (enabled.value) {
         // Chrome does not like { behavior: "smooth", block: "start" }
         el.scrollIntoView()
-        setTimeout(() => scrollUntilInView, 1_000)
       }
     }
 
-    const observer = new IntersectionObserver(handleIntersect, { root, threshold: [0, 1] })
-    root.addEventListener("wheel", handleWheel)
-    observer.observe(el)
+    const observer = new MutationObserver(scrollToBottom)
+    observer.observe(container, { characterData: true, childList: true, subtree: true })
+    container.addEventListener("wheel", handleWheel)
 
     return () => {
-      root.removeEventListener("wheel", handleWheel)
+      container.removeEventListener("wheel", handleWheel)
       observer.disconnect()
     }
   }, [])
