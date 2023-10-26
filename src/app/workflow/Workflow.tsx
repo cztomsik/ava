@@ -1,5 +1,5 @@
 import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2 } from "lucide"
-import { Icon, IconButton, Page } from "../_components"
+import { AutoScroll, Icon, IconButton, Page } from "../_components"
 import { humanDuration } from "../_util"
 import { examples } from "./_examples"
 import { runLog, runWorkflow } from "./runner"
@@ -33,6 +33,8 @@ export const Workflow = ({ params }) => {
               <div class="text-gray-11 py-3">{l}</div>
             ))}
           </div>
+
+          <AutoScroll />
         </div>
       </div>
     </Page>
