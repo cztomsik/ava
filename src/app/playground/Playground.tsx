@@ -1,23 +1,20 @@
 import { useSignal } from "@preact/signals"
-import { useEffect } from "preact/hooks"
 import { Play, Save, Trash2 } from "lucide"
-import { AutoScroll, Button, Checkbox, Form, GenerationProgress, IconButton, Markdown, Page, Select } from "../_components"
+import { AutoScroll, Checkbox, Form, GenerationProgress, IconButton, Markdown, Page, Select } from "../_components"
 import { useApi, useConfirm, useGenerate, useLocalStorage } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
   const { post: createPrompt, del } = useApi("prompts")
-  const { generate, result, ...progress } = useGenerate()
-  const prompt = useLocalStorage("playground.prompt", "")
-  const showPrompt = useSignal(false)
-  const data = useSignal({})
   const selection = useSignal<any>(null)
 
+  const prompt = useLocalStorage("playground.prompt", "")
   const variableNames = parseVars(prompt.value)
+  const data = useSignal({})
 
-  // Auto-clear result whenever the prompt changes
-  useEffect(() => prompt.subscribe(() => (result.value = "")), [])
+  const { generate, result, ...progress } = useGenerate([prompt.value])
+  const showPrompt = useSignal(false)
 
   const handleSubmit = () => generate({ prompt: template(prompt.value, data.value) })
 

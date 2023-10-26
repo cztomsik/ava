@@ -22,6 +22,7 @@ interface GenerateOptions {
 
 export const generate = async (options: GenerateOptions, result, status, signal?: AbortSignal) => {
   try {
+    status.value = null
     result.value = options.start_with ?? ""
 
     const res = selectedModel.value
@@ -50,12 +51,14 @@ export const generate = async (options: GenerateOptions, result, status, signal?
     if (e.code !== DOMException.ABORT_ERR) {
       throw e
     }
+  } finally {
+    status.value = null
   }
 
   return result.value
 }
 
-export const useGenerate = (deps = []) => {
+export const useGenerate = (deps = [] as any[]) => {
   const ctrl = useSignal<AbortController | null>(null)
   const abort = useCallback(() => ctrl.value?.abort(), [])
   useEffect(() => abort, deps) // Cancel when deps change or the component is unmounted
@@ -63,9 +66,15 @@ export const useGenerate = (deps = []) => {
   return useMemo(() => {
     const result = signal("")
     const status = signal<any>(null)
-    ctrl.value = new AbortController()
 
-    return { generate: opts => generate(opts, result, status, ctrl.value!.signal), result, status, abort } as const
+    const gen = opts => {
+      abort()
+      ctrl.value = new AbortController()
+
+      return generate(opts, result, status, ctrl.value.signal)
+    }
+
+    return { generate: gen, result, status, abort } as const
   }, deps)
 }
 
