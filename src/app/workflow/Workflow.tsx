@@ -2,7 +2,7 @@ import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2
 import { Icon, IconButton, Page } from "../_components"
 import { humanDuration } from "../_util"
 import { examples } from "./_examples"
-import { runWorkflow } from "./runner"
+import { runLog, runWorkflow } from "./runner"
 
 export const Workflow = ({ params }) => {
   const id = +params.id
@@ -18,8 +18,22 @@ export const Workflow = ({ params }) => {
         <IconButton title="Run" icon={Play} onClick={handleRun} />
       </Page.Header>
 
-      <div class="vstack items-center bg-gray-2 py-10 overflow-auto">
-        <Steps steps={workflow?.steps} />
+      <div class="flex overflow-hidden">
+        <div class="flex-1 vstack items-center bg-gray-2 py-10 overflow-auto">
+          <Steps steps={workflow?.steps} />
+        </div>
+
+        <div class="p-4 border(l-2 gray-7) w-[400px] overflow-y-auto">
+          <h3 class="text-gray-10 text-sm uppercase font-medium">Run Log</h3>
+
+          <div class="mt-4 vstack divide-y divide-gray-7 whitespace-pre-wrap">
+            {runLog.value.length === 0 && <div class="text-gray-11 py-3">Progress will be shown here.</div>}
+
+            {runLog.value.map(l => (
+              <div class="text-gray-11 py-3">{l}</div>
+            ))}
+          </div>
+        </div>
       </div>
     </Page>
   )

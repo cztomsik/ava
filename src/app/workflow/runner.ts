@@ -1,29 +1,47 @@
 import { signal } from "@preact/signals"
 import { generate } from "../_hooks/useGenerate"
-import { parseHTML } from "../_util"
+import { humanDuration, parseHTML } from "../_util"
 import { examples } from "./_examples"
+
+export const runLog = signal([] as any[])
+const log = item => (runLog.value = [...runLog.value, item])
 
 // TODO: this should be implemented on the server side
 const handlers = {
-  wait: ({ seconds }) => new Promise(resolve => setTimeout(resolve, seconds * 1000)),
+  wait: ({ seconds }) => {
+    log(`Wait for ${humanDuration(seconds)}`)
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+  },
 
   generate: (opts, input) => {
     const result = signal("")
     const status = signal(null)
+
+    log(`Generate "${input.slice(0, 100)}..."`)
+    log(status)
+    log(result)
     return generate({ ...opts, prompt: input }, result, status)
   },
 
   instruction: ({ instruction, ...opts }, input) => {
+    log(`Instruction "${instruction.slice(0, 100)}"`)
+    log(`Input "${input.slice(0, 100)}"`)
     return handlers.generate(opts, `ASSISTANT: ${input}\n\nUSER: ${instruction}\n\nASSISTANT: Sure!`)
   },
 
-  http_request: ({ url }) => fetch("/api/proxy", { method: "POST", body: JSON.stringify(url) }).then(res => res.text()),
+  http_request: ({ url }) => {
+    log(`HTTP request ${url}`)
+    return fetch("/api/proxy", { method: "POST", body: JSON.stringify(url) }).then(res => res.text())
+  },
 
-  query_selector: ({ selector, limit = 2, clean = true }, input) =>
-    [...parseHTML(input, clean).querySelectorAll(selector)]
+  query_selector: ({ selector, limit = 2, clean = true }, input) => {
+    log(`Query selector ${selector} on ${input.slice(0, 100)}...`)
+
+    return [...parseHTML(input, clean).querySelectorAll(selector)]
       .slice(0, limit)
       .map(el => el.innerHTML)
-      .join(""),
+      .join("")
+  },
 } as const
 
 export const runWorkflow = async (id: number) => {
@@ -32,6 +50,8 @@ export const runWorkflow = async (id: number) => {
   if (!workflow) {
     throw new Error(`Workflow with id ${id} not found`)
   }
+
+  runLog.value = ["Running workflow " + id]
 
   const runStep = async (step, input) => {
     for (const k in handlers) {

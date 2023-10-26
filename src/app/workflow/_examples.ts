@@ -4,6 +4,7 @@ export const examples = [
     name: "Chuck Norris Jokes Explained",
     steps: [
       { http_request: { method: "GET", url: "https://api.chucknorris.io/jokes/random" } },
+      { instruction: { instruction: "Extract the value part." } },
       { instruction: { instruction: "Explain the joke, reason step by step." } },
     ],
   },
