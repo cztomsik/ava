@@ -1,5 +1,6 @@
 import { Signal } from "@preact/signals"
-import { useEffect } from "preact/hooks"
+import { useMemo } from "preact/hooks"
+import { jsonLines } from "../_util"
 
 export const API_URL = `${window.location.protocol}//${window.location.host}/api`
 
@@ -12,14 +13,14 @@ export const getApiContext = <T extends AnyRes>(path: string) => cache.get(path)
 
 export const useApi = <T extends AnyRes>(path: string | null) => {
   const context: Context<T> = path && getApiContext(path)
-  useEffect(() => void context?.refetch(), [path])
+  // useMemo because otherwise there would be a flash of empty state before we start fetching
+  useMemo(() => void context?.refetch(), [path])
 
   return context ?? ({} as Context<T>)
 }
 
 const createContext = <T>(path: string) => {
-  // true will prevent flash of empty state before we start fetching
-  const state = new Signal({ data: undefined as T | undefined, fetching: true })
+  const state = new Signal({ data: undefined as T | undefined, fetching: false })
 
   // Dedupe refetch calls during the same tick
   let p: any = null
@@ -39,6 +40,12 @@ const createContext = <T>(path: string) => {
 
     get fetching() {
       return state.value.fetching
+    },
+
+    async refetchIfStale() {
+      if (state.value.fetching || state.value.data !== undefined) {
+        await context.refetch()
+      }
     },
 
     async refetch() {
@@ -77,4 +84,4 @@ export const callApi = async (path: string, { method = "GET", stream = false, ..
 }
 
 const invalidate = (path: string) =>
-  Promise.all([...cache.entries()].filter(([key]) => path.startsWith(key)).map(([_, cx]) => cx.deref()?.refetch()))
+  Promise.all([...cache.entries()].filter(([key]) => path.startsWith(key)).map(([_, cx]) => cx.deref()?.refetchIfStale()))
