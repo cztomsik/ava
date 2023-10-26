@@ -61,10 +61,14 @@ const createContext = <T>(path: string) => {
   return context
 }
 
-export const callApi = async (path: string, { method = "GET", ...init }: RequestInit = {}) => {
+export const callApi = async (path: string, { method = "GET", stream = false, ...init }: RequestInit & { stream? } = {}) => {
   try {
     const res = await window.fetch(`${API_URL}/${path}`, { method, ...init })
-    return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
+    return stream
+      ? jsonLines(res.body!.getReader())
+      : res.headers.get("Content-Type")?.startsWith("application/json")
+      ? res.json()
+      : res.text()
   } finally {
     if (method !== "GET") {
       await invalidate(method === "DELETE" ? path.split("/").slice(0, -1).join("/") : path)
