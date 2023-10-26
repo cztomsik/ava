@@ -34,7 +34,10 @@ pub const Context = struct {
 
                     var args: std.meta.ArgsTuple(@TypeOf(handler)) = undefined;
                     args[0] = self;
-                    inline for (1..args.len) |i| args[i] = try params.get(i - 1, @TypeOf(args[i]));
+                    inline for (1..args.len) |i| {
+                        const V = @TypeOf(args[i]);
+                        args[i] = try if (comptime @typeInfo(V) == .Struct) self.readJson(V) else params.get(i - 1, V);
+                    }
 
                     return @call(.auto, handler, args);
                 }

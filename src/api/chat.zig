@@ -31,9 +31,7 @@ pub fn @"GET /chat/:id"(ctx: *server.Context, id: u32) !void {
     return ctx.sendJson(try stmt.read(db.Chat));
 }
 
-pub fn @"PUT /chat/:id"(ctx: *server.Context, id: u32) !void {
-    const data = try ctx.readJson(db.Chat);
-
+pub fn @"PUT /chat/:id"(ctx: *server.Context, id: u32, data: db.Chat) !void {
     try db.exec("UPDATE Chat SET name = ?, prompt = ? WHERE id = ?", .{ data.name, data.prompt, id });
     return ctx.noContent();
 }

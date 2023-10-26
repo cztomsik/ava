@@ -35,9 +35,7 @@ pub fn @"POST /models"(ctx: *server.Context) !void {
     try ctx.sendJson(try stmt.read(db.Model));
 }
 
-pub fn @"PUT /models/:id"(ctx: *server.Context, id: u32) !void {
-    const data = try ctx.readJson(db.Model);
-
+pub fn @"PUT /models/:id"(ctx: *server.Context, id: u32, data: db.Model) !void {
     try db.exec("UPDATE Model SET name = ?, path = ? WHERE id = ?", .{ data.name, data.path, id });
     return ctx.noContent();
 }
