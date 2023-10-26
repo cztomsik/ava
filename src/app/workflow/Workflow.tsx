@@ -26,7 +26,7 @@ export const Workflow = ({ params }) => {
         <div class="p-4 border(l-2 gray-7) w-[400px] overflow-y-auto">
           <h3 class="text-gray-10 text-sm uppercase font-medium">Run Log</h3>
 
-          <div class="mt-4 vstack divide-y divide-gray-7 whitespace-pre-wrap">
+          <div class="mt-4 vstack divide-y divide-gray-7 whitespace-pre-wrap break-all">
             {runLog.value.length === 0 && <div class="text-gray-11 py-3">Progress will be shown here.</div>}
 
             {runLog.value.map(l => (
