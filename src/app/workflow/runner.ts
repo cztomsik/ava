@@ -8,9 +8,9 @@ const log = item => (runLog.value = [...runLog.value, item])
 
 // TODO: this should be implemented on the server side
 const handlers = {
-  wait: ({ seconds }) => {
-    log(`Wait for ${humanDuration(seconds)}`)
-    return new Promise(resolve => setTimeout(resolve, seconds * 1000))
+  wait: ({ duration }) => {
+    log(`Wait for ${humanDuration(duration)}`)
+    return new Promise(resolve => setTimeout(resolve, duration * 1000))
   },
 
   generate: (opts, input) => {
