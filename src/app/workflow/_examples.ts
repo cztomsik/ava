@@ -15,8 +15,7 @@ export const examples = [
     steps: [
       { http_request: { method: "GET", url: "https://old.reddit.com/r/LocalLLaMA/top/" } },
       { query_selector: { selector: ".thing" } },
-      // TODO
-      { generate: {} },
+      { instruction: { instruction: "Extract the title and url and respond with valid JSON." } },
     ],
   },
 
@@ -26,10 +25,12 @@ export const examples = [
     steps: [
       { wait: { duration: 2 } },
       { http_request: { method: "GET", url: "https://hn.svelte.dev/jobs/1" } },
-      { query_selector: { selector: "main article" } },
-      // { extract: { fields: ["title", "company", "url"] } },
-      // { for_each: { children: [{ extract: { fields: ["title", "company", "url"] } }] } },
-      // { for_each: { children: [] } },
+      { query_selector: { selector: "main article", limit: 5 } },
+      {
+        instruction: {
+          instruction: "Extract the job title, company and expected skills for the role. Respond with valid JSON.",
+        },
+      },
     ],
   },
 ]
