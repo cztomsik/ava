@@ -35,14 +35,16 @@ pub const Logger = struct {
     var mutex: std.Thread.Mutex = .{};
     var file: ?std.fs.File = null;
 
+    const PATH = &.{"log.txt"};
+
     fn writer() std.fs.File.Writer {
         if (file == null) {
             if (comptime builtin.mode == .Debug) {
                 file = std.io.getStdErr();
             } else {
-                const path = getWritableHomePath(std.heap.page_allocator, &.{"log.txt"}) catch @panic("Failed to get log path");
-                var f = std.fs.createFileAbsolute(path, .{}) catch @panic("Failed to open log file");
-                f.seekTo(0) catch {};
+                const path = getWritableHomePath(std.heap.page_allocator, PATH) catch @panic("Failed to get log path");
+                var f = std.fs.createFileAbsolute(path, .{ .read = true }) catch @panic("Failed to open log file");
+                f.setEndPos(0) catch {};
 
                 file = f;
             }
@@ -66,5 +68,15 @@ pub const Logger = struct {
         const h = @divTrunc(t, 3_600);
 
         writer().print("{:0>2}:{:0>2}:{:0>2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ format ++ "\n", .{ h, m, s } ++ args) catch return;
+    }
+
+    pub fn dump(allocator: std.mem.Allocator) ![]const u8 {
+        const path = try getHomePath(allocator, PATH);
+        defer allocator.free(path);
+
+        var f = try std.fs.openFileAbsolute(path, .{});
+        defer f.close();
+
+        return f.readToEndAlloc(allocator, std.math.maxInt(usize));
     }
 };
