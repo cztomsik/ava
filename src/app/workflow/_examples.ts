@@ -1,11 +1,10 @@
 export const examples = [
   {
     id: 1,
-    name: "Chuck Norris Jokes",
+    name: "Chuck Norris Jokes Explained",
     steps: [
       { http_request: { method: "GET", url: "https://api.chucknorris.io/jokes/random" } },
-      // TODO
-      { generate: {} },
+      { instruction: { instruction: "Explain the joke, reason step by step." } },
     ],
   },
 

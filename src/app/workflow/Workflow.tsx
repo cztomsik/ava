@@ -56,6 +56,7 @@ const Step = ({ icon, title, subtitle = "", selected = false, children = null as
 const renderers = {
   wait: ({ duration, title = `Wait ${humanDuration(duration)}` }) => ({ title, icon: Clock }),
   generate: ({ title = "Generate" }) => ({ title, icon: Wand2 }),
+  instruction: ({ title = "Instruction", instruction }) => ({ title, icon: Wand2, subtitle: instruction }),
   http_request: ({ title = "HTTP Request", url }) => ({ title, icon: Cloud, subtitle: url }),
   query_selector: ({ title = "Query Selector", selector }) => ({ title, icon: MousePointerSquare, subtitle: selector }),
   extract: ({ fields }) => ({ title: "Extract", icon: TableProperties, subtitle: fields.join(", ") }),
