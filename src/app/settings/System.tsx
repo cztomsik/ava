@@ -1,3 +1,4 @@
+import { Value } from "../_components"
 import { useApi } from "../_hooks"
 import { SettingsPage } from "./SettingsPage"
 
@@ -10,25 +11,10 @@ export const System = () => {
       <h3 className="my-3 text-lg">System info</h3>
 
       <div class="grid grid-cols(3 lg:4 xl:5 2xl:6) gap-3 mb-4">
-        <div class="vstack">
-          <label class="text-gray-11">Operating system</label>
-          <span>{system?.os}</span>
-        </div>
-
-        <div class="vstack">
-          <label class="text-gray-11">CPU Arch</label>
-          <span>{system?.arch}</span>
-        </div>
-
-        <div class="vstack">
-          <label class="text-gray-11">CPU count</label>
-          <span>{system?.cpu_count}</span>
-        </div>
-
-        <div class="vstack">
-          <label class="text-gray-11">Memory</label>
-          <span>{system?.total_system_memory}</span>
-        </div>
+        <Value label="Operating system" value={`${system?.os} ${system?.os_version}`} />
+        <Value label="CPU Arch" value={system?.arch} />
+        <Value label="CPU count" value={system?.cpu_count} />
+        <Value label="Memory" value={system?.total_system_memory} />
       </div>
 
       <h3 className="my-3 text-lg">Log</h3>
