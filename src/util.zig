@@ -1,6 +1,26 @@
 const builtin = @import("builtin");
 const std = @import("std");
 
+pub fn getOsVersion(allocator: std.mem.Allocator) ![]const u8 {
+    if (comptime builtin.os.tag == .macos) {
+        var f = try std.fs.openFileAbsolute("/System/Library/CoreServices/.SystemVersionPlatform.plist", .{});
+        defer f.close();
+
+        var contents = try f.readToEndAlloc(allocator, 1024);
+        defer allocator.free(contents);
+
+        if (std.mem.indexOf(u8, contents, "ProductVersion")) |a| {
+            if (std.mem.indexOf(u8, contents[a..], "<string>")) |b| {
+                if (std.mem.indexOf(u8, contents[a + b ..], "</string>")) |c| {
+                    return allocator.dupe(u8, contents[a + b + 8 .. a + b + c]);
+                }
+            }
+        }
+    }
+
+    return "unknown";
+}
+
 pub fn getHome(allocator: std.mem.Allocator) ![]const u8 {
     return std.fs.getAppDataDir(allocator, "AvaPLS");
 }
