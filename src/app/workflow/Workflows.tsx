@@ -16,6 +16,7 @@ export const Workflows = () => {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Kind</th>
             </tr>
           </thead>
           <tbody>
@@ -24,6 +25,8 @@ export const Workflows = () => {
                 <td>
                   <Link href={`/workflows/${w.id}`}>{w.name}</Link>
                 </td>
+                <td>Manual</td>
+                {/* TODO: Automatic when the first action is a trigger/cron */}
               </tr>
             ))}
           </tbody>
