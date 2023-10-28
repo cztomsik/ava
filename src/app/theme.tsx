@@ -23,10 +23,6 @@ const autoprefix = ({ stringify }) => ({
 
 const globals = () => ({
   preflight: css`
-    html {
-      overscroll-behavior: none;
-    }
-
     input:not([type="checkbox"]),
     select,
     textarea {
