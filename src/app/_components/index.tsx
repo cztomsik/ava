@@ -1,4 +1,5 @@
 export { Alert } from "./Alert"
+export { AutoGrowTextarea } from "./AutoGrowTextarea"
 export { AutoScroll } from "./AutoScroll"
 export { Button } from "./Button"
 export { Checkbox } from "./Checkbox"

@@ -1,5 +1,5 @@
 import { useMemo } from "preact/hooks"
-import { Button, Form, IconButton } from "../_components"
+import { AutoGrowTextarea, Button, Form, IconButton } from "../_components"
 import { useConfirm } from "../_hooks"
 import { signal } from "@preact/signals"
 import { useChatContext } from "./useChat"
@@ -14,7 +14,7 @@ export const EditMessage = ({ message: m }) => {
 
   return (
     <Form class="flex-1 vstack gap-2" onSubmit={() => chat.updateMessage({ ...m, content: content.value })}>
-      <textarea value={content} onInput={e => (content.value = e.target!.value)} rows={5} autofocus />
+      <AutoGrowTextarea value={content} onInput={e => (content.value = e.target!.value)} autofocus />
 
       <div class="hstack gap-2">
         <Button submit>Save</Button>

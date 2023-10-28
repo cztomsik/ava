@@ -1,6 +1,6 @@
 import { useMemo } from "preact/hooks"
 import { signal } from "@preact/signals"
-import { Button, Form } from "../_components"
+import { AutoGrowTextarea, Button, Form } from "../_components"
 import { defaultPrompt, useChatContext } from "./useChat"
 
 export const ChatPrompt = () => {
@@ -27,7 +27,7 @@ const EditPrompt = ({ onClose }) => {
 
   return (
     <Form class="m-4" onSubmit={handleSubmit}>
-      <textarea class="w-full h-32" value={prompt} onInput={e => (prompt.value = e.target!.value)} />
+      <AutoGrowTextarea value={prompt} onInput={e => (prompt.value = e.target!.value)} />
 
       <div class="mt-2 hstack gap-2">
         <Button submit>Save</Button>

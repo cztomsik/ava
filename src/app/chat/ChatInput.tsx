@@ -1,7 +1,6 @@
-import { css } from "@twind/core"
 import { useCallback } from "preact/hooks"
 import { SendHorizontal } from "lucide"
-import { Form, IconButton } from "../_components"
+import { AutoGrowTextarea, Form, IconButton } from "../_components"
 import { useChatContext } from "./useChat"
 
 export const ChatInput = () => {
@@ -18,9 +17,9 @@ export const ChatInput = () => {
   )
 
   return (
-    <Form class={`vstack relative p-2 pr-16 ${autoGrow}`} onSubmit={chat.send} data-value={chat.input}>
-      <textarea
-        class="absolute inset-0 py-2 pr-16 bg-transparent"
+    <Form class="relative" onSubmit={chat.send} data-value={chat.input}>
+      <AutoGrowTextarea
+        class="py-2 pr-16 bg-transparent"
         rows={1}
         placeholder="Ask anything..."
         value={chat.input}
@@ -31,16 +30,3 @@ export const ChatInput = () => {
     </Form>
   )
 }
-
-// this will render text value into an invisible pseudo element, which will
-// then be used to calculate the height of the textarea
-const autoGrow = css`
-  &:after {
-    visibility: hidden;
-    content: attr(data-value) " ";
-    white-space: pre-wrap;
-    border: 1px solid transparent;
-    max-height: 30vh;
-    overflow-y: hidden;
-  }
-`
