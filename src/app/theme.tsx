@@ -25,7 +25,8 @@ const globals = () => ({
   preflight: css`
     input:not([type="checkbox"]),
     select,
-    textarea {
+    textarea,
+    .form-control {
       @apply inline-block appearance-none outline-none text(ellipsis neutral-12) px-2 py-[5px] bg-neutral-1 border(1 neutral-8 focus:transparent) focus:ring(& primary-10) rounded-md resize-none;
     }
   `,
