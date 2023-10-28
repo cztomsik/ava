@@ -39,6 +39,9 @@ export const AutoScroll = () => {
     observer.observe(container, { characterData: true, childList: true, subtree: true })
     container.addEventListener("wheel", handleWheel)
 
+    // Initial scroll
+    scrollToBottom()
+
     return () => {
       container.removeEventListener("wheel", handleWheel)
       observer.disconnect()
