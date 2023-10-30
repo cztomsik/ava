@@ -1,7 +1,27 @@
+import { parseHTML } from "../_util"
 import { Table } from "./Table"
 
 interface TableInputProps {
   data: string[][]
+}
+
+/**
+ * Simple spreadsheet-like table input
+ */
+export const TableInput = ({ data }: TableInputProps) => {
+  return (
+    <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} onPaste={handlePaste} style="caret-color: transparent">
+      <tbody>
+        {data.map(row => (
+          <tr>
+            {row.map(cell => (
+              <td contentEditable>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  )
 }
 
 const handleMouseDown = e => {
@@ -45,21 +65,18 @@ const handleKeyDown = e => {
   }
 }
 
-/**
- * Simple spreadsheet-like table input
- */
-export const TableInput = ({ data }: TableInputProps) => {
-  return (
-    <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} style="caret-color: transparent">
-      <tbody onPaste={e => console.log(e.clipboardData?.getData("text/html"))}>
-        {data.map(row => (
-          <tr>
-            {row.map(cell => (
-              <td contentEditable>{cell}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </Table>
-  )
+const handlePaste = e => {
+  e.preventDefault()
+
+  if (e.target instanceof HTMLTableCellElement) {
+    const html = e.clipboardData?.getData("text/html")
+
+    if (html) {
+      const data = [...parseHTML(html).querySelectorAll("tr")].map(tr =>
+        [...tr.querySelectorAll("td")].map(td => td.textContent)
+      )
+
+      console.log("paste", data)
+    }
+  }
 }
