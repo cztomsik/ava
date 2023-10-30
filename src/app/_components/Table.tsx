@@ -15,6 +15,6 @@ const styles = css`
   }
 `
 
-export const Table = ({ children, class: className = "" }) => (
-  <table class={`table-fixed border-collapse ${styles} ${className}`}>{children}</table>
+export const Table = ({ class: className = "", ...props }) => (
+  <table class={`table-fixed border-collapse ${styles} ${className}`} {...props} />
 )
