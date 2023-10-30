@@ -41,7 +41,7 @@ const handleKeyDown = e => {
   // Delete cell content
   const selection = window.getSelection()
   if (selection?.anchorOffset === 0) {
-    td.textContent = ""
+    selection.selectAllChildren(td)
   }
 }
 
@@ -50,7 +50,7 @@ const handleKeyDown = e => {
  */
 export const TableInput = ({ data }: TableInputProps) => {
   return (
-    <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} style="caret-color: black">
+    <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} style="caret-color: transparent">
       <tbody onPaste={e => console.log(e.clipboardData?.getData("text/html"))}>
         {data.map(row => (
           <tr>
