@@ -1,3 +1,4 @@
+export { indexOf, slice } from "./array"
 export { dedent } from "./dedent"
 export { humanSize, humanDuration } from "./human"
 export { jsonLines } from "./jsonLines"

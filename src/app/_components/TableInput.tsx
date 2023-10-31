@@ -1,18 +1,19 @@
-import { parseHTML } from "../_util"
+import { parseHTML, indexOf, slice } from "../_util"
 import { Table } from "./Table"
 
 interface TableInputProps {
-  data: string[][]
+  value: string[][]
+  onChange?: (value: string[][]) => void
 }
 
 /**
  * Simple spreadsheet-like table input
  */
-export const TableInput = ({ data }: TableInputProps) => {
+export const TableInput = ({ value }: TableInputProps) => {
   return (
     <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} onPaste={handlePaste} style="caret-color: transparent">
       <tbody>
-        {data.map(row => (
+        {value.map(row => (
           <tr>
             {row.map(cell => (
               <td contentEditable>{cell}</td>
@@ -34,9 +35,7 @@ const handleMouseDown = e => {
 const handleKeyDown = e => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.key === "Tab" || e.key === "Shift") return
 
-  const td = e.target instanceof HTMLTableCellElement ? e.target : e.target.closest("td")
-  const tr = td.closest("tr")
-  const index = [...tr.children].indexOf(td)
+  const { td, tr, x } = findCell(e)
 
   // Move focus
   if (e.key.startsWith("Arrow") || e.key === "Enter") {
@@ -51,10 +50,10 @@ const handleKeyDown = e => {
       case "ArrowRight":
         return td.nextElementSibling?.focus()
       case "ArrowUp":
-        return tr.previousElementSibling?.querySelectorAll("td")[index]?.focus()
+        return tr.previousElementSibling?.children[x]?.focus()
       case "ArrowDown":
       case "Enter":
-        return tr.nextElementSibling?.querySelectorAll("td")[index]?.focus()
+        return tr.nextElementSibling?.children[x]?.focus()
     }
   }
 
@@ -65,18 +64,33 @@ const handleKeyDown = e => {
   }
 }
 
+const findCell = (e: any) => {
+  const td = e.target.closest("td")
+  const tr = td.closest("tr")
+  const x = indexOf(tr.children, td)
+  const y = indexOf(tr.parentElement.children, tr)
+
+  return { td, tr, x, y }
+}
+
 const handlePaste = e => {
   e.preventDefault()
 
   if (e.target instanceof HTMLTableCellElement) {
     const html = e.clipboardData?.getData("text/html")
+    const text = e.clipboardData?.getData("text/plain")
+    const data = html
+      ? [...parseHTML(html).querySelectorAll("tr")].map(tr => [...tr.querySelectorAll("td")].map(td => td.textContent ?? ""))
+      : text.split("\n").map(r => r.split("\t"))
 
-    if (html) {
-      const data = [...parseHTML(html).querySelectorAll("tr")].map(tr =>
-        [...tr.querySelectorAll("td")].map(td => td.textContent)
-      )
+    if (data) {
+      const { tr, x, y } = findCell(e)
 
-      console.log("paste", data)
+      slice(tr.parentElement.children, y, y + data.length).forEach((tr, i) => {
+        slice(tr.children, x, x + data[i].length).forEach((td, j) => {
+          td.textContent = data[i][j]
+        })
+      })
     }
   }
 }
