@@ -1,44 +1,10 @@
-import { useCallback, useEffect, useRef } from "preact/hooks"
+import { useAriaList } from "../_hooks"
 
 const List = ({ class: className = "", children, ...props }) => {
-  const ref = useRef<HTMLDivElement>(null)
-
-  // TODO: maybe we could do this globally for all aria lists?
-  //       <ListBehavior /> in root component or something like that?
-  useEffect(() => {
-    const el = ref.current!
-
-    const listener = (e: KeyboardEvent) => {
-      const item = el.querySelector("[role=listitem][aria-selected=true]")
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault()
-        item?.nextElementSibling?.focus()
-      }
-
-      if (e.key === "ArrowUp") {
-        e.preventDefault()
-        item?.previousElementSibling?.focus()
-      }
-    }
-
-    el.addEventListener("keydown", listener)
-    return () => el.removeEventListener("keydown", listener)
-  }, [])
-
-  const restoreFocus = useCallback((e: FocusEvent) => {
-    ref.current?.querySelector("[role=listitem][aria-selected=true]")?.focus()
-  }, [])
+  const list = useAriaList()
 
   return (
-    <div
-      ref={ref}
-      role="list"
-      tabIndex={0}
-      class={`vstack outline-none border(r-1 neutral-6) overflow-auto ${className}`}
-      onFocus={restoreFocus}
-      {...props}
-    >
+    <div class={`vstack outline-none border(r-1 neutral-6) overflow-auto ${className}`} {...list} {...props}>
       {children}
     </div>
   )
@@ -47,6 +13,7 @@ const List = ({ class: className = "", children, ...props }) => {
 const ListItem = ({ class: className = "", children, selected = false, ...props }) => {
   if (selected) {
     props["aria-selected"] = true
+    props.tabIndex = 0
   }
 
   return (
