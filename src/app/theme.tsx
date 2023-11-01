@@ -31,7 +31,7 @@ const globals = () => ({
     }
 
     :focus {
-      @apply border-transparent outline(& [3px] primary-7);
+      @apply !border-transparent outline(& [3px] primary-7);
     }
   `,
 })
