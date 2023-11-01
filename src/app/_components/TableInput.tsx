@@ -2,6 +2,7 @@ import { parseHTML, indexOf, slice } from "../_util"
 import { Table } from "./Table"
 
 interface TableInputProps {
+  class?: string
   value: string[][]
   onChange?: (value: string[][]) => void
 }
@@ -9,9 +10,10 @@ interface TableInputProps {
 /**
  * Simple spreadsheet-like table input
  */
-export const TableInput = ({ value }: TableInputProps) => {
+export const TableInput = ({ class: className = "", value }: TableInputProps) => {
   return (
     <Table
+      class={`w-full ${className}`}
       onFocus={restoreFocus}
       onMouseDown={handleMouseDown}
       onKeyDown={handleKeyDown}
