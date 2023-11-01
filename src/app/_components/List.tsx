@@ -44,8 +44,8 @@ const List = ({ class: className = "", children, ...props }) => {
   )
 }
 
-const ListItem = ({ class: className = "", children, active = false, ...props }) => {
-  if (active) {
+const ListItem = ({ class: className = "", children, selected = false, ...props }) => {
+  if (selected) {
     props["aria-selected"] = true
   }
 
