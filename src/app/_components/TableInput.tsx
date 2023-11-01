@@ -11,18 +11,37 @@ interface TableInputProps {
  */
 export const TableInput = ({ value }: TableInputProps) => {
   return (
-    <Table onMouseDown={handleMouseDown} onKeyDown={handleKeyDown} onPaste={handlePaste} style="caret-color: transparent">
+    <Table
+      onFocus={restoreFocus}
+      onMouseDown={handleMouseDown}
+      onKeyDown={handleKeyDown}
+      onPaste={handlePaste}
+      style="caret-color: transparent"
+    >
       <tbody>
         {value.map(row => (
           <tr>
             {row.map(cell => (
-              <td contentEditable>{cell}</td>
+              <td tabIndex={-1} contentEditable onFocus={updateSelection}>
+                {cell}
+              </td>
             ))}
           </tr>
         ))}
       </tbody>
     </Table>
   )
+}
+
+const restoreFocus = e => (e.target.querySelector("[aria-selected=true]") ?? e.target.querySelector("td"))?.focus()
+
+const updateSelection = e => {
+  e.target
+    .closest("table")!
+    .querySelectorAll("[aria-selected=true]")
+    .forEach(td => ((td.tabIndex = -1), td.removeAttribute("aria-selected")))
+  e.target.setAttribute("aria-selected", "true")
+  e.target.tabIndex = 0
 }
 
 const handleMouseDown = e => {
