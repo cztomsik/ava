@@ -37,7 +37,7 @@ export const AutoScroll = () => {
 
     const observer = new MutationObserver(scrollToBottom)
     observer.observe(container, { characterData: true, childList: true, subtree: true })
-    container.addEventListener("wheel", handleWheel)
+    container.addEventListener("wheel", handleWheel, { passive: true })
 
     // Initial scroll
     scrollToBottom()
