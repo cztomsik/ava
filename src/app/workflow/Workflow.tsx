@@ -1,13 +1,17 @@
 import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2 } from "lucide"
+import { useSignal } from "@preact/signals"
 import { Icon, IconButton, Page, TableInput } from "../_components"
 import { humanDuration } from "../_util"
-import { useAriaList } from "../_hooks"
+import { useAriaList, useResize } from "../_hooks"
 import { WorkflowContext, useWorkflow, useWorkflowContext } from "./useWorkflow"
 import { data } from "./_examples"
 
 export const Workflow = ({ params }) => {
   const workflow = useWorkflow(+params.id)
   const list = useAriaList()
+
+  const width = useSignal(350)
+  const { style, resizeHandle } = useResize({ width, minWidth: 250, maxWidth: 700, position: "left" })
 
   return (
     <WorkflowContext.Provider value={workflow}>
@@ -21,7 +25,9 @@ export const Workflow = ({ params }) => {
             <Steps steps={workflow.data.steps} />
           </div>
 
-          <div class="p-4 border(l-2 gray-7) w-[600px] overflow-y-auto">
+          <div class="p-4 relative border(l-2 gray-7) overflow-y-auto" style={style}>
+            {resizeHandle}
+
             <h3 class="text-gray-10 text-sm uppercase font-medium">Run Log</h3>
 
             <TableInput value={data} />
