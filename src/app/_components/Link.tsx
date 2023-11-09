@@ -1,11 +1,11 @@
 import { router } from "../router"
 
 const handleClick = e => {
-  if (e.target.target === "_blank") return
+  if (e.currentTarget.target === "_blank") return
 
   if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0)) {
     e.preventDefault()
-    router.navigate(e.target.href)
+    router.navigate(e.currentTarget.href)
   }
 }
 
