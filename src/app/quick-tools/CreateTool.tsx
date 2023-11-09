@@ -10,8 +10,9 @@ export const CreateTool = () => {
   }
 
   const createTool = async (tool: any) => {
-    examples.push({ id: examples.length, ...tool })
-    router.navigate("/quick-tools")
+    const id = examples.length + 1
+    examples.push({ id, ...tool })
+    router.navigate(`/quick-tools/${id}`)
   }
 
   return (
