@@ -1,10 +1,20 @@
-import { Alert, Link, Page, Table } from "../_components"
+import { Plus } from "lucide"
+import { Alert, IconButton, Link, Page, Table } from "../_components"
 import { examples } from "./_examples"
+import { router } from "../router"
 
 export const Workflows = () => {
+  const createWorkflow = () => {
+    const id = Date.now()
+    examples.push({ id, name: "New Workflow", steps: [] })
+    router.navigate(`/workflows/${id}`)
+  }
+
   return (
     <Page>
-      <Page.Header title="Workflows" />
+      <Page.Header title="Workflows">
+        <IconButton title="Create New" icon={Plus} onClick={createWorkflow} />
+      </Page.Header>
 
       <Page.Content>
         <Alert class="mb-8">
