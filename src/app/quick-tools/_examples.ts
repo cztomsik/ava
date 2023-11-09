@@ -1,6 +1,20 @@
 import { dedent } from "../_util"
 
-export const examples = [] as any
+export const examples = [
+  {
+    id: 1,
+    name: "Fix Grammar",
+    description: "Correct grammar in the provided text",
+    prompt: dedent`
+      USER: Correct grammar in the following text. Do not explain.
+      \`\`\`
+      {{text}}
+      \`\`\`{{#extra}}
+      {{extra}}{{/extra}}
+      ASSISTANT: Sure! Here's the corrected version without any explanation:
+    `,
+  },
+] as any
 
 // TODO: googlefu
 
@@ -16,17 +30,6 @@ export const examples = [] as any
 
 // if (NEXT) {
 //   examples.push(
-//     {
-//       id: -4,
-//       name: "Grammar Police",
-//       description: "Correct grammar in the provided text",
-//       prompt: dedent`
-//         USER: Correct grammar in the following text:
-//         {{text}}
-//         ASSISTANT: The correct grammar in the following text would be:
-//       `,
-//     },
-
 //     {
 //       id: -5,
 //       name: "Rephrase",

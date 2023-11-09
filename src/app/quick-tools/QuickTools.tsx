@@ -14,12 +14,12 @@ export const QuickTools = () => {
           No changes are saved to the database
         </Alert>
 
-        <Table>
+        <Table class="max-w-5xl">
           <thead>
             <tr>
-              <th>Name</th>
+              <th class="w-56">Name</th>
               <th>Description</th>
-              <th></th>
+              <th class="w-24"></th>
             </tr>
           </thead>
           <tbody>
@@ -29,8 +29,8 @@ export const QuickTools = () => {
                   <Link href={`/quick-tools/${t.id}`}>{t.name}</Link>
                 </td>
                 <td>{t.description}</td>
-                <td>
-                  <Link href={`/quick-tools/${t.id}/edit`}>Edit</Link>
+                <td class="text-center">
+                  <Button href={`/quick-tools/${t.id}/edit`}>Edit</Button>
                 </td>
               </tr>
             ))}

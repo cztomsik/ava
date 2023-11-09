@@ -1,39 +1,65 @@
-import { Button, Form, FormGrid, Page } from "../_components"
+import { PenSquare } from "lucide"
+import {
+  AutoScroll,
+  Button,
+  Form,
+  FormGrid,
+  GenerationProgress,
+  IconButton,
+  Markdown,
+  Page,
+  TextArea,
+  TextField,
+} from "../_components"
+import { useGenerate } from "../_hooks"
+import { err, parseVars, template } from "../_util"
+import { router } from "../router"
 import { examples } from "./_examples"
+import { humanize } from "../_util/human"
 
 export const QuickTool = ({ params: { id } }) => {
-  const spec = examples[id]
+  const { generate, result, ...progress } = useGenerate()
 
-  const VAR = /\{\{(\w+)\}\}/g
-  const variableNames = spec.prompt.match(VAR)?.map(v => v.slice(2, -2)) ?? []
+  const tool = examples.find(t => t.id === +id) ?? err("Tool not found")
+  const variableNames = parseVars(tool.prompt)
 
-  const result = ""
+  const handleSubmit = data => generate({ prompt: template(tool.prompt, data) })
 
   return (
     <>
-      {/* TODO: maybe we can re-introduce page header here, just for the sake of quick tools description */}
-      <Page.Header title={spec.name}>
-        <Button href="./edit">Edit</Button>
+      <Page.Header title={tool.name}>
+        <IconButton title="Edit" icon={PenSquare} onClick={() => router.navigate(`/quick-tools/${id}/edit`)} />
       </Page.Header>
 
-      <Page.Content>
-        <Form class="row" onSubmit={() => alert("TODO")}>
-          <FormGrid class="col">
-            {variableNames.map((name, i) => (
-              <>
-                <label class="text-capitalize">{name}</label>
-                {name.endsWith("text") ? <textarea rows={5} /> : <input type="text" />}
-              </>
-            ))}
+      <Page.Content class="!p-0 md:(grid divide-x) grid-cols-2 divide-gray-7">
+        <Form class="bg-gray-2 p-4 pt-8 vstack" onSubmit={handleSubmit}>
+          <p class="py-2 text-neutral-11 text-center">{tool.description}</p>
 
-            <div />
-            <Button submit>Generate</Button>
-          </FormGrid>
+          <div class="mt-4 flex justify-center">
+            <FormGrid class="flex-1 max-w-lg">
+              {variableNames.map(name => (
+                <>
+                  <label>{humanize(name)}</label>
+                  {name.endsWith("text") ? <TextArea name={name} rows={10} /> : <TextField name={name} />}
+                </>
+              ))}
 
-          <div class="col overflow-auto">
-            <pre class="card p-3">{result}</pre>
+              <div />
+              <Button submit>Generate</Button>
+            </FormGrid>
           </div>
         </Form>
+
+        <div class="vstack overflow-hidden">
+          <h3 class="px-4 py-2 uppercase font-medium text(sm neutral-11)">Result</h3>
+          <div class="px-4 py-2 overflow-auto">
+            {result.value === "" && <p class="text-neutral-11">Click generate to see the result</p>}
+
+            <Markdown input={result.value} class="mb-2" />
+            <GenerationProgress {...progress} />
+            <AutoScroll />
+          </div>
+        </div>
       </Page.Content>
     </>
   )
