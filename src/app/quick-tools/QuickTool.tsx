@@ -35,19 +35,17 @@ export const QuickTool = ({ params: { id } }) => {
         <Form class="bg-gray-2 p-4 pt-8 vstack" onSubmit={handleSubmit}>
           <p class="py-2 text-neutral-11 text-center">{tool.description}</p>
 
-          <div class="mt-4 flex justify-center">
-            <FormGrid class="flex-1 max-w-lg">
-              {variableNames.map(name => (
-                <>
-                  <label>{humanize(name)}</label>
-                  {name.endsWith("text") ? <TextArea name={name} rows={10} /> : <TextField name={name} />}
-                </>
-              ))}
+          <FormGrid class="mt-4 w-full max-w-lg self-center">
+            {variableNames.map(name => (
+              <>
+                <label>{humanize(name)}</label>
+                {name.endsWith("text") ? <TextArea name={name} rows={10} /> : <TextField name={name} />}
+              </>
+            ))}
 
-              <div />
-              <Button submit>Generate</Button>
-            </FormGrid>
-          </div>
+            <div />
+            <Button submit>Generate</Button>
+          </FormGrid>
         </Form>
 
         <div class="vstack overflow-hidden">
