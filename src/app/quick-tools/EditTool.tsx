@@ -1,9 +1,10 @@
 import { Page } from "../_components"
 import { ToolForm } from "./ToolForm"
+import { err } from "../_util"
 import { examples } from "./_examples"
 
 export const EditTool = ({ params: { id } }) => {
-  const tool = examples[id]
+  const tool = examples.find(t => t.id === +id) ?? err("Tool not found")
 
   return (
     <Page>
