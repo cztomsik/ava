@@ -45,7 +45,7 @@ const macos = () => ({
             filter: grayscale(0.85) contrast(0.9);
           }
 
-          *,
+          *:not([draggable]),
           a,
           button {
             cursor: default;
