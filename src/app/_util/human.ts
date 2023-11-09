@@ -1,4 +1,13 @@
 /**
+ * Returns a human readable string
+ */
+export const humanize = (str: string) =>
+  str
+    .replace(/_id$/, "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, l => l.toUpperCase())
+
+/**
  * Returns a human readable size
  */
 export const humanSize = size => {
