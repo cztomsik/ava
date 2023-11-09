@@ -7,12 +7,7 @@ const styles = css`
     @apply mt-1.5;
 
     @media (min-width: 768px) {
-      min-width: 6rem;
       text-align: right;
-    }
-
-    @media (min-width: 1024) {
-      min-width: 10rem;
     }
   }
 `
