@@ -2,7 +2,7 @@ import { Button, Form, FormGrid, TextField } from "../_components"
 
 export const ToolForm = ({ tool, onSubmit }) => {
   return (
-    <Form onSubmit={onSubmit}>
+    <Form data={tool} onSubmit={onSubmit}>
       <FormGrid>
         <label>Title</label>
         <TextField name="name" />
