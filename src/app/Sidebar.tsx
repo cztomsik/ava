@@ -11,7 +11,7 @@ export const Sidebar = () => {
 
       <SidebarHeader title="Main" />
       <SidebarLink href="/chat">Chat</SidebarLink>
-      {NEXT && <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>}
+      <SidebarLink href="/quick-tools">Quick Tools</SidebarLink>
       {NEXT && <SidebarLink href="/workflows">Workflows</SidebarLink>}
       <SidebarLink href="/playground">Playground</SidebarLink>
 

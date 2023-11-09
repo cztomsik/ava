@@ -13,7 +13,6 @@ import {
 } from "../_components"
 import { useGenerate } from "../_hooks"
 import { err, parseVars, template } from "../_util"
-import { router } from "../router"
 import { examples } from "./_examples"
 import { humanize } from "../_util/human"
 
@@ -28,7 +27,7 @@ export const QuickTool = ({ params: { id } }) => {
   return (
     <>
       <Page.Header title={tool.name}>
-        <IconButton title="Edit" icon={PenSquare} onClick={() => router.navigate(`/quick-tools/${id}/edit`)} />
+        <IconButton title="Edit" icon={PenSquare} href={`/quick-tools/${id}/edit`} />
       </Page.Header>
 
       <Page.Content class="!p-0 md:(grid divide-x) grid-cols-2 divide-gray-7">

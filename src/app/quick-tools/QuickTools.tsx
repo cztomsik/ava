@@ -1,11 +1,12 @@
-import { Alert, Button, Link, Page, Table } from "../_components"
+import { Plus } from "lucide"
+import { Alert, Button, IconButton, Link, Page, Table } from "../_components"
 import { examples } from "./_examples"
 
 export const QuickTools = () => {
   return (
     <Page>
       <Page.Header title="Quick Tools">
-        <Button href="/quick-tools/new">Create New</Button>
+        <IconButton title="Create New" icon={Plus} href="/quick-tools/new" />
       </Page.Header>
 
       <Page.Content>
