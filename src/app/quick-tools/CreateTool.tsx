@@ -4,10 +4,13 @@ import { ToolForm } from "./ToolForm"
 import { examples } from "./_examples"
 
 export const CreateTool = () => {
-  const tool = {}
+  const tool = {
+    name: "New Tool",
+    prompt: "",
+  }
 
   const createTool = async (tool: any) => {
-    examples.push(tool)
+    examples.push({ id: examples.length, ...tool })
     router.navigate("/quick-tools")
   }
 

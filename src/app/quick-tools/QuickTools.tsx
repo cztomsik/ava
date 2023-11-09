@@ -19,6 +19,7 @@ export const QuickTools = () => {
             <tr>
               <th>Name</th>
               <th>Description</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -27,7 +28,10 @@ export const QuickTools = () => {
                 <td>
                   <Link href={`/quick-tools/${i}`}>{spec.name}</Link>
                 </td>
-                <td>TODO: description</td>
+                <td>{spec.description}</td>
+                <td>
+                  <Link href={`/quick-tools/${i}/edit`}>Edit</Link>
+                </td>
               </tr>
             ))}
           </tbody>
