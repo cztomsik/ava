@@ -110,6 +110,7 @@ pub const Model = struct {
     /// Loads a model from a file.
     pub fn loadFromFile(allocator: std.mem.Allocator, path: []const u8) !Model {
         const pathZ = try getShortPath(allocator, path);
+        defer allocator.free(pathZ);
         var params = c.llama_model_default_params();
 
         // It seems Metal never worked on Intel-based macs.
