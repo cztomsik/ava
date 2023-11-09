@@ -1,5 +1,6 @@
 export { indexOf, slice } from "./array"
 export { dedent } from "./dedent"
+export { err } from "./err"
 export { humanSize, humanDuration } from "./human"
 export { jsonLines } from "./jsonLines"
 export { clamp } from "./math"
