@@ -26,7 +26,9 @@ export const QuickTools = () => {
             {examples.map(t => (
               <tr>
                 <td>
-                  <Link href={`/quick-tools/${t.id}`}>{t.name}</Link>
+                  <Link class="text-blue-11" href={`/quick-tools/${t.id}`}>
+                    {t.name}
+                  </Link>
                 </td>
                 <td>{t.description}</td>
                 <td class="text-center">
