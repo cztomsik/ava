@@ -1,4 +1,4 @@
-import { Button, Form, FormGrid, TextField } from "../_components"
+import { Button, Form, FormGrid, TextArea, TextField } from "../_components"
 
 export const ToolForm = ({ tool, onSubmit }) => {
   return (
@@ -11,7 +11,7 @@ export const ToolForm = ({ tool, onSubmit }) => {
         <TextField name="description" />
 
         <label>Prompt</label>
-        <TextField name="prompt" />
+        <TextArea rows={10} name="prompt" />
 
         <div />
         <div class="hstack gap-2">
