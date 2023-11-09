@@ -2,7 +2,7 @@ import { createContext } from "preact"
 import { useEffect, useRef } from "preact/hooks"
 import { useForm } from "../_hooks"
 
-export const Form = ({ onSubmit, data = {}, ...props }) => {
+export const Form = ({ onSubmit, data = null as any, ...props }) => {
   const form = useForm({ data, onSubmit })
   const ref = useRef<HTMLFormElement>(null)
 

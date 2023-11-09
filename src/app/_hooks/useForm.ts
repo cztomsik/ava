@@ -3,7 +3,7 @@ import { useMemo } from "preact/hooks"
 
 export const useForm = ({ data, onSubmit }) =>
   useMemo(() => {
-    const values = signal(data)
+    const values = signal(data ?? {})
 
     const field = name => ({
       name,
