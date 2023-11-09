@@ -14,6 +14,36 @@ export const examples = [
       ASSISTANT: Sure! Here's the corrected version without any explanation:
     `,
   },
+
+  {
+    id: 2,
+    name: "Summarize",
+    description: "Summarize the provided text",
+    prompt: dedent`
+      USER: Summarize the following text. Do not explain.
+      \`\`\`
+      {{text}}
+      \`\`\`{{#extra}}
+      {{extra}}{{/extra}}
+      ASSISTANT: Sure! Here's the summary without any explanation:
+    `,
+  },
+
+  {
+    id: 3,
+    name: "Vacation Planner",
+    description: "Plan a vacation",
+    prompt: dedent`
+      USER: Help me plan a vacation, please.
+      {{#destination}}I want to go to {{destination}}.{{/destination}}
+      {{#days}}I want to go there for {{days}} days.{{/days}}
+      {{#month}}I want to go there in {{month}}.{{/month}}
+      {{#people}}There will be {{people}} people.{{/people}}
+      {{#budget}}My budget is {{budget}} dollars.{{/budget}}
+      {{#interests}}I am interested in {{interests}}.{{/interests}}
+      ASSISTANT: Sure! Here is the plan for your vacation:
+    `,
+  },
 ] as any
 
 // TODO: googlefu
@@ -38,16 +68,6 @@ export const examples = [
 //         USER: Rephrase the following text so it looks more professional:
 //         {{text}}
 //         ASSISTANT:
-//       `,
-//     },
-
-//     {
-//       id: -6,
-//       name: "Vacation Planner",
-//       description: "Plan a vacation",
-//       prompt: dedent`
-//         USER: I need a help with planning a vacation to {{destination}}. I want to go there for {{days}} days. I want to go there in {{month}}. My budget is {{budget}} dollars. {{extra}}
-//         ASSISTANT: Here is the plan for your vacation:
 //       `,
 //     },
 
@@ -91,17 +111,6 @@ export const examples = [
 //         Rephrase this reply in a more polite way:
 //         {{reply}}
 //         ASSISTANT: I think you could write something like this:
-//       `,
-//     },
-
-//     {
-//       id: -11,
-//       name: "Summarize",
-//       description: "Summarize text",
-//       prompt: dedent`
-//         USER: I need to summarize the following text:
-//         {{text}}
-//         ASSISTANT: Here is the short summary as requested:
 //       `,
 //     },
 
