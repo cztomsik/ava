@@ -11,7 +11,7 @@ export const ToolForm = ({ tool, onSubmit }) => {
         <Field name="description" />
 
         <label>Prompt</label>
-        <Field component="textarea" rows={10} name="prompt" />
+        <Field as="textarea" rows={10} name="prompt" />
 
         <div />
         <div class="hstack gap-2">

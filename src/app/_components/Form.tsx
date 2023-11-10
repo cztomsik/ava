@@ -27,7 +27,7 @@ export const Form = ({ onSubmit, data = null as any, ...props }) => {
   )
 }
 
-export const Field = ({ name, component: Comp = "input" as any, ...props }) => {
+export const Field = ({ name, as: Comp = "input" as any, ...props }) => {
   const form = useContext(FormContext)
 
   return <Comp {...form.field(name)} {...props} />

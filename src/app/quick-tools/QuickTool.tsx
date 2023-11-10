@@ -27,7 +27,7 @@ export const QuickTool = ({ params: { id } }) => {
             {variableNames.map(name => (
               <>
                 <label>{humanize(name)}</label>
-                {name.endsWith("text") ? <Field component="textarea" name={name} rows={10} /> : <Field name={name} />}
+                {name.endsWith("text") ? <Field as="textarea" name={name} rows={10} /> : <Field name={name} />}
               </>
             ))}
 
