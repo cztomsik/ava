@@ -9,7 +9,15 @@ export const Chat = ({ params: { id } }) => {
 
   return (
     <Page>
-      <ChatList class="max-md:hidden" value={id} onSelect={handleSelect} onKeyPress={focusInput} />
+      <Page.List
+        as={ChatList}
+        sizes={[200, 200, 600]}
+        class="max-md:hidden"
+        value={id}
+        onSelect={handleSelect}
+        onKeyPress={focusInput}
+      />
+
       <ChatSession id={id} />
     </Page>
   )
