@@ -1,15 +1,18 @@
 import { computed } from "@preact/signals"
 import { useMemo } from "preact/hooks"
 import { clamp } from "../_util"
+import { useLocalStorage } from "./useLocalStorage"
 
-export const useResize = ({ width, position = "right", minWidth = 0, maxWidth = Number.MAX_SAFE_INTEGER }) =>
-  useMemo(() => {
+export const useResize = ({ sizes: [min, base, max], storageKey = null, rtl = false }) => {
+  const size = useLocalStorage(storageKey, base)
+
+  return useMemo(() => {
     const onMouseDown = (e: MouseEvent) => {
       const { pageX: startX } = e
-      const startWidth = width?.value
+      const startWidth = size.value
 
       const updater = (e: MouseEvent) =>
-        (width.value = clamp(minWidth, maxWidth, startWidth + (position === "right" ? e.pageX - startX : startX - e.pageX)))
+        (size.value = clamp(min, max, startWidth + (rtl ? startX - e.pageX : e.pageX - startX)))
 
       window.addEventListener("mousemove", updater)
       window.addEventListener("mouseup", () => window.removeEventListener("mousemove", updater), { once: true })
@@ -18,9 +21,8 @@ export const useResize = ({ width, position = "right", minWidth = 0, maxWidth = 
       e.stopPropagation()
     }
 
-    const style = computed(() => `width: ${width.value}px`)
+    const style = computed(() => `width: ${size.value}px`)
 
-    const resizeHandle = <div class={`absolute ${position}-0 inset-y-0 w-2 cursor-col-resize`} onMouseDown={onMouseDown} />
-
-    return { style, resizeHandle, onMouseDown }
-  }, [width])
+    return { style, onMouseDown }
+  }, [])
+}

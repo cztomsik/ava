@@ -1,12 +1,14 @@
-import { ModelSelect, NavLink, SearchField } from "./_components"
-import { useLocalStorage, useResize } from "./_hooks"
+import { ModelSelect, NavLink, Resizable, SearchField } from "./_components"
 
 export const Sidebar = () => {
-  const width = useLocalStorage("sidebar.width", 200)
-  const { style, resizeHandle } = useResize({ width, minWidth: 150, maxWidth: 400 })
-
   return (
-    <aside class="vstack relative p-3 bg-neutral-3 border(r-1 neutral-6) shadow-inner-rtl" style={style} data-drag-window>
+    <Resizable
+      as="nav"
+      sizes={[150, 200, 400]}
+      storageKey="sidebar.width"
+      class="grid-area-sidebar vstack relative p-3 bg-neutral-3 border(r-1 neutral-6) shadow-inner-rtl"
+      data-drag-window
+    >
       {false ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
 
       <SidebarHeader title="Main" />
@@ -24,9 +26,7 @@ export const Sidebar = () => {
 
       <SidebarHeader title="Model" class="mt-auto" />
       <ModelSelect />
-
-      {resizeHandle}
-    </aside>
+    </Resizable>
   )
 }
 
