@@ -26,7 +26,7 @@ const styles = css`
   }
 
   & pre {
-    @apply overflow-x-auto text-sm font-mono rounded p-2 my-2 bg-gray-12 text-gray-2 dark:(bg-gray-12 text-gray-2 border(& gray-10);
+    @apply overflow-x-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:(bg-neutral-12 text-neutral-2 border(& neutral-10);
   }
 
   &,

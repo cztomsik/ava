@@ -30,8 +30,8 @@ export const QuickTool = ({ params: { id } }) => {
         <IconButton title="Edit" icon={PenSquare} href={`/quick-tools/${id}/edit`} />
       </Page.Header>
 
-      <Page.Content class="!p-0 md:(grid divide-x) grid-cols-2 divide-gray-7">
-        <Form class="bg-gray-2 p-4 pt-8 vstack" onSubmit={handleSubmit}>
+      <Page.Content class="!p-0 md:(grid divide-x) grid-cols-2 divide-neutral-7">
+        <Form class="bg-neutral-2 p-4 pt-8 vstack" onSubmit={handleSubmit}>
           <p class="py-2 text-neutral-11 text-center">{tool.description}</p>
 
           <FormGrid class="mt-4 w-full max-w-lg self-center">
