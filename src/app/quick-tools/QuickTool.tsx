@@ -1,16 +1,5 @@
 import { PenSquare } from "lucide"
-import {
-  AutoScroll,
-  Button,
-  Form,
-  FormGrid,
-  GenerationProgress,
-  IconButton,
-  Markdown,
-  Page,
-  TextArea,
-  TextField,
-} from "../_components"
+import { AutoScroll, Button, Form, FormGrid, GenerationProgress, IconButton, Markdown, Page, Field } from "../_components"
 import { useGenerate } from "../_hooks"
 import { err, parseVars, template } from "../_util"
 import { examples } from "./_examples"
@@ -38,7 +27,7 @@ export const QuickTool = ({ params: { id } }) => {
             {variableNames.map(name => (
               <>
                 <label>{humanize(name)}</label>
-                {name.endsWith("text") ? <TextArea name={name} rows={10} /> : <TextField name={name} />}
+                {name.endsWith("text") ? <Field component="textarea" name={name} rows={10} /> : <Field name={name} />}
               </>
             ))}
 

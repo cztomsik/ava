@@ -1,6 +1,8 @@
 import { createContext } from "preact"
-import { useEffect, useRef } from "preact/hooks"
+import { useContext, useEffect, useRef } from "preact/hooks"
 import { useForm } from "../_hooks"
+
+const FormContext = createContext<ReturnType<typeof useForm>>(null as any)
 
 export const Form = ({ onSubmit, data = null as any, ...props }) => {
   const form = useForm({ data, onSubmit })
@@ -19,10 +21,14 @@ export const Form = ({ onSubmit, data = null as any, ...props }) => {
   }, [])
 
   return (
-    <Form.Context.Provider value={form}>
+    <FormContext.Provider value={form}>
       <form noValidate ref={ref} onSubmit={form.handleSubmit} {...props} />
-    </Form.Context.Provider>
+    </FormContext.Provider>
   )
 }
 
-Form.Context = createContext<ReturnType<typeof useForm>>(null as any)
+export const Field = ({ name, component: Comp = "input" as any, ...props }) => {
+  const form = useContext(FormContext)
+
+  return <Comp {...form.field(name)} {...props} />
+}
