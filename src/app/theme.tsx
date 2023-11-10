@@ -72,6 +72,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     ["col", { flex: "1", padding: "0 0.5rem" }],
 
     // custom
+    [/^grid-area-(\w+)$/, m => ({ gridArea: m[1] })],
     ["shadow-thin", { boxShadow: "0 1px 1px 0 rgba(0, 0, 0, 0.3)" }],
     ["shadow-inner-rtl", { boxShadow: "inset -4px 0 4px -4px rgba(0,0,0,0.05)" }],
   ],
