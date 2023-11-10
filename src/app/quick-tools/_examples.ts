@@ -57,6 +57,19 @@ export const examples = [
       ASSISTANT: Here is the present I suggest:
     `,
   },
+
+  {
+    id: 5,
+    name: "Quick Dinner",
+    description: "Suggest a recipe for a quick dinner",
+    prompt: dedent`
+      USER: I need a recipe for a quick dinner{{#people}} for {{people}} people{{/people}}.
+      {{#cuisine}}I want {{cuisine}} cuisine.{{/cuisine}}
+      {{#ingredients}}I have {{ingredients}}.{{/ingredients}}
+      {{#extra}}{{extra}}{{/extra}}
+      ASSISTANT: Sure! Here is the recipe:
+    `,
+  },
 ] as any
 
 // TODO: googlefu
