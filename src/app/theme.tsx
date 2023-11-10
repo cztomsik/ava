@@ -10,8 +10,8 @@ const colors = {
   primaryDark: radix.blueDark,
   warning: radix.yellow,
   warningDark: radix.yellowDark,
-  neutral: radix.gray,
-  neutralDark: radix.grayDark,
+  neutral: radix.sand,
+  neutralDark: radix.slateDark,
 }
 
 const autoprefix = ({ stringify }) => ({
