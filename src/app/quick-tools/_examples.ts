@@ -44,6 +44,19 @@ export const examples = [
       ASSISTANT: Sure! Here is the plan for your vacation:
     `,
   },
+
+  {
+    id: 4,
+    name: "Suggest a Present",
+    description: "Suggest a present for someone",
+    prompt: dedent`
+      USER: I need a present for someone. I want to spend {{budget}} dollars.
+      {{#interests}}They are interested in {{interests}}.{{/interests}}
+      {{#age}}They are {{age}} years old.{{/age}}
+      {{#extra}}{{extra}}{{/extra}}
+      ASSISTANT: Here is the present I suggest:
+    `,
+  },
 ] as any
 
 // TODO: googlefu
