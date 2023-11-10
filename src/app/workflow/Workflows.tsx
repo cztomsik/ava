@@ -33,7 +33,9 @@ export const Workflows = () => {
             {examples.map(w => (
               <tr>
                 <td>
-                  <Link href={`/workflows/${w.id}`}>{w.name}</Link>
+                  <Link class="text-blue-11" href={`/workflows/${w.id}`}>
+                    {w.name}
+                  </Link>
                 </td>
                 <td>Manual</td>
                 {/* TODO: Automatic when the first action is a trigger/cron */}
