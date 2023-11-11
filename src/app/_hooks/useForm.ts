@@ -1,9 +1,17 @@
 import { signal } from "@preact/signals"
 import { useMemo } from "preact/hooks"
 
-export const useForm = ({ data, onSubmit }) =>
+export type UseFormProps<T> = {
+  data?: T
+  onSubmit: (data: T) => void
+  onChange?: (data: T) => void
+}
+
+export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) =>
   useMemo(() => {
-    const values = signal(data ?? {})
+    // default is here because useMemo should keep the same reference
+    const values = signal(data ?? ({} as T))
+    if (onChange) values.subscribe(onChange)
 
     const field = name => ({
       name,

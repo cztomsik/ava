@@ -1,11 +1,13 @@
-import { createContext } from "preact"
+import { createContext, JSX } from "preact"
 import { useContext, useEffect, useRef } from "preact/hooks"
-import { useForm } from "../_hooks"
+import { useForm, UseFormProps } from "../_hooks"
+
+export type FormProps<T> = UseFormProps<T> & JSX.HTMLAttributes<HTMLFormElement>
 
 const FormContext = createContext<ReturnType<typeof useForm>>(null as any)
 
-export const Form = ({ onSubmit, data = null as any, ...props }) => {
-  const form = useForm({ data, onSubmit })
+export const Form = <T extends {}>({ onSubmit, onChange, data, ...props }: FormProps<T>) => {
+  const form = useForm({ data, onSubmit, onChange })
   const ref = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
