@@ -6,7 +6,7 @@ export const Sidebar = () => {
       as="nav"
       sizes={[150, 200, 400]}
       storageKey="sidebar.width"
-      class="grid-area-sidebar vstack relative p-3 bg-neutral-3 border(r-1 neutral-6) shadow-inner-rtl"
+      class="[grid-area:sidebar] vstack relative p-3 bg-neutral-3 border(r-1 neutral-6) shadow-inner-rtl"
       data-drag-window
     >
       {false ? <SearchField class="mt-6 mb-4" /> : <div class="mt-6" />}
