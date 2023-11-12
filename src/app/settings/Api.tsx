@@ -1,13 +1,6 @@
-import { css } from "@twind/core"
 import { Alert, Markdown } from "../_components"
 import { API_URL } from "../_hooks"
 import { SettingsPage } from "./SettingsPage"
-
-const styles = css`
-  & pre {
-    @apply overflow-auto;
-  }
-`
 
 export const Api = () => {
   return (
@@ -18,7 +11,6 @@ export const Api = () => {
       </Alert>
 
       <Markdown
-        class={styles}
         input={`
 # API
 
