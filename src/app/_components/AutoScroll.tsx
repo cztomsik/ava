@@ -48,5 +48,5 @@ export const AutoScroll = () => {
     }
   }, [])
 
-  return <div class="min-h-[1px]" ref={ref} />
+  return <div class="!p-0 h-[1px]" ref={ref} />
 }

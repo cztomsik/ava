@@ -10,13 +10,15 @@ export const ChatMessage = ({ message: m }) => {
   const handleEdit = useCallback(() => chat.editMessage(m), [m])
 
   return (
-    <div class={`flex px-4 py-6 odd:(border(y neutral-6) bg-neutral-1)`} onDblClick={handleEdit}>
-      <RoleAvatar class="mr-3" role={m.role} />
-      {chat.editing === m ? (
-        <EditMessage message={m} />
-      ) : (
-        <Markdown class="flex-1 mt-2" input={chat.generating === m ? "" + chat.result : m.content} />
-      )}
+    <div class={`odd:(border(y neutral-6) bg-neutral-2)`} onDblClick={handleEdit}>
+      <div class="flex">
+        <RoleAvatar class="mr-3" role={m.role} />
+        {chat.editing === m ? (
+          <EditMessage message={m} />
+        ) : (
+          <Markdown class="flex-1 self-center" input={chat.generating === m ? "" + chat.result : m.content} />
+        )}
+      </div>
     </div>
   )
 }
