@@ -1,40 +1,26 @@
 import { useMemo } from "preact/hooks"
 import { Table } from "./Table"
-import { css } from "@twind/core"
 
 const headings = ["text-2xl", "text-xl", "text-lg", "text-base", "text-base", "text-base"]
 
-const styles = css`
-  ${headings.map((h, i) => `& h${i + 1} { @apply font-bold ${h}; }`).join("\n")}
-  ${headings.map((_, i) => `& h${i + 1} + br { display: none; }`).join("\n")}
+const styles = ""
+// const styles = css`
+//   ${headings.map((h, i) => `& h${i + 1} { @apply font-bold ${h}; }`).join("\n")}
+//   ${headings.map((_, i) => `& h${i + 1} + br { display: none; }`).join("\n")}
 
-  & strong {
-    @apply font-bold;
-  }
+//   & code {
+//     @apply text-sm font(mono bold);
+//   }
 
-  & em {
-    @apply font-italic;
-  }
+//   & a {
+//     cursor: pointer;
+//     @apply text-blue-11;
+//   }
 
-  & code {
-    @apply text-sm font(mono bold);
-  }
-
-  & a {
-    cursor: pointer;
-    @apply text-blue-11;
-  }
-
-  & pre {
-    @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:(bg-neutral-12 text-neutral-2 border(& neutral-10);
-  }
-
-  &,
-  & * {
-    cursor: text;
-    user-select: auto;
-  }
-`
+//   & pre {
+//     @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:(bg-neutral-12 text-neutral-2 border(& neutral-10);
+//   }
+// `
 
 /**
  * Renders a subset of markdown
@@ -53,7 +39,7 @@ export const Markdown = ({ input, class: className = "", ...props }) => {
   //       if that happens again, we might need to use a key here
   //       (and do some incremental parsing, which would be nice anyway)
   return (
-    <div class={`overflow-x-hidden ${styles} ${className}`} {...props}>
+    <div class={`overflow-x-hidden cursor-text select-auto ${styles} ${className}`} {...props}>
       {nodes}
     </div>
   )
