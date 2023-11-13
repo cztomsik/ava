@@ -28,7 +28,7 @@ export const shorthands: Array<Shorthand> = [
   [/^vstack$/, "flex flex-col"],
   [/^row$/, "flex(& row) -mx-2"], // TODO: minus
   [/^col$/, "flex-1 px-2"],
-  [/^form-control$/, "inline-flex text(ellipsis neutral-12) px-2 h-8 bg-neutral-1 border(1 neutral-8) rounded-md"],
+  [/^form-control$/, "inline-flex px-2 h-8 bg-neutral-1 border(1 neutral-8) rounded-md"],
   [/^truncate$/, ([_]) => `overflow-hidden text-ellipsis whitespace-nowrap`],
   [/^border$/, "border-1"],
 ]
@@ -61,6 +61,7 @@ export const rules: Rule[] = [
   [/^list-(.+)$/, "list-style-type"],
   [/^whitespace-(.+)$/, "white-space"],
   [/^(static|relative|absolute|fixed|sticky)$/, "position"],
+  [/^((in)?visible|collapse)$/, ([_, h, v]) => `visibility: ${h ? "hidden" : v}`],
   // prettier-ignore
   [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
   // prettier-ignore
@@ -137,7 +138,8 @@ p("body", "margin: 0")
 p("a", "color: inherit; text-decoration: inherit")
 p("textarea", "resize: none")
 p("h1,h2,h3,h4,h5,h6,p,pre", "margin: 0")
-p("input,textarea,select", "font: inherit; line-height: 100%; color: inherit")
+p("input,textarea,select", "font: inherit; color: inherit")
+p("input,select", "line-height: 100%")
 p("button", "appearance: button; background: none")
 p("select", "appearance: none")
 
