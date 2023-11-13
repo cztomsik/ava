@@ -10,7 +10,8 @@ export const ChatPrompt = () => {
   return editing.value ? (
     <EditPrompt onClose={() => (editing.value = false)} />
   ) : (
-    <div onDblClick={() => (editing.value = true)}>
+    <div class="vstack gap-2" onDblClick={() => (editing.value = true)}>
+      <label class="text-sm uppercase font-medium">System Prompt</label>
       <div class="text-neutral-9">{chat.data?.prompt ?? defaultPrompt}</div>
     </div>
   )
