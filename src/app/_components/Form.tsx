@@ -29,8 +29,8 @@ export const Form = <T extends {}>({ onSubmit, onChange, data, ...props }: FormP
   )
 }
 
-export const Field = ({ name, as: Comp = "input" as any, ...props }) => {
+export const Field = ({ name, as: Comp = "input" as any, class: className = "", ...props }) => {
   const form = useContext(FormContext)
 
-  return <Comp {...form.field(name)} {...props} />
+  return <Comp class={`form-control ${className}`} {...form.field(name)} {...props} />
 }

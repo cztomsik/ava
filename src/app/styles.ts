@@ -24,12 +24,13 @@ export const theme = {
 
 type Shorthand = [RegExp, string | ((match) => string)]
 export const shorthands: Array<Shorthand> = [
-  [/^border$/, "border-1"],
   [/^hstack$/, "flex flex-row items-center"],
   [/^vstack$/, "flex flex-col"],
   [/^row$/, "flex(& row) -mx-2"], // TODO: minus
   [/^col$/, "flex-1 px-2"],
-  [/^truncate$/, ([_]) => `overflow-hidden text-overflow-ellipsis whitespace-nowrap`],
+  [/^form-control$/, "inline-flex text(ellipsis neutral-12) px-2 h-8 bg-neutral-1 border(1 neutral-8) rounded-md"],
+  [/^truncate$/, ([_]) => `overflow-hidden text-ellipsis whitespace-nowrap`],
+  [/^border$/, "border-1"],
 ]
 
 type Rule = [RegExp, string | ((match) => string), string?]
@@ -136,7 +137,9 @@ p("body", "margin: 0")
 p("a", "color: inherit; text-decoration: inherit")
 p("textarea", "resize: none")
 p("h1,h2,h3,h4,h5,h6,p,pre", "margin: 0")
+p("input,textarea,select", "font: inherit; line-height: 100%; color: inherit")
 p("button", "appearance: button; background: none")
+p("select", "appearance: none")
 
 // Preact integration
 const old = options.diffed

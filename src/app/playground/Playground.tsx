@@ -53,7 +53,7 @@ export const Playground = () => {
             />
 
             <textarea
-              class="flex-1"
+              class="form-control flex-1"
               placeholder="Type your prompt here..."
               rows={16}
               value={prompt}
@@ -70,7 +70,7 @@ export const Playground = () => {
                 <div class="p-[5px] px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
                 <input
                   type="text"
-                  class="w-full !rounded-none !rounded-r-md"
+                  class="form-control w-full !rounded-none !rounded-r-md"
                   value={data.value[name]}
                   onInput={e => (data.value = { ...data.value, [name]: e.target!.value })}
                 />
