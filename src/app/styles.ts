@@ -15,7 +15,7 @@ export const colors = {
 }
 
 export const theme = {
-  color: (k, v) => colors[k]?.[v] ?? k,
+  color: (k, v) => colors[k]?.[--v] ?? k,
   space: (v, p = "w") => ({ auto: "auto", px: "1px", full: "100%", screen: `100v${p}` }[v] ?? `${v * 0.25}rem`),
   fontSize: v => ({ xs: "12px", sm: "13px", base: "14px", lg: "16px", xl: "18px", "2xl": "20px" }[v]),
   fontWeight: v => ({ medium: 500, semibold: 600 }[v] ?? v),
@@ -41,6 +41,7 @@ export const rules: Rule[] = [
   [/^bg-(\w+)-(\d+)$/, "background-color", "color"],
   [/^rounded(?:-(.+))?$/, "border-radius", "rounded"],
   [/^(border|outline)-(\w+)-(\d+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
+  [/^(border)(?:-(\w))?-(\d+)$/, ([_, p, e, d]) => repeat(`${p}-width`, edges(e), `${d}px`)],
   [/^[pm](\w)?-([\w\.]+)$/, ([m, e, v]) => repeat(m[0] === "p" ? "padding" : "margin", edges(e), theme.space(v))],
   [/^[wh]-([\w\.]+)$/, ([m, v]) => `${m[0] === "w" ? "width" : "height"}: ${theme.space(v, m[0])}`],
   [/^(inline|block|inline-block|flex|grid|table|table-.*)$/, "display"],
