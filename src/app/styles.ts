@@ -24,6 +24,7 @@ export const theme = {
 
 type Shorthand = [RegExp, string | ((match) => string)]
 export const shorthands: Array<Shorthand> = [
+  [/^border$/, "border-1"],
   [/^hstack$/, "flex flex-row items-center"],
   [/^vstack$/, "flex flex-col"],
   [/^row$/, "flex(& row) -mx-2"], // TODO: minus
@@ -33,18 +34,22 @@ export const shorthands: Array<Shorthand> = [
 
 type Rule = [RegExp, string | ((match) => string), string?]
 export const rules: Rule[] = [
+  [/^text-(left|center|right)$/, "text-align"],
+  [/^text-(ellipsis|clip)$/, "text-overflow"],
   [/^text-(\w+)-(\d+)$/, "color", "color"],
-  [/^text-(\w{2}|\dxl)$/, "font-size", "fontSize"],
+  [/^text-(\w{2}|\dxl|base)$/, "font-size", "fontSize"],
   [/^font-(.+)$/, "font-weight", "fontWeight"],
   [/^(uppercase|lowercase|capitalize|normal-case)$/, "text-transform"],
   [/^select-(.+)$/, "user-select"],
   [/^bg-(\w+)-(\d+)$/, "background-color", "color"],
   [/^rounded(?:-(.+))?$/, "border-radius", "rounded"],
+  [/^(border)(?:-(\w))?-(\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${d}px`, "-width")],
   [/^(border|outline)-(\w+)-(\d+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
-  [/^(border)(?:-(\w))?-(\d+)$/, ([_, p, e, d]) => repeat(`${p}-width`, edges(e), `${d}px`)],
+  [/^border-(transparent)$/, "border-color"],
+  [/^border-(collapse|separate)$/, "border-collapse"],
   [/^[pm](\w)?-([\w\.]+)$/, ([m, e, v]) => repeat(m[0] === "p" ? "padding" : "margin", edges(e), theme.space(v))],
   [/^[wh]-([\w\.]+)$/, ([m, v]) => `${m[0] === "w" ? "width" : "height"}: ${theme.space(v, m[0])}`],
-  [/^(inline|block|inline-block|flex|grid|table|table-.*)$/, "display"],
+  [/^(inline|block|flex|grid|table|(inline|table)-.*)$/, "display"],
   [/^grid-(cols|rows)-(\d+)$/, ([_, p, d]) => `grid-template-${p.replace(/col/, "column")}: repeat(${d},minmax(0,1fr))`],
   [/^flex-((row|col)(-reverse)?)$/, ([_, v]) => `flex-direction: ${v.replace(/col/, "column")}`],
   [/^flex-(.+)$/, "flex"],
@@ -52,16 +57,18 @@ export const rules: Rule[] = [
   [/^items-(.+)$/, "align-items"],
   [/^justify-(.+)$/, "justify-content"],
   [/^self-(.+)$/, "align-self"],
+  [/^list-(.+)$/, "list-style-type"],
   [/^whitespace-(.+)$/, "white-space"],
   [/^(static|relative|absolute|fixed|sticky)$/, "position"],
-  [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "inset")],
   // prettier-ignore
-  [/^(cursor|fill|opacity|(?:overflow(?:-[xy])?)|pointer-events|text-overflow|transition)-(.+)$/, ([_, p, v]) => `${p}: ${v}`],
+  [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
+  // prettier-ignore
+  [/^(cursor|fill|opacity|(?:overflow(?:-[xy])?)|pointer-events|transition)-(.+)$/, ([_, p, v]) => `${p}: ${v}`],
   [/^\[([\w-]+):(.+)]$/, ([_, p, v]) => `${p}: ${v}`],
 ]
 
-export const repeat = (prefix, parts, value, shorthand = prefix) =>
-  parts?.map(p => `${prefix}${prefix && "-"}${p}: ${value}`).join(";\n") ?? `${shorthand}: ${value}\n`
+export const repeat = (prefix, parts, value, suffix = "", shorthand = prefix + suffix) =>
+  parts?.map(p => `${prefix}${prefix && "-"}${p}${suffix}: ${value}`).join(";\n") ?? `${shorthand}: ${value}\n`
 
 export const edges = ch =>
   ({ t: ["top"], r: ["right"], b: ["bottom"], l: ["left"], x: ["left", "right"], y: ["top", "bottom"] }[ch])
@@ -119,7 +126,17 @@ export const expand = s => {
   return s
 }
 
-export const escape = s => s.replace(/[:\.\[\]]/g, "\\$&")
+export const escape = s => s.replace(/[:\.\[\]\*]/g, "\\$&")
+
+// Preflight
+const p = (sel, body) => layers[0].insertRule(`${sel} { ${body} }`)
+p("*,::before,::after", "box-sizing: border-box; border: 0 currentColor solid")
+p("html", "line-height: 1.5; -webkit-text-size-adjust: 100%")
+p("body", "margin: 0")
+p("a", "color: inherit; text-decoration: inherit")
+p("textarea", "resize: none")
+p("h1,h2,h3,h4,h5,h6,p,pre", "margin: 0")
+p("button", "appearance: button; background: none")
 
 // Preact integration
 const old = options.diffed
