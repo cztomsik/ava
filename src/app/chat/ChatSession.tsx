@@ -56,7 +56,9 @@ export const ChatSession = ({ id }) => {
       </Page.Content>
 
       <Page.Footer class="pt-2">
-        <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
+        <div class="w-full max-w-3xl mx-auto">
+          <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
+        </div>
       </Page.Footer>
     </ChatContext.Provider>
   )
