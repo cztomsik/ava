@@ -142,6 +142,7 @@ p("input,textarea,select", "font: inherit; color: inherit")
 p("input,select", "line-height: 100%")
 p("button", "appearance: button; background: none")
 p("select", "appearance: none")
+p("p", "margin: 0 0 1rem 0")
 
 // Preact integration
 const old = options.diffed
