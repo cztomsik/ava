@@ -1,7 +1,5 @@
-// Smallest? Tailwind-like CSS-in-JS library for Preact
+// Smallest? Tailwind-like CSS-in-JS library with bindings for Preact
 // Copyright (C) 2023 Kamil Tomšík - All Rights Reserved
-
-import { options } from "preact"
 
 // prettier-ignore
 export const colors = {
@@ -145,8 +143,7 @@ p("select", "appearance: none")
 p("p", "margin: 0 0 1rem 0")
 
 // Preact integration
-const old = options.diffed
-options.diffed = (vnode: any) => {
+export const preactHook = old => vnode => {
   if (old) old(vnode)
   if (DEV && vnode.props?.className) console.error("className is not supported, use class", vnode.type, vnode.props)
   if (typeof vnode.type === "string" && vnode.props?.class) vnode.__e.className = compile(vnode.props.class)

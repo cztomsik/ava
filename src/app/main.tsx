@@ -1,8 +1,9 @@
 import "./custom.d.ts"
-import "./styles"
-import { render } from "preact"
+import { render, options } from "preact"
 import { App } from "./App"
+import { preactHook } from "./styles"
 
+options.diffed = preactHook(options.diffed)
 render(<App />, document.querySelector("#app")!)
 
 // We only need this for macos because it's common to drag the window by
