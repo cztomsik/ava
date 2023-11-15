@@ -10,7 +10,7 @@ export const ChatMessage = ({ message: m }) => {
   const handleEdit = useCallback(() => chat.editMessage(m), [m])
 
   return (
-    <div class={`odd:(border(y neutral-6) bg-neutral-2)`} onDblClick={handleEdit}>
+    <div class={`odd:(border(y-1 neutral-6) bg-neutral-2)`} onDblClick={handleEdit}>
       <div class="flex">
         <RoleAvatar class="mr-3" role={m.role} />
         {chat.editing === m ? (

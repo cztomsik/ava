@@ -20,18 +20,30 @@ export const theme = {
   rounded: (v = "base") => ({ none: "0", sm: "2px", base: "4px", md: "6px", lg: "8px", full: "999px" }[v]),
 }
 
-type Shorthand = [RegExp, string | ((match) => string)]
-export const shorthands: Array<Shorthand> = [
-  [/^hstack$/, "flex flex-row items-center"],
-  [/^vstack$/, "flex flex-col"],
-  [/^row$/, "flex(& row) -mx-2"], // TODO: minus
-  [/^col$/, "flex-1 px-2"],
-  [/^form-control$/, "inline-flex px-2 h-8 bg-neutral-1 border(1 neutral-8) rounded-md"],
-  [/^truncate$/, ([_]) => `overflow-hidden text-ellipsis whitespace-nowrap`],
-  [/^border$/, "border-1"],
-]
+export const shorthands: Record<string, string> = {
+  hstack: "flex flex-row items-center",
+  vstack: "flex flex-col",
+  // prettier-ignore
+  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8 focus:transparent) rounded-md focus:outline(3 primary-7)",
+  truncate: "overflow-hidden text-ellipsis whitespace-nowrap",
+  border: "border-1",
 
-type Rule = [RegExp, string | ((match) => string), string?]
+  // TODO: later
+  "text-white": "[color:white]",
+  hidden: "[display:none]",
+  "outline-none": "[outline:none]",
+  "bg-transparent": "[background:transparent]",
+  "bg-black": "[background:black]",
+  "max-h-full": "[max-height:100%]",
+  "max-w-full": "[max-width:100%]",
+  "!rounded-none": "[border-radius:0]",
+  "!absolute": "[position:absolute]",
+  "!inset-0": "[inset:0]",
+  "!p-0": "p-0",
+  "!py-0": "py-0",
+}
+
+type Rule = [RegExp, string] | [RegExp, (match) => string] | [RegExp, string | ((match) => string), string?]
 export const rules: Rule[] = [
   [/^text-(left|center|right)$/, "text-align"],
   [/^text-(ellipsis|clip)$/, "text-overflow"],
@@ -64,8 +76,15 @@ export const rules: Rule[] = [
   [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
   // prettier-ignore
   [/^(cursor|fill|opacity|(?:overflow(?:-[xy])?)|pointer-events|transition)-(.+)$/, ([_, p, v]) => `${p}: ${v}`],
-  [/^\[([\w-]+):(.+)]$/, ([_, p, v]) => `${p}: ${v}`],
+  [/^\[([\w-]+):(.+)]$/, ([_, p, v]) => `${p}: ${v.replace(/_/g, " ").replace(/\\/g)}`],
 ]
+
+export const variants = {
+  hover: ":hover",
+  focus: ":focus",
+  "group-focus": ".group:focus ",
+  "aria-selected": '[aria-selected="true"]',
+}
 
 export const repeat = (prefix, parts, value, suffix = "", shorthand = prefix + suffix) =>
   parts?.map(p => `${prefix}${prefix && "-"}${p}${suffix}: ${value}`).join(";\n") ?? `${shorthand}: ${value}\n`
@@ -75,58 +94,74 @@ export const edges = ch =>
 
 const layers = Array.from(Array(3), () => document.head.appendChild(document.createElement("style")).sheet!)
 const atoms = new Map<string, string>()
-const push = (layer, atom, body) => (layers[layer].insertRule(`.${escape(atom)} { ${body} }`), atoms.set(atom, body))
+const push = (layer, atom, body) => (
+  layers[layer].insertRule(`.${escape(atom)} { ${body} }`, layers[layer].cssRules.length), atoms.set(atom, body)
+)
 
 export const compile = (str: string) => {
-  let m
-  const className = expand(str)
+  const parts = expand(str)
 
-  outer: for (let atom of className.split(/\s+/g)) {
-    if (atoms.has(atom)) continue
+  outer: for (const part of parts) {
+    let sel
+    if (atoms.has(part)) continue
 
-    for (const [regex, resolve] of shorthands) {
-      if ((m = atom.match(regex))) {
-        const body = compile(typeof resolve === "string" ? resolve : resolve(m))
-          .split(/\s+/)
-          .map(a => atoms.get(a))
-          .join("; ")
-        push(0, atom, body)
-        continue outer
+    for (const [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
+      if (v) {
+        if (v in variants) sel = variants[v] + (sel ?? "")
+        continue
       }
-    }
 
-    for (const [regex, resolve, themeFn] of rules) {
-      if ((m = atom.match(regex))) {
-        const body =
-          typeof resolve === "string" ? `${resolve}: ${themeFn ? theme[themeFn](...m.slice(1)) : m[1]}` : resolve(m)
-        push(body.includes("\n") ? 1 : 2, atom, body)
-        continue outer
-      }
-    }
+      const body =
+        name in shorthands
+          ? "/**/" +
+            compile(shorthands[name])
+              .map(a => atoms.get(a))
+              .join("; ")
+          : matchRule(name)
 
-    console.log("unknown", atom)
-    atoms.set(atom, "")
+      if (body) push(body[0] === "/" ? 0 : body.includes("\n") ? 1 : 2, name, body)
+      else console.log("-> unknown", name)
+    }
   }
 
-  return className
+  return parts
 }
 
-// Expand groups and shorthands (later):
-//   focus:(border text(sm blue-1)) -> focus:border focus:text-sm focus:text-blue-1
-export const expand = s => {
-  const expandLast = s =>
-    s.replace(/([\w-]+)(:)?\(([^\(\)]+)\)/g, (_, prefix, join = "-", parts) =>
-      parts
-        .split(/\s+/g)
-        .map(part => (part === "&" ? prefix : prefix + join + part))
-        .join(" ")
-    )
-
-  for (let next; (next = expandLast(s)) !== s; s = next);
-  return s
+const matchRule = name => {
+  for (const [regex, resolve, themeFn] of rules) {
+    const m = name.match(regex)
+    if (m) return typeof resolve === "string" ? `${resolve}: ${themeFn ? theme[themeFn](...m.slice(1)) : m[1]}` : resolve(m)
+  }
 }
 
-export const escape = s => s.replace(/[:\.\[\]\*]/g, "\\$&")
+// Single-pass group expander
+export const expand = (str, pre = "", res = [] as string[]) => {
+  let a, v, s, i, end, stack
+
+  const push = () => {
+    if (!(s < i)) return // empty
+    if (str[s] === "&") return res.push(pre.slice(0, -1)) // clear last "-"
+    if (v++ > s) return res.push(str.slice(s, v) + pre + str.slice(v, i)) // move variant
+    res.push(pre + str.slice(s, i)) // normal
+  }
+
+  for (a = 0, v = 0, s = 0, i = 0, end = str.length - 1, stack = []; ; i++) {
+    if (str[i] === "[") a++ // ignore groups from here
+    if (str[i] === "]") a-- // ignore groups until here
+    if (str[i] === ":") v = i // mark `:` for variants
+    if (str[i] === "(" && !a) {
+      stack.push(pre) // save & compute new pre
+      pre = v++ > s ? str.slice(s, v) + pre + str.slice(v, i) : pre + str.slice(s, i)
+      if (str[i - 1] !== ":") pre += "-" // separator for non-variants
+      s = i + 1
+    }
+    if (str[i] === " ") push(), (s = i + 1)
+    if (str[i] === ")" && !a) push(), (s = i + 1), (pre = stack.pop())
+    if (i === end) return i++, push(), res
+  }
+}
+
+export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%]/g, "\\$&")
 
 // Preflight
 const p = (sel, body) => layers[0].insertRule(`${sel} { ${body} }`)
@@ -145,8 +180,7 @@ p("p", "margin: 0 0 1rem 0")
 // Preact integration
 export const preactHook = old => vnode => {
   if (old) old(vnode)
-  if (DEV && vnode.props?.className) console.error("className is not supported, use class", vnode.type, vnode.props)
-  if (typeof vnode.type === "string" && vnode.props?.class) vnode.__e.className = compile(vnode.props.class)
+  if (typeof vnode.type === "string" && vnode.props?.class) vnode.__e.className = compile(vnode.props.class).join(" ")
 }
 
 // prettier-ignore
