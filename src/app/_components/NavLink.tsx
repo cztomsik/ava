@@ -7,6 +7,7 @@ import { router } from "../router"
  **/
 export const NavLink = ({ href, activeClass = "active", exact = false, ...props }) => {
   if (router.match(exact ? href : `${href}*`)) {
+    props.ariaCurrent = true
     props.class = (props.class ?? props.className ?? "") + " " + activeClass
   }
 
