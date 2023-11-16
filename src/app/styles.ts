@@ -90,6 +90,8 @@ export const rules: Rule[] = [
 export const variants = {
   hover: ":hover",
   focus: ":focus",
+  even: ":nth-child(even)",
+  odd: ":nth-child(odd)",
   before: "::before",
   after: "::after",
   sibling: " + *",
