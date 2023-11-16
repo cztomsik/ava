@@ -20,10 +20,8 @@ export const theme = {
 export const shorthands: Record<string, string> = {
   hstack: "flex flex-row items-center",
   vstack: "flex flex-col",
-  // prettier-ignore
-  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8 focus:transparent) rounded-md focus:outline(3 blue-7)",
+  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8) rounded-md",
   truncate: "overflow-hidden text-ellipsis whitespace-nowrap",
-  border: "border-1",
 
   // TODO: later
   "text-white": "[color:white]",
@@ -37,6 +35,11 @@ export const shorthands: Record<string, string> = {
   "!inset-0": "[inset:0]",
   "!p-0": "p-0",
   "!py-0": "py-0",
+  "shadow-inner": "[box-shadow:inset_0_2px_4px_rgba(0,0,0,0.05)]",
+  "max-w-2xl": "[max-width:42rem]",
+  "max-w-3xl": "[max-width:48rem]",
+  "max-w-5xl": "[max-width:64rem]",
+  "min-w-0": "[min-width:0]",
 }
 
 type Rule = [RegExp, string] | [RegExp, (match) => string] | [RegExp, string | ((match) => string), string?]
@@ -173,7 +176,7 @@ export const expand = (str, pre = "", res = [] as string[]) => {
   return push(), res
 }
 
-export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]/g, "\\$&")
+export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]|^\d/g, "\\$&")
 
 // Preflight
 layers[0].ownerNode!.textContent = `
