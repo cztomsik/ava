@@ -196,6 +196,7 @@ input { line-height: 100% }
 button { appearance: button; background: none }
 select { appearance: none }
 p { margin: 0 0 1rem 0 }
+th { text-align: left }
 `
 
 // Preact integration
