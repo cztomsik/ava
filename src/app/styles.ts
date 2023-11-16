@@ -121,6 +121,7 @@ export const compile = (str: string) => {
 
     for (const [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
       if (v) {
+        if (!(v in variants)) break
         sel += variants[v] ?? ""
         continue
       } else sel = `.${escape(part)}${sel}`
