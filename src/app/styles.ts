@@ -31,7 +31,6 @@ export const shorthands: Record<string, string> = {
   // TODO: later
   "text-white": "[color:white]",
   hidden: "[display:none]",
-  "outline-none": "[outline:none]",
   "bg-transparent": "[background:transparent]",
   "bg-black": "[background:black]",
   "max-h-full": "[max-height:100%]",
@@ -61,7 +60,7 @@ export const rules: Rule[] = [
 
   // Borders
   [/^rounded(?:-(.+))?$/, "border-radius", "rounded"],
-  [/^(border)(?:-(\w))?-(\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${d}px`, "-width")],
+  [/^(border|outline)(?:-(\w))?-(none|\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${+d || 0}px`, "-width")],
   [/^(border|outline)-(\w+)-(\d+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
   [/^border-(transparent)$/, "border-color"],
   [/^border-(collapse|separate)$/, "border-collapse"],
