@@ -91,6 +91,10 @@ export const variants = {
   focus: ":focus",
   before: "::before",
   after: "::after",
+  sibling: "+ *",
+  sibglings: "~ *",
+  children: "> *",
+  grandchildren: "> * > *",
   "group-focus": ".group:focus ",
   "aria-selected": '[aria-selected="true"]',
 }
