@@ -45,37 +45,45 @@ export const shorthands: Record<string, string> = {
 
 type Rule = [RegExp, string] | [RegExp, (match) => string] | [RegExp, string | ((match) => string), string?]
 export const rules: Rule[] = [
-  [/^text-(left|center|right)$/, "text-align"],
-  [/^text-(ellipsis|clip)$/, "text-overflow"],
-  [/^text-(\w+)-(\d+)$/, "color", "color"],
-  [/^text-(\w{2}|\dxl|base)$/, "font-size", "fontSize"],
-  [/^font-(.+)$/, "font-weight", "fontWeight"],
-  [/^(uppercase|lowercase|capitalize|normal-case)$/, "text-transform"],
-  [/^select-(.+)$/, "user-select"],
-  [/^bg-(\w+)-(\d+)$/, "background-color", "color"],
+  // Layout
+  [/^(block|flex|grid|(inline|table)(-.*)?)$/, "display"],
+  [/^grid-(cols|rows)-(\d+)$/, ([_, p, d]) => `grid-template-${p.replace("col", "column")}: repeat(${d},minmax(0,1fr))`],
+  [/^flex-((row|col)(-reverse)?)$/, ([_, v]) => `flex-direction: ${v.replace("col", "column")}`],
+  [/^flex-(.+)$/, "flex"],
+  [/^gap-(.+)$/, "gap", "space"],
+  [/^justify(?:-(\w+))?-(.+)$/, ([_, p = "content", v]) => `justify-${p}: ${v}`],
+  [/^(content|items|self)-(.+)$/, ([_, p, v]) => `align-${p}: ${v}`],
+  [/^[pm](\w)?-([\w\.]+)$/, ([m, e, v]) => repeat(m[0] === "p" ? "padding" : "margin", edges(e), theme.space(v))],
+  [/^[wh]-([\w\.]+)$/, ([m, v]) => `${m[0] === "w" ? "width" : "height"}: ${theme.space(v, m[0])}`],
+  [/^(static|relative|absolute|fixed|sticky)$/, "position"],
+  // prettier-ignore
+  [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
+
+  // Borders
   [/^rounded(?:-(.+))?$/, "border-radius", "rounded"],
   [/^(border)(?:-(\w))?-(\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${d}px`, "-width")],
   [/^(border|outline)-(\w+)-(\d+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
   [/^border-(transparent)$/, "border-color"],
   [/^border-(collapse|separate)$/, "border-collapse"],
-  [/^[pm](\w)?-([\w\.]+)$/, ([m, e, v]) => repeat(m[0] === "p" ? "padding" : "margin", edges(e), theme.space(v))],
-  [/^[wh]-([\w\.]+)$/, ([m, v]) => `${m[0] === "w" ? "width" : "height"}: ${theme.space(v, m[0])}`],
-  [/^(inline|block|flex|grid|table|(inline|table)-.*)$/, "display"],
-  [/^grid-(cols|rows)-(\d+)$/, ([_, p, d]) => `grid-template-${p.replace(/col/, "column")}: repeat(${d},minmax(0,1fr))`],
-  [/^flex-((row|col)(-reverse)?)$/, ([_, v]) => `flex-direction: ${v.replace(/col/, "column")}`],
-  [/^flex-(.+)$/, "flex"],
-  [/^gap-(.+)$/, "gap", "space"],
-  [/^items-(.+)$/, "align-items"],
-  [/^justify-(.+)$/, "justify-content"],
-  [/^self-(.+)$/, "align-self"],
-  [/^list-(.+)$/, "list-style-type"],
+
+  // Typography
+  [/^text-(left|center|right)$/, "text-align"],
+  [/^text-(ellipsis|clip)$/, "text-overflow"],
+  [/^text-(\w+)-(\d+)$/, "color", "color"],
+  [/^text-(\w{2}|\dxl|base)$/, "font-size", "fontSize"],
+  [/^font-(.+)$/, "font-weight", "fontWeight"],
+  [/^((upper|lower|normal-)case|capitalize)$/, "text-transform"],
   [/^whitespace-(.+)$/, "white-space"],
-  [/^(static|relative|absolute|fixed|sticky)$/, "position"],
+  [/^list-(.+)$/, "list-style-type"],
+
+  // Other
+  [/^select-(.+)$/, "user-select"],
+  [/^bg-(\w+)-(\d+)$/, "background-color", "color"],
   [/^((in)?visible|collapse)$/, ([_, h, v]) => `visibility: ${h ? "hidden" : v}`],
+
+  // Pass-through
   // prettier-ignore
-  [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
-  // prettier-ignore
-  [/^(cursor|fill|opacity|(?:overflow(?:-[xy])?)|pointer-events|transition)-(.+)$/, ([_, p, v]) => `${p}: ${v}`],
+  [/^(cursor|fill|opacity|overflow(?:-[xy])?|pointer-events|transition)-(.+)$/, ([_, p, v]) => `${p}: ${v}`],
   [/^\[([\w-]+):(.+)]$/, ([_, p, v]) => `${p}: ${v.replace(/_/g, " ").replace(/\\/g)}`],
 ]
 
