@@ -31,7 +31,7 @@ const ListItem = ({ class: className = "", children, selected = false, ...props 
 const ListItemTitle = ({ children }) => <h4 class="font-semibold truncate">{children}</h4>
 
 const ListItemSubtitle = ({ children }) => (
-  <p class="truncate text(sm neutral-11 group-focus:neutral(6 dark:6))">{children}</p>
+  <p class="m-0 truncate text(sm neutral-11 group-focus:neutral(6 dark:6))">{children}</p>
 )
 
 export { List }
