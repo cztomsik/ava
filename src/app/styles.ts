@@ -160,7 +160,7 @@ export const expand = (str, pre = "", res = [] as string[]) => {
   }
 }
 
-export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%]/g, "\\$&")
+export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]/g, "\\$&")
 
 // Preflight
 const p = (sel, body) => layers[0].insertRule(`${sel} { ${body} }`)
