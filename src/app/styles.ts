@@ -10,7 +10,7 @@ export const colors = {
 }
 
 export const theme = {
-  color: (k, v) => colors[k]?.[--v] ?? k,
+  color: (name, [k, v] = name.split("-")) => colors[k]?.[--v] ?? name,
   space: (v, p = "w") => ({ auto: "auto", px: "1px", full: "100%", screen: `100v${p}` }[v] ?? `${v * 0.25}rem`),
   fontSize: v => ({ xs: "12px", sm: "13px", base: "14px", lg: "16px", xl: "18px", "2xl": "20px" }[v]),
   fontWeight: v => ({ medium: 500, semibold: 600 }[v] ?? v),
@@ -24,10 +24,7 @@ export const shorthands: Record<string, string> = {
   truncate: "overflow-hidden text-ellipsis whitespace-nowrap",
 
   // TODO: later
-  "text-white": "[color:white]",
   hidden: "[display:none]",
-  "bg-transparent": "[background:transparent]",
-  "bg-black": "[background:black]",
   "max-h-full": "[max-height:100%]",
   "max-w-full": "[max-width:100%]",
   "!rounded-none": "[border-radius:0]",
@@ -35,6 +32,7 @@ export const shorthands: Record<string, string> = {
   "!inset-0": "[inset:0]",
   "!p-0": "p-0",
   "!py-0": "py-0",
+  "!rounded-r-md": "[border-top-right-radius:0.375rem] [border-bottom-right-radius:0.375rem]",
   "shadow-inner": "[box-shadow:inset_0_2px_4px_rgba(0,0,0,0.05)]",
   "max-w-2xl": "[max-width:42rem]",
   "max-w-3xl": "[max-width:48rem]",
@@ -61,15 +59,15 @@ export const rules: Rule[] = [
   // Borders
   [/^rounded(?:-(.+))?$/, "border-radius", "rounded"],
   [/^(border|outline)(?:-(\w))?-(none|\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${+d || 0}px`, "-width")],
-  [/^(border|outline)-(\w+)-(\d+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
+  [/^(border|outline)-(.+)$/, ([_, p, k, d]) => `${p}-color: ${theme.color(k, d)}`],
   [/^border-(transparent)$/, "border-color"],
   [/^border-(collapse|separate)$/, "border-collapse"],
 
   // Typography
   [/^text-(left|center|right)$/, "text-align"],
   [/^text-(ellipsis|clip)$/, "text-overflow"],
-  [/^text-(\w+)-(\d+)$/, "color", "color"],
   [/^text-(\w{2}|\dxl|base)$/, "font-size", "fontSize"],
+  [/^text-(.+)$/, "color", "color"],
   [/^font-(.+)$/, "font-weight", "fontWeight"],
   [/^((upper|lower|normal-)case|capitalize)$/, "text-transform"],
   [/^whitespace-(.+)$/, "white-space"],
@@ -77,7 +75,10 @@ export const rules: Rule[] = [
 
   // Other
   [/^select-(.+)$/, "user-select"],
-  [/^bg-(\w+)-(\d+)$/, "background-color", "color"],
+  [/^bg-gradient-to-(\w)$/, ([_, e]) => `background-image: linear-gradient(to ${edges(e)[0]}, var(--grad), transparent)`],
+  [/^bg-(.+)$/, "background-color", "color"],
+  [/^from-(.+)$/, "--grad", "color"],
+
   [/^((in)?visible|collapse)$/, ([_, h, v]) => `visibility: ${h ? "hidden" : v}`],
 
   // Pass-through
