@@ -1,8 +1,9 @@
 import "./custom.d.ts"
 import { render, options } from "preact"
 import { App } from "./App"
-import { preactHook } from "./styles"
+import { preactHook, colors } from "./styles"
 
+Object.assign(colors, { neutral: colors.gray, primary: colors.blue, warning: colors.yellow })
 options.diffed = preactHook(options.diffed)
 render(<App />, document.querySelector("#app")!)
 
