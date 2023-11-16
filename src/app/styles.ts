@@ -7,9 +7,6 @@ export const colors = {
   blue: [ "#fbfdff", "#f4faff", "#e6f4fe", "#d5efff", "#c2e5ff", "#acd8fc", "#8ec8f6", "#5eb1ef", "#0090ff", "#0588f0", "#0d74ce", "#113264" ],
   sky: [ "#f9feff", "#f1fafd", "#e1f6fd", "#d1f0fa", "#bee7f5", "#a9daed", "#8dcae3", "#60b3d7", "#7ce2fe", "#74daf8", "#00749e", "#1d3e56" ],
   yellow: [ "#fdfdf9", "#fefce9", "#fffab8", "#fff394", "#ffe770", "#f3d768", "#e4c767", "#d5ae39", "#ffe629", "#ffdc00", "#9e6c00", "#473b1f" ],
-  get neutral() { return this.gray },
-  get primary() { return this.blue },
-  get warning() { return this.yellow },
 }
 
 export const theme = {
@@ -24,7 +21,7 @@ export const shorthands: Record<string, string> = {
   hstack: "flex flex-row items-center",
   vstack: "flex flex-col",
   // prettier-ignore
-  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8 focus:transparent) rounded-md focus:outline(3 primary-7)",
+  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8 focus:transparent) rounded-md focus:outline(3 blue-7)",
   truncate: "overflow-hidden text-ellipsis whitespace-nowrap",
   border: "border-1",
 
