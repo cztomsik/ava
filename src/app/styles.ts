@@ -142,7 +142,7 @@ const matchRule = name => {
 
 // Single-pass group expander
 export const expand = (str, pre = "", res = [] as string[]) => {
-  let a, v, s, i, end, stack
+  let a, v, s, i, len, stack
 
   const push = () => {
     if (!(s < i)) return // empty
@@ -151,7 +151,7 @@ export const expand = (str, pre = "", res = [] as string[]) => {
     res.push(pre + str.slice(s, i)) // normal
   }
 
-  for (a = 0, v = 0, s = 0, i = 0, end = str.length - 1, stack = []; ; i++) {
+  for (a = v = s = i = 0, len = str.length, stack = []; i < len; i++) {
     if (str[i] === "[") a++ // ignore groups from here
     if (str[i] === "]") a-- // ignore groups until here
     if (str[i] === ":") v = i // mark `:` for variants
@@ -163,8 +163,8 @@ export const expand = (str, pre = "", res = [] as string[]) => {
     }
     if (str[i] === " ") push(), (s = i + 1)
     if (str[i] === ")" && !a) push(), (s = i + 1), (pre = stack.pop())
-    if (i === end) return i++, push(), res
   }
+  return push(), res
 }
 
 export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]/g, "\\$&")
