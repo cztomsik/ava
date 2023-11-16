@@ -93,9 +93,9 @@ export const edges = ch =>
   ({ t: ["top"], r: ["right"], b: ["bottom"], l: ["left"], x: ["left", "right"], y: ["top", "bottom"] }[ch])
 
 const layers = Array.from(Array(3), () => document.head.appendChild(document.createElement("style")).sheet!)
-const atoms = new Map<string, string>()
-const push = (layer, atom, body) => (
-  layers[layer].insertRule(`.${escape(atom)} { ${body} }`, layers[layer].cssRules.length), atoms.set(atom, body)
+const cache = new Map<string, string>()
+const push = (layer, name, body) => (
+  layers[layer].insertRule(`.${escape(name)} { ${body} }`, layers[layer].cssRules.length), cache.set(name, body)
 )
 
 export const compile = (str: string) => {
@@ -103,7 +103,7 @@ export const compile = (str: string) => {
 
   outer: for (const part of parts) {
     let sel
-    if (atoms.has(part)) continue
+    if (cache.has(part)) continue
 
     for (const [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
       if (v) {
@@ -111,13 +111,7 @@ export const compile = (str: string) => {
         continue
       }
 
-      const body =
-        name in shorthands
-          ? "/**/" +
-            compile(shorthands[name])
-              .map(a => atoms.get(a))
-              .join("; ")
-          : matchRule(name)
+      const body = name in shorthands ? "/**/" + matchShorthand(name) : matchRule(name)
 
       if (body) push(body[0] === "/" ? 0 : body.includes("\n") ? 1 : 2, name, body)
       else console.log("-> unknown", name)
@@ -126,6 +120,11 @@ export const compile = (str: string) => {
 
   return parts
 }
+
+const matchShorthand = name =>
+  compile(shorthands[name])
+    .map(a => cache.get(a))
+    .join("; ")
 
 const matchRule = name => {
   for (const [regex, resolve, themeFn] of rules) {
