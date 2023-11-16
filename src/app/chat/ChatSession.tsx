@@ -36,7 +36,7 @@ export const ChatSession = ({ id }) => {
         )}
       </Page.Header>
 
-      <Page.Content class="!p-0 [&>*]:(px-4 py-6) [&>*>*]:(w-full max-w-3xl mx-auto)">
+      <Page.Content class="!p-0 children:(px-4 py-6) grandchildren:(w-full max-w-3xl mx-auto)">
         {chat.loading ? (
           <div class="p-4 text-neutral-9">Loading...</div>
         ) : (
@@ -66,7 +66,7 @@ export const ChatSession = ({ id }) => {
 
 const NoMessages = () => (
   <div class="text-sky-12 bg-sky-2 py-6 border(y-1 sky-6)">
-    <div class="content">
+    <div>
       <strong>The conversation is empty.</strong>
       <ul class="list-disc mt-2 ml-4">
         <li>Select model in the bottom left corner.</li>
