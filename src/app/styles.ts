@@ -89,6 +89,8 @@ export const rules: Rule[] = [
 export const variants = {
   hover: ":hover",
   focus: ":focus",
+  before: "::before",
+  after: "::after",
   "group-focus": ".group:focus ",
   "aria-selected": '[aria-selected="true"]',
 }
@@ -99,29 +101,29 @@ export const repeat = (prefix, parts, value, suffix = "", shorthand = prefix + s
 export const edges = ch =>
   ({ t: ["top"], r: ["right"], b: ["bottom"], l: ["left"], x: ["left", "right"], y: ["top", "bottom"] }[ch])
 
-const layers = Array.from(Array(3), () => document.head.appendChild(document.createElement("style")).sheet!)
+const layers = Array.from(Array(4), () => document.head.appendChild(document.createElement("style")).sheet!)
+const push = (layer, sel, body) => layers[layer].insertRule(`${sel} { ${body} }`, layers[layer].cssRules.length)
 const cache = new Map<string, string>()
-const push = (layer, name, body) => (
-  layers[layer].insertRule(`.${escape(name)} { ${body} }`, layers[layer].cssRules.length), cache.set(name, body)
-)
+const classes = new Set<string>()
 
 export const compile = (str: string) => {
   const parts = expand(str)
 
-  outer: for (const part of parts) {
-    let sel
-    if (cache.has(part)) continue
+  for (const part of parts) {
+    if (classes.has(part)) continue
+    let sel = ""
 
     for (const [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
       if (v) {
-        if (v in variants) sel = variants[v] + (sel ?? "")
+        sel += variants[v] ?? ""
         continue
-      }
+      } else sel = `.${escape(part)}${sel}`
 
-      const body = name in shorthands ? "/**/" + matchShorthand(name) : matchRule(name)
+      const body = cache.get(name) ?? matchShorthand(name) ?? matchRule(name) ?? ""
+      if (body) push(body[0] === "/" ? 1 : body.includes("\n") ? 2 : 3, sel, body)
+      cache.set(name, body), classes.add(part)
 
-      if (body) push(body[0] === "/" ? 0 : body.includes("\n") ? 1 : 2, name, body)
-      else console.log("-> unknown", name)
+      if (!body) console.log("-> unknown", name)
     }
   }
 
@@ -129,9 +131,11 @@ export const compile = (str: string) => {
 }
 
 const matchShorthand = name =>
-  compile(shorthands[name])
-    .map(a => cache.get(a))
-    .join("; ")
+  shorthands[name] &&
+  "/**/" +
+    compile(shorthands[name])
+      .map(a => cache.get(a))
+      .join("; ")
 
 const matchRule = name => {
   for (const [regex, resolve, themeFn] of rules) {
@@ -170,18 +174,19 @@ export const expand = (str, pre = "", res = [] as string[]) => {
 export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]/g, "\\$&")
 
 // Preflight
-const p = (sel, body) => layers[0].insertRule(`${sel} { ${body} }`)
-p("*,::before,::after", "box-sizing: border-box; border: 0 currentColor solid")
-p("html", "line-height: 1.5; -webkit-text-size-adjust: 100%")
-p("body", "margin: 0")
-p("a", "color: inherit; text-decoration: inherit")
-p("textarea", "resize: none")
-p("h1,h2,h3,h4,h5,h6,p,pre", "margin: 0")
-p("input,textarea,select", "font: inherit; color: inherit")
-p("input,select", "line-height: 100%")
-p("button", "appearance: button; background: none")
-p("select", "appearance: none")
-p("p", "margin: 0 0 1rem 0")
+layers[0].ownerNode!.textContent = `
+*,::before,::after { box-sizing: border-box; border: 0 currentColor solid }
+html { line-height: 1.5; -webkit-text-size-adjust: 100% }
+body { margin: 0 }
+a { color: inherit; text-decoration: inherit }
+textarea { resize: none }
+h1,h2,h3,h4,h5,h6,p,pre { margin: 0 }
+input,textarea,select { font: inherit; color: inherit }
+input,select { line-height: 100% }
+button { appearance: button; background: none }
+select { appearance: none }
+p { margin: 0 0 1rem 0 }
+`
 
 // Preact integration
 export const preactHook = old => vnode => {
