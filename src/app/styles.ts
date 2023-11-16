@@ -88,11 +88,12 @@ export const variants = {
   focus: ":focus",
   before: "::before",
   after: "::after",
-  sibling: "+ *",
-  sibglings: "~ *",
-  children: "> *",
-  grandchildren: "> * > *",
+  sibling: " + *",
+  sibglings: " ~ *",
+  children: " > *",
+  grandchildren: " > * > *",
   "group-focus": ".group:focus ",
+  "aria-current": '[aria-current="true"]',
   "aria-selected": '[aria-selected="true"]',
 }
 
