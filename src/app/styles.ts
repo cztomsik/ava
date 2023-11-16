@@ -183,7 +183,7 @@ a { color: inherit; text-decoration: inherit }
 textarea { resize: none }
 h1,h2,h3,h4,h5,h6,p,pre { margin: 0 }
 input,textarea,select { font: inherit; color: inherit }
-input,select { line-height: 100% }
+input { line-height: 100% }
 button { appearance: button; background: none }
 select { appearance: none }
 p { margin: 0 0 1rem 0 }
