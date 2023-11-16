@@ -14,13 +14,14 @@ export const theme = {
   space: (v, p = "w") => ({ auto: "auto", px: "1px", full: "100%", screen: `100v${p}` }[v] ?? `${v * 0.25}rem`),
   fontSize: v => ({ xs: "12px", sm: "13px", base: "14px", lg: "16px", xl: "18px", "2xl": "20px" }[v]),
   fontWeight: v => ({ medium: 500, semibold: 600 }[v] ?? v),
+  lineHeight: v => ({ xs: "1rem", sm: "1rem", base: "1.25rem", lg: "1.5rem", xl: "1.5rem", "2xl": "1.5rem" }[v]),
   rounded: (v = "base") => ({ none: "0", sm: "2px", base: "4px", md: "6px", lg: "8px", full: "999px" }[v]),
 }
 
 export const shorthands: Record<string, string> = {
   hstack: "flex flex-row items-center",
   vstack: "flex flex-col",
-  "form-control": "inline-flex px-2 py-1.125 bg-neutral-1 border(1 neutral-8) rounded-md",
+  "form-control": "inline-flex px-2 py-1.25 bg-neutral-1 border(1 neutral-8) rounded-md",
   truncate: "overflow-hidden text-ellipsis whitespace-nowrap",
 
   // TODO: later
@@ -66,7 +67,7 @@ export const rules: Rule[] = [
   // Typography
   [/^text-(left|center|right)$/, "text-align"],
   [/^text-(ellipsis|clip)$/, "text-overflow"],
-  [/^text-(\w{2}|\dxl|base)$/, "font-size", "fontSize"],
+  [/^text-(\w{2}|\dxl|base)$/, ([_, k]) => `font-size: ${theme.fontSize(k)}; line-height: ${theme.lineHeight(k)}`],
   [/^text-(.+)$/, "color", "color"],
   [/^font-(.+)$/, "font-weight", "fontWeight"],
   [/^((upper|lower|normal-)case|capitalize)$/, "text-transform"],
@@ -186,7 +187,7 @@ export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]|^\d/g, "\\$&")
 layers[0].ownerNode!.textContent = `
 *,::before,::after { box-sizing: border-box; border: 0 currentColor solid }
 html { line-height: 1.5; -webkit-text-size-adjust: 100% }
-body { margin: 0 }
+body { margin: 0; line-height: inherit }
 a { color: inherit; text-decoration: inherit }
 textarea { resize: none }
 h1,h2,h3,h4,h5,h6,p,pre { margin: 0 }
