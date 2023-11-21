@@ -186,7 +186,7 @@ export const escape = s => s.replace(/[\!:\.\,\[\]\*\(\)\%\"]|^\d/g, "\\$&")
 // Preflight
 layers[0].ownerNode!.textContent = `
 *,::before,::after { box-sizing: border-box; border: 0 currentColor solid }
-html { line-height: 1.5; -webkit-text-size-adjust: 100% }
+html { line-height: 1.5; -webkit-text-size-adjust: 100%; overscroll-behavior: none }
 body { margin: 0; line-height: inherit }
 a { color: inherit; text-decoration: inherit }
 textarea { resize: none }
