@@ -8,9 +8,12 @@ export const colors = {
   sky: [ "#f9feff", "#f1fafd", "#e1f6fd", "#d1f0fa", "#bee7f5", "#a9daed", "#8dcae3", "#60b3d7", "#7ce2fe", "#74daf8", "#00749e", "#1d3e56" ],
   yellow: [ "#fdfdf9", "#fefce9", "#fffab8", "#fff394", "#ffe770", "#f3d768", "#e4c767", "#d5ae39", "#ffe629", "#ffdc00", "#9e6c00", "#473b1f" ],
 }
+colors["neutral"] = colors.gray
+colors["primary"] = colors.blue
+colors["warning"] = colors.yellow
 
 export const theme = {
-  color: (name, [k, v] = name.split("-")) => colors[k]?.[--v] ?? name,
+  color: name => (name.match(/transparent|current|black|white/) ? name : `var(--color-${name})`),
   space: (v, p = "w") => ({ auto: "auto", px: "1px", full: "100%", screen: `100v${p}` }[v] ?? `${v * 0.25}rem`),
   fontSize: v => ({ xs: "12px", sm: "13px", base: "14px", lg: "16px", xl: "18px", "2xl": "20px" }[v]),
   fontWeight: v => ({ medium: 500, semibold: 600 }[v] ?? v),
@@ -199,6 +202,13 @@ input,textarea,select { font: inherit; color: inherit; margin: 0; padding: 0 }
 textarea { resize: none }
 select { appearance: none }
 button { appearance: button; background: none }
+
+/* Colors */
+:root {
+${Object.keys(colors)
+  .flatMap(k => colors[k].map((v, i) => `--color-${k}-${i + 1}: ${v}`))
+  .join(";\n")}
+}
 `
 
 // Preact integration
