@@ -31,8 +31,8 @@ export const shorthands: Record<string, string> = {
   "!rounded-none": "[border-radius:0]",
   "!absolute": "[position:absolute]",
   "!inset-0": "[inset:0]",
-  "!p-0": "p-0",
-  "!py-0": "py-0",
+  "!p-0": "[padding:0_!important]",
+  "!py-0": "[padding-top:0_!important] [padding-bottom:0_!important]",
   "!rounded-r-md": "[border-top-right-radius:0.375rem] [border-bottom-right-radius:0.375rem]",
   "shadow-inner": "[box-shadow:inset_0_2px_4px_rgba(0,0,0,0.05)]",
   "max-w-2xl": "[max-width:42rem]",
@@ -188,15 +188,20 @@ layers[0].ownerNode!.textContent = `
 *,::before,::after { box-sizing: border-box; border: 0 currentColor solid }
 html { line-height: 1.5; -webkit-text-size-adjust: 100%; overscroll-behavior: none }
 body { margin: 0; line-height: inherit }
-a { color: inherit; text-decoration: inherit }
-textarea { resize: none }
 h1,h2,h3,h4,h5,h6,p,pre { margin: 0 }
-input,textarea,select { font: inherit; color: inherit }
-input { line-height: 100% }
-button { appearance: button; background: none }
-select { appearance: none }
 p { margin: 0 0 1rem 0 }
+b, strong { font-weight: bolder }
+small { font-size: 80% }
+a { color: inherit; text-decoration: inherit }
+ol,ul { list-style: none; margin: 0; padding: 0 }
+table { text-indent: 0; border-color: inherit; border-collapse: collapse }
 th { text-align: left }
+img,video { max-width: 100%; height: auto }
+
+input,textarea,select { font: inherit; color: inherit; margin: 0; padding: 0 }
+textarea { resize: none }
+select { appearance: none }
+button { appearance: button; background: none }
 `
 
 // Preact integration

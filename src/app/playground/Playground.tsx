@@ -67,7 +67,7 @@ export const Playground = () => {
           <div class="flex-1 vstack">
             {variableNames.map(name => (
               <div class="flex mb-2">
-                <div class="p-1.125 px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
+                <div class="p-1.25 px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
                 <input
                   type="text"
                   class="form-control w-full !rounded-none !rounded-r-md"
