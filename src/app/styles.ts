@@ -28,12 +28,7 @@ export const shorthands: Record<string, string> = {
   hidden: "[display:none]",
   "max-h-full": "[max-height:100%]",
   "max-w-full": "[max-width:100%]",
-  "!rounded-none": "[border-radius:0]",
-  "!absolute": "[position:absolute]",
-  "!inset-0": "[inset:0]",
-  "!p-0": "[padding:0_!important]",
-  "!py-0": "[padding-top:0_!important] [padding-bottom:0_!important]",
-  "!rounded-r-md": "[border-top-right-radius:0.375rem] [border-bottom-right-radius:0.375rem]",
+  "rounded-r-md": "[border-top-right-radius:0.375rem] [border-bottom-right-radius:0.375rem]",
   "shadow-inner": "[box-shadow:inset_0_2px_4px_rgba(0,0,0,0.05)]",
   "max-w-2xl": "[max-width:42rem]",
   "max-w-3xl": "[max-width:48rem]",
@@ -110,7 +105,7 @@ export const repeat = (prefix, parts, value, suffix = "", shorthand = prefix + s
 export const edges = ch =>
   ({ t: ["top"], r: ["right"], b: ["bottom"], l: ["left"], x: ["left", "right"], y: ["top", "bottom"] }[ch])
 
-const layers = Array.from(Array(4), () => document.head.appendChild(document.createElement("style")).sheet!)
+const layers = Array.from(Array(5), () => document.head.appendChild(document.createElement("style")).sheet!)
 const push = (layer, sel, body) => layers[layer].insertRule(`${sel} { ${body} }`, layers[layer].cssRules.length)
 const cache = new Map<string, string>()
 const classes = new Set<string>()
@@ -122,15 +117,17 @@ export const compile = (str: string) => {
     if (classes.has(part)) continue
     let sel = ""
 
-    for (const [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
+    for (let [_, v, name] of part.matchAll(/(?:^|(?<=:))([\w-]+):|(\S+)/g)) {
       if (v) {
         if (!(v in variants)) break
         sel += variants[v] ?? ""
         continue
       } else sel = `.${escape(part)}${sel}`
 
+      let layer
+      if (name[0] === "!") (layer = 4), (name = name.slice(1))
       const body = cache.get(name) ?? matchShorthand(name) ?? matchRule(name) ?? ""
-      if (body) push(body[0] === "/" ? 1 : body.includes("\n") ? 2 : 3, sel, body)
+      if (body) push(layer ?? (body[0] === "/" ? 1 : body.includes("\n") ? 2 : 3), sel, body)
       cache.set(name, body), classes.add(part)
 
       if (!body) console.log("-> unknown", name)
