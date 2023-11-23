@@ -1,10 +1,10 @@
 import "./custom.d.ts"
 import { render, options } from "preact"
 import { App } from "./App"
-import { preactHook, colors } from "./styles"
+import { theme } from "./theme"
+import { createContext } from "./styles"
 
-Object.assign(colors, { neutral: colors.gray, primary: colors.blue, warning: colors.yellow })
-options.diffed = preactHook(options.diffed)
+createContext({ theme }).install(options)
 render(<App />, document.querySelector("#app")!)
 
 // We only need this for macos because it's common to drag the window by
