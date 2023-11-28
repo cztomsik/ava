@@ -121,23 +121,7 @@ pub const Model = struct {
         log.debug("n_gpu_layers = {}", .{params.n_gpu_layers});
 
         // Load the model
-        var ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
-
-        // Disable GPU if the model contains F32 layers and we are on macOS
-        if (builtin.os.tag == .macos and params.n_gpu_layers == 1) {
-            // Metal does not support F32 yet
-            var desc: [256:0]u8 = undefined;
-            _ = c.llama_model_desc(ptr, &desc, desc.len);
-
-            // We need to load the model again, with different params
-            if (std.mem.indexOf(u8, &desc, "F32") != null) {
-                log.debug("Loading model again, because it contains F32 layers", .{});
-
-                c.llama_free_model(ptr);
-                params.n_gpu_layers = 0;
-                ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
-            }
-        }
+        const ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
 
         return .{
             .allocator = allocator,
