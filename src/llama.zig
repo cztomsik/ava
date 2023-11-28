@@ -15,6 +15,8 @@ pub const SamplingParams = struct {
     temperature: f32 = 0.7,
     repeat_n_last: usize = 256,
     repeat_penalty: f32 = 1.05,
+    presence_penalty: f32 = 0,
+    freq_penalty: f32 = 0,
     add_bos: bool = true,
     stop_eos: bool = true,
     stop: []const []const u8 = &.{},
@@ -287,16 +289,18 @@ pub const Context = struct {
     /// Generates next utf-8 valid chunk of text.
     pub fn generate(self: *Context, params: *const SamplingParams) !?[]const u8 {
         const token = try self.generateToken(params) orelse return null;
-        const piece = std.mem.span(c.llama_token_get_text(self.ptr, token));
+        const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
         const start = self.buf.items.len;
 
-        switch (c.llama_token_get_type(self.ptr, token)) {
+        switch (c.llama_token_get_type(self.model.ptr, token)) {
             c.LLAMA_TOKEN_TYPE_NORMAL => {
                 // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
                 if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
                     try self.buf.ensureUnusedCapacity(piece.len);
                     self.buf.items.len += piece.len;
                     self.buf.items.len -= std.mem.replace(u8, piece, "▁", " ", self.buf.items[start..]) * 2;
+                } else if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_BPE) {
+                    try appendBPE(&self.buf, piece);
                 } else {
                     try self.buf.appendSlice(piece);
                 }
@@ -374,9 +378,9 @@ pub const Context = struct {
             .sorted = false,
         };
 
-        // Apply repetition penalty.
+        // Apply repetition penalties.
         const last_n = @min(self.tokens.items.len, params.repeat_n_last);
-        c.llama_sample_repetition_penalty(self.ptr, &candidates, &self.tokens.items[self.tokens.items.len - last_n], @intCast(last_n), params.repeat_penalty);
+        c.llama_sample_repetition_penalties(self.ptr, &candidates, &self.tokens.items[self.tokens.items.len - last_n], @intCast(last_n), params.repeat_penalty, params.presence_penalty, params.freq_penalty);
 
         if (params.temperature <= 0) {
             return c.llama_sample_token_greedy(self.ptr, &candidates);
@@ -388,10 +392,26 @@ pub const Context = struct {
 
         const res = c.llama_sample_token(self.ptr, &candidates);
 
-        if (params.stop_eos and res == c.llama_token_eos(self.ptr)) {
+        if (params.stop_eos and res == c.llama_token_eos(self.model.ptr)) {
             return null;
         }
 
         return res;
+    }
+
+    /// Appends a BPE piece to the buffer.
+    pub fn appendBPE(buf: *std.ArrayList(u8), piece: []const u8) !void {
+        try buf.ensureUnusedCapacity(piece.len);
+        var iter = (try std.unicode.Utf8View.init(piece)).iterator();
+
+        while (iter.nextCodepoint()) |cp| {
+            try buf.append(@intCast(switch (cp) {
+                33...126, 161...172, 174...255 => cp,
+                127...160 => cp - 162,
+                256...288 => cp - 256,
+                173 => 33,
+                else => return error.InvalidBPE,
+            }));
+        }
     }
 };
