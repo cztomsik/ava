@@ -77,7 +77,6 @@ const cfg: TwindUserConfig<TailwindTheme> = {
 
     // custom
     ["shadow-thin", { boxShadow: "0 1px 1px 0 rgba(0, 0, 0, 0.3)" }],
-    ["shadow-inner-rtl", { boxShadow: "inset -4px 0 4px -4px rgba(0,0,0,0.05)" }],
   ],
   variants: [
     // out-of-focus (TODO: maybe opacity is enough?)
