@@ -42,8 +42,8 @@ export const Playground = () => {
       </Page.Header>
 
       <Page.Content>
-        <Form class="flex-1 max-h-full row" onSubmit={handleSubmit}>
-          <div class="col vstack">
+        <Form class="flex-1 flex gap-4 max-h-full" onSubmit={handleSubmit}>
+          <div class="flex-1 vstack">
             <PromptSelect
               value={selection.value}
               onChange={item => {
@@ -64,7 +64,7 @@ export const Playground = () => {
             ></textarea>
           </div>
 
-          <div class="col vstack">
+          <div class="flex-1 vstack">
             {variableNames.map(name => (
               <div class="flex mb-2">
                 <div class="p-[5px] px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
