@@ -118,7 +118,7 @@ export const createContext = (cfg: Config) => {
     [/^(?:inset-?([xy])?|top|right|left|bottom)-(.+)$/, ([m, e = m[0], v]) => repeat("", edges(e), theme.space(v), "", "inset")],
 
     // Borders
-    [/^rounded(?:-(.+))?$/, ([_, v]) => `border-radius: ${theme.borderRadius[v] ?? v}`],
+    [/^rounded(?:-(.+))?$/, ([_, v = "DEFAULT"]) => `border-radius: ${theme.borderRadius[v] ?? v}`],
     [/^(border|outline)(?:-(\w))?-(none|\d+)$/, ([_, p, e, d]) => repeat(p, edges(e), `${+d || 0}px`, "-width")],
     [/^(border|outline)-(.+)$/, ([_, p, k]) => `${p}-color: ${theme.color(k)}`],
     [/^border-(collapse|separate)$/, "border-collapse"],
