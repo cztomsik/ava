@@ -12,14 +12,14 @@ export const ChatInput = ({ value, onChange, onSend }) => {
   return (
     <Form class="relative" onSubmit={onSend}>
       <AutoGrowTextarea
-        class="py-2 pr-16 bg-transparent"
+        class="text-lg px-3 py-3 pr-16 bg-transparent"
         rows={1}
         placeholder="Ask anything..."
         value={value}
         onInput={onChange}
         onKeyDown={handleKeyDown}
       />
-      <IconButton title="Send" icon={SendHorizontal} class="absolute bottom-1 right-1" submit />
+      <IconButton title="Send" icon={SendHorizontal} class="absolute h-full top-0 right-2" submit />
     </Form>
   )
 }
