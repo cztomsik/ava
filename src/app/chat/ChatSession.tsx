@@ -36,23 +36,27 @@ export const ChatSession = ({ id }) => {
         )}
       </Page.Header>
 
-      <Page.Content class="!p-0 [&>*]:(px-4 py-6) [&>*>*]:(w-full max-w-3xl mx-auto)">
-        {chat.loading ? (
-          <div class="p-4 text-neutral-9">Loading...</div>
-        ) : (
-          <>
-            <ChatPrompt />
+      <Page.Content class="!p-0">
+        <div class="[&>*]:(px-4 py-6) [&>*>*]:(w-full max-w-3xl mx-auto)">
+          {chat.loading ? (
+            <div class="text-neutral-9">
+              <div>Loading...</div>
+            </div>
+          ) : (
+            <>
+              <ChatPrompt />
 
-            {(!id || chat.messages?.length === 0) && <NoMessages />}
+              {(!id || chat.messages?.length === 0) && <NoMessages />}
 
-            {chat.messages?.map(m => (
-              <ChatMessage key={m.id} message={m} />
-            ))}
+              {chat.messages?.map(m => (
+                <ChatMessage key={m.id} message={m} />
+              ))}
+            </>
+          )}
+        </div>
 
-            <GenerationProgress class="!py-0 mb-10 justify-start" {...chat.progress} />
-            <AutoScroll />
-          </>
-        )}
+        <GenerationProgress class="!py-0 mb-10 justify-start" {...chat.progress} />
+        <AutoScroll />
       </Page.Content>
 
       <Page.Footer class="pt-2">
