@@ -10,7 +10,7 @@ export const ChatInput = ({ value, onChange, onSend }) => {
   }
 
   return (
-    <Form class="relative" onSubmit={onSend}>
+    <Form class="relative max-w-2xl mx-auto" onSubmit={onSend}>
       <AutoGrowTextarea
         class="text-lg px-3 py-3 pr-16 bg-transparent"
         rows={1}

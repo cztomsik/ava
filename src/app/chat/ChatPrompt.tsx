@@ -10,7 +10,7 @@ export const ChatPrompt = () => {
   return editing.value ? (
     <EditPrompt onClose={() => (editing.value = false)} />
   ) : (
-    <div class="vstack gap-2" onDblClick={() => (editing.value = true)}>
+    <div class="container vstack gap-2" onDblClick={() => (editing.value = true)}>
       <label class="text-sm uppercase font-medium">System Prompt</label>
       <div class="text-neutral-9">{chat.data?.prompt ?? defaultPrompt}</div>
     </div>
@@ -27,7 +27,7 @@ const EditPrompt = ({ onClose }) => {
   }
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form class="container" onSubmit={handleSubmit}>
       <AutoGrowTextarea value={prompt} onInput={e => (prompt.value = e.target!.value)} />
 
       <div class="mt-2 hstack gap-2">
