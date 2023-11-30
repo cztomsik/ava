@@ -12,8 +12,8 @@ interface TableInputProps {
  */
 export const TableInput = ({ class: className = "", value }: TableInputProps) => {
   return (
-    <Table
-      class={`w-full ${className}`}
+    <table
+      class={`w-full table-fixed border-collapse [&_th,&_td]:(p-2 border(1 neutral-7)) [&_tr]:even:bg-neutral-3 ${className}`}
       onFocus={restoreFocus}
       onMouseDown={handleMouseDown}
       onKeyDown={handleKeyDown}
@@ -31,7 +31,7 @@ export const TableInput = ({ class: className = "", value }: TableInputProps) =>
           </tr>
         ))}
       </tbody>
-    </Table>
+    </table>
   )
 }
 
