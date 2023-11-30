@@ -19,7 +19,7 @@ export const ChatInput = ({ value, onChange, onSend }) => {
         onInput={onChange}
         onKeyDown={handleKeyDown}
       />
-      <IconButton title="Send" icon={SendHorizontal} class="absolute h-full top-0 right-2" submit />
+      <IconButton title="Send" icon={SendHorizontal} class="absolute bottom-[9px] right-2" submit />
     </Form>
   )
 }
