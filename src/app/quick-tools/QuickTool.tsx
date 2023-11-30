@@ -1,9 +1,8 @@
 import { PenSquare } from "lucide"
 import { AutoScroll, Button, Form, FormGrid, GenerationProgress, IconButton, Markdown, Page, Field } from "../_components"
 import { useGenerate } from "../_hooks"
-import { err, parseVars, template } from "../_util"
+import { err, parseVars, template, humanize } from "../_util"
 import { examples } from "./_examples"
-import { humanize } from "../_util/human"
 
 export const QuickTool = ({ params: { id } }) => {
   const { generate, result, ...progress } = useGenerate()
