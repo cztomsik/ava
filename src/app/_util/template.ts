@@ -12,7 +12,7 @@ export const template = (tpl: string, data: Record<string, any>) => {
 
     if (op === "/") {
       if (key != stack[depth].key) {
-        throw new Error()
+        return "ERROR: mismatched closing tag"
       }
 
       const section = stack.pop()!
@@ -26,7 +26,7 @@ export const template = (tpl: string, data: Record<string, any>) => {
   }
 
   if (depth !== 0 || stack.length > 1) {
-    throw new Error()
+    return "ERROR: mismatched opening tag"
   }
 
   return stack[depth].inner
