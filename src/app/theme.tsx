@@ -97,7 +97,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
   },
 }
 
-install(cfg, !DEV)
+install(cfg, false)
 
 options.vnode = vnode => {
   if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)
