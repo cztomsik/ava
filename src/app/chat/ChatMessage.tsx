@@ -11,7 +11,7 @@ export const ChatMessage = ({ message: m }) => {
 
   return (
     <div class={`odd:(border(y-1 neutral-6) bg-neutral-2)`} onDblClick={handleEdit}>
-      <div class="flex">
+      <div class="container flex">
         <RoleAvatar class="mr-3" role={m.role} />
         {chat.editing === m ? (
           <EditMessage message={m} />

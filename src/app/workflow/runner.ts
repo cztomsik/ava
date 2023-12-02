@@ -1,10 +1,24 @@
 import { signal } from "@preact/signals"
 import { generate } from "../_hooks/useGenerate"
 import { parseHTML } from "../_util"
-import { examples } from "./_examples"
+
+export type Step = (typeof stepDefaults)[keyof typeof stepDefaults]
+
+// TODO: this should be retrieved from the server
+export const stepDefaults = {
+  wait: { duration: 1 },
+  generate: {}, // TODO: opts for sampling, etc.
+  instruction: { instruction: "" },
+  http_request: { method: "GET", url: "" },
+  query_selector: { selector: "", limit: 2, clean: true },
+}
+
+type Handlers = {
+  [k in keyof typeof stepDefaults]: (opts: (typeof stepDefaults)[k], input: string) => string | Promise<string>
+}
 
 // TODO: this should be implemented on the server side
-const handlers = {
+export const handlers: Handlers = {
   wait: ({ duration }) => {
     return new Promise(resolve => setTimeout(resolve, duration * 1000))
   },
@@ -30,15 +44,9 @@ const handlers = {
       .map(el => el.innerHTML)
       .join("")
   },
-} as const
+}
 
-export const runWorkflow = async (id: number) => {
-  const workflow = examples.find(w => w.id === id)
-
-  if (!workflow) {
-    throw new Error(`Workflow with id ${id} not found`)
-  }
-
+export const runWorkflow = async workflow => {
   const runStep = async (step, input) => {
     for (const k in handlers) {
       if (k in step) {

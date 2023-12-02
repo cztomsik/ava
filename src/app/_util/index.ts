@@ -1,7 +1,7 @@
 export { indexOf, slice } from "./array"
 export { dedent } from "./dedent"
 export { err } from "./err"
-export { humanSize, humanDuration } from "./human"
+export { humanSize, humanDuration, humanize } from "./human"
 export { jsonLines } from "./jsonLines"
 export { clamp } from "./math"
 export { basename } from "./path"

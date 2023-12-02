@@ -72,12 +72,9 @@ const cfg: TwindUserConfig<TailwindTheme> = {
     // mini-bootstrap
     ["hstack", "flex(& row) items-center"],
     ["vstack", "flex(& col)"],
-    ["row", "flex(& row) -mx-2"],
-    ["col", { flex: "1", padding: "0 0.5rem" }],
 
     // custom
     ["shadow-thin", { boxShadow: "0 1px 1px 0 rgba(0, 0, 0, 0.3)" }],
-    ["shadow-inner-rtl", { boxShadow: "inset -4px 0 4px -4px rgba(0,0,0,0.05)" }],
   ],
   variants: [
     // out-of-focus (TODO: maybe opacity is enough?)
@@ -100,7 +97,7 @@ const cfg: TwindUserConfig<TailwindTheme> = {
   },
 }
 
-install(cfg, !DEV)
+install(cfg, false)
 
 options.vnode = vnode => {
   if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)

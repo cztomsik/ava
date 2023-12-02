@@ -22,7 +22,7 @@ export const Workflows = () => {
           No changes are saved to the database
         </Alert>
 
-        <Table>
+        <Table class="max-w-5xl">
           <thead>
             <tr>
               <th>Name</th>

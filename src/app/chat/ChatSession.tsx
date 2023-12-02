@@ -36,37 +36,29 @@ export const ChatSession = ({ id }) => {
         )}
       </Page.Header>
 
-      <Page.Content class="!p-0 children:(px-4 py-6) grandchildren:(w-full max-w-3xl mx-auto)">
-        {chat.loading ? (
-          <div class="p-4 text-neutral-9">Loading...</div>
-        ) : (
-          <>
-            <ChatPrompt />
+      <Page.Content class="!p-0 [&_.container]:(px-4 py-6 w-full max-w-3xl mx-auto)">
+        <ChatPrompt />
 
-            {(!id || chat.messages?.length === 0) && <NoMessages />}
+        {(!id || chat.messages?.length === 0) && <NoMessages />}
 
-            {chat.messages?.map(m => (
-              <ChatMessage key={m.id} message={m} />
-            ))}
+        {chat.messages?.map(m => (
+          <ChatMessage key={m.id} message={m} />
+        ))}
 
-            <GenerationProgress class="!py-0 mb-10 justify-start" {...chat.progress} />
-            <AutoScroll />
-          </>
-        )}
+        <GenerationProgress class="container mb-10 justify-start" {...chat.progress} />
+        <AutoScroll />
       </Page.Content>
 
       <Page.Footer class="pt-2">
-        <div class="w-full max-w-3xl mx-auto">
-          <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
-        </div>
+        <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
       </Page.Footer>
     </ChatContext.Provider>
   )
 }
 
 const NoMessages = () => (
-  <div class="text-sky-12 bg-sky-2 py-6 border(y-1 sky-6)">
-    <div>
+  <div class="text-sky-12 bg-sky-2 px-4 py-2 border(y-1 sky-6)">
+    <div class="container">
       <strong>The conversation is empty.</strong>
       <ul class="list-disc mt-2 ml-4">
         <li>Select model in the bottom left corner.</li>

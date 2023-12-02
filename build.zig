@@ -85,7 +85,7 @@ fn addLlama(b: *std.Build) !void {
     }
 
     llama.addIncludePath(.{ .path = "llama.cpp" });
-    llama.addCSourceFiles(.{ .files = &.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/k_quants.c" }, .flags = cflags.items });
+    llama.addCSourceFiles(.{ .files = &.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/ggml-quants.c" }, .flags = cflags.items });
     llama.addCSourceFiles(.{ .files = &.{"llama.cpp/llama.cpp"}, .flags = cxxflags.items });
     b.installArtifact(llama);
 }
