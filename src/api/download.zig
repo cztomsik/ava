@@ -34,8 +34,8 @@ pub fn @"POST /download"(ctx: *server.Context) !void {
         return ctx.sendJson(.{ .@"error" = try std.fmt.allocPrint(ctx.arena, "Invalid content type: `{s}`", .{content_type}) });
     }
 
-    var path = try util.getWritableHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
-    var tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
+    const path = try util.getWritableHomePath(ctx.arena, &.{ "models", std.fs.path.basename(url) });
+    const tmp_path = try std.fmt.allocPrint(ctx.arena, "{s}.part", .{path});
     var file = try std.fs.createFileAbsolute(tmp_path, .{});
     defer file.close();
     errdefer std.fs.deleteFileAbsolute(tmp_path) catch {};

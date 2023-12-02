@@ -6,7 +6,7 @@ pub fn @"POST /find-models"(ctx: *server.Context) !void {
 
     const path = try ctx.readJson([]const u8);
 
-    var dir = try std.fs.openIterableDirAbsolute(path, .{});
+    var dir = try std.fs.openDirAbsolute(path, .{ .iterate = true });
     defer dir.close();
 
     var walker = try dir.walk(ctx.arena);
@@ -14,7 +14,7 @@ pub fn @"POST /find-models"(ctx: *server.Context) !void {
 
     while (try walker.next()) |entry| switch (entry.kind) {
         .file => if (std.mem.endsWith(u8, entry.basename, ".gguf")) {
-            const file = try dir.dir.openFile(entry.path, .{ .mode = .read_only });
+            const file = try dir.openFile(entry.path, .{ .mode = .read_only });
             defer file.close();
 
             try models_found.append(.{

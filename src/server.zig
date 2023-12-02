@@ -83,7 +83,7 @@ pub const Context = struct {
         var writer = list.writer();
         defer list.deinit();
 
-        if (comptime std.meta.trait.hasFn("next")(@TypeOf(body))) {
+        if (comptime std.meta.hasFn(@TypeOf(body), "next")) {
             var copy = body;
             var i: usize = 0;
 
@@ -131,10 +131,10 @@ pub const Context = struct {
 pub const Server = struct {
     http: std.http.Server,
     thread: std.Thread,
-    status: std.atomic.Atomic(enum(u8) { starting, started, stopping, stopped }) = .{ .value = .starting },
+    status: std.atomic.Value(enum(u8) { starting, started, stopping, stopped }) = .{ .raw = .starting },
 
     pub fn start(allocator: std.mem.Allocator, hostname: []const u8, port: u16) !*Server {
-        var self = try allocator.create(Server);
+        const self = try allocator.create(Server);
         errdefer allocator.destroy(self);
 
         var http = std.http.Server.init(allocator, .{ .reuse_address = true });

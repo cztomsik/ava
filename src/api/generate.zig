@@ -13,7 +13,7 @@ const GenerateParams = struct {
 
 pub fn @"POST /generate"(ctx: *server.Context, params: GenerateParams) !void {
     try ctx.sendJson(.{ .status = "Waiting for the model..." });
-    var model_path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
+    const model_path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
     var cx = try llama.Pool.get(model_path, 60_000);
     defer llama.Pool.release(cx);
 

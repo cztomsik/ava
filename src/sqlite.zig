@@ -114,7 +114,7 @@ pub const Statement = struct {
             f64 => c.sqlite3_bind_double(self.stmt, i, arg),
             []const u8 => c.sqlite3_bind_text(self.stmt, i, arg.ptr, @intCast(arg.len), null),
             else => |T| {
-                if (comptime std.meta.trait.is(.Optional)(T)) {
+                if (comptime @typeInfo(T) == .Optional) {
                     return if (arg == null) check(c.sqlite3_bind_null(self.stmt, i)) else self.bind(index, arg.?);
                 }
 
@@ -141,7 +141,7 @@ pub const Statement = struct {
     pub fn read(self: *Statement, comptime T: type) !T {
         if (try self.step() != .row) return error.NoRows;
 
-        if (comptime std.meta.trait.is(.Struct)(T)) {
+        if (comptime @typeInfo(T) == .Struct) {
             var res: T = undefined;
 
             inline for (std.meta.fields(T), 0..) |f, i| {
