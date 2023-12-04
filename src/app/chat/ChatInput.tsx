@@ -1,7 +1,25 @@
+import { useEffect } from "preact/hooks"
 import { SendHorizontal } from "lucide"
 import { AutoGrowTextarea, Form, IconButton } from "../_components"
 
 export const ChatInput = ({ value, onChange, onSend }) => {
+  // Steal focus if no input is focused and a key is pressed
+  useEffect(() => {
+    const listener = e => {
+      if (!e.target.value && !e.altKey && !e.metaKey && !e.ctrlKey && e.key.length === 1) {
+        // TODO: useRef()
+        // TODO: or maybe just use one global listener and always find closest textarea/input?
+        const input = document.querySelector("footer textarea")!
+        e.preventDefault()
+        input.focus()
+        input.value += e.key
+      }
+    }
+
+    document.body.addEventListener("keypress", listener)
+    return () => document.body.removeEventListener("keypress", listener)
+  }, [])
+
   const handleKeyDown = e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
