@@ -390,11 +390,14 @@ pub const Context = struct {
 
         while (iter.nextCodepoint()) |cp| {
             try buf.append(@intCast(switch (cp) {
-                33...126, 161...172, 174...255 => cp,
-                127...160 => cp - 162,
-                256...288 => cp - 256,
-                173 => 33,
-                else => return error.InvalidBPE,
+                '!'...'~', '¡'...'¬', '®'...'ÿ' => cp,
+                'Ā'...'Ġ' => cp - 256,
+                'ġ'...'ł' => cp - 162,
+                'Ń' => 173,
+                else => {
+                    log.debug("Invalid BPE? {s} cp: {}", .{ piece, cp });
+                    continue;
+                },
             }));
         }
     }
