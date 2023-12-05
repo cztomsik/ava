@@ -272,48 +272,47 @@ pub const Context = struct {
 
     /// Generates next utf-8 valid chunk of text.
     pub fn generate(self: *Context, params: *const SamplingParams) !?[]const u8 {
-        const token = try self.generateToken(params) orelse return null;
-        const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
         const start = self.buf.items.len;
-
-        switch (c.llama_token_get_type(self.model.ptr, token)) {
-            c.LLAMA_TOKEN_TYPE_NORMAL => {
-                // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
-                if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
-                    try self.buf.ensureUnusedCapacity(piece.len);
-                    self.buf.items.len += piece.len;
-                    self.buf.items.len -= std.mem.replace(u8, piece, "▁", " ", self.buf.items[start..]) * 2;
-                } else if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_BPE) {
-                    try appendBPE(&self.buf, piece);
-                } else {
-                    try self.buf.appendSlice(piece);
-                }
-            },
-            c.LLAMA_TOKEN_TYPE_UNKNOWN => try self.buf.appendSlice("▅"),
-            c.LLAMA_TOKEN_TYPE_BYTE => try self.buf.append(try std.fmt.parseInt(u8, piece[3..5], 16)),
-            else => {},
-        }
 
         // Keep generating until we have valid chunk, but not more than 32 times.
         for (0..32) |_| {
-            if (std.unicode.utf8ValidateSlice(self.buf.items[start..])) {
-                const chunk = self.buf.items[start..];
+            const token = try self.generateToken(params) orelse return null;
+            const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
 
-                for (params.stop) |s| {
-                    // Stop if the chunk contains the stop suffix.
-                    if (std.mem.indexOf(u8, chunk, s) != null) {
-                        return null;
+            switch (c.llama_token_get_type(self.model.ptr, token)) {
+                c.LLAMA_TOKEN_TYPE_NORMAL => {
+                    // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
+                    if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
+                        try self.buf.ensureUnusedCapacity(piece.len);
+                        self.buf.items.len += piece.len;
+                        self.buf.items.len -= std.mem.replace(u8, piece, "▁", " ", self.buf.items[start..]) * 2;
+                    } else if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_BPE) {
+                        try appendBPE(&self.buf, piece);
+                    } else {
+                        try self.buf.appendSlice(piece);
                     }
-
-                    // Current chunk might be a start of the stop suffix, so let's generate one more token.
-                    if (std.mem.startsWith(u8, s, chunk)) {
-                        break;
-                    }
-                } else return chunk;
+                },
+                c.LLAMA_TOKEN_TYPE_UNKNOWN => try self.buf.appendSlice("▅"),
+                c.LLAMA_TOKEN_TYPE_BYTE => try self.buf.append(try std.fmt.parseInt(u8, piece[3..5], 16)),
+                else => {},
             }
 
-            // Generate next token or stop if we can't.
-            if (try self.generate(params) == null) break;
+            const chunk = self.buf.items[start..];
+
+            // Handle stop tokens.
+            for (params.stop) |s| {
+                // Stop if the chunk contains the stop suffix.
+                if (std.mem.indexOf(u8, chunk, s) != null) {
+                    return null;
+                }
+
+                // Current chunk might be a start of the stop suffix, so let's generate one more token.
+                if (std.mem.startsWith(u8, s, chunk)) {
+                    break;
+                }
+            } else if (std.unicode.utf8ValidateSlice(chunk)) {
+                return chunk;
+            }
         }
 
         // Discard the invalid chunk.
