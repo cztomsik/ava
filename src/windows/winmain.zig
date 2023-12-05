@@ -5,13 +5,33 @@ const L = std.unicode.utf8ToUtf16LeStringLiteral;
 const c = struct {
     usingnamespace std.os.windows;
     usingnamespace std.os.windows.kernel32;
-    usingnamespace std.os.windows.user32;
 
     usingnamespace @cImport({
         @cInclude("ava.h");
     });
 
+    const WNDCLASSEXW = extern struct { cbSize: c.UINT = @sizeOf(WNDCLASSEXW), style: c.UINT, lpfnWndProc: WNDPROC, cbClsExtra: i32 = 0, cbWndExtra: i32 = 0, hInstance: c.HINSTANCE, hIcon: ?c.HICON, hCursor: ?c.HCURSOR, hbrBackground: ?c.HBRUSH, lpszMenuName: ?[*:0]const u16, lpszClassName: [*:0]const u16, hIconSm: ?c.HICON };
+    const MSG = extern struct { hWnd: ?c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPARAM, time: c.DWORD, pt: c.POINT, lPrivate: c.DWORD };
+    const WNDPROC = *const fn (hwnd: c.HWND, uMsg: c.UINT, wParam: c.WPARAM, lParam: c.LPARAM) callconv(c.WINAPI) c.LRESULT;
+    const WS_OVERLAPPEDWINDOW = 0xcf0000;
+    const CW_USEDEFAULT: i32 = @bitCast(@as(u32, 0x80000000));
+    const SW_SHOW = 5;
+    const WM_QUIT = 0x0012;
+    const WM_DESTROY = 0x0002;
+    const WM_SIZE = 0x0005;
+    const WM_PAINT = 0x000F;
+    const MB_OK = 0x00000000;
     const PAINTSTRUCT = extern struct { hdc: ?c.HDC, fErase: c.BOOL, rcPaint: c.RECT, fRestore: c.BOOL, fIncUpdate: c.BOOL, rgbReserved: [32]u8 };
+    extern "user32" fn PostQuitMessage(nExitCode: i32) callconv(c.WINAPI) void;
+    extern "user32" fn MessageBoxA(hWnd: ?c.HWND, lpText: [*:0]const u8, lpCaption: [*:0]const u8, uType: c.UINT) callconv(c.WINAPI) c.INT;
+    extern "user32" fn DefWindowProcW(hWnd: c.HWND, Msg: c.UINT, wParam: c.WPARAM, lParam: c.LPARAM) callconv(c.WINAPI) c.LRESULT;
+    extern "user32" fn GetMessageW(lpMsg: *c.MSG, hWnd: ?c.HWND, wMsgFilterMin: c.UINT, wMsgFilterMax: c.UINT) callconv(c.WINAPI) c.BOOL;
+    extern "user32" fn TranslateMessage(lpMsg: *c.MSG) callconv(c.WINAPI) c.BOOL;
+    extern "user32" fn DispatchMessageW(lpMsg: *c.MSG) callconv(c.WINAPI) c.LRESULT;
+    extern "user32" fn RegisterClassExW(*const WNDCLASSEXW) callconv(c.WINAPI) c.ATOM;
+    extern "user32" fn CreateWindowExW(dwExStyle: c.DWORD, lpClassName: [*:0]const u16, lpWindowName: [*:0]const u16, dwStyle: c.DWORD, X: i32, Y: i32, nWidth: i32, nHeight: i32, hWindParent: ?c.HWND, hMenu: ?c.HMENU, hInstance: c.HINSTANCE, lpParam: ?c.LPVOID) callconv(c.WINAPI) ?c.HWND;
+    extern "user32" fn ShowWindow(hWnd: c.HWND, nCmdShow: i32) callconv(c.WINAPI) c.BOOL;
+    extern "user32" fn UpdateWindow(hWnd: c.HWND) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn GetClientRect(hWnd: ?c.HWND, lpRect: ?*c.RECT) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn GetUpdateRect(hWnd: ?c.HWND, lpRect: ?*c.RECT, erase: c.BOOL) callconv(c.WINAPI) c.BOOL;
     extern "user32" fn BeginPaint(hWnd: ?c.HWND, lpPaint: ?*c.PAINTSTRUCT) callconv(c.WINAPI) c.HDC;
@@ -29,7 +49,7 @@ pub const std_options = struct {
 var window: c.HWND = undefined;
 var webview: *com.ICoreWebView2 = undefined;
 var controller: *com.ICoreWebView2Controller = undefined;
-var webview_initialized = std.atomic.Atomic(bool).init(false);
+var webview_initialized = std.atomic.Value(bool).init(false);
 
 pub fn main() !u8 {
     errdefer |e| showError(e);
@@ -73,7 +93,7 @@ fn createWindow() !void {
         return error.FailedToRegisterWindowClass;
     }
 
-    var hWnd = c.CreateWindowExW(
+    const hWnd = c.CreateWindowExW(
         0,
         CLASS_NAME,
         TITLE,

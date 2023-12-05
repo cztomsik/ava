@@ -1,7 +1,12 @@
 const std = @import("std");
 const c = struct {
     usingnamespace std.os.windows;
-    usingnamespace std.os.windows.ole32;
+
+    extern "ole32" fn CoTaskMemFree(pv: c.LPVOID) callconv(c.WINAPI) void;
+    extern "ole32" fn CoUninitialize() callconv(c.WINAPI) void;
+    extern "ole32" fn CoGetCurrentProcess() callconv(c.WINAPI) c.DWORD;
+    extern "ole32" fn CoInitialize(pvReserved: ?c.LPVOID) callconv(c.WINAPI) c.HRESULT;
+    extern "ole32" fn CoInitializeEx(pvReserved: ?c.LPVOID, dwCoInit: c.DWORD) callconv(c.WINAPI) c.HRESULT;
 };
 
 pub const ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler = Object(extern struct {
@@ -128,6 +133,8 @@ pub fn Object(comptime T: type) type {
     return extern struct {
         const Self = @This();
 
+        pub const Inner = T;
+
         pub const VTable = extern struct {
             QueryInterface: *const anyopaque,
             AddRef: *const fn (self: *Self) callconv(c.WINAPI) c.ULONG,
@@ -158,7 +165,7 @@ pub fn Object(comptime T: type) type {
     };
 }
 
-pub fn Callback(comptime T: type, comptime F: @TypeOf(@as(T, undefined).vtable.inner.Invoke)) *T {
+pub fn Callback(comptime T: type, comptime F: std.meta.FieldType(T.Inner, .Invoke)) *T {
     // I think this might be enough, because we only support "static" callbacks
     const Helper = struct {
         var STATIC: T = .{
