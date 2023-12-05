@@ -1,5 +1,5 @@
 import { signal } from "@preact/signals"
-import { useMemo } from "preact/hooks"
+import { useMemo, useRef } from "preact/hooks"
 
 export type UseFormProps<T> = {
   data?: T
@@ -7,11 +7,16 @@ export type UseFormProps<T> = {
   onChange?: (data: T) => void
 }
 
-export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) =>
-  useMemo(() => {
+export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) => {
+  // Always use latest callbacks
+  const callbacks = useRef(null as any)
+  callbacks.current = { onSubmit, onChange }
+
+  // Only reset values (and FormContext.Provider) when data changes
+  return useMemo(() => {
     // default is here because useMemo should keep the same reference
     const values = signal(data ?? ({} as T))
-    if (onChange) values.subscribe(onChange)
+    values.subscribe(data => callbacks.current.onChange?.(data))
 
     const field = name => ({
       name,
@@ -19,7 +24,8 @@ export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) =>
       onChange: e => (values.value = { ...values.value, [name]: e.target.value }),
     })
 
-    const handleSubmit = _ => onSubmit(values.value)
+    const handleSubmit = _ => callbacks.current.onSubmit(values.value)
 
     return { values, field, handleSubmit }
   }, [data])
+}
