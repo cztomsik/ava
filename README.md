@@ -1,6 +1,8 @@
-# Ava
+# Ava PLS
 
 Air-gapped Virtual Assistant / Personal language server
+
+![Screenshot](./website/screenshot.png)
 
 ## Tech stack
 
