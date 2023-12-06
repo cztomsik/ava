@@ -6,7 +6,7 @@ export const ChatInput = ({ value, onChange, onSend }) => {
   // Steal focus if no input is focused and a key is pressed
   useEffect(() => {
     const listener = e => {
-      if (!e.target.value && !e.altKey && !e.metaKey && !e.ctrlKey && e.key.length === 1) {
+      if (!("value" in e.target) && !e.altKey && !e.metaKey && !e.ctrlKey && e.key.length === 1) {
         // TODO: useRef()
         // TODO: or maybe just use one global listener and always find closest textarea/input?
         const input = document.querySelector("footer textarea")!
