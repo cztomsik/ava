@@ -283,9 +283,8 @@ pub const Context = struct {
                 c.LLAMA_TOKEN_TYPE_NORMAL => {
                     // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
                     if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
-                        try self.buf.ensureUnusedCapacity(piece.len);
-                        self.buf.items.len += piece.len;
-                        self.buf.items.len -= std.mem.replace(u8, piece, "▁", " ", self.buf.items[start..]) * 2;
+                        const n = std.mem.replace(u8, piece, "▁", " ", try self.buf.addManyAsSlice(piece.len));
+                        self.buf.items.len -= n * 2; // ▁ is 3 bytes, space is 1 byte, so we need to remove 2 bytes
                     } else if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_BPE) {
                         try appendBPE(&self.buf, piece);
                     } else {
@@ -299,19 +298,19 @@ pub const Context = struct {
 
             const chunk = self.buf.items[start..];
 
-            // Handle stop tokens.
-            for (params.stop) |s| {
-                // Stop if the chunk contains the stop suffix.
-                if (std.mem.indexOf(u8, chunk, s) != null) {
-                    return null;
-                }
+            if (std.unicode.utf8ValidateSlice(chunk)) {
+                // Handle stop tokens.
+                for (params.stop) |s| {
+                    // Stop if the chunk contains the stop suffix.
+                    if (std.mem.indexOf(u8, chunk, s) != null) {
+                        return null;
+                    }
 
-                // Current chunk might be a start of the stop suffix, so let's generate one more token.
-                if (std.mem.startsWith(u8, s, chunk)) {
-                    break;
-                }
-            } else if (std.unicode.utf8ValidateSlice(chunk)) {
-                return chunk;
+                    // Current chunk might be a start of the stop suffix, so let's generate one more token.
+                    if (std.mem.startsWith(u8, s, chunk)) {
+                        break;
+                    }
+                } else return chunk;
             }
         }
 
