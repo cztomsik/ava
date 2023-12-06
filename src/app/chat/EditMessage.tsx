@@ -14,7 +14,7 @@ export const EditMessage = ({ message: m }) => {
 
   return (
     <Form class="flex-1 vstack gap-2" onSubmit={() => chat.updateMessage({ ...m, content: content.value })}>
-      <AutoGrowTextarea class="min-h-[4rem]" value={content} onInput={e => (content.value = e.target!.value)} autofocus />
+      <AutoGrowTextarea class="min-h-[4.5rem]" value={content} onInput={e => (content.value = e.target!.value)} autofocus />
 
       <div class="hstack gap-2">
         <Button submit>Save</Button>

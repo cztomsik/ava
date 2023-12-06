@@ -28,7 +28,7 @@ const EditPrompt = ({ onClose }) => {
 
   return (
     <Form class="container" onSubmit={handleSubmit}>
-      <AutoGrowTextarea value={prompt} onInput={e => (prompt.value = e.target!.value)} />
+      <AutoGrowTextarea class="min-h-[4.5rem]" value={prompt} onInput={e => (prompt.value = e.target!.value)} />
 
       <div class="mt-2 hstack gap-2">
         <Button submit>Save</Button>
