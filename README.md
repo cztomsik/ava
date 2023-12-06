@@ -1,6 +1,7 @@
 # Ava PLS
 
-Air-gapped Virtual Assistant / Personal language server
+Air-gapped Virtual Assistant / Personal Language Server\
+[Website](https://avapls.com) | [Twitter](https://twitter.com/cztomsik) | [Discord](https://discord.gg/C47qUJPkkf)
 
 ![Screenshot](./website/screenshot.png)
 
@@ -15,13 +16,14 @@ Make sure you have:
 
 - [0.12.0-dev.1769+bf5ab5451](https://ziglang.org/download/)
 - [Node.js 20.5.1](https://nodejs.org/)
+  - only needed for fetching dependencies
 - Xcode (for macOS)
 - pkg-config (`brew install pkg-config`)
 
 ```bash
 npm install
 npm run watch
-zig build run
+zig build run && ./zig-out/bin/ava_aarch64 # or ./zig-out/bin/ava_x86_64
 ```
 
 ## macOS 12.6+ (Monterey)
@@ -35,7 +37,19 @@ sudo xcode-select -switch /Applications/Xcode.app
 ## Production build
 
 ```bash
-npm install
-npm run build
-zig build -Doptimize=ReleaseSafe -Dcpu=native
+./src/macos/create_dmg.sh
 ```
+
+Or on Windows:
+
+```bash
+./src/windows/create_zip.sh
+```
+
+## License
+
+MIT
+
+## Contributing
+
+Bug reports and pull requests are welcome but if you want to do a bigger change, please open an issue first to discuss it.
