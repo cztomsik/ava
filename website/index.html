@@ -26,6 +26,10 @@
         --bs-btn-hover-bg: none;
         --bs-btn-hover-border-color: var(--bs-btn-hover-color);
       }
+
+      .btn .fab {
+        margin-right: 7px;
+      }
     </style>
     <script data-goatcounter="https://avapls.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   </head>
@@ -62,13 +66,29 @@
     <header class="hero text-bg-primary py-5">
       <div class="container">
         <div class="row g-4 align-items-center">
-          <div class="col-md-5">
+          <div class="col-md-5" id="download">
             <div class="my-4">
               <h1>Meet Ava: Your Personal Language Server.</h1>
               <h2 class="fw-light">The power of advanced language models, right on your desktop.</h2>
             </div>
             <div class="my-4">
-              <a href="#download" class="btn btn-lg btn-outline-light">Download Ava PLS</a>
+              <div class="vstack gap-3 justify-content-center">
+                <div>
+                  <a href="https://s3.amazonaws.com/www.avapls.com/Ava_2023-12-05.dmg" class="btn btn-lg btn-outline-light"
+                    ><i class="fab fa-apple"></i> Download for macOS</a
+                  >
+                </div>
+                <div>
+                  <a
+                    href="https://s3.amazonaws.com/www.avapls.com/ava_x86_64_2023-10-26.zip"
+                    class="btn btn-lg btn-outline-light"
+                    ><i class="fab fa-windows"></i> Download for Windows</a
+                  >
+                </div>
+                <div>
+                  <a class="text-white" href="https://github.com/cztomsik/ava/">View on GitHub</a>
+                </div>
+              </div>
             </div>
           </div>
           <div class="col-md mb-4">
@@ -90,23 +110,22 @@
 
     <div class="links text-bg-dark py-3">
       <div class="container text-center">
-        <p class="text-secondary mb-1">Connect with us</p>
         <div class="hstack gap-2 justify-content-center">
+          <p class="text-secondary my-0 me-4">Connect with us</p>
           <a href="https://twitter.com/cztomsik" class="btn btn-sm btn-outline-secondary">Twitter</a>
           <a href="https://discord.gg/C47qUJPkkf" class="btn btn-sm btn-outline-secondary">Discord</a>
           <a href="https://www.reddit.com/r/AvaPLS/" class="btn btn-sm btn-outline-secondary">Reddit</a>
+          <a href="https://www.producthunt.com/posts/ava-pls" class="btn btn-sm btn-outline-secondary">Product Hunt</a>
         </div>
       </div>
     </div>
 
     <section class="features text-bg-light py-4" id="about">
       <div class="container py-4">
-        <h2 class="text-center mb-4">Features & Benefits</h2>
-
         <p class="lead text-center col-lg-8 mx-auto">
-          Ava PLS is a desktop application for running language models locally on your computer. It allows you to perform
-          various language tasks, like text generation, grammar correction, rephrasing, summarization, data extraction, and
-          more.
+          Ava PLS is an open-source desktop application for running language models locally on your computer. It allows you
+          to perform various language tasks, like text generation, grammar correction, rephrasing, summarization, data
+          extraction, and more.
         </p>
 
         <div class="row py-4 mt-5">
@@ -121,31 +140,6 @@
           <div class="col-md-6 col-lg-4">
             <h5>All-in-One</h5>
             <p>Everything you need in one sleek application. No extras, no fuss.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="cta text-bg-primary py-4" id="download">
-      <div class="container py-4">
-        <div class="row row-gap-4">
-          <div class="col text-center">
-            <h2>Ready to get started?</h2>
-            <p class="lead">Download Ava today and start using the most powerful language models available.</p>
-            <div class="hstack gap-3 justify-content-center">
-              <div>
-                <a href="https://s3.amazonaws.com/www.avapls.com/Ava_2023-10-26.dmg" class="btn btn-outline-light"
-                  >Download for macOS</a
-                ><br />
-                <small>Universal binary</small>
-              </div>
-              <div>
-                <a href="https://s3.amazonaws.com/www.avapls.com/ava_x86_64_2023-10-26.zip" class="btn btn-outline-light"
-                  >Download for Windows</a
-                ><br />
-                <small>Experimental</small>
-              </div>
-            </div>
           </div>
         </div>
       </div>
