@@ -91,7 +91,7 @@ const parse = (input, target = [] as any) => {
     p(/\[(.*?)\]\((.*?)\)/g, (children, href) => <a {...{ href, children }} />)
 
     // Code blocks
-    p(/```.*?\n([\s\S]*?)```/g, text => <pre>{text}</pre>)
+    p(/```.*?\n([\s\S]*?)(?:```|$)/g, text => <pre>{text}</pre>)
 
     // Heading
     p(/^(#{1,6}) (.*)$/gm, (prefix, text, l = prefix.length, H: any = `h${l}`) => <H>{parse(text)}</H>)
