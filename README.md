@@ -34,7 +34,7 @@ Make sure you have:
 ```bash
 npm install
 npm run watch
-zig build run && ./zig-out/bin/ava_aarch64 # or ./zig-out/bin/ava_x86_64
+zig build && ./zig-out/bin/ava_aarch64 # or ./zig-out/bin/ava_x86_64
 ```
 
 ## macOS 12.6+ (Monterey)
