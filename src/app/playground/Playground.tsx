@@ -37,7 +37,7 @@ export const Playground = () => {
     <Page>
       <Page.Header title="Playground">
         {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
-        <IconButton title="Generate" icon={Play} onClick={handleSubmit} />
+        <IconButton title="Generate" icon={Play} onClick={handleSubmit} disabled={prompt.value === ""} />
         <IconButton title="Save As" icon={Save} onClick={handleSaveAs} />
       </Page.Header>
 
