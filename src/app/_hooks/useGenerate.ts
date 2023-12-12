@@ -5,15 +5,19 @@ import { callApi } from "./useApi"
 export const selectedModel = signal<number | null>(+localStorage.getItem("selectedModel")! || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
 
-interface GenerateOptions {
+export interface GenerateOptions {
   prompt: string
   start_with?: string
   max_tokens?: number
   trim_first?: boolean
   sampling?: {
+    top_k?: number
+    top_p?: number
     temperature?: number
     repeat_n_last?: number
     repeat_penalty?: number
+    presence_penalty?: number
+    freq_penalty?: number
     add_bos?: boolean
     stop_eos?: boolean
     stop?: string[]
@@ -27,11 +31,11 @@ export const generate = async (options: GenerateOptions, result, status, signal?
 
     const res = selectedModel.value
       ? await callApi("generate", {
-          method: "POST",
-          body: JSON.stringify({ model_id: selectedModel.value, ...options }),
-          stream: true,
-          signal,
-        })
+        method: "POST",
+        body: JSON.stringify({ model_id: selectedModel.value, ...options }),
+        stream: true,
+        signal,
+      })
       : await noModelSelected()
 
     for await (let d of res) {
