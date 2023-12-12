@@ -23,7 +23,7 @@ const autoprefix = ({ stringify }) => ({
 
 const globals = () => ({
   preflight: css`
-    input:not([type="checkbox"]),
+    input:not([type="checkbox"]):not([type="range"]),
     select,
     textarea,
     .form-control {

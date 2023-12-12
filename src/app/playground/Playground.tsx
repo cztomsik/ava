@@ -1,7 +1,8 @@
 import { useSignal } from "@preact/signals"
-import { Play, Save, Trash2 } from "lucide"
+import { Play, Save, Settings, Trash2 } from "lucide"
 import { AutoScroll, Checkbox, Form, GenerationProgress, IconButton, Markdown, Page, Select } from "../_components"
-import { useApi, useConfirm, useGenerate, useLocalStorage } from "../_hooks"
+import { SettingsModal } from "./SettingsModal"
+import { useApi, useConfirm, useGenerate, useLocalStorage, GenerateOptions } from "../_hooks"
 import { dedent, parseVars, template } from "../_util"
 
 // TODO: json, grammar, json-schema
@@ -16,7 +17,27 @@ export const Playground = () => {
   const { generate, result, ...progress } = useGenerate([prompt.value])
   const showPrompt = useSignal(false)
 
-  const handleSubmit = () => generate({ prompt: template(prompt.value, data.value) })
+  const defaultOptions: GenerateOptions["sampling"] = {
+    temperature: 0.7,
+    top_k: 40,
+    top_p: 0.5,
+    repeat_n_last: 256,
+    repeat_penalty: 1.05,
+    presence_penalty: 0,
+    freq_penalty: 0,
+    add_bos: true,
+    stop_eos: true,
+    stop: [],
+  }
+  const sampleOptions = useLocalStorage<GenerateOptions["sampling"]>("playground.sampleOptions", defaultOptions)
+  const showSettings = useSignal(false)
+  const handleSettings = () => (showSettings.value = true)
+  const saveSettings = (settings: GenerateOptions["sampling"]) => {
+    showSettings.value = false
+    sampleOptions.value = settings
+  }
+
+  const handleSubmit = () => generate({ prompt: template(prompt.value, data.value), sampling: sampleOptions.value })
 
   const handleSaveAs = async () => {
     const name = window.prompt("Name this prompt", selection.value?.name ?? "Untitled")
@@ -35,8 +56,17 @@ export const Playground = () => {
 
   return (
     <Page>
+      {showSettings.value && (
+        <SettingsModal
+          sampleOptions={sampleOptions.value}
+          onClose={() => (showSettings.value = false)}
+          onSave={saveSettings}
+        />
+      )}
+
       <Page.Header title="Playground">
         {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
+        <IconButton title="Sampling Settings" icon={Settings} onClick={handleSettings} />
         <IconButton title="Generate" icon={Play} onClick={handleSubmit} disabled={prompt.value === ""} />
         <IconButton title="Save As" icon={Save} onClick={handleSaveAs} />
       </Page.Header>
