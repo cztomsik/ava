@@ -1,0 +1,14 @@
+.{
+    .name = "ava",
+    .version = "0.0.1",
+
+    .dependencies = .{
+        .@"ava-sqlite" = .{
+            .url = "https://github.com/cztomsik/ava-sqlite/archive/refs/heads/main.tar.gz",
+            .hash = "1220996985560fe2d23c5e9d67562271d54a1fe9ca6336f48d003aa30a51598076f1",
+        },
+    },
+    .paths = .{
+        "",
+    },
+}

@@ -1,6 +1,6 @@
 const std = @import("std");
 const util = @import("util.zig");
-const sqlite = @import("sqlite.zig");
+const sqlite = @import("ava-sqlite");
 const migrate = @import("db_migrate.zig").migrate;
 
 pub const Model = struct {

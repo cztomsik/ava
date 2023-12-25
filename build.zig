@@ -40,6 +40,7 @@ fn addServer(b: *std.Build) !void {
     srv.bundle_compiler_rt = true; // needed for everything
     srv.main_mod_path = .{ .path = "." }; // needed for @embedFile
     srv.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
+    srv.addModule("ava-sqlite", b.dependency("ava-sqlite", .{}).module("ava-sqlite"));
 
     b.installArtifact(srv);
 }

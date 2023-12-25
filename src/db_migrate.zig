@@ -3,7 +3,7 @@
 // different and we don't support indices yet
 
 const std = @import("std");
-const sqlite = @import("sqlite.zig");
+const sqlite = @import("ava-sqlite");
 const log = std.log.scoped(.db_migrate);
 
 pub fn migrate(allocator: std.mem.Allocator, db: *sqlite.SQLite3) !void {
