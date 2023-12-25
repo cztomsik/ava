@@ -1,7 +1,6 @@
 const std = @import("std");
 const util = @import("util.zig");
 const sqlite = @import("ava-sqlite");
-const migrate = @import("db_migrate.zig").migrate;
 
 pub const Model = struct {
     id: u32,
@@ -36,7 +35,7 @@ pub fn init(allocator: std.mem.Allocator) !void {
     defer allocator.free(db_file);
 
     db = try sqlite.SQLite3.open(db_file);
-    try migrate(allocator, &db);
+    try sqlite.migrate(allocator, &db, @embedFile("db_schema.sql"));
 }
 
 pub fn deinit() void {
