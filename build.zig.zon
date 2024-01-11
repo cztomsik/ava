@@ -5,7 +5,7 @@
     .dependencies = .{
         .@"ava-sqlite" = .{
             .url = "https://github.com/cztomsik/ava-sqlite/archive/refs/heads/main.tar.gz",
-            .hash = "122013caee042269ef748bd0631d9c92afdf856755743e8189ac8ad758b65caa8253",
+            .hash = "122089db79be7093db053897cc4bf3a82996d2813f36dcd5346def512f2be728a529",
         },
     },
     .paths = .{

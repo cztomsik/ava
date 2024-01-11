@@ -16,9 +16,9 @@ pub fn create(b: *std.Build) !*std.Build.Step {
         "-lllama",
         "-lsqlite3",
         "-target",
-        b.fmt("{s}-apple-macosx{}", .{ @tagName(root.target.getCpuArch()), root.target.os_version_min.?.semver }),
+        b.fmt("{s}-apple-macosx{}", .{ @tagName(root.target.result.cpu.arch), root.target.result.os.version_range.semver.min }),
         "-o",
-        b.fmt("zig-out/bin/ava_{s}", .{@tagName(root.target.getCpuArch())}),
+        b.fmt("zig-out/bin/ava_{s}", .{@tagName(root.target.result.cpu.arch)}),
     });
 
     if (root.optimize == .Debug) {

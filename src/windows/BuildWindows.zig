@@ -1,7 +1,7 @@
 const std = @import("std");
 const root = @import("../../build.zig");
 
-pub fn create(b: *std.Build) !*std.build.Step {
+pub fn create(b: *std.Build) !*std.Build.Step {
     const download_deps = b.addSystemCommand(&.{ "bash", "src/windows/download_deps.sh" });
     download_deps.has_side_effects = true;
 
@@ -20,10 +20,9 @@ pub fn create(b: *std.Build) !*std.build.Step {
     sqlite.addCSourceFiles(.{ .files = &.{"zig-out/sqlite/sqlite3.c"}, .flags = &.{"-std=c99"} });
 
     const exe = b.addExecutable(.{
-        .name = b.fmt("ava_{s}", .{@tagName(root.target.getCpuArch())}),
+        .name = b.fmt("ava_{s}", .{@tagName(root.target.result.cpu.arch)}),
         .target = root.target,
         .optimize = root.optimize,
-        .main_mod_path = .{ .path = "src" },
         .root_source_file = .{ .path = "src/windows/winmain.zig" },
         .win32_manifest = .{ .path = "src/windows/winmain.manifest" },
     });

@@ -15,21 +15,44 @@ pub const std_options = struct {
     pub const logFn = util.Logger.log;
 };
 
-pub export fn ava_start() c_int {
+// This is only used for the headless build
+pub fn main() !void {
+    std.log.debug("Starting the server", .{});
+    try start();
+
+    const banner =
+        \\
+        \\  /\ \  / /\             Server running
+        \\ /--\ \/ /--\            http://{}
+        \\ _____________________________________________
+        \\
+        \\
+    ;
+
+    std.debug.print(banner, .{
+        server.?.http.socket.listen_address,
+    });
+
+    server.?.thread.join();
+
+    std.log.debug("Stopping the server", .{});
+    _ = ava_stop();
+}
+
+pub fn start() !void {
     if (server != null) {
-        std.log.err("Server already started", .{});
-        return 1;
+        return error.ServerAlreadyStarted;
     }
 
     llama.init(allocator);
+    try db.init(allocator);
 
-    db.init(allocator) catch |err| {
-        std.log.err("DB error: {}", .{err});
-        return 1;
-    };
+    server = try Server.start(allocator, "127.0.0.1", 3002);
+}
 
-    server = Server.start(allocator, "127.0.0.1", 3002) catch |err| {
-        std.log.err("Server error: {}", .{err});
+pub export fn ava_start() c_int {
+    start() catch |e| {
+        std.log.err("Unexpected error: {}", .{e});
         return 1;
     };
 
