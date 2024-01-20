@@ -31,8 +31,9 @@ pub fn build(b: *std.Build) !void {
 
     exe.bundle_compiler_rt = true; // needed for everything
     exe.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
-    exe.root_module.addImport("ava-sqlite", b.dependency("ava-sqlite", .{}).module("ava-sqlite"));
-    exe.linkSystemLibrary("sqlite3");
+
+    const sqlite = b.dependency("ava-sqlite", .{});
+    exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
 
     b.installArtifact(exe);
 }
