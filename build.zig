@@ -22,6 +22,7 @@ pub fn build(b: *std.Build) !void {
         try buildExe(b, b.addExecutable(options));
     } else switch (target.result.os.tag) {
         .macos => try buildExe(b, @import("src/macos/BuildMacos.zig").create(b, options)),
+        .windows => try buildExe(b, @import("src/windows/BuildWindows.zig").create(b, options)),
         else => return error.UnsupportedOs,
     }
 }

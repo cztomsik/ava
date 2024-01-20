@@ -15,10 +15,7 @@ root_module: *std.Build.Module,
 swiftc: *std.Build.Step.Run,
 out: std.Build.LazyPath,
 
-pub fn create(
-    owner: *std.Build,
-    options: Options,
-) *BuildMacos {
+pub fn create(owner: *std.Build, options: Options) *BuildMacos {
     const self = owner.allocator.create(@This()) catch @panic("OOM");
 
     const object = owner.addObject(.{
