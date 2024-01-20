@@ -32,7 +32,7 @@ npm run watch
 zig build && ./zig-out/bin/ava_aarch64 # or ./zig-out/bin/ava_x86_64
 ```
 
-## Headless mode (work on Linux!)
+## Headless mode (works on Linux!)
 
 It is now possible to build Ava in headless mode. This will start a server
 and you can connect to it using a web browser.
