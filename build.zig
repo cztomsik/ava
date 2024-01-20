@@ -35,7 +35,8 @@ fn buildExe(b: *std.Build, exe: anytype) !void {
     try generateBuildInfo();
     try addLlama(b, exe);
 
-    const bin = b.addInstallBinFile(exe.getEmittedBin(), b.fmt("ava_{s}", .{@tagName(exe.rootModuleTarget().cpu.arch)}));
+    const suffix = if (exe.rootModuleTarget().os.tag == .windows) ".exe" else "";
+    const bin = b.addInstallBinFile(exe.getEmittedBin(), b.fmt("ava_{s}{s}", .{ @tagName(exe.rootModuleTarget().cpu.arch), suffix }));
     b.getInstallStep().dependOn(&bin.step);
 }
 
