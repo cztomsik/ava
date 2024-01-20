@@ -59,7 +59,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
 
     for (sources) |f| {
         const is_cpp = std.mem.endsWith(u8, f, ".cpp");
-        if (std.mem.endsWith(u8, f, ".cpp") and exe.rootModuleTarget().os.tag != .macos) continue;
+        if (std.mem.endsWith(u8, f, ".m") and exe.rootModuleTarget().os.tag != .macos) continue;
 
         const o = b.addObject(.{
             .name = std.fs.path.basename(f),
