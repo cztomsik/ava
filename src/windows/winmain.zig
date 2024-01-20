@@ -41,10 +41,6 @@ const c = struct {
 };
 const allocator = std.heap.page_allocator;
 
-pub const std_options = struct {
-    pub const log_level = .debug;
-};
-
 // Globals
 var window: c.HWND = undefined;
 var webview: *com.ICoreWebView2 = undefined;

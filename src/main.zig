@@ -8,28 +8,27 @@ const util = @import("util.zig");
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = if (builtin.mode == .Debug) gpa.allocator() else std.heap.c_allocator;
 
-var server: ?*Server = null;
+pub var server: ?*Server = null;
 
 pub const std_options = struct {
     pub const log_level = .debug;
     pub const logFn = util.Logger.log;
 };
 
-pub export fn ava_start() c_int {
+pub fn start() !void {
     if (server != null) {
-        std.log.err("Server already started", .{});
-        return 1;
+        return error.ServerAlreadyStarted;
     }
 
     llama.init(allocator);
+    try db.init(allocator);
 
-    db.init(allocator) catch |err| {
-        std.log.err("DB error: {}", .{err});
-        return 1;
-    };
+    server = try Server.start(allocator, "127.0.0.1", 3002);
+}
 
-    server = Server.start(allocator, "127.0.0.1", 3002) catch |err| {
-        std.log.err("Server error: {}", .{err});
+pub export fn ava_start() c_int {
+    start() catch |e| {
+        std.log.err("Unexpected error: {}", .{e});
         return 1;
     };
 

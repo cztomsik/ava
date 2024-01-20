@@ -117,7 +117,10 @@ pub const Model = struct {
 
         // It seems Metal never worked on Intel-based macs.
         // see https://github.com/ggerganov/llama.cpp/issues/3423#issuecomment-1745511586
-        params.n_gpu_layers = if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) 1 else 0;
+        //
+        // TODO: now even macos can do a split, so we should make it configurable (and/or detect)
+        // https://github.com/ggerganov/llama.cpp/blob/master/llama.cpp#L9643
+        params.n_gpu_layers = if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) 999 else 0;
         log.debug("n_gpu_layers = {}", .{params.n_gpu_layers});
 
         // Load the model

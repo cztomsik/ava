@@ -129,6 +129,7 @@ pub const Context = struct {
 
 /// An instance of our HTTP server.
 pub const Server = struct {
+    allocator: std.mem.Allocator,
     http: std.http.Server,
     thread: std.Thread,
     status: std.atomic.Value(enum(u8) { starting, started, stopping, stopped }) = .{ .raw = .starting },
@@ -137,13 +138,14 @@ pub const Server = struct {
         const self = try allocator.create(Server);
         errdefer allocator.destroy(self);
 
-        var http = std.http.Server.init(allocator, .{ .reuse_address = true });
+        var http = std.http.Server.init(.{ .reuse_address = true });
         errdefer http.deinit();
 
         const address = try std.net.Address.parseIp(hostname, port);
         try http.listen(address);
 
         self.* = .{
+            .allocator = allocator,
             .http = http,
             .thread = try std.Thread.spawn(.{}, run, .{self}),
         };
@@ -163,7 +165,7 @@ pub const Server = struct {
         }
 
         self.http.deinit();
-        self.http.allocator.destroy(self);
+        self.allocator.destroy(self);
     }
 
     fn run(self: *Server) !void {
@@ -172,9 +174,9 @@ pub const Server = struct {
 
         while (self.status.load(.Acquire) == .started) {
             // accidental moving/copying would invalidate pointers inside
-            var arena = try self.http.allocator.create(std.heap.ArenaAllocator);
-            errdefer self.http.allocator.destroy(arena);
-            arena.* = std.heap.ArenaAllocator.init(self.http.allocator);
+            var arena = try self.allocator.create(std.heap.ArenaAllocator);
+            errdefer self.allocator.destroy(arena);
+            arena.* = std.heap.ArenaAllocator.init(self.allocator);
             errdefer arena.deinit();
 
             const res = try self.http.accept(.{
