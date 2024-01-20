@@ -9,15 +9,24 @@ pub fn build(b: *std.Build) !void {
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
 
-    const exe = if (b.option(bool, "headless", "Build headless webserver") orelse false) b.addExecutable(.{
+    const options = .{
         .name = "ava",
-        .root_source_file = .{ .path = "_root.zig" },
+        .root_source_file = .{ .path = if (headless) "_headless.zig" else "_gui.zig" },
         .target = target,
         .optimize = optimize,
-    }) else switch (target.result.os.tag) {
-        else => return error.UnsupportedOs,
     };
+
+    if (headless) {
+        try buildExe(b, b.addExecutable(options));
+    } else switch (target.result.os.tag) {
+        .macos => try buildExe(b, @import("src/macos/BuildMacos.zig").create(b, options)),
+        else => return error.UnsupportedOs,
+    }
+}
+
+fn buildExe(b: *std.Build, exe: anytype) !void {
     exe.addIncludePath(.{ .path = "llama.cpp" });
 
     const sqlite = b.dependency("ava-sqlite", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
@@ -26,7 +35,8 @@ pub fn build(b: *std.Build) !void {
     try generateBuildInfo();
     try addLlama(b, exe);
 
-    b.installArtifact(exe);
+    const bin = b.addInstallBinFile(exe.getEmittedBin(), b.fmt("ava_{s}", .{@tagName(exe.rootModuleTarget().cpu.arch)}));
+    b.getInstallStep().dependOn(&bin.step);
 }
 
 fn generateBuildInfo() !void {
@@ -64,7 +74,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         const o = b.addObject(.{
             .name = std.fs.path.basename(f),
             .target = exe.root_module.resolved_target.?,
-            .optimize = exe.root_module.optimize.?,
+            .optimize = .ReleaseFast, // always optimize llama.cpp
         });
 
         o.defineCMacro("_GNU_SOURCE", null);

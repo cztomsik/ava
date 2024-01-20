@@ -8,36 +8,12 @@ const util = @import("util.zig");
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = if (builtin.mode == .Debug) gpa.allocator() else std.heap.c_allocator;
 
-var server: ?*Server = null;
+pub var server: ?*Server = null;
 
 pub const std_options = struct {
     pub const log_level = .debug;
     pub const logFn = util.Logger.log;
 };
-
-// This is only used for the headless build
-pub fn main() !void {
-    std.log.debug("Starting the server", .{});
-    try start();
-
-    const banner =
-        \\
-        \\  /\ \  / /\             Server running
-        \\ /--\ \/ /--\            http://{}
-        \\ _____________________________________________
-        \\
-        \\
-    ;
-
-    std.debug.print(banner, .{
-        server.?.http.socket.listen_address,
-    });
-
-    server.?.thread.join();
-
-    std.log.debug("Stopping the server", .{});
-    _ = ava_stop();
-}
 
 pub fn start() !void {
     if (server != null) {
