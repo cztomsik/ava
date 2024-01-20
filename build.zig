@@ -1,134 +1,98 @@
 const std = @import("std");
 
-pub var target: std.Build.ResolvedTarget = undefined;
-pub var optimize: std.builtin.Mode = undefined;
-pub var llama: *std.Build.Step.Compile = undefined;
-
 pub fn build(b: *std.Build) !void {
-    const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
+    // const target_query = b.standardTargetOptionsQueryOnly(.{});
+    // if (target.query.os_tag == .macos and target.query.os_version_min == null) {
+    //     target.query.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
+    //     std.log.debug("Setting macOS deployment target to {}", .{target.query.os_version_min.?});
+    // }
 
-    if (!headless) {
-        return error.ToBeImplemented;
-    }
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
 
-    target = b.standardTargetOptions(.{});
-    optimize = b.standardOptimizeOption(.{});
-
-    // self.addInstallArtifact(artifact, .{})
-    // .step
-
-    const exe = b.addExecutable(.{
+    const exe = if (b.option(bool, "headless", "Build headless webserver") orelse false) b.addExecutable(.{
         .name = "ava",
         .root_source_file = .{ .path = "src/main.zig" },
-        .target = b.host,
-    });
+        .target = target,
+        .optimize = optimize,
+    }) else switch (target.result.os.tag) {
+        else => return error.UnsupportedOs,
+    };
+    exe.addIncludePath(.{ .path = "llama.cpp" });
 
-    try addLlama(b);
-
-    exe.linkLibC();
-    exe.linkLibCpp();
-    exe.linkLibrary(llama);
-
-    exe.bundle_compiler_rt = true; // needed for everything
-    exe.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
-
-    const sqlite = b.dependency("ava-sqlite", .{});
+    const sqlite = b.dependency("ava-sqlite", .{ .bundle = true });
     exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
+
+    try generateBuildInfo();
+    try addLlama(b, exe);
 
     b.installArtifact(exe);
 }
 
-// const std = @import("std");
+fn generateBuildInfo() !void {
+    // TODO: later
+    try std.fs.cwd().writeFile("llama.cpp/common/build-info.cpp",
+        \\int LLAMA_BUILD_NUMBER = 0;
+        \\char const *LLAMA_COMMIT = "";
+        \\char const *LLAMA_COMPILER = "";
+        \\char const *LLAMA_BUILD_TARGET = "";
+    );
+}
 
-// pub var srv: *std.Build.Step.Compile = undefined;
+fn addLlama(b: *std.Build, exe: anytype) !void {
+    const cflags = try flags(b, exe, &.{"-std=c11"});
+    const cxxflags = try flags(b, exe, &.{"-std=c++11"});
 
-// pub fn build(b: *std.Build) !void {
-//     const target_query = b.standardTargetOptionsQueryOnly(.{});
-//     if (target.query.os_tag == .macos and target.query.os_version_min == null) {
-//         target.query.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
-//         std.log.debug("Setting macOS deployment target to {}", .{target.query.os_version_min.?});
-//     }
+    const sources: []const []const u8 = &.{
+        "ggml.c",
+        "ggml-alloc.c",
+        "ggml-backend.c",
+        "ggml-quants.c",
+        "ggml-metal.m",
+        "llama.cpp",
+        "common/build-info.cpp",
+        "common/common.cpp",
+        "common/console.cpp",
+        "common/sampling.cpp",
+        "common/grammar-parser.cpp",
+    };
 
-//     target = b.resolveTargetQuery(target_query);
-//     optimize = b.standardOptimizeOption(.{});
+    for (sources) |f| {
+        const is_cpp = std.mem.endsWith(u8, f, ".cpp");
+        if (std.mem.endsWith(u8, f, ".cpp") and exe.rootModuleTarget().os.tag != .macos) continue;
 
-//     try addLlama(b);
-//     try addServer(b);
+        const o = b.addObject(.{
+            .name = std.fs.path.basename(f),
+            .target = exe.root_module.resolved_target.?,
+            .optimize = exe.root_module.optimize.?,
+        });
 
-//     const exe = try switch (target.result.os.tag) {
-//         .windows => @import("src/windows/BuildWindows.zig").create(b),
-//         .macos => @import("src/macos/BuildMacOS.zig").create(b),
-//         else => error.UnsupportedOs,
-//     };
-
-//     exe.dependOn(&llama.step);
-//     exe.dependOn(&srv.step);
-
-//     b.getInstallStep().dependOn(exe);
-// }
-
-// fn addServer(b: *std.Build) !void {
-//     srv = b.addStaticLibrary(.{
-//         .name = "ava_server",
-//         .root_source_file = .{ .path = "src/main.zig" },
-//         .target = target,
-//         .optimize = optimize,
-//     });
-//     srv.linkLibC();
-//     srv.linkLibCpp();
-//     srv.bundle_compiler_rt = true; // needed for everything
-//     srv.addIncludePath(.{ .path = "llama.cpp" }); // needed for @cImport
-//     srv.root_module.addImport("ava-sqlite", b.dependency("ava-sqlite", .{}).module("ava-sqlite"));
-
-//     b.installArtifact(srv);
-// }
-
-fn addLlama(b: *std.Build) !void {
-    llama = b.addStaticLibrary(.{
-        .name = "llama",
-        .target = target,
-        .optimize = .ReleaseFast, // otherwise it's too slow
-    });
-
-    var cflags = std.ArrayList([]const u8).init(b.allocator);
-    try cflags.append("-std=c11");
-
-    var cxxflags = std.ArrayList([]const u8).init(b.allocator);
-    try cxxflags.append("-std=c++11");
-
-    // https://github.com/ziglang/zig/issues/15448
-    if (target.result.abi == .msvc) llama.linkLibC() else llama.linkLibCpp();
-
-    // shared
-    try cflags.appendSlice(&.{ "-Ofast", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
-    try cxxflags.appendSlice(&.{ "-Ofast", "-DNDEBUG" });
-
-    if (target.result.os.tag == .windows) {
-        if (target.result.abi != .msvc) llama.defineCMacro("_GNU_SOURCE", null);
-    } else {
-        try cflags.append("-fPIC");
-        try cxxflags.append("-fPIC");
+        o.defineCMacro("_GNU_SOURCE", null);
+        o.addIncludePath(.{ .path = "llama.cpp" });
+        o.addCSourceFile(.{ .file = .{ .path = b.pathJoin(&.{ "llama.cpp", f }) }, .flags = if (is_cpp) cxxflags else cflags });
+        if (is_cpp) o.linkLibCpp() else o.linkLibC();
+        exe.addObject(o);
     }
 
-    // Use Metal on macOS
-    if (target.result.os.tag == .macos) {
-        // Looks like this is still needed
-        try cflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
-        try cxxflags.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
-
-        llama.addCSourceFiles(.{ .files = &.{"llama.cpp/ggml-metal.m"}, .flags = cflags.items });
-
-        llama.linkFramework("Foundation");
-        llama.linkFramework("Metal");
-        llama.linkFramework("MetalKit");
+    if (exe.rootModuleTarget().os.tag == .macos) {
+        exe.linkFramework("Foundation");
+        exe.linkFramework("Metal");
+        exe.linkFramework("MetalKit");
 
         // Copy the *.metal file so that it can be loaded at runtime
         const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
         b.getInstallStep().dependOn(&copy_metal_step.step);
     }
+}
 
-    llama.addIncludePath(.{ .path = "llama.cpp" });
-    llama.addCSourceFiles(.{ .files = &.{ "llama.cpp/ggml.c", "llama.cpp/ggml-alloc.c", "llama.cpp/ggml-backend.c", "llama.cpp/ggml-quants.c" }, .flags = cflags.items });
-    llama.addCSourceFiles(.{ .files = &.{"llama.cpp/llama.cpp"}, .flags = cxxflags.items });
-    b.installArtifact(llama);
+fn flags(b: *std.Build, exe: anytype, prefix: []const []const u8) ![]const []const u8 {
+    var res = std.ArrayList([]const u8).init(b.allocator);
+    try res.appendSlice(prefix);
+    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
+
+    if (exe.rootModuleTarget().os.tag == .macos) {
+        try res.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
+    }
+
+    return res.items;
 }
