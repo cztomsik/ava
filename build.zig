@@ -12,7 +12,7 @@ pub fn build(b: *std.Build) !void {
 
     const exe = if (b.option(bool, "headless", "Build headless webserver") orelse false) b.addExecutable(.{
         .name = "ava",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = .{ .path = "_root.zig" },
         .target = target,
         .optimize = optimize,
     }) else switch (target.result.os.tag) {
@@ -20,7 +20,7 @@ pub fn build(b: *std.Build) !void {
     };
     exe.addIncludePath(.{ .path = "llama.cpp" });
 
-    const sqlite = b.dependency("ava-sqlite", .{ .bundle = true });
+    const sqlite = b.dependency("ava-sqlite", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
 
     try generateBuildInfo();
