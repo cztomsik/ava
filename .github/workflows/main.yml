@@ -1,0 +1,62 @@
+name: CI
+
+on: push
+
+jobs:
+  # build_gui:
+  #   strategy:
+  #     matrix:
+  #       os: [macos, windows]
+  #       arch: ["x86_64", "aarch64"]
+  #   runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: true
+
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: latest
+
+  #     - uses: goto-bus-stop/setup-zig@v2
+  #       with:
+  #         version: master
+
+  #     - run: npm ci && npm run build
+
+  #     - run: zig build -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
+
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: ava_${{ matrix.os }}_${{ matrix.arch }}
+  #         path: zig-out/bin/*
+
+  build_headless:
+    strategy:
+      matrix:
+        os: [linux, windows] # , macos]
+        arch: ["x86_64", "aarch64"]
+    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: master
+
+      - run: npm ci && npm run build
+
+      - run: zig build -Dheadless=true -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ava_headless_${{ matrix.os }}_${{ matrix.arch }}
+          path: zig-out/bin/*
