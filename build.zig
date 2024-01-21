@@ -16,6 +16,9 @@ pub fn build(b: *std.Build) !void {
         .root_source_file = .{ .path = if (headless) "_headless.zig" else "_gui.zig" },
         .target = target,
         .optimize = optimize,
+
+        // For some reason, linux binaries are huge. Strip them in release mode.
+        .strip = optimize != .Debug,
     };
 
     if (headless) {

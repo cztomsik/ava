@@ -7,6 +7,7 @@ pub const Options = struct {
     root_source_file: std.Build.LazyPath,
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
+    strip: bool,
 };
 
 owner: *std.Build,
@@ -23,6 +24,7 @@ pub fn create(owner: *std.Build, options: Options) *BuildMacos {
         .root_source_file = options.root_source_file,
         .target = options.target,
         .optimize = options.optimize,
+        .strip = options.strip,
     });
     object.bundle_compiler_rt = true;
 
