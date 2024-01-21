@@ -5,6 +5,7 @@ pub const Options = struct {
     root_source_file: std.Build.LazyPath,
     target: std.Build.ResolvedTarget,
     optimize: std.builtin.OptimizeMode,
+    strip: bool,
 };
 
 pub fn create(owner: *std.Build, options: Options) *std.Build.Step.Compile {
@@ -13,9 +14,10 @@ pub fn create(owner: *std.Build, options: Options) *std.Build.Step.Compile {
 
     const exe = owner.addExecutable(.{
         .name = options.name,
+        .root_source_file = options.root_source_file,
         .target = options.target,
         .optimize = options.optimize,
-        .root_source_file = options.root_source_file,
+        .strip = options.strip,
         .win32_manifest = .{ .path = "src/windows/winmain.manifest" },
     });
 
