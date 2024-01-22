@@ -20,6 +20,7 @@ pub const SamplingParams = struct {
     add_bos: bool = true,
     stop_eos: bool = true,
     stop: []const []const u8 = &.{},
+    json: bool = true,
 };
 
 pub fn init(allocator: std.mem.Allocator) void {
@@ -190,6 +191,7 @@ pub const Context = struct {
     model: *Model,
     params: c.llama_context_params,
     ptr: *c.llama_context,
+    grammar: ?*c.llama_grammar = null,
     tokens: std.ArrayList(Token),
     n_past: usize = 0,
     candidates: std.ArrayList(c.llama_token_data),
@@ -214,6 +216,10 @@ pub const Context = struct {
 
     /// Deinitializes the context.
     pub fn deinit(self: *Context) void {
+        if (self.grammar) |g| {
+            c.llama_grammar_free(g);
+        }
+
         c.llama_free(self.ptr);
         self.tokens.deinit();
         self.candidates.deinit();
@@ -221,8 +227,8 @@ pub const Context = struct {
     }
 
     /// Prepares the context for inference.
-    pub fn prepare(self: *Context, prompt: []const u8, add_bos: bool) !void {
-        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)), add_bos);
+    pub fn prepare(self: *Context, prompt: []const u8, params: *const SamplingParams) !void {
+        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)), params.add_bos);
         self.buf.shrinkRetainingCapacity(0);
 
         // Find the common part and set n_past accordingly.
@@ -231,6 +237,15 @@ pub const Context = struct {
         for (0..@min(self.tokens.items.len, tokens.items.len)) |i| {
             if (self.tokens.items[i] != tokens.items[i]) break;
             n_past = i;
+        }
+
+        if (self.grammar) |g| {
+            c.llama_grammar_free(g);
+            self.grammar = null;
+        }
+
+        if (params.json) {
+            self.grammar = c.llama_grammar_init(@constCast(grammar.JSON_RULES.ptr), grammar.JSON_RULES.len, 0);
         }
 
         log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
@@ -363,6 +378,10 @@ pub const Context = struct {
             .sorted = false,
         };
 
+        if (self.grammar != null) {
+            c.llama_sample_grammar(self.ptr, &candidates, self.grammar);
+        }
+
         // Apply repetition penalties.
         const last_n = @min(self.tokens.items.len, params.repeat_n_last);
         c.llama_sample_repetition_penalties(self.ptr, &candidates, &self.tokens.items[self.tokens.items.len - last_n], @intCast(last_n), params.repeat_penalty, params.presence_penalty, params.freq_penalty);
@@ -376,6 +395,10 @@ pub const Context = struct {
         c.llama_sample_temperature(self.ptr, &candidates, params.temperature);
 
         const res = c.llama_sample_token(self.ptr, &candidates);
+
+        if (self.grammar != null) {
+            c.llama_grammar_accept_token(self.ptr, self.grammar, res);
+        }
 
         if (params.stop_eos and res == c.llama_token_eos(self.model.ptr)) {
             return null;
@@ -401,5 +424,76 @@ pub const Context = struct {
                 },
             }));
         }
+    }
+};
+
+const grammar = struct {
+    const JSON_RULES = rulePtrs(&.{
+        &.{ ref(1), end(0) },
+        &.{ ch('{'), ref(7), ref(11), ch('}'), end(0) }, // ref(7), end(0) },
+        &.{ ref(1), alt(0), ref(3), alt(0), ref(4), alt(0), ref(5), alt(0), ref(6), ref(7), end(0) },
+        &.{ ch('['), ref(7), ref(15), ch(']'), ref(7), end(0) },
+        &.{ ch('"'), ref(18), ch('"'), ref(7), end(0) },
+        &.{ ref(19), ref(25), ref(29), ref(7), end(0) },
+        &.{ ch('t'), ch('r'), ch('u'), ch('e'), alt(0), ch('f'), ch('a'), ch('l'), ch('s'), ch('e'), alt(0), ch('n'), ch('u'), ch('l'), ch('l'), end(0) },
+        &.{ ref(31), end(0) },
+        &.{ ref(4), ch(':'), ref(7), ref(2), ref(10), end(0) },
+        &.{ ch(','), ref(7), ref(4), ch(':'), ref(7), ref(2), end(0) },
+        &.{ ref(9), ref(10), alt(0), end(0) },
+        &.{ ref(8), alt(0), end(0) },
+        &.{ ref(2), ref(14), end(0) },
+        &.{ ch(','), ref(7), ref(2), end(0) },
+        &.{ ref(13), ref(14), alt(0), end(0) },
+        &.{ ref(12), alt(0), end(0) },
+        &.{ chNot('"'), chAlt('\\'), alt(0), ch('\\'), ref(17), end(0) },
+        &.{ ch('"'), chAlt('\\'), chAlt('/'), chAlt('b'), chAlt('f'), chAlt('n'), chAlt('r'), chAlt('t'), alt(0), ch('u'), ch('0'), chRnu('9'), chAlt('a'), chRnu('f'), chAlt('A'), chRnu('F'), ch('0'), chRnu('9'), chAlt('a'), chRnu('f'), chAlt('A'), chRnu('F'), ch('0'), chRnu('9'), chAlt('a'), chRnu('f'), chAlt('A'), chRnu('F'), ch('0'), chRnu('9'), chAlt('a'), chRnu('f'), chAlt('A'), chRnu('F'), end(0) },
+        &.{ ref(16), ref(18), alt(0), end(0) },
+        &.{ ref(20), ref(21), end(0) },
+        &.{ ch('-'), alt(0), end(0) },
+        &.{ ch('0'), chRnu('9'), alt(0), ch('1'), chRnu('9'), ref(22), end(0) },
+        &.{ ch('0'), chRnu('9'), ref(22), alt(0), end(0) },
+        &.{ ch('.'), ref(24), end(0) },
+        &.{ ch('0'), chRnu('9'), ref(24), alt(0), ch('0'), chRnu('9'), end(0) },
+        &.{ ref(23), alt(0), end(0) },
+        &.{ ch('e'), chAlt('E'), ref(27), ref(28), end(0) },
+        &.{ ch('-'), chAlt('+'), alt(0), end(0) },
+        &.{ ch('0'), chRnu('9'), ref(28), alt(0), ch('0'), chRnu('9'), end(0) },
+        &.{ ref(26), alt(0), end(0) },
+        &.{ ch(' '), chAlt('\u{0009}'), chAlt('\u{000A}'), ref(7), end(0) },
+        &.{ ref(30), alt(0), end(0) },
+    });
+
+    fn rulePtrs(comptime rules: []const []const c.llama_grammar_element) []const [*c]const c.llama_grammar_element {
+        var ptrs: [rules.len][*]const c.llama_grammar_element = undefined;
+        for (rules, 0..) |rule, i| ptrs[i] = rule.ptr;
+        return &ptrs;
+    }
+
+    fn ref(i: usize) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_RULE_REF, .value = @intCast(i) };
+    }
+
+    fn end(i: usize) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_END, .value = @intCast(i) };
+    }
+
+    fn ch(v: u8) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_CHAR, .value = @intCast(v) };
+    }
+
+    fn chNot(v: u8) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_CHAR_NOT, .value = @intCast(v) };
+    }
+
+    fn chAlt(v: u8) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_CHAR_ALT, .value = @intCast(v) };
+    }
+
+    fn chRnu(v: u8) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_CHAR_RNG_UPPER, .value = @intCast(v) };
+    }
+
+    fn alt(i: usize) c.llama_grammar_element {
+        return .{ .type = c.LLAMA_GRETYPE_ALT, .value = @intCast(i) };
     }
 };

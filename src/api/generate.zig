@@ -18,7 +18,7 @@ pub fn @"POST /generate"(ctx: *server.Context, params: GenerateParams) !void {
     defer llama.Pool.release(cx);
 
     try ctx.sendJson(.{ .status = "Reading the history..." });
-    try cx.prepare(params.prompt, params.sampling.add_bos);
+    try cx.prepare(params.prompt, &params.sampling);
 
     while (cx.n_past < cx.tokens.items.len) {
         try ctx.sendJson(.{ .status = try std.fmt.allocPrint(ctx.arena, "Reading the history... ({}/{})", .{ cx.n_past, cx.tokens.items.len }) });

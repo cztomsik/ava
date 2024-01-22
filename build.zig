@@ -36,22 +36,11 @@ fn buildExe(b: *std.Build, exe: anytype) !void {
     const sqlite = b.dependency("ava-sqlite", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
 
-    try generateBuildInfo();
     try addLlama(b, exe);
 
     const suffix = if (exe.rootModuleTarget().os.tag == .windows) ".exe" else "";
     const bin = b.addInstallBinFile(exe.getEmittedBin(), b.fmt("ava_{s}{s}", .{ @tagName(exe.rootModuleTarget().cpu.arch), suffix }));
     b.getInstallStep().dependOn(&bin.step);
-}
-
-fn generateBuildInfo() !void {
-    // TODO: later
-    try std.fs.cwd().writeFile("llama.cpp/common/build-info.cpp",
-        \\int LLAMA_BUILD_NUMBER = 0;
-        \\char const *LLAMA_COMMIT = "";
-        \\char const *LLAMA_COMPILER = "";
-        \\char const *LLAMA_BUILD_TARGET = "";
-    );
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
@@ -65,11 +54,6 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         "ggml-quants.c",
         "ggml-metal.m",
         "llama.cpp",
-        "common/build-info.cpp",
-        "common/common.cpp",
-        "common/console.cpp",
-        "common/sampling.cpp",
-        "common/grammar-parser.cpp",
     };
 
     for (sources) |f| {
