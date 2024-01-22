@@ -6,7 +6,8 @@ jobs:
   build_gui:
     strategy:
       matrix:
-        os: [macos, windows]
+        # windows currently does not work because WebView2Loader archive is not really a .tar so the command is failing.
+        os: [macos] #, windows]
         arch: ["x86_64", "aarch64"]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     steps:
