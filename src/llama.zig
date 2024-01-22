@@ -386,15 +386,13 @@ pub const Context = struct {
         const last_n = @min(self.tokens.items.len, params.repeat_n_last);
         c.llama_sample_repetition_penalties(self.ptr, &candidates, &self.tokens.items[self.tokens.items.len - last_n], @intCast(last_n), params.repeat_penalty, params.presence_penalty, params.freq_penalty);
 
-        if (params.temperature <= 0) {
-            return c.llama_sample_token_greedy(self.ptr, &candidates);
+        if (params.temperature >= 0) {
+            c.llama_sample_top_k(self.ptr, &candidates, @intCast(params.top_k), 1);
+            c.llama_sample_top_p(self.ptr, &candidates, params.top_p, 1);
+            c.llama_sample_temperature(self.ptr, &candidates, params.temperature);
         }
 
-        c.llama_sample_top_k(self.ptr, &candidates, @intCast(params.top_k), 1);
-        c.llama_sample_top_p(self.ptr, &candidates, params.top_p, 1);
-        c.llama_sample_temperature(self.ptr, &candidates, params.temperature);
-
-        const res = c.llama_sample_token(self.ptr, &candidates);
+        const res = if (params.temperature >= 0) c.llama_sample_token(self.ptr, &candidates) else c.llama_sample_token_greedy(self.ptr, &candidates);
 
         if (self.grammar != null) {
             c.llama_grammar_accept_token(self.ptr, self.grammar, res);
