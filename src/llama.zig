@@ -20,7 +20,7 @@ pub const SamplingParams = struct {
     add_bos: bool = true,
     stop_eos: bool = true,
     stop: []const []const u8 = &.{},
-    json: bool = true,
+    json: bool = false,
 };
 
 pub fn init(allocator: std.mem.Allocator) void {
