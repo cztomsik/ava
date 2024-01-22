@@ -15,6 +15,7 @@ object: *std.Build.Step.Compile,
 root_module: *std.Build.Module,
 swiftc: *std.Build.Step.Run,
 out: std.Build.LazyPath,
+sdk: []const u8,
 
 pub fn create(owner: *std.Build, options: Options) *BuildMacos {
     const self = owner.allocator.create(@This()) catch @panic("OOM");
@@ -60,7 +61,10 @@ pub fn create(owner: *std.Build, options: Options) *BuildMacos {
         .root_module = &object.root_module,
         .swiftc = swiftc,
         .out = out,
+        .sdk = std.zig.system.darwin.getSdk(owner.allocator, options.target.result) orelse @panic("No suitable SDK found"),
     };
+
+    self.applySDK(object);
 
     return self;
 }
@@ -86,19 +90,10 @@ pub fn linkFramework(self: *BuildMacos, name: []const u8) void {
     self.object.linkFramework(name);
 }
 
-// pub fn create(b: *std.Build) !*std.Build.Step {
-//     useMacSDK(b, root.llama);
-//     useMacSDK(b, root.srv);
+pub fn applySDK(self: *BuildMacos, step: anytype) void {
+    std.log.debug("Using macOS SDK {s} for step {s}", .{ self.sdk, step.name });
 
-//     return &swiftc.step;
-// }
-
-// fn useMacSDK(b: *std.Build, step: *std.Build.Step.Compile) void {
-//     const macos_sdk = std.mem.trimRight(u8, b.run(&.{ "xcrun", "--show-sdk-path" }), "\n");
-
-//     std.log.debug("Using macOS SDK {s} for step {s}", .{ macos_sdk, step.name });
-
-//     step.addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{macos_sdk}) });
-//     step.addFrameworkPath(.{ .path = b.fmt("{s}/System/Library/Frameworks", .{macos_sdk}) });
-//     step.addLibraryPath(.{ .path = b.fmt("{s}/usr/lib", .{macos_sdk}) });
-// }
+    step.addSystemIncludePath(.{ .path = self.owner.fmt("{s}/usr/include", .{self.sdk}) });
+    step.addFrameworkPath(.{ .path = self.owner.fmt("{s}/System/Library/Frameworks", .{self.sdk}) });
+    step.addLibraryPath(.{ .path = self.owner.fmt("{s}/usr/lib", .{self.sdk}) });
+}

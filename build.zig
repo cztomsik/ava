@@ -35,6 +35,7 @@ fn buildExe(b: *std.Build, exe: anytype) !void {
 
     const sqlite = b.dependency("ava-sqlite", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
+    if (@hasField(@TypeOf(exe.*), "sdk")) sqlite.module("ava-sqlite").addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{exe.sdk}) });
 
     try addLlama(b, exe);
 
@@ -70,6 +71,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         o.addIncludePath(.{ .path = "llama.cpp" });
         o.addCSourceFile(.{ .file = .{ .path = b.pathJoin(&.{ "llama.cpp", f }) }, .flags = if (is_cpp) cxxflags else cflags });
         if (is_cpp) o.linkLibCpp() else o.linkLibC();
+        if (@hasField(@TypeOf(exe.*), "sdk")) exe.applySDK(o);
         exe.addObject(o);
     }
 
