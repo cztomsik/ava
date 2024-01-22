@@ -27,6 +27,7 @@ export const SettingsModal = ({ sampleOptions, onClose, onSave }) => {
             label="Stop at end of string token"
             onChange={v => (sampleOptions.stop_eos = v)}
           />
+          <Field as={Checkbox} name="json" label="Sample JSON" onChange={v => (sampleOptions.json = v)} />
         </FormGrid>
         <div class="gap-2 flex justify-end">
           <Button onClick={onClose} text>

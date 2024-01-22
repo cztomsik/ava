@@ -21,6 +21,7 @@ export interface GenerateOptions {
     add_bos?: boolean
     stop_eos?: boolean
     stop?: string[]
+    json: boolean
   }
 }
 
@@ -31,11 +32,11 @@ export const generate = async (options: GenerateOptions, result, status, signal?
 
     const res = selectedModel.value
       ? await callApi("generate", {
-        method: "POST",
-        body: JSON.stringify({ model_id: selectedModel.value, ...options }),
-        stream: true,
-        signal,
-      })
+          method: "POST",
+          body: JSON.stringify({ model_id: selectedModel.value, ...options }),
+          stream: true,
+          signal,
+        })
       : await noModelSelected()
 
     for await (let d of res) {

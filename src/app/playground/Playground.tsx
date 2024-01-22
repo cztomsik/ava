@@ -28,6 +28,7 @@ export const Playground = () => {
     add_bos: true,
     stop_eos: true,
     stop: [],
+    json: false,
   }
   const sampleOptions = useLocalStorage<GenerateOptions["sampling"]>("playground.sampleOptions", defaultOptions)
   const showSettings = useSignal(false)
