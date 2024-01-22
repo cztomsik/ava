@@ -8,7 +8,9 @@ jobs:
       matrix:
         # windows currently does not work because WebView2Loader archive is not really a .tar so the command is failing.
         os: [macos] #, windows]
-        arch: ["x86_64", "aarch64"]
+        # only x86_64 builds now (it might be because github worker is on MacOSX13.1.sdk?
+        # ld: unknown/unsupported architecture name for: -arch aarch64
+        arch: ["x86_64"] #, "aarch64"]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     steps:
       - uses: actions/checkout@v3
