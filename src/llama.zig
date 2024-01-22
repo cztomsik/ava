@@ -89,7 +89,7 @@ pub const Pool = struct {
             context = try Context.init(
                 allocator,
                 &model.?,
-                4, // TODO: make this configurable (in global settings)
+                (std.Thread.getCpuCount() catch 8) / 2, // TODO: make this configurable (in global settings)
             );
         }
 
