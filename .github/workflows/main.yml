@@ -38,9 +38,9 @@ jobs:
   build_headless:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-14]
+        os: [linux, windows, macos]
         arch: ["x86_64", "aarch64"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os == 'macos' && 'macos-14' matrix.os }}-latest
     steps:
       - uses: actions/checkout@v3
         with:
