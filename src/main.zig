@@ -15,6 +15,10 @@ pub const std_options = struct {
     pub const logFn = util.Logger.log;
 };
 
+pub fn embedFile(comptime path: []const u8) []const u8 {
+    return @embedFile("../" ++ path);
+}
+
 fn handler(injector: tk.Injector, uri: *std.Uri, r: *tk.Responder) anyerror!void {
     // handle API requests
     if (tk.Params.match("/api/*", uri.path)) |_| {
