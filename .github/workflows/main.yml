@@ -33,7 +33,7 @@ jobs:
       - run: zig build -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ava_${{ matrix.os }}_${{ matrix.arch }}
           path: zig-out/bin/*
@@ -62,7 +62,7 @@ jobs:
       - run: zig build -Dheadless=true -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ava_headless_${{ matrix.os }}_${{ matrix.arch }}
           path: zig-out/bin/*
