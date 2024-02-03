@@ -35,7 +35,7 @@ export const handlers: Handlers = {
   },
 
   http_request: ({ url }) => {
-    return fetch("/api/proxy", { method: "POST", body: JSON.stringify(url) }).then(res => res.text())
+    return fetch("/api/proxy", { method: "POST", body: JSON.stringify({ url }) }).then(res => res.text())
   },
 
   query_selector: ({ selector, limit = 2, clean = true }, input) => {

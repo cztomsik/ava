@@ -7,6 +7,11 @@
             .url = "https://github.com/cztomsik/ava-sqlite/archive/c48ac06.tar.gz",
             .hash = "122049ceedb98046f5d3362145b5f67a93d52d33a7a5357885795971be2f5bffcd45",
         },
+
+        .tokamak = .{
+            .url = "https://github.com/cztomsik/tokamak/archive/b173be5.tar.gz",
+            .hash = "1220eeb2ce65750c676b5a4a7c577c892de25c3aaa57daff777f97d1a1228625e3bb",
+        },
     },
     .paths = .{
         "",

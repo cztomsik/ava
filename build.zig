@@ -33,6 +33,9 @@ pub fn build(b: *std.Build) !void {
 fn buildExe(b: *std.Build, exe: anytype) !void {
     exe.addIncludePath(.{ .path = "llama.cpp" });
 
+    const tokamak = b.dependency("tokamak", .{});
+    exe.root_module.addImport("tokamak", tokamak.module("tokamak"));
+
     const sqlite = b.dependency("ava-sqlite", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("ava-sqlite", sqlite.module("ava-sqlite"));
     if (@hasField(@TypeOf(exe.*), "sdk")) sqlite.module("ava-sqlite").addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{exe.sdk}) });

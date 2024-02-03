@@ -1,15 +1,13 @@
 const std = @import("std");
-const server = @import("../server.zig");
+const tk = @import("tokamak");
 
-pub fn @"POST /find-models"(ctx: *server.Context) !void {
-    var models_found = std.ArrayList(struct { path: []const u8, size: ?u64 }).init(ctx.arena);
+pub fn @"POST /find-models"(allocator: std.mem.Allocator, r: *tk.Responder, params: struct { path: []const u8 }) !void {
+    var models_found = std.ArrayList(struct { path: []const u8, size: ?u64 }).init(allocator);
 
-    const path = try ctx.readJson([]const u8);
-
-    var dir = try std.fs.openDirAbsolute(path, .{ .iterate = true });
+    var dir = try std.fs.openDirAbsolute(params.path, .{ .iterate = true });
     defer dir.close();
 
-    var walker = try dir.walk(ctx.arena);
+    var walker = try dir.walk(allocator);
     defer walker.deinit();
 
     while (try walker.next()) |entry| switch (entry.kind) {
@@ -18,7 +16,7 @@ pub fn @"POST /find-models"(ctx: *server.Context) !void {
             defer file.close();
 
             try models_found.append(.{
-                .path = try std.fs.path.join(ctx.arena, &.{ path, entry.path }),
+                .path = try std.fs.path.join(allocator, &.{ params.path, entry.path }),
                 .size = (try file.stat()).size,
             });
         },
@@ -26,5 +24,5 @@ pub fn @"POST /find-models"(ctx: *server.Context) !void {
         else => {},
     };
 
-    return ctx.sendJson(models_found.items);
+    return r.sendJson(models_found.items);
 }

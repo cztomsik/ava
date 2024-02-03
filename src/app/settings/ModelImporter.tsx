@@ -14,7 +14,7 @@ export const ModelImporter = () => {
 
   const handleImport = async () => {
     // TODO: use getApiContext() but make sure the invalidate() does not do GET afterwards
-    const res = await fetch("/api/find-models", { method: "POST", body: JSON.stringify(path.value) })
+    const res = await fetch("/api/find-models", { method: "POST", body: JSON.stringify({ path: path.value }) })
     const data = await res.json()
 
     // Import only models that are not already there

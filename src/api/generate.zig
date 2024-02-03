@@ -1,5 +1,5 @@
 const std = @import("std");
-const server = @import("../server.zig");
+const tk = @import("tokamak");
 const db = @import("../db.zig");
 const llama = @import("../llama.zig");
 
@@ -11,27 +11,27 @@ const GenerateParams = struct {
     sampling: llama.SamplingParams = .{},
 };
 
-pub fn @"POST /generate"(ctx: *server.Context, params: GenerateParams) !void {
-    try ctx.sendJson(.{ .status = "Waiting for the model..." });
-    const model_path = try db.getString(ctx.arena, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
+pub fn @"POST /generate"(allocator: std.mem.Allocator, r: *tk.Responder, params: GenerateParams) !void {
+    try r.sendJson(.{ .status = "Waiting for the model..." });
+    const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
     var cx = try llama.Pool.get(model_path, 60_000);
     defer llama.Pool.release(cx);
 
-    try ctx.sendJson(.{ .status = "Reading the history..." });
+    try r.sendJson(.{ .status = "Reading the history..." });
     try cx.prepare(params.prompt, &params.sampling);
 
     while (cx.n_past < cx.tokens.items.len) {
-        try ctx.sendJson(.{ .status = try std.fmt.allocPrint(ctx.arena, "Reading the history... ({}/{})", .{ cx.n_past, cx.tokens.items.len }) });
+        try r.sendJson(.{ .status = try std.fmt.allocPrint(allocator, "Reading the history... ({}/{})", .{ cx.n_past, cx.tokens.items.len }) });
         _ = try cx.evalOnce();
     }
 
     // TODO: send enums/unions
-    try ctx.sendJson(.{ .status = "" });
+    try r.sendJson(.{ .status = "" });
 
     var tokens: u32 = 0;
 
     while (try cx.generate(&params.sampling)) |content| {
-        try ctx.sendJson(.{
+        try r.sendJson(.{
             .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, content, " \t\n\r") else content,
         });
 

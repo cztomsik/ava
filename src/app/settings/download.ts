@@ -22,7 +22,7 @@ const startDownload = async ({ url, size }) => {
   try {
     const res = await fetch("/api/download", {
       method: "POST",
-      body: JSON.stringify(url),
+      body: JSON.stringify({ url }),
       signal: ctrl.signal,
     })
 
