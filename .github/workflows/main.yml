@@ -16,7 +16,7 @@ jobs:
         arch: ["x86_64"] #, "aarch64"]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -45,7 +45,7 @@ jobs:
         arch: ["x86_64", "aarch64"]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu-latest' || matrix.os == 'macos' && 'macos-14' || 'windows-latest' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
