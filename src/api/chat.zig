@@ -38,7 +38,7 @@ pub fn @"GET /chat/:id/messages"(r: *tk.Responder, id: u32) !void {
     return r.sendJson(stmt.iterator(db.ChatMessage));
 }
 
-pub fn @"POST /chat/:id/messages"(r: *tk.Responder, id: u32, data: db.ChatMessage) !void {
+pub fn @"POST /chat/:id/messages"(r: *tk.Responder, id: u32, data: struct { role: []const u8, content: []const u8 }) !void {
     var stmt = try db.query("INSERT INTO ChatMessage (chat_id, role, content) VALUES (?, ?, ?) RETURNING *", .{ id, data.role, data.content });
     defer stmt.deinit();
 
