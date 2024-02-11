@@ -10,9 +10,9 @@ const allocator = if (builtin.mode == .Debug) gpa.allocator() else std.heap.c_al
 
 pub var server: ?*tk.Server = null;
 
-pub const std_options = struct {
-    pub const log_level = .debug;
-    pub const logFn = util.Logger.log;
+pub const std_options = .{
+    .log_level = .debug,
+    .logFn = util.Logger.log,
 };
 
 pub fn embedFile(comptime path: []const u8) []const u8 {
