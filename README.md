@@ -20,7 +20,7 @@ https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d
 
 Make sure you have:
 
-- [Zig 0.12.0-dev.1769+bf5ab5451](https://ziglang.org/download/)
+- [Latest Zig](https://ziglang.org/download/)
 - [Node.js 20.5.1](https://nodejs.org/)
   - only needed for fetching dependencies
 - Xcode (for macOS)
