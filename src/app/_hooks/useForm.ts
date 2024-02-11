@@ -21,7 +21,7 @@ export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) => {
     const field = name => ({
       name,
       value: values.value[name],
-      onChange: e => (values.value = { ...values.value, [name]: e.target.value }),
+      onChange: e => (values.value = { ...values.value, [name]: e instanceof Event ? e.target!.value : e }),
     })
 
     const handleSubmit = _ => callbacks.current.onSubmit(values.value)
