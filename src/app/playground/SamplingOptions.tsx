@@ -1,0 +1,25 @@
+import { Form, Field, Range, Checkbox } from "../_components"
+
+export const SamplingOptions = ({ data, onChange }) => {
+  return (
+    <Form class="p-3" data={data} onChange={onChange} onSubmit={onChange}>
+      <h3 class="mb-2 text-neutral-10 text-sm uppercase font-medium">Sampling options</h3>
+
+      <div class="vstack gap-3">
+        <Field as={Range} name="temperature" label="Temperature" min={0} max={2} step={0.01} />
+        <Field as={Range} name="top_k" label="Top K" min={1} max={100} />
+        <Field as={Range} name="top_p" label="Top P" min={0} max={1} step={0.01} />
+
+        <Field as={Range} name="repeat_n_last" label="Repeat N last" min={0} max={1024} />
+        <Field as={Range} name="repeat_penalty" label="Repeat penalty" min={0} max={2} step={0.01} />
+
+        <Field as={Range} name="presence_penalty" label="Presence penalty" min={0} max={2} step={0.01} />
+        <Field as={Range} name="freq_penalty" label="Frequency penalty" min={0} max={2} step={0.01} />
+
+        <Field as={Checkbox} name="add_bos" label="Add BOS token" />
+        <Field as={Checkbox} name="stop_eos" label="Stop at EOS token" />
+        <Field as={Checkbox} name="json" label="Sample JSON" />
+      </div>
+    </Form>
+  )
+}
