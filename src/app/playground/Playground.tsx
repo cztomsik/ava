@@ -2,25 +2,10 @@ import { useSignal } from "@preact/signals"
 import { Play, Save, Trash2 } from "lucide"
 import { AutoScroll, Checkbox, Form, GenerationProgress, IconButton, Markdown, Page, Resizable } from "../_components"
 import { PromptSelect } from "./PromptSelect"
-import { useApi, useConfirm, useGenerate, useLocalStorage, GenerateOptions } from "../_hooks"
+import { useApi, useConfirm, useGenerate, useLocalStorage, GenerateOptions, defaultSampling } from "../_hooks"
 import { parseVars, template } from "../_util"
 import { SamplingOptions } from "./SamplingOptions"
 import { Variables } from "./Variables"
-
-// TODO: read this from endpoint (or maybe per-model specific?)
-const defaultOptions: GenerateOptions["sampling"] = {
-  temperature: 0.7,
-  top_k: 40,
-  top_p: 0.5,
-  repeat_n_last: 256,
-  repeat_penalty: 1.05,
-  presence_penalty: 0,
-  freq_penalty: 0,
-  add_bos: true,
-  stop_eos: true,
-  stop: [],
-  json: false,
-}
 
 // TODO: json, grammar, json-schema
 export const Playground = () => {
@@ -34,7 +19,7 @@ export const Playground = () => {
   const { generate, result, ...progress } = useGenerate([prompt.value])
   const showPrompt = useSignal(false)
 
-  const sampleOptions = useLocalStorage<GenerateOptions["sampling"]>("playground.sampleOptions", defaultOptions)
+  const sampleOptions = useLocalStorage<GenerateOptions["sampling"]>("playground.sampleOptions", defaultSampling)
 
   const handleSubmit = () => generate({ prompt: template(prompt.value, data.value), sampling: sampleOptions.value })
 

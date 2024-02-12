@@ -1,5 +1,5 @@
-import { PenSquare, Trash2, Undo } from "lucide"
-import { useCallback } from "preact/hooks"
+import { PanelRightClose, PanelRightOpen, PenSquare, Trash2, Undo } from "lucide"
+import { useCallback, useReducer } from "preact/hooks"
 import { AutoScroll, GenerationProgress, IconButton, Page } from "../_components"
 import { useConfirm } from "../_hooks"
 import { router } from "../router"
@@ -7,9 +7,11 @@ import { ChatContext, useChat } from "./useChat"
 import { ChatPrompt } from "./ChatPrompt"
 import { ChatMessage } from "./ChatMessage"
 import { ChatInput } from "./ChatInput"
+import { SamplingOptions } from "../playground/SamplingOptions"
 
 export const ChatSession = ({ id }) => {
   const chat = useChat(id)
+  const [showSidebar, toggleSidebar] = useReducer(s => !s, false)
 
   const handleRename = useCallback(async () => {
     const name = window.prompt("Name this chat", chat.data?.name ?? "Untitled")
@@ -34,6 +36,8 @@ export const ChatSession = ({ id }) => {
             <IconButton title="Delete" icon={Trash2} onClick={handleDelete} />
           </>
         )}
+
+        <IconButton title="Toggle sidebar" icon={showSidebar ? PanelRightClose : PanelRightOpen} onClick={toggleSidebar} />
       </Page.Header>
 
       <Page.Content class="!p-0 [&_.container]:(px-4 py-6 w-full max-w-3xl mx-auto)">
@@ -52,6 +56,12 @@ export const ChatSession = ({ id }) => {
       <Page.Footer class="pt-2">
         <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
       </Page.Footer>
+
+      {showSidebar && (
+        <Page.DetailsPane sizes={[200, 250, 400]}>
+          <SamplingOptions data={chat.sampling} onChange={v => (chat.sampling = v)} />
+        </Page.DetailsPane>
+      )}
     </ChatContext.Provider>
   )
 }

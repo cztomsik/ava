@@ -25,6 +25,21 @@ export interface GenerateOptions {
   }
 }
 
+// TODO: read this from endpoint? model-specific?
+export const defaultSampling: GenerateOptions["sampling"] = {
+  temperature: 0.7,
+  top_k: 40,
+  top_p: 0.5,
+  repeat_n_last: 256,
+  repeat_penalty: 1.05,
+  presence_penalty: 0,
+  freq_penalty: 0,
+  add_bos: true,
+  stop_eos: true,
+  stop: [],
+  json: false,
+}
+
 export const generate = async (options: GenerateOptions, result, status, signal?: AbortSignal) => {
   try {
     status.value = null

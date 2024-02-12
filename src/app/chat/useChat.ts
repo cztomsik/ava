@@ -1,7 +1,7 @@
 import { createContext } from "preact"
 import { useContext, useMemo } from "preact/hooks"
 import { signal, useSignal } from "@preact/signals"
-import { getApiContext, useApi, useGenerate, useLocalStorage } from "../_hooks"
+import { defaultSampling, getApiContext, useApi, useGenerate, useLocalStorage } from "../_hooks"
 import { router } from "../router"
 
 export const ChatContext = createContext<ReturnType<typeof useChat>>(null as any)
@@ -20,6 +20,8 @@ export const useChat = id => {
     const editing = signal<any>(null)
 
     return {
+      sampling: { ...defaultSampling, stop: ["USER:", "ASSISTANT:"] },
+
       input,
       result,
       progress,
@@ -109,7 +111,7 @@ export const useChat = id => {
             prompt,
             start_with,
             trim_first: !!start_with.match(/(^|\s)$/),
-            sampling: { stop: ["USER:", "ASSISTANT:"] },
+            sampling: ctx.sampling,
           })
           await ctx.updateMessage({ ...message, content: result.value })
         } finally {

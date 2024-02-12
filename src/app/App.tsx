@@ -5,7 +5,7 @@ import { router } from "./router"
 const gridTemplate = `
   "sidebar list header header" auto
   "sidebar list main details" 1fr
-  "sidebar list footer footer" auto / min-content min-content 1fr min-content
+  "sidebar list footer details" auto / min-content min-content 1fr min-content
 `
 
 export const App = () => {
