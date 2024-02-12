@@ -84,7 +84,7 @@ export const Playground = () => {
             ></textarea>
           </div>
 
-          <Resizable rtl sizes={[300, 400, 800]} class="border(l-2 neutral-6) p-3 vstack overflow-x-hidden overflow-y-auto">
+          <Resizable rtl sizes={[300, 400, 800]} class="border(l neutral-6) p-3 vstack overflow-x-hidden overflow-y-auto">
             <h3 class="mb-2 text-neutral-10 text-sm uppercase font-medium">Result</h3>
 
             <div class="flex mb-2">

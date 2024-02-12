@@ -5,7 +5,7 @@ const Page = ({ children }) => <>{children}</>
 Page.Header = ({ title, children = null as any, ...props }) => {
   return (
     <header
-      class="[grid-area:header] h-12 flex items-center gap-2 pl-4 pr-3 border(b-1 neutral-6) min-w-0"
+      class="[grid-area:header] h-12 flex items-center gap-2 pl-4 pr-3 border(b neutral-6) min-w-0"
       data-drag-window
       {...props}
     >
@@ -30,7 +30,7 @@ Page.DetailsPane = ({ class: className = "", sizes, ...props }) => (
   <Resizable
     rtl
     sizes={sizes}
-    class={`[grid-area:details] border(l-2 neutral-6) vstack overflow-x-hidden overflow-y-auto ${className}`}
+    class={`[grid-area:details] border(l neutral-6) vstack overflow-x-hidden overflow-y-auto ${className}`}
     {...props}
   />
 )
