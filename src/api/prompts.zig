@@ -15,7 +15,6 @@ pub fn @"POST /prompts"(r: *tk.Responder, data: db.Prompt) !void {
     try r.sendJson(try stmt.read(db.Prompt));
 }
 
-pub fn @"DELETE /prompts/:id"(r: *tk.Responder, id: u32) !void {
+pub fn @"DELETE /prompts/:id"(id: u32) !void {
     try db.exec("DELETE FROM Prompt WHERE id = ?", .{id});
-    return r.noContent();
 }
