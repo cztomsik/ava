@@ -8,6 +8,7 @@ import { ChatPrompt } from "./ChatPrompt"
 import { ChatMessage } from "./ChatMessage"
 import { ChatInput } from "./ChatInput"
 import { SamplingOptions } from "../playground/SamplingOptions"
+import { ChatOptions } from "./ChatOptions"
 
 export const ChatSession = ({ id }) => {
   const chat = useChat(id)
@@ -59,6 +60,8 @@ export const ChatSession = ({ id }) => {
 
       {showSidebar && (
         <Page.DetailsPane sizes={[200, 250, 400]}>
+          <ChatOptions data={chat.options} onChange={v => (chat.options = v)} />
+
           <SamplingOptions data={chat.sampling} onChange={v => (chat.sampling = v)} />
         </Page.DetailsPane>
       )}

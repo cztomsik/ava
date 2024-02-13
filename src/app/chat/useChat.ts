@@ -20,7 +20,9 @@ export const useChat = id => {
     const editing = signal<any>(null)
 
     return {
-      sampling: { ...defaultSampling, stop: ["USER:", "ASSISTANT:"] },
+      // TODO: chat & sampling options should be saved per-chat
+      options: { user: "USER", assistant: "ASSISTANT" },
+      sampling: defaultSampling,
 
       input,
       result,
@@ -100,9 +102,7 @@ export const useChat = id => {
       async generateMessage(message: any, start_with = "") {
         try {
           const index = messages.data!.indexOf(message)
-          const prompt =
-            (chat.data?.prompt ?? defaultPrompt) +
-            serializePrompt([...messages.data!.slice(0, index), { ...message, content: start_with }])
+          const prompt = ctx.serializePrompt([...messages.data!.slice(0, index), { ...message, content: start_with }])
 
           generating.value = message
           editing.value = null
@@ -111,7 +111,7 @@ export const useChat = id => {
             prompt,
             start_with,
             trim_first: !!start_with.match(/(^|\s)$/),
-            sampling: ctx.sampling,
+            sampling: { ...ctx.sampling, stop: this.stop },
           })
           await ctx.updateMessage({ ...message, content: result.value })
         } finally {
@@ -128,6 +128,17 @@ export const useChat = id => {
         await messages.del(message.id)
         editing.value = null
       },
+
+      get stop() {
+        return [`${this.options.user}:`, `${this.options.assistant}:`]
+      },
+
+      serializePrompt(messages: any[]) {
+        return (
+          (chat.data?.prompt ?? defaultPrompt) +
+          messages.reduce((res, m) => res + `${this.options[m.role]}: ${m.content}\n`, "").trimEnd()
+        )
+      },
     }
   }, [id])
 
@@ -136,6 +147,3 @@ export const useChat = id => {
 
 export const defaultPrompt =
   "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
-
-const serializePrompt = messages =>
-  messages.reduce((res, m) => res + `${m.role.toUpperCase()}: ${m.content}\n`, "").trimEnd()
