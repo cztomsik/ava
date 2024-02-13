@@ -89,7 +89,7 @@ pub const Pool = struct {
             context = try Context.init(
                 allocator,
                 &model.?,
-                (std.Thread.getCpuCount() catch 8) / 2, // TODO: make this configurable (in global settings)
+                getPerfCpuCount(), // TODO: make this configurable (in global settings)
             );
         }
 
@@ -424,6 +424,18 @@ pub const Context = struct {
         }
     }
 };
+
+fn getPerfCpuCount() usize {
+    if (builtin.os.tag == .macos) {
+        var count: c_int = 0;
+        var len: usize = @sizeOf(c_int);
+
+        std.os.sysctlbynameZ("hw.perflevel0.physicalcpu", &count, &len, null, 0) catch {};
+        if (count > 0) return @intCast(count);
+    }
+
+    return std.Thread.getCpuCount() catch 4;
+}
 
 const grammar = struct {
     const JSON_RULES = rulePtrs(&.{
