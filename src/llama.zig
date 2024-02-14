@@ -203,6 +203,7 @@ pub const Context = struct {
         params.n_ctx = 2048; // TODO: make this configurable
         params.n_batch = 64; // 512; // TODO: @min(512, xxx)
         params.n_threads = @intCast(n_threads);
+        params.n_threads_batch = @intCast(n_threads);
 
         return .{
             .model = model,
