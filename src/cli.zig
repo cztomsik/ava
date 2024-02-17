@@ -16,10 +16,10 @@ pub fn main() !void {
     ;
 
     std.debug.print(banner, .{
-        ava.server.?.http.socket.listen_address,
+        ava.app.?.server.http.socket.listen_address,
     });
 
-    ava.server.?.thread.join();
+    ava.app.?.server.thread.join();
 
     std.log.debug("Stopping the server", .{});
     _ = ava.ava_stop();

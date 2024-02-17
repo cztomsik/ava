@@ -23,83 +23,76 @@ pub const SamplingParams = struct {
     json: bool = false,
 };
 
-pub fn init(allocator: std.mem.Allocator) void {
-    const H = struct {
-        fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
-            log.debug("{s}", .{data});
-        }
-    };
-
-    c.llama_backend_init();
-    c.llama_log_set(H.trampoline, null);
-    Pool.init(allocator);
-}
-
-pub fn deinit() void {
-    Pool.deinit();
-    c.llama_backend_free();
-}
-
 /// A single-model, single-context, thread-safe pool.
 pub const Pool = struct {
-    var allocator: std.mem.Allocator = undefined;
-    var mutex = std.Thread.Mutex{};
-    var model: ?Model = null;
-    var context: ?Context = null;
+    allocator: std.mem.Allocator = undefined,
+    mutex: std.Thread.Mutex = .{},
+    model: ?Model = null,
+    context: ?Context = null,
 
     /// Initializes the pool.
-    pub fn init(ally: std.mem.Allocator) void {
-        allocator = ally;
+    pub fn init(allocator: std.mem.Allocator) Pool {
+        const H = struct {
+            fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
+                log.debug("{s}", .{data});
+            }
+        };
+
+        c.llama_backend_init();
+        c.llama_log_set(H.trampoline, null);
+
+        return .{
+            .allocator = allocator,
+        };
     }
 
     /// Deinitializes the pool.
-    pub fn deinit() void {
-        if (context != null) {
-            context.?.deinit();
-            context = null;
-
-            model.?.deinit();
-            model = null;
+    pub fn deinit(self: *Pool) void {
+        if (self.context) |*context| {
+            context.deinit();
         }
+
+        if (self.model) |*model| {
+            model.deinit();
+        }
+
+        c.llama_backend_free();
     }
 
     /// Returns a context for the given model. The context must be released
     /// after use. This function is thread-safe. Fails if the context is busy
     /// for more than `timeout` milliseconds.
-    pub fn get(model_path: []const u8, timeout: u64) !*Context {
+    pub fn get(self: *Pool, model_path: []const u8, timeout: u64) !*Context {
         const start = std.time.milliTimestamp();
 
-        while (!mutex.tryLock()) {
+        while (!self.mutex.tryLock()) {
             if (std.time.milliTimestamp() - start > timeout) return error.ContextBusy;
             std.time.sleep(100_000_000);
         }
-        errdefer mutex.unlock();
+        errdefer self.mutex.unlock();
 
-        // Reset if the model has changed.
-        if (model != null and !std.mem.eql(u8, model.?.path, model_path)) {
-            context.?.deinit();
-            context = null;
+        if (self.model == null or !std.mem.eql(u8, self.model.?.path, model_path)) {
+            // Reset if the model has changed.
+            if (self.context != null) {
+                self.context.?.deinit();
+                self.model.?.deinit();
+            }
 
-            model.?.deinit();
-            model = null;
-        }
-
-        if (model == null) {
-            model = try Model.loadFromFile(allocator, model_path);
-            context = try Context.init(
-                allocator,
-                &model.?,
+            self.model = try Model.loadFromFile(self.allocator, model_path);
+            self.context = try Context.init(
+                self.allocator,
+                &self.model.?,
                 getPerfCpuCount(), // TODO: make this configurable (in global settings)
             );
         }
 
-        return &context.?;
+        return &self.context.?;
     }
 
     /// Releases the context so that it can be used by other threads.
-    pub fn release(ctx: *Context) void {
-        if (ctx == &context.?) {
-            mutex.unlock();
+    pub fn release(self: *Pool, ctx: *Context) void {
+        if (ctx == &self.context.?) {
+            self.mutex.unlock();
         }
     }
 };

@@ -1,20 +1,28 @@
-const db = @import("../db.zig");
-const tk = @import("tokamak");
+const std = @import("std");
+const sqlite = @import("ava-sqlite");
+const schema = @import("../schema.zig");
 
-pub fn @"GET /prompts"(r: *tk.Responder) !void {
-    var stmt = try db.query("SELECT * FROM Prompt ORDER BY id", .{});
-    defer stmt.deinit();
-
-    return r.sendJson(stmt.iterator(db.Prompt));
+pub fn @"GET /prompts"(allocator: std.mem.Allocator, db: *sqlite.SQLite3) ![]const schema.Prompt {
+    return db.getAll(
+        allocator,
+        schema.Prompt,
+        "SELECT * FROM Prompt ORDER BY id",
+        .{},
+    );
 }
 
-pub fn @"POST /prompts"(r: *tk.Responder, data: db.Prompt) !void {
-    var stmt = try db.query("INSERT INTO Prompt (name, prompt) VALUES (?, ?) RETURNING *", .{ data.name, data.prompt });
-    defer stmt.deinit();
-
-    try r.sendJson(try stmt.read(db.Prompt));
+pub fn @"POST /prompts"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, data: schema.Prompt) !schema.Prompt {
+    return db.getAlloc(
+        allocator,
+        schema.Prompt,
+        "INSERT INTO Prompt (name, prompt) VALUES (?, ?) RETURNING *",
+        .{ data.name, data.prompt },
+    );
 }
 
-pub fn @"DELETE /prompts/:id"(id: u32) !void {
-    try db.exec("DELETE FROM Prompt WHERE id = ?", .{id});
+pub fn @"DELETE /prompts/:id"(db: *sqlite.SQLite3, id: u32) !void {
+    try db.exec(
+        "DELETE FROM Prompt WHERE id = ?",
+        .{id},
+    );
 }

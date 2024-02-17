@@ -1,6 +1,6 @@
 const std = @import("std");
 const tk = @import("tokamak");
-const db = @import("../db.zig");
+const sqlite = @import("ava-sqlite");
 const llama = @import("../llama.zig");
 
 const GenerateParams = struct {
@@ -11,11 +11,11 @@ const GenerateParams = struct {
     sampling: llama.SamplingParams = .{},
 };
 
-pub fn @"POST /generate"(allocator: std.mem.Allocator, r: *tk.Responder, params: GenerateParams) !void {
+pub fn @"POST /generate"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, pool: *llama.Pool, r: *tk.Responder, params: GenerateParams) !void {
     try r.sendJson(.{ .status = "Waiting for the model..." });
     const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
-    var cx = try llama.Pool.get(model_path, 60_000);
-    defer llama.Pool.release(cx);
+    var cx = try pool.get(model_path, 60_000);
+    defer pool.release(cx);
 
     try r.sendJson(.{ .status = "Reading the history..." });
     try cx.prepare(params.prompt, &params.sampling);

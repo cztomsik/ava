@@ -4,8 +4,8 @@
 
     .dependencies = .{
         .@"ava-sqlite" = .{
-            .url = "https://github.com/cztomsik/ava-sqlite/archive/3763cff.tar.gz",
-            .hash = "122030a0f6fbf38e7eca2cd0f7a2dcdf8ac1cbcfc41d1832f478386bcf2e31620eb9",
+            .url = "https://github.com/cztomsik/ava-sqlite/archive/f4876ef.tar.gz",
+            .hash = "1220985ab42ea586e46462ad9ef9be18891d41d3100b0db9c67dea2547b8af4a95be",
         },
 
         .tokamak = .{
