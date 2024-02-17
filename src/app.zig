@@ -31,8 +31,10 @@ pub const App = struct {
     }
 
     pub fn deinit(self: *App) void {
+        const thread = self.server.thread;
         self.server.deinit();
-        self.server.thread.join();
+        thread.join();
+
         self.llama.deinit();
         self.db.close();
         _ = self.gpa.deinit();
