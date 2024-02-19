@@ -1,8 +1,8 @@
 import { createContext, JSX } from "preact"
-import { useContext, useEffect, useRef } from "preact/hooks"
+import { useContext, useEffect, useMemo, useRef } from "preact/hooks"
 import { useForm, UseFormProps } from "../_hooks"
 
-export type FormProps<T> = UseFormProps<T> & JSX.HTMLAttributes<HTMLFormElement>
+export type FormProps<T> = UseFormProps<T> & Omit<JSX.HTMLAttributes<HTMLFormElement>, "data" | "onSubmit">
 
 const FormContext = createContext<ReturnType<typeof useForm>>(null as any)
 
@@ -33,8 +33,36 @@ export const Form = <T extends {}>({ onSubmit, onChange, data, ...props }: FormP
   )
 }
 
-export const Field = ({ name, as: Comp = "input" as any, ...props }) => {
+export const FormGroup = ({ value, onChange, ...props }) => {
   const form = useContext(FormContext)
+  const group = useMemo(() => {
+    const field = name => ({
+      name,
+      value: value[name],
+      onChange: e => onChange({ ...value, [name]: e instanceof Event ? e.target!.value : e }),
+    })
 
-  return <Comp {...form.field(name)} {...props} />
+    return { ...form, field }
+  }, [form, value, onChange])
+
+  return (
+    <FormContext.Provider value={group}>
+      <div {...props} />
+    </FormContext.Provider>
+  )
+}
+
+export const Field = ({ name, as: Comp = "input" as any, defaultValue = undefined as any, ...props }) => {
+  const form = useContext(FormContext)
+  const field = form.field(name)
+
+  if (Comp === "input" || Comp === "textarea") {
+    props.onInput = field.onChange
+  }
+
+  if (field.value === undefined) {
+    field.value = defaultValue
+  }
+
+  return <Comp {...field} {...props} />
 }
