@@ -1,4 +1,4 @@
-import { ErrorBoundary, ModalBackdrop } from "./_components"
+import { ErrorBoundary, Modal } from "./_components"
 import { Sidebar } from "./Sidebar"
 import { router } from "./router"
 
@@ -10,7 +10,7 @@ export const App = () => {
         <router.currentRoute.component params={router.params} />
       </div>
 
-      <ModalBackdrop />
+      <Modal.Container />
     </ErrorBoundary>
   )
 }

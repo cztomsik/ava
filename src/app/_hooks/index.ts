@@ -1,6 +1,5 @@
 export { API_URL, getApiContext, useApi } from "./useApi"
 export { useAriaList } from "./useAriaList"
-export { useConfirm } from "./useConfirm"
 export { useForm, UseFormProps } from "./useForm"
 export { useGenerate, GenerateOptions, selectedModel, defaultSampling } from "./useGenerate"
 export { useLocalStorage } from "./useLocalStorage"
