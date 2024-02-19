@@ -15,7 +15,11 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
     prevActive?.blur()
     count.value++
 
+    const listener = e => e.key === "Escape" && onClose()
+    addEventListener("keydown", listener)
+
     return () => {
+      removeEventListener("keydown", listener)
       count.value--
       prevActive?.focus()
     }
