@@ -20,6 +20,10 @@ export const Form = <T extends {}>({ onSubmit, onChange, data, ...props }: FormP
     // TODO: maybe <select> should be here too but it doesn't feel right
     const input: HTMLElement | null = form.querySelector("[autofocus]") ?? form.querySelector("input, textarea")
     input?.focus()
+
+    if (input instanceof HTMLInputElement) {
+      input.setSelectionRange(0, input.value.length)
+    }
   }, [])
 
   return (
