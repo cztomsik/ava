@@ -1,6 +1,16 @@
 import { Resizable } from "./Resizable"
 
-const Page = ({ children }) => <>{children}</>
+const gridTemplate = `
+  "list header header" auto
+  "list main details" 1fr
+  "list footer details" auto / min-content 1fr min-content
+`
+
+const Page = ({ children }) => (
+  <div class="grid h-screen" style={{ gridTemplate }}>
+    {children}
+  </div>
+)
 
 Page.Header = ({ title, children = null as any, ...props }) => {
   return (
