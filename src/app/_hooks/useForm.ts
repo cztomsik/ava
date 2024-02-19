@@ -7,16 +7,19 @@ export type UseFormProps<T> = {
   onChange?: (data: T) => void
 }
 
-export const useForm = <T>({ data, onSubmit, onChange }: UseFormProps<T>) => {
+// Shared empty object so the useMemo() below keeps the same reference
+const EMPTY = {} as any
+
+export const useForm = <T>({ data = EMPTY, onSubmit, onChange }: UseFormProps<T>) => {
   // Always use latest callbacks
   const callbacks = useRef(null as any)
   callbacks.current = { onSubmit, onChange }
 
   // Only reset values (and FormContext.Provider) when data changes
   return useMemo(() => {
-    // default is here because useMemo should keep the same reference
-    const values = signal(data ?? ({} as T))
-    values.subscribe(data => callbacks.current.onChange?.(data))
+    const values = signal(data)
+    let prev = data
+    values.subscribe(data => data != prev && callbacks.current.onChange?.(data))
 
     const field = name => ({
       name,
