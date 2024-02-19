@@ -57,7 +57,7 @@ Modal.Container = () => (
 Modal.open = async (Comp, props = {}) => {
   let modal
   try {
-    await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       modals.value = [...modals.value, (modal = { Comp, props: { ...props, resolve, reject } })]
     })
   } finally {
