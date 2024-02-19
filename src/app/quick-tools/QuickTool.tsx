@@ -13,14 +13,14 @@ export const QuickTool = ({ params: { id } }) => {
   const handleSubmit = data => generate({ prompt: template(tool.prompt, data) })
 
   return (
-    <>
+    <Page>
       <Page.Header title={tool.name}>
         <IconButton title="Edit" icon={PenSquare} href={`/quick-tools/${id}/edit`} />
       </Page.Header>
 
-      <Page.Content class="!p-0 md:(grid divide-x) grid-cols-2 divide-neutral-7">
-        <Form class="bg-neutral-2 p-4 pt-8 vstack" onSubmit={handleSubmit}>
-          <p class="py-2 text-neutral-11 text-center">{tool.description}</p>
+      <Page.Content class="bg-neutral-2">
+        <Form class="vstack" onSubmit={handleSubmit}>
+          <p class="py-4 text-neutral-11 text-center">{tool.description}</p>
 
           <FormGrid class="mt-4 w-full max-w-lg self-center">
             {variableNames.map(name => (
@@ -34,7 +34,9 @@ export const QuickTool = ({ params: { id } }) => {
             <Button submit>Generate</Button>
           </FormGrid>
         </Form>
+      </Page.Content>
 
+      <Page.DetailsPane sizes={[400, 500, 800]}>
         <div class="vstack overflow-hidden">
           <h3 class="px-4 py-2 uppercase font-medium text(sm neutral-11)">Result</h3>
           <div class="px-4 py-2 overflow-auto">
@@ -45,7 +47,7 @@ export const QuickTool = ({ params: { id } }) => {
             <AutoScroll />
           </div>
         </div>
-      </Page.Content>
-    </>
+      </Page.DetailsPane>
+    </Page>
   )
 }
