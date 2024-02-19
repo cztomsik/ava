@@ -1,7 +1,7 @@
-import { Button, Table } from "../_components"
+import { Button, Table, Modal } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { DownloadModal } from "./DownloadModal"
-import { useApi, useConfirm } from "../_hooks"
+import { useApi } from "../_hooks"
 import { humanSize } from "../_util"
 import { abortCurrent, current } from "./download"
 import { ModelImporter } from "./ModelImporter"
@@ -10,7 +10,7 @@ import { ModelCatalog } from "./ModelCatalog"
 export const Models = () => {
   const { data: models = [], del } = useApi("models")
 
-  const handleDelete = useConfirm("Are you sure you want to delete this model?", del)
+  const handleDelete = id => Modal.confirm("Are you sure you want to delete this model?").then(() => del(id))
 
   return (
     <SettingsPage>
