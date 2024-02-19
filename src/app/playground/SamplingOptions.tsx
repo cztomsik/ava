@@ -1,8 +1,8 @@
-import { Form, Field, Range, Checkbox } from "../_components"
+import { FormGroup, Field, Range, Checkbox } from "../_components"
 
-export const SamplingOptions = ({ data, onChange }) => {
+export const SamplingOptions = ({ value, onChange }) => {
   return (
-    <Form class="p-3" data={data} onChange={onChange} onSubmit={onChange}>
+    <FormGroup class="p-3" value={value} onChange={onChange}>
       <h3 class="mb-2 text-neutral-10 text-sm uppercase font-medium">Sampling options</h3>
 
       <div class="vstack gap-3">
@@ -20,6 +20,6 @@ export const SamplingOptions = ({ data, onChange }) => {
         <Field as={Checkbox} name="stop_eos" label="Stop at EOS token" />
         <Field as={Checkbox} name="json" label="Sample JSON" />
       </div>
-    </Form>
+    </FormGroup>
   )
 }

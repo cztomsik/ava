@@ -1,8 +1,8 @@
-import { Form, Field } from "../_components"
+import { FormGroup, Field } from "../_components"
 
-export const Variables = ({ variableNames, data, onChange }) => {
+export const Variables = ({ variableNames, value, onChange }) => {
   return (
-    <Form class="p-3" data={data} onChange={onChange} onSubmit={onChange}>
+    <FormGroup class="p-3" value={value} onChange={onChange}>
       <h3 class="mb-2 text-neutral-10 text-sm uppercase font-medium">Variables</h3>
 
       <div class="vstack gap-3">
@@ -15,6 +15,6 @@ export const Variables = ({ variableNames, data, onChange }) => {
           </div>
         ))}
       </div>
-    </Form>
+    </FormGroup>
   )
 }
