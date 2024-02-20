@@ -16,7 +16,6 @@ struct WebView: NSViewRepresentable {
 
     private let navigationDelegate = NavigationDelegate()
     private let scriptMessageHandler = ScriptMessageHandler()
-    private let uiDelegate = WebViewUIDelegate()
 
     func makeNSView(context: Context) -> WKWebView {
         let cfg = WKWebViewConfiguration()
@@ -28,7 +27,6 @@ struct WebView: NSViewRepresentable {
         
         let webview = WKWebView(frame: .zero, configuration: cfg)
         webview.navigationDelegate = self.navigationDelegate
-        webview.uiDelegate = self.uiDelegate
 
         DispatchQueue.main.async {
             scriptMessageHandler.window = webview.window
@@ -83,37 +81,5 @@ final class NavigationDelegate: NSObject, WKNavigationDelegate {
                 NSWorkspace.shared.open(URL(string: url)!)
             }
         }
-    }
-}
-
-final class WebViewUIDelegate: NSObject, WKUIDelegate {
-    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame: WKFrameInfo,
-                 completionHandler: @escaping (Bool) -> Void) {
-        let alert = NSAlert()
-        alert.messageText = message
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "Cancel")
-        alert.beginSheetModal(for: webView.window!) { response in
-            completionHandler(response == .alertFirstButtonReturn)
-        }
-    }
-
-    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame: WKFrameInfo,
-                 completionHandler: @escaping (String?) -> Void) {
-        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-        textField.stringValue = defaultText ?? ""
-        let alert = NSAlert()
-        alert.messageText = prompt
-        alert.accessoryView = textField
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "Cancel")
-        alert.beginSheetModal(for: webView.window!) { response in
-            if response == .alertFirstButtonReturn {
-                completionHandler(textField.stringValue)
-            } else {
-                completionHandler(nil)
-            }
-        }
-        alert.window.makeFirstResponder(textField)
     }
 }
