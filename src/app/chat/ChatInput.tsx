@@ -34,7 +34,7 @@ export const ChatInput = ({ value, onChange, onSend }) => {
         rows={1}
         placeholder="Ask anything..."
         value={value}
-        onInput={onChange}
+        onInput={e => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
       />
       <IconButton title="Send" icon={SendHorizontal} class="absolute bottom-[9px] right-2" submit />
