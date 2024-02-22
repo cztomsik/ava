@@ -1,15 +1,13 @@
 import { useSignal } from "@preact/signals"
+import { useMemo } from "preact/hooks"
 import { SettingsPage } from "./SettingsPage"
-import { useEffect } from "preact/hooks"
 import { Markdown } from "../_components"
 
 export const License = () => {
   const license = useSignal("Loading...")
 
-  useEffect(() => {
-    fetch("/LICENSE.md")
-      .then(r => r.text())
-      .then(text => (license.value = text))
+  useMemo(async () => {
+    license.value = await fetch("/LICENSE.md").then(r => r.text())
   }, [])
 
   return (
@@ -21,8 +19,8 @@ export const License = () => {
 
       <h2 class="text-lg font-bold">Open Source acknowledgement</h2>
       <p>
-        This Software, incorporates and uses open-source software components. The use of these components is
-        acknowledged, and their respective licenses are included in the LICENSES.md file which is shown above.
+        This Software, incorporates and uses open-source software components. The use of these components is acknowledged,
+        and their respective licenses are included in the LICENSES.md file which is shown above.
       </p>
     </SettingsPage>
   )

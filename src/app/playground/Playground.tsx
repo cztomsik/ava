@@ -2,13 +2,12 @@ import { useSignal } from "@preact/signals"
 import { Play, Save, Trash2 } from "lucide"
 import { AutoScroll, Checkbox, Form, Field, GenerationProgress, IconButton, Markdown, Page, Resizable } from "../_components"
 import { Modal } from "../_components"
-import { useGenerate, useLocalStorage, defaultSampling, getApiContext } from "../_hooks"
+import { useGenerate, useLocalStorage, defaultSampling } from "../_hooks"
 import { parseVars, template } from "../_util"
 import { PromptSelect } from "./PromptSelect"
 import { SamplingOptions } from "./SamplingOptions"
 import { Variables } from "./Variables"
-
-const { post: createPrompt, del: deletePrompt } = getApiContext("prompts")
+import { api } from "../api"
 
 const EMPTY = {
   prompt: "",
@@ -28,7 +27,7 @@ export const Playground = () => {
   const handleSubmit = ({ prompt, data, sampling }) => generate({ prompt: template(prompt, data), sampling })
 
   const handleSaveAs = async () => {
-    selection.value = await createPrompt({
+    selection.value = await api.createPrompt({
       name: await Modal.prompt("Name this prompt", "Untitled"),
       prompt: state.prompt,
     })
@@ -36,7 +35,7 @@ export const Playground = () => {
 
   const handleDelete = () =>
     Modal.confirm("Are you sure you want to delete this prompt?")
-      .then(() => deletePrompt(selection.value.id))
+      .then(() => api.deletePrompt(selection.value.id))
       .then(() => {
         selection.value = null
         signal.value = EMPTY

@@ -1,5 +1,5 @@
 import { Alert, Markdown } from "../_components"
-import { API_URL } from "../_hooks"
+import { API_URL } from "../api"
 import { SettingsPage } from "./SettingsPage"
 
 export const Api = () => {

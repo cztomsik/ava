@@ -1,16 +1,16 @@
 import { Alert, Button } from "../_components"
-import { useApi, useLocalStorage } from "../_hooks"
-import { useEffect } from "preact/hooks"
+import { useQuery, useLocalStorage } from "../_hooks"
+import { useMemo } from "preact/hooks"
 import { basename } from "../_util"
+import { api } from "../api"
 
 export const ModelImporter = () => {
-  const { data: system } = useApi("system-info")
-  const { data: models, post } = useApi("models")
+  const { data: models } = useQuery(api.listModels)
   const path = useLocalStorage("importer.path", "")
 
-  useEffect(() => {
-    if (system && !path.value) path.value = system.user_downloads
-  }, [system])
+  useMemo(async () => {
+    if (!path.value) path.value = (await api.getSystemInfo()).user_downloads
+  }, [])
 
   const handleImport = async () => {
     // TODO: use getApiContext() but make sure the invalidate() does not do GET afterwards
@@ -20,7 +20,7 @@ export const ModelImporter = () => {
     // Import only models that are not already there
     for (const { path } of data) {
       if (!models?.find((m: any) => m.path === path)) {
-        await post({ name: basename(path), path, imported: true })
+        await api.createModel({ name: basename(path), path, imported: true })
       }
     }
   }

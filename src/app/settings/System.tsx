@@ -1,10 +1,11 @@
 import { Value } from "../_components"
-import { useApi } from "../_hooks"
+import { useQuery } from "../_hooks"
 import { SettingsPage } from "./SettingsPage"
+import { api } from "../api"
 
 export const System = () => {
-  const { data: system } = useApi("system-info")
-  const { data: log } = useApi("log")
+  const { data: system } = useQuery(api.getSystemInfo())
+  const { data: log } = useQuery(api.getLog())
 
   return (
     <SettingsPage>

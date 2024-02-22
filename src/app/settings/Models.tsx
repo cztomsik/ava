@@ -1,16 +1,17 @@
 import { Button, Table, Modal } from "../_components"
 import { SettingsPage } from "./SettingsPage"
 import { DownloadModal } from "./DownloadModal"
-import { useApi } from "../_hooks"
+import { useQuery } from "../_hooks"
 import { humanSize } from "../_util"
 import { abortCurrent, current } from "./download"
 import { ModelImporter } from "./ModelImporter"
 import { ModelCatalog } from "./ModelCatalog"
+import { api } from "../api"
 
 export const Models = () => {
-  const { data: models = [], del } = useApi("models")
+  const { data: models = [] } = useQuery(api.listModels())
 
-  const handleDelete = id => Modal.confirm("Are you sure you want to delete this model?").then(() => del(id))
+  const handleDelete = id => Modal.confirm("Are you sure you want to delete this model?").then(() => api.deleteModel(id))
 
   return (
     <SettingsPage>
@@ -40,7 +41,7 @@ export const Models = () => {
               <td class="text-right">{humanSize(m.size)}</td>
               <td class="text-center">
                 {m.imported ? (
-                  <Button onClick={() => del(m.id)}>Remove</Button>
+                  <Button onClick={() => api.deleteModel(m.id)}>Remove</Button>
                 ) : (
                   <Button onClick={() => handleDelete(m.id)}>Delete</Button>
                 )}

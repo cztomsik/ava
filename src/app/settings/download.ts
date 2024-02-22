@@ -1,6 +1,6 @@
 import { effect, signal, Signal } from "@preact/signals"
-import { getApiContext } from "../_hooks"
 import { basename, jsonLines } from "../_util"
+import { api } from "../api"
 
 type DownloadItem = { url: string; size: number }
 
@@ -36,7 +36,7 @@ const startDownload = async ({ url, size }) => {
       }
 
       if ("path" in d) {
-        await getApiContext("models").post({ name: basename(url.slice(0, -5)), path: d.path })
+        await api.createModel({ name: basename(url.slice(0, -5)), path: d.path })
       }
     }
   } catch (e) {

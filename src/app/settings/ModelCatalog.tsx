@@ -1,10 +1,11 @@
 import { Button, Table } from "../_components"
-import { useApi } from "../_hooks"
+import { useQuery } from "../_hooks"
 import { basename, humanSize } from "../_util"
 import { downloadModel } from "./download"
+import { api } from "../api"
 
 export const ModelCatalog = () => {
-  const { data: models = [] } = useApi("models")
+  const { data: models = [] } = useQuery(api.listModels())
 
   return (
     <>

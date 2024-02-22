@@ -1,9 +1,10 @@
 import { Select } from "../_components"
-import { useApi } from "../_hooks"
+import { useQuery } from "../_hooks"
 import { dedent } from "../_util"
+import { api } from "../api"
 
 export const PromptSelect = ({ value, onChange }) => {
-  const { data, loading } = useApi("prompts")
+  const { data, loading } = useQuery(api.listPrompts())
 
   const handleChange = e => {
     const id = +e.target.value

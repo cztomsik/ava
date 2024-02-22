@@ -1,10 +1,11 @@
 import { useEffect } from "preact/hooks"
 import { Select } from "./Select"
-import { useApi, selectedModel } from "../_hooks"
+import { useQuery, selectedModel } from "../_hooks"
 import { router } from "../router"
+import { api } from "../api"
 
 export const ModelSelect = ({ class: className = "" }) => {
-  const { data: models } = useApi("models")
+  const { data: models } = useQuery(api.listModels())
 
   useEffect(() => {
     if (models) {

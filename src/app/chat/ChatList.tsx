@@ -1,8 +1,9 @@
 import { List } from "../_components"
-import { useApi } from "../_hooks"
+import { useQuery } from "../_hooks"
+import { api } from "../api"
 
 export const ChatList = ({ value, onSelect, ...props }) => {
-  const { data } = useApi("chat")
+  const { data } = useQuery(api.listChats())
 
   return (
     <List {...props}>

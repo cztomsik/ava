@@ -25,11 +25,11 @@
     "preact": "^10.16.0"
   },
   "devDependencies": {
-    "esbuild": "^0.18.20",
-    "typescript": "^5.0.2",
+    "esbuild": "^0.20.1",
+    "typescript": "5.3.3",
     "undom": "^0.4.0"
   },
   "overrides": {
-    "typescript": "^5.0.2"
+    "typescript": "5.3.3"
   }
 }
