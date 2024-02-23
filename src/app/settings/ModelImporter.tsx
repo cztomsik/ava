@@ -5,7 +5,7 @@ import { basename } from "../_util"
 import { api } from "../api"
 
 export const ModelImporter = () => {
-  const { data: models } = useQuery(api.listModels)
+  const { data: models } = useQuery(api.listModels())
   const path = useLocalStorage("importer.path", "")
 
   useMemo(async () => {
