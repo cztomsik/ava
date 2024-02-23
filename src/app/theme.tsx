@@ -99,9 +99,5 @@ const cfg: TwindUserConfig<TailwindTheme> = {
 
 install(cfg, false)
 
-options.vnode = vnode => {
-  if ("class" in vnode.props) vnode.props.class = tw(vnode.props.class as any)
-}
-
 addEventListener("blur", () => document.documentElement.classList.add("oof"))
 addEventListener("focus", () => document.documentElement.classList.remove("oof"))

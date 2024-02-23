@@ -1,4 +1,4 @@
-import { PenSquare } from "lucide"
+import { SquarePen } from "lucide"
 import { AutoScroll, Button, Form, FormGrid, GenerationProgress, IconButton, Markdown, Page, Field } from "../_components"
 import { useGenerate } from "../_hooks"
 import { err, parseVars, template, humanize } from "../_util"
@@ -15,7 +15,7 @@ export const QuickTool = ({ params: { id } }) => {
   return (
     <Page>
       <Page.Header title={tool.name}>
-        <IconButton title="Edit" icon={PenSquare} href={`/quick-tools/${id}/edit`} />
+        <IconButton title="Edit" icon={SquarePen} href={`/quick-tools/${id}/edit`} />
       </Page.Header>
 
       <Page.Content class="bg-neutral-2">
