@@ -3,7 +3,7 @@ import { effect, signal, useSignal } from "@preact/signals"
 import { api } from "../api"
 import { jsonLines } from "../_util"
 
-export const selectedModel = signal<number | null>(+localStorage.getItem("selectedModel")! || null)
+export const selectedModel = signal<string | null>(localStorage.getItem("selectedModel") || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
 
 export interface GenerateOptions {
@@ -47,7 +47,7 @@ export const generate = async (options: GenerateOptions, result, status, signal?
     result.value = options.start_with ?? ""
 
     const res = selectedModel.value
-      ? jsonLines((await api.generate({ model_id: selectedModel.value, ...options, signal })).body!.getReader())
+      ? jsonLines((await api.generate({ model: selectedModel.value, ...options, signal })).body!.getReader())
       : await noModelSelected()
 
     for await (let d of res) {

@@ -9,8 +9,8 @@ export const ModelSelect = ({ class: className = "" }) => {
 
   useEffect(() => {
     if (models) {
-      if (!selectedModel.value || !models.find(model => model.id === selectedModel.value)) {
-        selectedModel.value = models[0]?.id ?? null
+      if (!selectedModel.value || !models.find(model => model.name === selectedModel.value)) {
+        selectedModel.value = models[0]?.name ?? null
       }
     }
   }, [models])
@@ -22,7 +22,7 @@ export const ModelSelect = ({ class: className = "" }) => {
       return
     }
 
-    selectedModel.value = +e.target.value || null
+    selectedModel.value = e.target.value || null
   }
 
   return (
@@ -32,7 +32,7 @@ export const ModelSelect = ({ class: className = "" }) => {
       <hr />
 
       {models?.map(model => (
-        <option key={model.id} value={model.id}>
+        <option key={model.name} value={model.name}>
           {model.name}
         </option>
       ))}

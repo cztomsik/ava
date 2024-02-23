@@ -4,7 +4,7 @@ const sqlite = @import("ava-sqlite");
 const llama = @import("../llama.zig");
 
 const GenerateParams = struct {
-    model_id: u32,
+    model: []const u8,
     prompt: []const u8,
     max_tokens: u32 = 2048,
     trim_first: bool = false,
@@ -18,7 +18,7 @@ pub fn @"POST /generate"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, pool
     try r.res.send();
 
     try r.sendJson(.{ .status = "Waiting for the model..." });
-    const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
+    const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE name = ?", .{params.model});
     var cx = try pool.get(model_path, 60_000);
     defer pool.release(cx);
 
