@@ -3,19 +3,23 @@ export const API_URL = `${window.location.protocol}//${window.location.host}/api
 const client = {
   request: async (method, url, data?, init?) => {
     const res = await fetch(`${API_URL}/${url}`, { method, body: data && JSON.stringify(data), ...init })
+    const mime = res.headers.get("Content-Type")?.split(";")[0] ?? ""
 
-    return res.headers.get("Content-Type")?.startsWith("application/json") ? res.json() : res.text()
+    return mime === "application/json" ? res.json() : mime.startsWith("text/") ? res.text() : res
   },
 
   query: url => ({ url: `${API_URL}/${url}`, then: (resolve, reject) => client.get(url).then(resolve, reject) }),
   get: url => client.request("GET", url),
-  post: (url, data) => client.request("POST", url, data),
+  post: (url, data, init?) => client.request("POST", url, data, init),
   put: (url, data) => client.request("PUT", url, data),
   delete: url => client.request("DELETE", url),
 }
 
+// TODO: $ grep "pub fn @\"" -rhI src/api | less
 export const api = {
   client,
+
+  generate: ({ signal, ...data }) => client.post("generate", data, { signal }),
 
   listChats: () => client.query("chat"),
   createChat: chat => client.post("chat", chat),

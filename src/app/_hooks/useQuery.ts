@@ -9,7 +9,7 @@ const contextMap: Map<string, WeakRef<any>> = new Map()
 export const useQuery = <T extends AnyRes>(query: Query<T> | null | undefined): ReturnType<typeof createContext<T>> =>
   useMemo(() => {
     const ctx = query ? contextMap.get(query.url)?.deref() ?? createContext(query) : ({} as any)
-    return ctx?.refetch(), ctx
+    return ctx.refetch?.(), ctx
   }, [query?.url])
 
 const createContext = <T>(query: Query<T>) => {

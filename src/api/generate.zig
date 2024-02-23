@@ -12,6 +12,11 @@ const GenerateParams = struct {
 };
 
 pub fn @"POST /generate"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, pool: *llama.Pool, r: *tk.Responder, params: GenerateParams) !void {
+    // TODO: refactor
+    try r.res.headers.append("Content-Type", "application/jsonlines");
+    r.res.transfer_encoding = .chunked;
+    try r.res.send();
+
     try r.sendJson(.{ .status = "Waiting for the model..." });
     const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE id = ?", .{params.model_id});
     var cx = try pool.get(model_path, 60_000);

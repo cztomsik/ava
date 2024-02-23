@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
-import { callApi } from "./useApi"
+import { api } from "../api"
+import { jsonLines } from "../_util"
 
 export const selectedModel = signal<number | null>(+localStorage.getItem("selectedModel")! || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
@@ -46,12 +47,7 @@ export const generate = async (options: GenerateOptions, result, status, signal?
     result.value = options.start_with ?? ""
 
     const res = selectedModel.value
-      ? await callApi("generate", {
-          method: "POST",
-          body: JSON.stringify({ model_id: selectedModel.value, ...options }),
-          stream: true,
-          signal,
-        })
+      ? jsonLines((await api.generate({ model_id: selectedModel.value, ...options, signal })).body!.getReader())
       : await noModelSelected()
 
     for await (let d of res) {
