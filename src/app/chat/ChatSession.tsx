@@ -1,71 +1,129 @@
-import { PanelRightClose, PanelRightOpen, PenSquare, Trash2, Undo } from "lucide"
-import { useCallback, useReducer } from "preact/hooks"
-import { AutoScroll, GenerationProgress, IconButton, Page } from "../_components"
-import { useConfirm } from "../_hooks"
-import { router } from "../router"
-import { ChatContext, useChat } from "./useChat"
+import { PanelRightClose, PanelRightOpen, SquarePen, Trash2, Undo } from "lucide"
+import { AutoScroll, Field, Form, GenerationProgress, IconButton, Modal, Page } from "../_components"
+import { defaultSampling, useQuery, useLocalStorage, selectedModel, useGenerate } from "../_hooks"
 import { ChatPrompt } from "./ChatPrompt"
 import { ChatMessage } from "./ChatMessage"
 import { ChatInput } from "./ChatInput"
 import { SamplingOptions } from "../playground/SamplingOptions"
 import { ChatOptions } from "./ChatOptions"
+import { router } from "../router"
+import { api } from "../api"
+import { useSignal } from "@preact/signals"
 
 export const ChatSession = ({ id }) => {
-  const chat = useChat(id)
-  const [showSidebar, toggleSidebar] = useReducer(s => !s, false)
+  const { data: chat = {} as any } = useQuery(id && api.getChat(id))
+  const { data: messages = [] } = useQuery(id && api.listMessages(id))
+  const sidebarOpen = useLocalStorage("chat.sidebar", false)
+  const input = useLocalStorage(`chat.${id}.input`, "")
 
-  const handleRename = useCallback(async () => {
-    const name = window.prompt("Name this chat", chat.data?.name ?? "Untitled")
+  // TODO: use /chat/completions
+  const editing = useSignal(null)
+  const { generate, result, ...progress } = useGenerate()
 
-    if (name) {
-      await chat.updateChat({ ...chat.data, name })
+  const handleSend = async () => {
+    if (!id) {
+      id = (await api.createChat({ ...chat, name: chat.name ?? `New chat ${new Date().toLocaleDateString()}` })).id
+      router.navigate(`/chat/${id}`, true)
     }
-  }, [chat])
 
-  const handleDelete = useConfirm("Are you sure you want to delete this chat?", async id => {
-    await chat.deleteChat()
-    router.navigate("/chat", true)
-  })
+    const content = input.value
+    input.value = ""
+
+    const msg = await api.createMessage(id, { role: "user", content })
+    const tmp = await api.createMessage(id, { role: "assistant", content: "" })
+
+    handleGenerate([...messages, msg], tmp)
+  }
+
+  const handleGenerate = async (history, msg, start_with = "") => {
+    // const { choices } = await api.createCompletion({ model: selectedModel.value, messages: [...messages, msg] })
+    // await api.updateMessage(id, tmp.id, choices[0].message)
+
+    const prompt =
+      (chat.prompt ?? defaultPrompt) +
+      [...history, { ...msg, content: start_with }]
+        .reduce((res, m) => res + `${m.role.toUpperCase()}: ${m.content}\n`, "")
+        .trimEnd()
+
+    await generate({ prompt, start_with, trim_first: !!start_with.match(/(^|\s)$/) })
+    await api.updateMessage(id, msg.id, { ...msg, content: result.value })
+  }
+
+  const handleRename = async () => {
+    const name = await Modal.prompt("Name this chat", chat.name)
+    await api.updateChat(id, { ...chat, name })
+  }
+
+  const handleUpdate = async data => {
+    Object.assign(chat, data)
+    if (id) await api.updateChat(id, data)
+  }
+
+  const handleDelete = () =>
+    Modal.confirm("Are you sure you want to delete this chat?")
+      .then(() => api.deleteChat(id))
+      .then(() => router.navigate("/chat", true))
+
+  const handleUndo = async () => {
+    const chunk = messages.splice(messages.findLastIndex(m => m.role === "user"))
+    input.value = chunk[0].content
+
+    await Promise.all(chunk.map(m => api.deleteMessage(id, m.id)))
+  }
 
   return (
-    <ChatContext.Provider value={chat}>
-      <Page.Header title={chat.data?.name ?? "Chat"}>
+    <>
+      <Page.Header title={chat?.name ?? "Chat"}>
         {id && (
           <>
-            <IconButton title="Rename" icon={PenSquare} onClick={handleRename} />
-            <IconButton title="Undo" icon={Undo} onClick={chat.undo} />
+            <IconButton title="Rename" icon={SquarePen} onClick={handleRename} />
+            <IconButton title="Undo" icon={Undo} onClick={handleUndo} />
             <IconButton title="Delete" icon={Trash2} onClick={handleDelete} />
           </>
         )}
 
-        <IconButton title="Toggle sidebar" icon={showSidebar ? PanelRightClose : PanelRightOpen} onClick={toggleSidebar} />
+        <IconButton
+          title="Toggle sidebar"
+          icon={sidebarOpen.value ? PanelRightClose : PanelRightOpen}
+          onClick={() => (sidebarOpen.value = !sidebarOpen.value)}
+        />
       </Page.Header>
 
       <Page.Content class="!p-0 [&_.container]:(px-4 py-6 w-full max-w-3xl mx-auto)">
-        <ChatPrompt />
+        <ChatPrompt chat={chat} onSave={handleUpdate} />
 
-        {(!id || chat.messages?.length === 0) && <NoMessages />}
+        {(!id || messages.length === 0) && <NoMessages />}
 
-        {chat.messages?.map(m => (
-          <ChatMessage key={m.id} message={m} />
+        {messages.map((m, i) => (
+          <ChatMessage
+            key={m.id}
+            message={m}
+            isEditing={editing.value === m}
+            onEdit={() => (editing.value = m)}
+            onGenerate={s => handleGenerate(messages.slice(0, i), m, s)}
+            onSave={data => api.updateMessage(id, m.id, data)}
+            onCancel={() => (editing.value = null)}
+            onDelete={() => api.deleteMessage(id, m.id)}
+          />
         ))}
 
-        <GenerationProgress class="container mb-10 justify-start" {...chat.progress} />
+        <GenerationProgress class="container mb-10 justify-start" {...progress} />
         <AutoScroll />
       </Page.Content>
 
       <Page.Footer class="pt-2">
-        <ChatInput value={chat.input} onChange={e => (chat.input.value = e.target!.value)} onSend={chat.send} />
+        <ChatInput value={input} onChange={v => (input.value = v)} onSend={handleSend} />
       </Page.Footer>
 
-      {showSidebar && (
+      {sidebarOpen.value && (
         <Page.DetailsPane sizes={[200, 250, 400]}>
-          <ChatOptions data={chat.options} onChange={v => (chat.options = v)} />
-
-          <SamplingOptions data={chat.sampling} onChange={v => (chat.sampling = v)} />
+          <Form data={chat} onChange={handleUpdate} onSubmit={handleUpdate}>
+            <Field as={ChatOptions} name="options" defaultValue={{ user: "USER", assistant: "ASSISTANT" }} />
+            <Field as={SamplingOptions} name="sampling" defaultValue={defaultSampling} />
+          </Form>
         </Page.DetailsPane>
       )}
-    </ChatContext.Provider>
+    </>
   )
 }
 
@@ -90,3 +148,6 @@ const NoMessages = () => (
     </div>
   </div>
 )
+
+export const defaultPrompt =
+  "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
