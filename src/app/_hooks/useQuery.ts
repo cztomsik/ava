@@ -1,7 +1,7 @@
 import { Signal } from "@preact/signals"
 import { useMemo } from "preact/hooks"
 
-type AnyRes = Record<string | number, any>
+type AnyRes = Record<string | number | typeof Symbol.iterator, any>
 type Query<T> = PromiseLike<T> & { url: string }
 
 const contextMap: Map<string, WeakRef<any>> = new Map()

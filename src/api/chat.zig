@@ -48,7 +48,7 @@ pub fn @"GET /chat/:id/messages"(allocator: std.mem.Allocator, db: *sqlite.SQLit
     );
 }
 
-pub fn @"POST /chat/:id/messages"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32, data: struct { role: []const u8, content: []const u8 }) !schema.ChatMessage {
+pub fn @"POST /chat/:id/messages"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32, data: schema.ChatMessage) !schema.ChatMessage {
     return db.getAlloc(
         allocator,
         schema.ChatMessage,

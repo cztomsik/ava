@@ -1,6 +1,7 @@
 const std = @import("std");
 
 pub usingnamespace @import("api/chat.zig");
+pub usingnamespace @import("api/completions.zig");
 pub usingnamespace @import("api/download.zig");
 pub usingnamespace @import("api/find-models.zig");
 pub usingnamespace @import("api/generate.zig");

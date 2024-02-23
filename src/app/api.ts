@@ -28,25 +28,26 @@ export const api = {
   client,
 
   generate: ({ signal, ...data }) => client.post("generate", data, { signal }),
+  createCompletion: data => client.post("chat/completions", data),
 
   listChats: () => client.query("chat"),
-  createChat: chat => client.post("chat", chat),
+  createChat: data => client.post("chat", data),
   getChat: id => client.query(`chat/${id}`),
-  updateChat: chat => client.put(`chat/${chat.id}`, chat),
+  updateChat: (id, data) => client.put(`chat/${id}`, data),
   deleteChat: id => client.delete(`chat/${id}`),
 
-  listMessages: id => client.query(`chat/${id}/messages`),
-  createMessage: (id, message) => client.post(`chat/${id}/messages`, message),
-  getMessage: (id, message) => client.query(`chat/${id}/messages/${message.id}`),
-  updateMessage: (id, message) => client.put(`chat/${id}/messages/${message.id}`, message),
-  deleteMessage: (id, message) => client.delete(`chat/${id}/messages/${message.id}`),
+  listMessages: chat_id => client.query(`chat/${chat_id}/messages`),
+  createMessage: (chat_id, data) => client.post(`chat/${chat_id}/messages`, data),
+  getMessage: (chat_id, id) => client.query(`chat/${chat_id}/messages/${id}`),
+  updateMessage: (chat_id, id, data) => client.put(`chat/${chat_id}/messages/${id}`, data),
+  deleteMessage: (chat_id, id) => client.delete(`chat/${chat_id}/messages/${id}`),
 
   listModels: () => client.query("models"),
-  createModel: model => client.post("models", model),
+  createModel: data => client.post("models", data),
   deleteModel: id => client.delete(`models/${id}`),
 
   listPrompts: () => client.query("prompts"),
-  createPrompt: prompt => client.post("prompts", prompt),
+  createPrompt: data => client.post("prompts", data),
   deletePrompt: id => client.delete(`prompts/${id}`),
 
   getSystemInfo: () => client.query("system-info"),
