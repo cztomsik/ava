@@ -7,6 +7,12 @@ const client = {
     const res = await fetch(`${API_URL}/${url}`, { method, body: data && JSON.stringify(data), ...init })
     const mime = res.headers.get("Content-Type")?.split(";")[0] ?? ""
 
+    if (!res.ok) {
+      const err = new Error(`${res.status} ${res.statusText}`)
+      err["response"] = await res.text()
+      throw err
+    }
+
     return mime === "application/json" ? res.json() : mime.startsWith("text/") ? res.text() : res
   },
 

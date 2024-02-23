@@ -1,57 +1,28 @@
 import { useEffect, useErrorBoundary } from "preact/hooks"
-import { useSignal } from "@preact/signals"
 import { Modal } from "./Modal"
 
-const fetch = window.fetch
+const handleError = error => Modal.open(ErrorModal, { error })
 
-/**
- * A component that catches errors in the component tree and unhandled promise
- * rejections and displays them in a modal.
- */
 export const ErrorBoundary = ({ children, ...props }) => {
-  const lastError = useSignal<Error | null>(null)
-
   // Errors in the component tree (render, event handlers, etc.)
-  useErrorBoundary(err => console.error((lastError.value = err)))
+  useErrorBoundary(err => void handleError(err))
 
   // Unhandled promise rejections (fetch, async, etc.)
   useEffect(() => {
-    const listener = rej => (lastError.value = rej.reason)
+    const listener = rej => handleError(rej.reason)
     addEventListener("unhandledrejection", listener)
 
     return () => removeEventListener("unhandledrejection", listener)
-  })
-
-  // Fetch errors
-  useEffect(() => {
-    window.fetch = async (...args) => {
-      const res = await fetch(...args)
-
-      if (!res.ok) {
-        const err = new Error(`${res.status} ${res.statusText}`)
-        err["response"] = res
-        throw err
-      }
-
-      return res
-    }
-
-    return () => (window.fetch = fetch)
   }, [])
 
-  // Clear the error when the user closes the modal
-  const reset = () => (lastError.value = null)
-
-  return (
-    <div {...props}>
-      {children}
-
-      {lastError.value && (
-        <Modal title="Unexpected Error" onClose={reset}>
-          <p class="mb-4">An unexpected error occurred. ({lastError.value.constructor.name})</p>
-          <pre class="p-0 whitespace-pre-wrap overflow-auto">{lastError.value.message ?? lastError.value}</pre>
-        </Modal>
-      )}
-    </div>
-  )
+  return <div {...props}>{children}</div>
 }
+
+const ErrorModal = ({ error, resolve }) => (
+  <Modal title="Unexpected Error" onClose={resolve}>
+    <p class="mb-4">An unexpected error occurred. ({error.constructor.name})</p>
+    <pre class="p-0 whitespace-pre-wrap overflow-auto">
+      {[error.message ?? error, error.response, error.stack].filter(Boolean).join("\n\n")}
+    </pre>
+  </Modal>
+)
