@@ -18,7 +18,7 @@ pub const Prompt = struct {
 pub const Chat = struct {
     id: ?u32 = null,
     name: []const u8,
-    prompt: ?[]const u8,
+    prompt: ?[]const u8 = null,
 };
 
 pub const ChatMessage = struct {
