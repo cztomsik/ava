@@ -51,7 +51,15 @@ export const ChatSession = ({ id }) => {
 
     await api.updateMessage(id, msg.id, {
       ...msg,
-      content: await generate({ prompt, start_with, trim_first: !!start_with.match(/(^|\s)$/) }),
+      content: await generate({
+        prompt,
+        start_with,
+        trim_first: !!start_with.match(/(^|\s)$/),
+        sampling: {
+          ...chat.sampling,
+          stop: [`USER:`, `ASSISTANT:`],
+        },
+      }),
     })
 
     generating.value = null
