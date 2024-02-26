@@ -43,6 +43,14 @@ const styles = css`
     @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:(bg-neutral-12 text-neutral-2 border(& neutral-10);
   }
 
+  & ul {
+    @apply list-disc py-2 pl-4;
+  }
+
+  & ol {
+    @apply list-decimal py-2 pl-4;
+  }
+
   &,
   & * {
     cursor: text;
