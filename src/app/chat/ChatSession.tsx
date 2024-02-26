@@ -18,6 +18,7 @@ export const ChatSession = ({ id }) => {
 
   // TODO: use /chat/completions
   const editing = useSignal(null)
+  const generating = useSignal(null)
   const { generate, result, ...progress } = useGenerate()
 
   const handleSend = async () => {
@@ -45,8 +46,15 @@ export const ChatSession = ({ id }) => {
         .reduce((res, m) => res + `${m.role.toUpperCase()}: ${m.content}\n`, "")
         .trimEnd()
 
-    await generate({ prompt, start_with, trim_first: !!start_with.match(/(^|\s)$/) })
-    await api.updateMessage(id, msg.id, { ...msg, content: result.value })
+    editing.value = null
+    generating.value = msg.id
+
+    await api.updateMessage(id, msg.id, {
+      ...msg,
+      content: await generate({ prompt, start_with, trim_first: !!start_with.match(/(^|\s)$/) }),
+    })
+
+    generating.value = null
   }
 
   const handleRename = async () => {
@@ -97,7 +105,7 @@ export const ChatSession = ({ id }) => {
         {messages.map((m, i) => (
           <ChatMessage
             key={m.id}
-            message={m}
+            message={m.id === generating.value ? { ...m, content: result } : m}
             isEditing={editing.value === m}
             onEdit={() => (editing.value = m)}
             onGenerate={s => handleGenerate(messages.slice(0, i), m, s)}
