@@ -1,7 +1,7 @@
 import { Marked } from "marked"
 import { css } from "@twind/core"
-import { useRef } from "preact/hooks"
-import { useSignalEffect } from "@preact/signals"
+import { useEffect, useRef } from "preact/hooks"
+import { effect } from "@preact/signals"
 
 const marked = new Marked({
   renderer: {
@@ -61,7 +61,7 @@ const styles = css`
 export const Markdown = ({ input, class: className = "", ...props }) => {
   const ref = useRef<HTMLDivElement>(null)
 
-  useSignalEffect(() => void (ref.current!.innerHTML = marked.parse("" + input) as string))
+  useEffect(() => effect(() => (ref.current!.innerHTML = marked.parse("" + input) as string)), [input])
 
   return <div ref={ref} class={`overflow-x-hidden ${styles} ${className}`} {...props} />
 }
