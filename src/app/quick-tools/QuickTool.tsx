@@ -40,9 +40,10 @@ export const QuickTool = ({ params: { id } }) => {
         <div class="vstack overflow-hidden">
           <h3 class="px-4 py-2 uppercase font-medium text(sm neutral-11)">Result</h3>
           <div class="px-4 py-2 overflow-auto">
+            {/* TODO: This will trigger a re-render on every token */}
             {result.value === "" && <p class="text-neutral-11">Click generate to see the result</p>}
 
-            <Markdown input={result.value} class="mb-2" />
+            <Markdown input={result} class="mb-2" />
             <GenerationProgress {...progress} />
             <AutoScroll />
           </div>

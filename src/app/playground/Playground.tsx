@@ -1,4 +1,4 @@
-import { useSignal } from "@preact/signals"
+import { useComputed, useSignal } from "@preact/signals"
 import { Play, Save, Trash2 } from "lucide"
 import { AutoScroll, Checkbox, Form, Field, GenerationProgress, IconButton, Markdown, Page, Resizable } from "../_components"
 import { Modal } from "../_components"
@@ -21,6 +21,7 @@ export const Playground = () => {
   const signal = useLocalStorage("playground.state", EMPTY)
   const state = signal.value
   const { generate, result, ...progress } = useGenerate([state.prompt])
+  const res = useComputed(() => (state.showPrompt ? template(state.prompt, state.data) + result.value : result.value))
 
   const selection = useSignal<any>(null)
 
@@ -72,10 +73,7 @@ export const Playground = () => {
               </div>
 
               <div class="flex-1 overflow-auto">
-                <Markdown
-                  input={state.showPrompt ? template(state.prompt, state.data) + result.value : result.value}
-                  class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden"
-                />
+                <Markdown input={res} class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" />
                 <GenerationProgress {...progress} />
                 <AutoScroll />
               </div>

@@ -14,7 +14,7 @@ export const License = () => {
     <SettingsPage>
       <h1 class="text-lg font-bold">License</h1>
       <div class="flex-1 p-4 border(1 neutral-6) rounded-md overflow-auto shadow-inner my-4">
-        <Markdown class="max-w-2xl" input={license.value}></Markdown>
+        <Markdown class="max-w-2xl" input={license}></Markdown>
       </div>
 
       <h2 class="text-lg font-bold">Open Source acknowledgement</h2>
