@@ -21,7 +21,12 @@ export const Playground = () => {
   const signal = useLocalStorage("playground.state", EMPTY)
   const state = signal.value
   const { generate, result, ...progress } = useGenerate([state.prompt])
-  const res = useComputed(() => (state.showPrompt ? template(state.prompt, state.data) + result.value : result.value))
+
+  // TODO: use start_with? or refactor useGenerate() completely because we only want to show this before
+  // the first generation
+  const res = useComputed(() =>
+    signal.value.showPrompt ? template(signal.value.prompt, signal.value.data) + result.value : result.value
+  )
 
   const selection = useSignal<any>(null)
 
