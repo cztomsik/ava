@@ -16,7 +16,7 @@ pub fn main() !void {
     ;
 
     std.debug.print(banner, .{
-        ava.app.?.server.http.socket.listen_address,
+        ava.app.?.server.net.listen_address,
     });
 
     ava.app.?.server.thread.join();

@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 const sqlite = @import("ava-sqlite");
 const tk = @import("tokamak");
@@ -10,6 +11,7 @@ pub const App = struct {
     allocator: std.mem.Allocator,
     db: sqlite.SQLite3,
     llama: llama.Pool,
+    client: std.http.Client,
     server: *tk.Server,
 
     pub fn init(self: *App) !void {
@@ -24,6 +26,15 @@ pub const App = struct {
 
         self.llama = llama.Pool.init(allocator);
 
+        self.client = .{ .allocator = allocator };
+
+        if (builtin.target.os.tag == .windows) {
+            try self.client.ca_bundle.rescan(allocator);
+            const start = self.client.ca_bundle.bytes.items.len;
+            try self.client.ca_bundle.bytes.appendSlice(allocator, @embedFile("../windows/amazon1.cer"));
+            try self.client.ca_bundle.parseCert(allocator, @intCast(start), std.time.timestamp());
+        }
+
         self.server = try tk.Server.start(allocator, handler, .{
             .injector = tk.Injector.from(self),
             .port = 3002,
@@ -35,27 +46,28 @@ pub const App = struct {
         self.server.deinit();
         thread.join();
 
+        self.client.deinit();
         self.llama.deinit();
         self.db.close();
         _ = self.gpa.deinit();
     }
 };
 
-fn handler(injector: tk.Injector, uri: *std.Uri, r: *tk.Responder) anyerror!void {
+fn handler(injector: tk.Injector, req: *tk.Request, res: *tk.Response) anyerror!void {
     // handle API requests
-    if (tk.Params.match("/api/*", uri.path)) |_| {
-        uri.path = uri.path[4..];
-        return r.send(injector.call(tk.router(@import("api.zig")), .{}));
+    if (req.match("/api/*")) |_| {
+        req.url.path = req.url.path[4..];
+        return res.send(injector.call(tk.router(@import("api.zig")), .{}));
     }
 
     // TODO: should be .get() but it's not implemented yet
-    if (tk.Params.match("/LICENSE.md", uri.path)) |_| return r.sendResource("LICENSE.md");
-    if (tk.Params.match("/favicon.ico", uri.path)) |_| return r.sendResource("src/app/favicon.ico");
-    if (tk.Params.match("/app.js", uri.path)) |_| return r.sendResource("zig-out/app/main.js");
+    if (req.match("/LICENSE.md")) |_| return res.sendResource("LICENSE.md");
+    if (req.match("/favicon.ico")) |_| return res.sendResource("src/app/favicon.ico");
+    if (req.match("/app.js")) |_| return res.sendResource("zig-out/app/main.js");
 
     // disable source maps in production
-    if (tk.Params.match("*.map", uri.path)) |_| return r.sendChunk("{}");
+    if (req.match("*.map")) |_| return res.send("{}");
 
     // HTML5 fallback
-    try r.sendResource("src/app/index.html");
+    try res.sendResource("src/app/index.html");
 }

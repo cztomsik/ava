@@ -1,7 +1,7 @@
 const std = @import("std");
 const tk = @import("tokamak");
 
-pub fn @"POST /find-models"(allocator: std.mem.Allocator, r: *tk.Responder, params: struct { path: []const u8 }) !void {
+pub fn @"POST /find-models"(allocator: std.mem.Allocator, res: *tk.Response, params: struct { path: []const u8 }) !void {
     var models_found = std.ArrayList(struct { path: []const u8, size: ?u64 }).init(allocator);
 
     var dir = try std.fs.openDirAbsolute(params.path, .{ .iterate = true });
@@ -24,5 +24,5 @@ pub fn @"POST /find-models"(allocator: std.mem.Allocator, r: *tk.Responder, para
         else => {},
     };
 
-    return r.sendJson(models_found.items);
+    return res.sendJson(models_found.items);
 }

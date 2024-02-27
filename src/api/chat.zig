@@ -3,7 +3,7 @@ const tk = @import("tokamak");
 const sqlite = @import("ava-sqlite");
 const schema = @import("../schema.zig");
 
-pub fn @"GET /chat"(db: *sqlite.SQLite3, r: *tk.Responder) !void {
+pub fn @"GET /chat"(db: *sqlite.SQLite3, res: *tk.Response) !void {
     var stmt = try db.query(
         \\SELECT id, name,
         \\(SELECT content FROM ChatMessage WHERE chat_id = Chat.id ORDER BY id DESC LIMIT 1) as last_message
@@ -11,7 +11,7 @@ pub fn @"GET /chat"(db: *sqlite.SQLite3, r: *tk.Responder) !void {
     , .{});
     defer stmt.deinit();
 
-    return r.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: ?[]const u8 }));
+    return res.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: ?[]const u8 }));
 }
 
 pub fn @"POST /chat"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, data: schema.Chat) !schema.Chat {

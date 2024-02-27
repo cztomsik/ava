@@ -44,11 +44,11 @@ const styles = css`
   }
 
   & ul {
-    @apply list-disc py-2 pl-4;
+    @apply list-disc py-2 pl-5;
   }
 
   & ol {
-    @apply list-decimal py-2 pl-4;
+    @apply list-decimal py-2 pl-5;
   }
 
   &,

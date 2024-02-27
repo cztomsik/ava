@@ -35,7 +35,7 @@ pub export fn ava_start() c_int {
 }
 
 pub export fn ava_get_port() c_int {
-    return if (app == null) -1 else app.?.server.http.socket.listen_address.getPort();
+    return if (app == null) -1 else app.?.server.net.listen_address.getPort();
 }
 
 pub export fn ava_stop() c_int {

@@ -4,7 +4,7 @@ const tk = @import("tokamak");
 const schema = @import("../schema.zig");
 const util = @import("../util.zig");
 
-pub fn @"GET /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, r: *tk.Responder) !void {
+pub fn @"GET /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, res: *tk.Response) !void {
     var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
     defer stmt.deinit();
 
@@ -20,7 +20,7 @@ pub fn @"GET /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, r: *tk.
         });
     }
 
-    return r.sendJson(rows.items);
+    return res.sendJson(rows.items);
 }
 
 pub fn @"POST /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, data: schema.Model) !schema.Model {

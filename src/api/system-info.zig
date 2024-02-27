@@ -2,11 +2,11 @@ const builtin = @import("builtin");
 const std = @import("std");
 const tk = @import("tokamak");
 
-pub fn @"GET /system-info"(allocator: std.mem.Allocator, r: *tk.Responder) !void {
+pub fn @"GET /system-info"(allocator: std.mem.Allocator, res: *tk.Response) !void {
     const user_home = try std.process.getEnvVarOwned(allocator, if (builtin.target.os.tag == .windows) "USERPROFILE" else "HOME");
     const user_downloads = try std.fs.path.join(allocator, &.{ user_home, "Downloads" });
 
-    return r.sendJson(.{
+    return res.sendJson(.{
         .os = builtin.os.tag,
         .os_version = try getOsVersion(allocator),
         .arch = builtin.cpu.arch,
