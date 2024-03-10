@@ -7,11 +7,11 @@ struct Main: App {
 
     var body: some Scene {
         WindowGroup {
-            WebViewContent(url: "http://127.0.0.1:\(state.port)/")
+            WebViewContent(url: state.url)
                 .frame(
                     minWidth: 700, idealWidth: 900, 
                     minHeight: 480, idealHeight: 800)
-                .edgesIgnoringSafeArea(.top) 
+                .edgesIgnoringSafeArea(.top)
         }
         .windowStyle(.hiddenTitleBar)
     }
@@ -37,8 +37,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         true
     }
 
-    func applicationWillTerminate(_ notification: Notification) {
-        ava_stop()
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        DispatchQueue.main.async {
+            ava_stop()
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+
+        AppState.shared.port = -1
+        return .terminateLater
     }
 }
 
@@ -46,4 +52,8 @@ final class AppState: ObservableObject {
     static let shared = AppState()
 
     @Published var port: Int32 = -1
+
+    var url: String? {
+        return port > 0 ? "http://127.0.0.1:\(port)" : nil
+    }
 }
