@@ -19,7 +19,7 @@ pub fn main() !void {
         ava.app.?.server.net.listen_address,
     });
 
-    ava.app.?.server.thread.join();
+    ava.app.?.server.wait();
 
     std.log.debug("Stopping the server", .{});
     _ = ava.ava_stop();

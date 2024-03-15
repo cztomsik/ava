@@ -16,7 +16,7 @@ pub const App = struct {
 
     pub fn init(self: *App) !void {
         self.gpa = .{};
-        const allocator = self.gpa.allocator();
+        var allocator = self.gpa.allocator();
 
         const db_file = try util.getWritableHomePath(allocator, &.{"db"});
         defer allocator.free(db_file);
@@ -36,16 +36,14 @@ pub const App = struct {
         }
 
         self.server = try tk.Server.start(allocator, handler, .{
-            .injector = tk.Injector.from(self),
+            .injector = try tk.Injector.from(.{ &allocator, &self.db, &self.llama, &self.client }),
             .port = 3002,
+            .keep_alive = false,
         });
     }
 
     pub fn deinit(self: *App) void {
-        const thread = self.server.thread;
         self.server.deinit();
-        thread.join();
-
         self.client.deinit();
         self.llama.deinit();
         self.db.close();
@@ -53,21 +51,23 @@ pub const App = struct {
     }
 };
 
-fn handler(injector: tk.Injector, req: *tk.Request, res: *tk.Response) anyerror!void {
-    // handle API requests
-    if (req.match("/api/*")) |_| {
-        req.url.path = req.url.path[4..];
-        return res.send(injector.call(tk.router(@import("api.zig")), .{}));
-    }
+const handler = tk.chain(.{
+    tk.logger(.{}),
 
-    // TODO: should be .get() but it's not implemented yet
-    if (req.match("/LICENSE.md")) |_| return res.sendResource("LICENSE.md");
-    if (req.match("/favicon.ico")) |_| return res.sendResource("src/app/favicon.ico");
-    if (req.match("/app.js")) |_| return res.sendResource("zig-out/app/main.js");
+    // Handle API requests
+    tk.group("/api", tk.chain(.{
+        tk.router(@import("api.zig")),
+        tk.send(error.NotFound),
+    })),
 
-    // disable source maps in production
-    if (req.match("*.map")) |_| return res.send("{}");
+    // Serve static files
+    tk.get("/LICENSE.md", tk.sendStatic("LICENSE.md")),
+    tk.get("/favicon.ico", tk.sendStatic("src/app/favicon.ico")),
+    tk.get("/app.js", tk.sendStatic("zig-out/app/main.js")),
+
+    // Disable source maps in production
+    tk.get("*.map", tk.send(@as([]const u8, "{}"))),
 
     // HTML5 fallback
-    try res.sendResource("src/app/index.html");
-}
+    tk.sendStatic("src/app/index.html"),
+});
