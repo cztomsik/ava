@@ -34,6 +34,15 @@ const styles = css`
     @apply text-sm font(mono semibold);
   }
 
+  & table {
+    @apply w-full mb-4;
+  }
+
+  & table th,
+  & table td {
+    @apply p-2 border(b-1 neutral-7);
+  }
+
   & a {
     cursor: pointer;
     @apply text-blue-11;
