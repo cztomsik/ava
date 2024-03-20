@@ -4,8 +4,8 @@
 
     .dependencies = .{
         .fridge = .{
-            .url = "https://github.com/cztomsik/fridge/archive/4a3fc22.tar.gz",
-            .hash = "1220ad3dd545aa6a7a3f00051a7344f2a27b72280a09ff63e5a4656520e2608aa172",
+            .url = "https://github.com/cztomsik/fridge/archive/bc9ffff.tar.gz",
+            .hash = "12209a74f8655ed0513c879028f562aed132876217f95687521febf5fecf3d256923",
         },
 
         .tokamak = .{
