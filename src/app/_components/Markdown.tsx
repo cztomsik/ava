@@ -31,7 +31,7 @@ const styles = css`
   }
 
   & code {
-    @apply text-sm font(mono bold);
+    @apply text-sm font(mono semibold);
   }
 
   & a {
