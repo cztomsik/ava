@@ -120,7 +120,7 @@ fn handleMessage(hWnd: c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPAR
         },
         c.WM_SIZE => resize(),
         c.WM_PAINT => {
-            if (!webview_initialized.load(.Acquire)) {
+            if (!webview_initialized.load(.acquire)) {
                 var rect: c.RECT = undefined;
                 if (c.GetUpdateRect(window, &rect, c.FALSE) == 0) return 0;
 
@@ -153,7 +153,7 @@ fn createWebView() !void {
     );
 
     // Wait for the environment to be created
-    while (!webview_initialized.load(.Acquire) and tick() > 0) {}
+    while (!webview_initialized.load(.acquire) and tick() > 0) {}
 }
 
 fn environmentCompleted(_: *com.ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler, res: c.HRESULT, env: *com.ICoreWebView2Environment) callconv(c.WINAPI) c.HRESULT {
@@ -180,7 +180,7 @@ fn controllerCompleted(_: *com.ICoreWebView2CreateCoreWebView2ControllerComplete
         }
     }
 
-    webview_initialized.store(true, .Release);
+    webview_initialized.store(true, .release);
 
     std.log.debug("Resizing", .{});
     resize();
@@ -189,7 +189,7 @@ fn controllerCompleted(_: *com.ICoreWebView2CreateCoreWebView2ControllerComplete
 }
 
 fn resize() void {
-    if (!webview_initialized.load(.Acquire)) return;
+    if (!webview_initialized.load(.acquire)) return;
     var bounds: c.RECT = undefined;
     _ = c.GetClientRect(window, &bounds);
     _ = controller.call(.put_Bounds, .{bounds});
