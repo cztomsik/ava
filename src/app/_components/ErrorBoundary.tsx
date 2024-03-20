@@ -9,7 +9,8 @@ export const ErrorBoundary = ({ children, ...props }) => {
 
   // Unhandled promise rejections (fetch, async, etc.)
   useEffect(() => {
-    const listener = rej => handleError(rej.reason)
+    // skip empty rejections (we do that in modal's onClose)
+    const listener = rej => rej.reason && handleError(rej.reason)
     addEventListener("unhandledrejection", listener)
 
     return () => removeEventListener("unhandledrejection", listener)
