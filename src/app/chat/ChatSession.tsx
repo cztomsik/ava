@@ -82,9 +82,11 @@ export const ChatSession = ({ id }) => {
 
   const handleUndo = async () => {
     const chunk = messages.splice(messages.findLastIndex(m => m.role === "user"))
-    input.value = chunk[0].content
 
-    await Promise.all(chunk.map(m => api.deleteMessage(id, m.id)))
+    if (chunk.length > 0) {
+      input.value = chunk[0].content
+      await Promise.all(chunk.map(m => api.deleteMessage(id, m.id)))
+    }
   }
 
   return (
