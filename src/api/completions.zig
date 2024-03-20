@@ -1,5 +1,6 @@
 const std = @import("std");
-const sqlite = @import("ava-sqlite");
+const fg = @import("fridge");
+const schema = @import("../schema.zig");
 const llama = @import("../llama.zig");
 
 pub const Message = struct {
@@ -21,11 +22,10 @@ pub const Completion = struct {
     },
 };
 
-pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, pool: *llama.Pool, params: Params) !Completion {
-    const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE name = ?", .{params.model});
-    defer allocator.free(model_path);
+pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fg.Session, pool: *llama.Pool, params: Params) !Completion {
+    const model = try db.findBy(schema.Model, .{ .name = params.model }) orelse return error.NotFound;
 
-    var cx = try pool.get(model_path, 60_000);
+    var cx = try pool.get(model.path, 60_000);
     defer pool.release(cx);
 
     const prompt = try serializePrompt(allocator, params.messages);

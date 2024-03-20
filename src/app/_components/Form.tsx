@@ -22,7 +22,7 @@ export const Form = <T extends {}>({ onSubmit, onChange, data, ...props }: FormP
     input?.focus()
 
     if (input instanceof HTMLInputElement) {
-      input.setSelectionRange(0, input.value.length)
+      input.select()
     }
   }, [])
 

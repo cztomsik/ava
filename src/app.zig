@@ -1,7 +1,7 @@
 const builtin = @import("builtin");
 const std = @import("std");
-const sqlite = @import("ava-sqlite");
 const tk = @import("tokamak");
+const fr = @import("fridge");
 const llama = @import("llama.zig");
 const util = @import("util.zig");
 
@@ -9,7 +9,7 @@ const util = @import("util.zig");
 pub const App = struct {
     gpa: std.heap.GeneralPurposeAllocator(.{}),
     allocator: std.mem.Allocator,
-    db: sqlite.SQLite3,
+    db_pool: fr.Pool,
     llama: llama.Pool,
     client: std.http.Client,
     server: *tk.Server,
@@ -21,11 +21,10 @@ pub const App = struct {
         const db_file = try util.getWritableHomePath(allocator, &.{"db"});
         defer allocator.free(db_file);
 
-        self.db = try sqlite.SQLite3.open(db_file);
-        try sqlite.migrate(allocator, &self.db, @embedFile("db_schema.sql"));
+        try fr.migrate(allocator, db_file, @embedFile("db_schema.sql"));
 
+        self.db_pool = try fr.Pool.init(allocator, db_file, 2);
         self.llama = llama.Pool.init(allocator);
-
         self.client = .{ .allocator = allocator };
 
         if (builtin.target.os.tag == .windows) {
@@ -36,7 +35,7 @@ pub const App = struct {
         }
 
         self.server = try tk.Server.start(allocator, handler, .{
-            .injector = try tk.Injector.from(.{ &allocator, &self.db, &self.llama, &self.client }),
+            .injector = try tk.Injector.from(.{ &allocator, &self.db_pool, &self.llama, &self.client }),
             .port = 3002,
             .keep_alive = false,
         });
@@ -46,13 +45,14 @@ pub const App = struct {
         self.server.deinit();
         self.client.deinit();
         self.llama.deinit();
-        self.db.close();
+        self.db_pool.deinit();
         _ = self.gpa.deinit();
     }
 };
 
 const handler = tk.chain(.{
     tk.logger(.{}),
+    tk.provide(fr.Session.fromPool),
 
     // Handle API requests
     tk.group("/api", tk.chain(.{

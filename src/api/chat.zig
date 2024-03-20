@@ -1,88 +1,60 @@
 const std = @import("std");
 const tk = @import("tokamak");
-const sqlite = @import("ava-sqlite");
+const fr = @import("fridge");
 const schema = @import("../schema.zig");
 
-pub fn @"GET /chat"(db: *sqlite.SQLite3, res: *tk.Response) !void {
-    var stmt = try db.query(
-        \\SELECT id, name,
-        \\(SELECT content FROM ChatMessage WHERE chat_id = Chat.id ORDER BY id DESC LIMIT 1) as last_message
-        \\FROM Chat ORDER BY id DESC
-    , .{});
-    defer stmt.deinit();
-
-    return res.sendJson(stmt.iterator(struct { id: u32, name: []const u8, last_message: ?[]const u8 }));
+pub fn @"GET /chat"(db: *fr.Session) ![]const schema.ChatWithLastMessage {
+    return db.findAll(fr.query(schema.ChatWithLastMessage).orderBy(.id, .desc));
 }
 
-pub fn @"POST /chat"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, data: schema.Chat) !schema.Chat {
-    return db.getAlloc(
-        allocator,
-        schema.Chat,
-        "INSERT INTO Chat (name, prompt) VALUES (?, ?) RETURNING *",
-        .{ data.name, data.prompt },
+pub fn @"POST /chat"(db: *fr.Session, data: schema.Chat) !schema.Chat {
+    return db.create(schema.Chat, data);
+}
+
+pub fn @"GET /chat/:id"(db: *fr.Session, id: u32) !schema.Chat {
+    return try db.find(schema.Chat, id) orelse error.NotFound;
+}
+
+pub fn @"PUT /chat/:id"(db: *fr.Session, id: u32, data: schema.Chat) !schema.Chat {
+    return try db.update(schema.Chat, id, data) orelse error.NotFound;
+}
+
+pub fn @"GET /chat/:id/messages"(db: *fr.Session, id: u32) ![]const schema.ChatMessage {
+    return db.findAll(
+        fr.query(schema.ChatMessage).where(.{ .chat_id = id }).orderBy(.id, .asc),
     );
 }
 
-pub fn @"GET /chat/:id"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32) !schema.Chat {
-    return db.getAlloc(
-        allocator,
-        schema.Chat,
-        "SELECT * FROM Chat WHERE id = ?",
-        .{id},
-    );
+pub fn @"POST /chat/:id/messages"(db: *fr.Session, id: u32, data: schema.ChatMessage) !schema.ChatMessage {
+    const chat = try db.find(schema.Chat, id) orelse return error.NotFound;
+    var new = data;
+    new.chat_id = chat.id;
+
+    return db.create(schema.ChatMessage, new);
 }
 
-pub fn @"PUT /chat/:id"(db: *sqlite.SQLite3, id: u32, data: schema.Chat) !void {
+pub fn @"GET /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !schema.ChatMessage {
+    return try db.findBy(schema.ChatMessage, .{
+        .id = message_id,
+        .chat_id = id,
+    }) orelse error.NotFound;
+}
+
+pub fn @"PUT /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32, data: schema.ChatMessage) !schema.ChatMessage {
+    const msg = try db.findBy(schema.ChatMessage, .{
+        .id = message_id,
+        .chat_id = id,
+    }) orelse return error.NotFound;
+
+    return try db.update(schema.ChatMessage, msg.id, data) orelse error.NotFound;
+}
+
+pub fn @"DELETE /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !void {
     try db.exec(
-        "UPDATE Chat SET name = ?, prompt = ? WHERE id = ?",
-        .{ data.name, data.prompt, id },
+        fr.delete(schema.ChatMessage).where(.{ .id = message_id, .chat_id = id }),
     );
 }
 
-pub fn @"GET /chat/:id/messages"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32) ![]const schema.ChatMessage {
-    return db.getAll(
-        allocator,
-        schema.ChatMessage,
-        "SELECT * FROM ChatMessage WHERE chat_id = ? ORDER BY id",
-        .{id},
-    );
-}
-
-pub fn @"POST /chat/:id/messages"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32, data: schema.ChatMessage) !schema.ChatMessage {
-    return db.getAlloc(
-        allocator,
-        schema.ChatMessage,
-        "INSERT INTO ChatMessage (chat_id, role, content) VALUES (?, ?, ?) RETURNING *",
-        .{ id, data.role, data.content },
-    );
-}
-
-pub fn @"GET /chat/:id/messages/:message_id"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: u32, message_id: u32) !schema.ChatMessage {
-    return db.getAlloc(
-        allocator,
-        schema.ChatMessage,
-        "SELECT * FROM ChatMessage WHERE id = ? AND chat_id = ?",
-        .{ message_id, id },
-    );
-}
-
-pub fn @"PUT /chat/:id/messages/:message_id"(db: *sqlite.SQLite3, id: u32, message_id: u32, data: schema.ChatMessage) !void {
-    try db.exec(
-        "UPDATE ChatMessage SET role = ?, content = ? WHERE id = ? AND chat_id = ?",
-        .{ data.role, data.content, message_id, id },
-    );
-}
-
-pub fn @"DELETE /chat/:id/messages/:message_id"(db: *sqlite.SQLite3, id: u32, message_id: u32) !void {
-    try db.exec(
-        "DELETE FROM ChatMessage WHERE id = ? AND chat_id = ?",
-        .{ message_id, id },
-    );
-}
-
-pub fn @"DELETE /chat/:id"(db: *sqlite.SQLite3, id: u32) !void {
-    try db.exec(
-        "DELETE FROM Chat WHERE id = ?",
-        .{id},
-    );
+pub fn @"DELETE /chat/:id"(db: *fr.Session, id: u32) !void {
+    try db.delete(schema.Chat, id);
 }

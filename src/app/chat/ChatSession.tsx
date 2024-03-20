@@ -127,18 +127,18 @@ export const ChatSession = ({ id }) => {
         <AutoScroll />
       </Page.Content>
 
-      <Page.Footer class="pt-2">
-        <ChatInput value={input} onChange={v => (input.value = v)} onSend={handleSend} />
-      </Page.Footer>
-
       {sidebarOpen.value && (
         <Page.DetailsPane sizes={[200, 250, 400]}>
           <Form data={chat} onChange={handleUpdate} onSubmit={handleUpdate}>
-            <Field as={ChatOptions} name="options" defaultValue={{ user: "USER", assistant: "ASSISTANT" }} />
+            {/* <Field as={ChatOptions} name="options" defaultValue={{ user: "USER", assistant: "ASSISTANT" }} /> */}
             <Field as={SamplingOptions} name="sampling" defaultValue={defaultSampling} />
           </Form>
         </Page.DetailsPane>
       )}
+
+      <Page.Footer class="pt-2">
+        <ChatInput value={input} onChange={v => (input.value = v)} onSend={handleSend} />
+      </Page.Footer>
     </>
   )
 }

@@ -1,51 +1,47 @@
 const std = @import("std");
-const sqlite = @import("ava-sqlite");
+const fr = @import("fridge");
 const tk = @import("tokamak");
 const schema = @import("../schema.zig");
 const util = @import("../util.zig");
 
-pub fn @"GET /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, res: *tk.Response) !void {
-    var stmt = try db.query("SELECT * FROM Model ORDER BY id", .{});
-    defer stmt.deinit();
+const ModelWithSize = struct {
+    id: ?u32 = null,
+    name: []const u8,
+    path: []const u8,
+    imported: bool,
+    size: usize,
+};
 
-    var rows = std.ArrayList(struct { id: u32, name: []const u8, path: []const u8, imported: bool, size: ?u64 }).init(allocator);
-    var it = stmt.iterator(schema.Model);
-    while (try it.next()) |m| {
+pub fn @"GET /models"(db: *fr.Session) ![]const ModelWithSize {
+    var rows = std.ArrayList(ModelWithSize).init(db.arena);
+
+    for (try db.findAll(fr.query(schema.Model))) |m| {
         try rows.append(.{
             .id = m.id.?,
-            .name = try allocator.dupe(u8, m.name),
-            .path = try allocator.dupe(u8, m.path),
+            .name = m.name,
+            .path = m.path,
             .imported = m.imported,
-            .size = util.getFileSize(m.path) catch null,
+            .size = util.getFileSize(m.path) catch 0,
         });
     }
 
-    return res.sendJson(rows.items);
+    return rows.toOwnedSlice();
 }
 
-pub fn @"POST /models"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, data: schema.Model) !schema.Model {
-    return db.getAlloc(
-        allocator,
-        schema.Model,
-        "INSERT INTO Model (name, path, imported) VALUES (?, ?, ?) RETURNING *",
-        .{ data.name, data.path, data.imported },
-    );
+pub fn @"POST /models"(db: *fr.Session, data: schema.Model) !schema.Model {
+    return db.create(schema.Model, data);
 }
 
-pub fn @"PUT /models/:id"(db: *sqlite.SQLite3, id: u32, data: schema.Model) !void {
-    try db.exec(
-        "UPDATE Model SET name = ?, path = ? WHERE id = ?",
-        .{ data.name, data.path, id },
-    );
+pub fn @"PUT /models/:id"(db: *fr.Session, id: u32, data: schema.Model) !schema.Model {
+    return try db.update(schema.Model, id, data) orelse error.NotFound;
 }
 
-pub fn @"DELETE /models/:id"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, id: []const u8) !void {
-    const path = try db.getString(allocator, "SELECT path FROM Model WHERE id = ?", .{id});
-    const imported = try db.get(bool, "SELECT imported FROM Model WHERE id = ?", .{id});
+pub fn @"DELETE /models/:id"(db: *fr.Session, id: u32) !void {
+    const model = try db.find(schema.Model, id) orelse return;
 
-    try db.exec("DELETE FROM Model WHERE id = ?", .{id});
+    try db.delete(schema.Model, id);
 
-    if (!imported) {
-        std.fs.deleteFileAbsolute(path) catch {};
+    if (!model.imported) {
+        std.fs.deleteFileAbsolute(model.path) catch {};
     }
 }

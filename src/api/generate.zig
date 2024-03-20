@@ -1,6 +1,7 @@
 const std = @import("std");
 const tk = @import("tokamak");
-const sqlite = @import("ava-sqlite");
+const fr = @import("fridge");
+const schema = @import("../schema.zig");
 const llama = @import("../llama.zig");
 
 const GenerateParams = struct {
@@ -11,14 +12,15 @@ const GenerateParams = struct {
     sampling: llama.SamplingParams = .{},
 };
 
-pub fn @"POST /generate"(allocator: std.mem.Allocator, db: *sqlite.SQLite3, pool: *llama.Pool, res: *tk.Response, params: GenerateParams) !void {
+pub fn @"POST /generate"(allocator: std.mem.Allocator, db: *fr.Session, pool: *llama.Pool, res: *tk.Response, params: GenerateParams) !void {
+    const model = try db.findBy(schema.Model, .{ .name = params.model }) orelse return error.NotFound;
+
     // TODO: refactor
     try res.setHeader("Content-Type", "application/jsonlines");
     try res.respond();
 
     try res.sendJson(.{ .status = "Waiting for the model..." });
-    const model_path = try db.getString(allocator, "SELECT path FROM Model WHERE name = ?", .{params.model});
-    var cx = try pool.get(model_path, 60_000);
+    var cx = try pool.get(model.path, 60_000);
     defer pool.release(cx);
 
     try res.sendJson(.{ .status = "Reading the history..." });

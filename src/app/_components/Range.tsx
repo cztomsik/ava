@@ -6,7 +6,7 @@ export const Range = ({ label, onChange, ...props }) => {
     <div class="vstack gap-2 mb-2">
       <label class="flex justify-between items-center">
         <span>{label}</span>
-        <span>{props.value}</span>
+        <span>{+props.value.toFixed(2)}</span>
       </label>
       <input
         type="range"

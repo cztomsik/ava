@@ -3,14 +3,14 @@
     .version = "0.0.1",
 
     .dependencies = .{
-        .@"ava-sqlite" = .{
-            .url = "https://github.com/cztomsik/ava-sqlite/archive/f4876ef.tar.gz",
-            .hash = "1220985ab42ea586e46462ad9ef9be18891d41d3100b0db9c67dea2547b8af4a95be",
+        .fridge = .{
+            .url = "https://github.com/cztomsik/fridge/archive/4a3fc22.tar.gz",
+            .hash = "1220ad3dd545aa6a7a3f00051a7344f2a27b72280a09ff63e5a4656520e2608aa172",
         },
 
         .tokamak = .{
-            .url = "https://github.com/cztomsik/tokamak/archive/0b36b84.tar.gz",
-            .hash = "1220072cff51c2dc3046b0064e12777610dd9ed6bdf5dca0d8a5262f2f7db3561086",
+            .url = "https://github.com/cztomsik/tokamak/archive/49e301b.tar.gz",
+            .hash = "1220c39038600ac45667158fe3e100edfd40d1daaf01ba20a8a5b903b67e878fa894",
         },
     },
     .paths = .{

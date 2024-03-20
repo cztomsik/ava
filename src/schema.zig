@@ -1,6 +1,5 @@
 const std = @import("std");
-const util = @import("util.zig");
-const sqlite = @import("ava-sqlite");
+const llama = @import("llama.zig");
 
 pub const Model = struct {
     id: ?u32 = null,
@@ -19,6 +18,13 @@ pub const Chat = struct {
     id: ?u32 = null,
     name: []const u8,
     prompt: ?[]const u8 = null,
+    sampling: llama.SamplingParams = .{},
+};
+
+pub const ChatWithLastMessage = struct {
+    id: ?u32 = null,
+    name: []const u8,
+    last_message: ?[]const u8,
 };
 
 pub const ChatMessage = struct {

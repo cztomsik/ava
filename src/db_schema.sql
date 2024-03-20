@@ -18,8 +18,15 @@ CREATE TABLE "Prompt" (
 CREATE TABLE "Chat" (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  prompt TEXT
+  prompt TEXT,
+  sampling TEXT NOT NULL DEFAULT '{}'
 ) STRICT;
+
+CREATE VIEW "ChatWithLastMessage" AS
+SELECT
+  Chat.*,
+  (SELECT content FROM ChatMessage WHERE chat_id = Chat.id ORDER BY id DESC LIMIT 1) as last_message
+FROM Chat;
 
 CREATE TABLE "ChatMessage" (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
