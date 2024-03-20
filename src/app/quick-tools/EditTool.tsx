@@ -1,23 +1,31 @@
-import { Page } from "../_components"
+import { IconButton, Modal, Page } from "../_components"
 import { ToolForm } from "./ToolForm"
-import { err } from "../_util"
-import { examples } from "./_examples"
+import { useQuery } from "../_hooks"
+import { api } from "../api"
 import { router } from "../router"
+import { Trash2 } from "lucide"
 
 export const EditTool = ({ params: { id } }) => {
-  const tool = examples.find(t => t.id === +id) ?? err("Tool not found")
+  const { data: tool } = useQuery(id && api.getQuickTool(id))
 
-  const handleSubmit = data => {
-    Object.assign(tool, data)
+  const handleGenerate = async data => {
+    await api.updateQuickTool(id, data)
     router.navigate(`/quick-tools/${id}`)
   }
 
+  const handleDelete = () =>
+    Modal.confirm("Are you sure you want to delete this tool?")
+      .then(() => api.deleteQuickTool(id))
+      .then(() => router.navigate("/quick-tools", true))
+
   return (
     <Page>
-      <Page.Header title="Edit Tool"></Page.Header>
+      <Page.Header title="Edit Tool">
+        <IconButton title="Delete" icon={Trash2} onClick={handleDelete} />
+      </Page.Header>
 
       <Page.Content>
-        <ToolForm tool={tool} onSubmit={handleSubmit} />
+        <ToolForm tool={tool} onSubmit={handleGenerate} />
       </Page.Content>
     </Page>
   )

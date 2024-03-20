@@ -1,8 +1,11 @@
 import { Plus } from "lucide"
 import { Alert, Button, IconButton, Link, Page, Table } from "../_components"
-import { examples } from "./_examples"
+import { useQuery } from "../_hooks"
+import { api } from "../api"
 
 export const QuickTools = () => {
+  const { data: tools = [] } = useQuery(api.listQuickTools())
+
   return (
     <Page>
       <Page.Header title="Quick Tools">
@@ -12,7 +15,7 @@ export const QuickTools = () => {
       <Page.Content>
         <Alert class="mb-8">
           <strong>This feature is experimental.</strong> <br />
-          No changes are saved to the database
+          The database schema and API may change without notice.
         </Alert>
 
         <Table class="max-w-5xl">
@@ -24,7 +27,13 @@ export const QuickTools = () => {
             </tr>
           </thead>
           <tbody>
-            {examples.map(t => (
+            {!tools.length && (
+              <tr>
+                <td colSpan={3}>No tools found</td>
+              </tr>
+            )}
+
+            {tools.map(t => (
               <tr>
                 <td>
                   <Link class="text-blue-11" href={`/quick-tools/${t.id}`}>

@@ -1,17 +1,17 @@
 import { Page } from "../_components"
+import { api } from "../api"
 import { router } from "../router"
 import { ToolForm } from "./ToolForm"
-import { examples } from "./_examples"
 
 export const CreateTool = () => {
   const tool = {
     name: "New Tool",
+    description: "",
     prompt: "",
   }
 
-  const createTool = async (tool: any) => {
-    const id = examples.length + 1
-    examples.push({ id, ...tool })
+  const createTool = async data => {
+    const { id } = await api.createQuickTool(data)
     router.navigate(`/quick-tools/${id}`)
   }
 

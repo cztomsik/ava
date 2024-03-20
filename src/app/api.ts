@@ -50,6 +50,12 @@ export const api = {
   createPrompt: data => client.post("prompts", data),
   deletePrompt: id => client.delete(`prompts/${id}`),
 
+  listQuickTools: () => client.query("quick-tools"),
+  createQuickTool: data => client.post("quick-tools", data),
+  getQuickTool: id => client.query(`quick-tools/${id}`),
+  updateQuickTool: (id, data) => client.put(`quick-tools/${id}`, data),
+  deleteQuickTool: id => client.delete(`quick-tools/${id}`),
+
   getSystemInfo: () => client.query("system-info"),
   getLog: () => client.query("log"),
 }

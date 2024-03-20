@@ -33,3 +33,10 @@ pub const ChatMessage = struct {
     role: []const u8,
     content: []const u8,
 };
+
+pub const QuickTool = struct {
+    id: ?u32 = null,
+    name: []const u8,
+    description: []const u8,
+    prompt: []const u8,
+};

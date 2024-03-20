@@ -9,4 +9,5 @@ pub usingnamespace @import("api/log.zig");
 pub usingnamespace @import("api/models.zig");
 pub usingnamespace @import("api/prompts.zig");
 pub usingnamespace @import("api/proxy.zig");
+pub usingnamespace @import("api/quick-tools.zig");
 pub usingnamespace @import("api/system-info.zig");
