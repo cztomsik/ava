@@ -424,7 +424,7 @@ fn getPerfCpuCount() usize {
         var count: c_int = 0;
         var len: usize = @sizeOf(c_int);
 
-        std.os.sysctlbynameZ("hw.perflevel0.physicalcpu", &count, &len, null, 0) catch {};
+        std.posix.sysctlbynameZ("hw.perflevel0.physicalcpu", &count, &len, null, 0) catch {};
         if (count > 0) return @intCast(count);
     }
 
