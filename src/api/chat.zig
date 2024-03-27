@@ -16,7 +16,9 @@ pub fn @"GET /chat/:id"(db: *fr.Session, id: u32) !schema.Chat {
 }
 
 pub fn @"PUT /chat/:id"(db: *fr.Session, id: u32, data: schema.Chat) !schema.Chat {
-    return try db.update(schema.Chat, id, data) orelse error.NotFound;
+    try db.update(schema.Chat, id, data);
+
+    return try db.find(schema.Chat, id) orelse error.NotFound;
 }
 
 pub fn @"GET /chat/:id/messages"(db: *fr.Session, id: u32) ![]const schema.ChatMessage {
@@ -41,12 +43,12 @@ pub fn @"GET /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_i
 }
 
 pub fn @"PUT /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32, data: schema.ChatMessage) !schema.ChatMessage {
-    const msg = try db.findBy(schema.ChatMessage, .{
+    try db.update(schema.ChatMessage, message_id, data);
+
+    return try db.findBy(schema.ChatMessage, .{
         .id = message_id,
         .chat_id = id,
     }) orelse return error.NotFound;
-
-    return try db.update(schema.ChatMessage, msg.id, data) orelse error.NotFound;
 }
 
 pub fn @"DELETE /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !void {

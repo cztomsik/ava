@@ -23,7 +23,7 @@ pub const App = struct {
 
         try fr.migrate(allocator, db_file, @embedFile("db_schema.sql"));
 
-        self.db_pool = try fr.Pool.init(allocator, db_file, 2);
+        self.db_pool = try fr.Pool.init(allocator, db_file, .{ .count = 2 });
         self.llama = llama.Pool.init(allocator);
         self.client = .{ .allocator = allocator };
 

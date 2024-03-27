@@ -33,7 +33,9 @@ pub fn @"POST /models"(db: *fr.Session, data: schema.Model) !schema.Model {
 }
 
 pub fn @"PUT /models/:id"(db: *fr.Session, id: u32, data: schema.Model) !schema.Model {
-    return try db.update(schema.Model, id, data) orelse error.NotFound;
+    try db.update(schema.Model, id, data);
+
+    return try db.find(schema.Model, id) orelse error.NotFound;
 }
 
 pub fn @"DELETE /models/:id"(db: *fr.Session, id: u32) !void {

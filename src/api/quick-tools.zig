@@ -15,7 +15,9 @@ pub fn @"POST /quick-tools"(db: *fr.Session, data: schema.QuickTool) !schema.Qui
 }
 
 pub fn @"PUT /quick-tools/:id"(db: *fr.Session, id: u32, data: schema.QuickTool) !schema.QuickTool {
-    return try db.update(schema.QuickTool, id, data) orelse error.NotFound;
+    try db.update(schema.QuickTool, id, data);
+
+    return try db.find(schema.QuickTool, id) orelse error.NotFound;
 }
 
 pub fn @"DELETE /quick-tools/:id"(db: *fr.Session, id: u32) !void {
