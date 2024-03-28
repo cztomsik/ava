@@ -470,7 +470,8 @@ const grammar = struct {
     fn rulePtrs(comptime rules: []const []const c.llama_grammar_element) []const [*c]const c.llama_grammar_element {
         var ptrs: [rules.len][*]const c.llama_grammar_element = undefined;
         for (rules, 0..) |rule, i| ptrs[i] = rule.ptr;
-        return &ptrs;
+        const res = ptrs;
+        return &res;
     }
 
     fn ref(i: usize) c.llama_grammar_element {

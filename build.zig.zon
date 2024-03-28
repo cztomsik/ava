@@ -4,13 +4,13 @@
 
     .dependencies = .{
         .fridge = .{
-            .url = "https://github.com/cztomsik/fridge/archive/1ca71e9.tar.gz",
-            .hash = "122026bfc83c97c07ac02a6404a7417c36866e2b146452d539aec6cd41f76c6246e8",
+            .url = "https://github.com/cztomsik/fridge/archive/96977fc.tar.gz",
+            .hash = "122011df1b4686c60fba89a3d87b83e975da52c0a8d8a2e98682cdc3b096df30820a",
         },
 
         .tokamak = .{
-            .url = "https://github.com/cztomsik/tokamak/archive/76a50e3.tar.gz",
-            .hash = "12206364ed56834b53b1ee0f3a32d913b95b16a599b23b5f02893ac2a56ac7d4daa2",
+            .url = "https://github.com/cztomsik/tokamak/archive/8b060ec.tar.gz",
+            .hash = "12203eb11963be423af78827f816d77e1a7f924b2a502798dc4b2513e10a5b0ac06a",
         },
     },
     .paths = .{
