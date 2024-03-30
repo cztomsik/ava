@@ -1,4 +1,5 @@
 import { Link } from "./Link"
+import { Icon } from "./Icon"
 
 export const Button = ({ class: className = "", submit = false, primary = submit, text = false, ...props }) => {
   props.type = submit ? "submit" : "button"
@@ -12,4 +13,12 @@ export const Button = ({ class: className = "", submit = false, primary = submit
   } ${className}`
 
   return props.href ? <Link {...props} /> : <button {...props} />
+}
+
+export const IconButton = ({ class: className = "", icon, disabled = false, ...props }) => {
+  return (
+    <Button class={`text-neutral-${disabled ? 5 : 11} ${className}`} text disabled={disabled} {...props}>
+      <Icon icon={icon} />
+    </Button>
+  )
 }
