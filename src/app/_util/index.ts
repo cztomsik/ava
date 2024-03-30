@@ -1,7 +1,6 @@
 export { indexOf, slice } from "./array"
-export { dedent } from "./dedent"
 export { err } from "./err"
-export { humanSize, humanDuration, humanize } from "./human"
+export { dedent, humanSize, humanDuration, humanize } from "./fmt"
 export { jsonLines } from "./jsonLines"
 export { basename } from "./path"
 export { parseHTML } from "./parseHTML"
