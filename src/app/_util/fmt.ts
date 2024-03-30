@@ -8,13 +8,27 @@ export const dedent = (strings: TemplateStringsArray, ...values: any[]) => {
 }
 
 /**
- * Returns a human readable string
+ * Returns a human readable identifier
  */
 export const humanize = (str: string) =>
   str
     .replace(/_id$/, "")
     .replace(/_/g, " ")
     .replace(/\b\w/g, l => l.toUpperCase())
+
+/**
+ * Returns a human readable count
+ */
+export const humanCount = (count: number) => {
+  switch (true) {
+    case count < 1_000:
+      return count.toString()
+    case count < 1_000_000:
+      return `${(count / 1_000).toFixed(1)}k`
+    default:
+      return `${(count / 1_000_000).toFixed(1)}m`
+  }
+}
 
 /**
  * Returns a human readable size
