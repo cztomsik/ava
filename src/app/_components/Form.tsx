@@ -1,8 +1,12 @@
 import { createContext, JSX } from "preact"
 import { useContext, useEffect, useMemo, useRef } from "preact/hooks"
-import { useForm, UseFormProps } from "../_hooks"
+import { signal } from "@preact/signals"
 
-export type FormProps<T> = UseFormProps<T> & Omit<JSX.HTMLAttributes<HTMLFormElement>, "data" | "onSubmit">
+export interface FormProps<T> extends Omit<JSX.HTMLAttributes<HTMLFormElement>, "data" | "onSubmit" | "onChange"> {
+  data?: T
+  onSubmit: (data: T) => any
+  onChange?: (data: T) => any
+}
 
 const FormContext = createContext<ReturnType<typeof useForm>>(null as any)
 
@@ -70,4 +74,30 @@ export const Field = ({ name, as: Comp = "input" as any, defaultValue = undefine
   }
 
   return <Comp {...field} {...props} />
+}
+
+// Shared empty object so the useMemo() below keeps the same reference
+const EMPTY = {} as any
+
+export const useForm = ({ data = EMPTY, onSubmit, onChange }) => {
+  // Always use latest callbacks
+  const callbacks = useRef(null as any)
+  callbacks.current = { onSubmit, onChange }
+
+  // Only reset values (and FormContext.Provider) when data changes
+  return useMemo(() => {
+    const values = signal(data)
+    let prev = data
+    values.subscribe(data => data != prev && callbacks.current.onChange?.(data))
+
+    const field = name => ({
+      name,
+      value: values.value[name],
+      onChange: e => (values.value = { ...values.value, [name]: e instanceof Event ? e.target!.value : e }),
+    })
+
+    const handleSubmit = _ => callbacks.current.onSubmit(values.value)
+
+    return { values, field, handleSubmit }
+  }, [data])
 }
