@@ -9,7 +9,7 @@ export const ModelImporter = () => {
   const path = useLocalStorage("importer.path", "")
 
   useMemo(async () => {
-    if (!path.value) path.value = (await api.getSystemInfo()).user_downloads
+    if (!path.value) path.value = (await api.getSystemInfo().fetch()).user_downloads
   }, [])
 
   const handleImport = async () => {

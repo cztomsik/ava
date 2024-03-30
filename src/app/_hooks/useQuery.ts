@@ -2,7 +2,7 @@ import { Signal } from "@preact/signals"
 import { useMemo } from "preact/hooks"
 
 type AnyRes = Record<string | number | typeof Symbol.iterator, any>
-type Query<T> = PromiseLike<T> & { url: string }
+type Query<T> = { url: string; fetch: () => Promise<T> }
 
 const contextMap: Map<string, WeakRef<any>> = new Map()
 
@@ -41,7 +41,7 @@ const createContext = <T>(query: Query<T>) => {
       state.value = { ...state.value, fetching: true }
       state.value = {
         ...state.value,
-        data: await (p ?? (p = Promise.resolve().then(() => ((p = null), query)))),
+        data: await (p ?? (p = Promise.resolve().then(() => ((p = null), query.fetch())))),
         fetching: false,
       }
     },

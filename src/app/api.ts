@@ -1,6 +1,6 @@
 export const API_URL = `${window.location.protocol}//${window.location.host}/api`
 
-type Query = PromiseLike<any> & { url: string }
+type Query = { url: string; fetch: () => Promise<any> }
 
 const client = {
   request: async (method, url, data?, init?) => {
@@ -16,7 +16,7 @@ const client = {
     return mime === "application/json" ? res.json() : mime.startsWith("text/") ? res.text() : res
   },
 
-  query: (url): Query => ({ url: `${API_URL}/${url}`, then: (resolve, reject) => client.get(url).then(resolve, reject) }),
+  query: (url): Query => ({ url: `${API_URL}/${url}`, fetch: () => client.get(url) }),
   get: url => client.request("GET", url),
   post: (url, data, init?) => client.request("POST", url, data, init),
   put: (url, data) => client.request("PUT", url, data),
