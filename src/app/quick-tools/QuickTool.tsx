@@ -1,11 +1,11 @@
 import { SquarePen } from "lucide"
-import { AutoScroll, Button, Form, FormGrid, GenerationProgress, IconButton, Markdown, Page, Field } from "../_components"
+import { AutoScroll, Button, Form, FormGrid, IconButton, Markdown, Page, Field } from "../_components"
 import { useGenerate, useQuery } from "../_hooks"
 import { parseVars, template, humanize } from "../_util"
 import { api } from "../api"
 
 export const QuickTool = ({ params: { id } }) => {
-  const { generate, result, ...progress } = useGenerate()
+  const { generate, result, status, abort } = useGenerate()
 
   const { data: tool } = useQuery(id && api.getQuickTool(id))
 
@@ -31,7 +31,9 @@ export const QuickTool = ({ params: { id } }) => {
               ))}
 
               <div />
-              <Button submit>Generate</Button>
+              <Button abort={abort} submit>
+                Generate
+              </Button>
             </FormGrid>
           </Form>
         </Page.Content>
@@ -40,11 +42,9 @@ export const QuickTool = ({ params: { id } }) => {
           <div class="vstack overflow-hidden">
             <h3 class="px-4 py-2 uppercase font-medium text(sm neutral-11)">Result</h3>
             <div class="px-4 py-2 overflow-auto">
-              {/* TODO: This will trigger a re-render on every token */}
-              {result.value === "" && <p class="text-neutral-11">Click generate to see the result</p>}
+              <Markdown class="peer" input={status || result} />
+              <p class="hidden peer-empty:block text-neutral-11">Click generate to see the result</p>
 
-              <Markdown input={result} class="mb-2" />
-              <GenerationProgress {...progress} />
               <AutoScroll />
             </div>
           </div>
