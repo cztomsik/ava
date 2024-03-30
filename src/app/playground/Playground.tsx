@@ -1,6 +1,6 @@
 import { useComputed, useSignal } from "@preact/signals"
 import { Play, Save, Trash2 } from "lucide"
-import { AutoScroll, Checkbox, Form, Field, GenerationProgress, IconButton, Markdown, Page, Resizable } from "../_components"
+import { AutoScroll, Checkbox, Form, Field, IconButton, Markdown, Page, Resizable } from "../_components"
 import { Modal } from "../_components"
 import { useGenerate, useLocalStorage, defaultSampling } from "../_hooks"
 import { parseVars, template } from "../_util"
@@ -20,10 +20,8 @@ const EMPTY = {
 export const Playground = () => {
   const signal = useLocalStorage("playground.state", EMPTY)
   const state = signal.value
-  const { generate, result, ...progress } = useGenerate([state.prompt])
+  const { generate, result, status, abort } = useGenerate([state.prompt])
 
-  // TODO: use start_with? or refactor useGenerate() completely because we only want to show this before
-  // the first generation
   const res = useComputed(() =>
     signal.value.showPrompt ? template(signal.value.prompt, signal.value.data) + result.value : result.value
   )
@@ -42,17 +40,14 @@ export const Playground = () => {
   const handleDelete = () =>
     Modal.confirm("Are you sure you want to delete this prompt?")
       .then(() => api.deletePrompt(selection.value.id))
-      .then(() => {
-        selection.value = null
-        signal.value = EMPTY
-      })
+      .then(() => ((selection.value = null), (signal.value = EMPTY)))
 
   return (
     <Form data={state} onChange={v => ((signal.value = v), (selection.value = null))} onSubmit={handleSubmit}>
       <Page>
         <Page.Header title="Playground">
           {selection.value?.id > 0 && <IconButton icon={Trash2} onClick={handleDelete} />}
-          <IconButton title="Generate" icon={Play} submit disabled={state.prompt === ""} />
+          <IconButton title="Generate" icon={Play} disabled={state.prompt === ""} abort={abort} submit />
           <IconButton title="Save As" icon={Save} onClick={handleSaveAs} />
         </Page.Header>
 
@@ -78,8 +73,7 @@ export const Playground = () => {
               </div>
 
               <div class="flex-1 overflow-auto">
-                <Markdown input={res} class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" />
-                <GenerationProgress {...progress} />
+                <Markdown class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" input={status || res} />
                 <AutoScroll />
               </div>
             </Resizable>
