@@ -41,3 +41,7 @@ export const IconButton = ({ class: className = "", icon, disabled = false, ...p
     </Button>
   )
 }
+
+const Spinner = () => (
+  <span class="opacity-40 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current [border-inline-end-color:#0000] animate-[spin_1.5s_linear_infinite] dark:text-white" />
+)
