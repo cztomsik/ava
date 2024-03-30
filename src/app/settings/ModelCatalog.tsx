@@ -1,6 +1,6 @@
 import { Button, Table } from "../_components"
 import { useQuery } from "../_hooks"
-import { basename, humanSize } from "../_util"
+import { basename, fmtSize } from "../_util"
 import { downloadModel } from "./download"
 import { api } from "../api"
 
@@ -24,7 +24,7 @@ export const ModelCatalog = () => {
             <tr>
               <td class="capitalize">{basename(m.url.slice(0, -5))}</td>
               <td>{m.url.split("/")[3]}</td>
-              <td class="text-right">{humanSize(m.size)}</td>
+              <td class="text-right">{fmtSize(m.size)}</td>
               <td class="text-center">
                 {models.find(({ name }) => name === basename(m.url).slice(0, -5)) ? (
                   <strong class="block py-1.5 text-green-10">Installed</strong>

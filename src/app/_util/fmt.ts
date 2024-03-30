@@ -8,7 +8,8 @@ export const dedent = (strings: TemplateStringsArray, ...values: any[]) => {
 }
 
 /**
- * Returns a human readable identifier
+ * Humanize a string by replacing underscores with spaces and capitalizing the
+ * first letter of each word.
  */
 export const humanize = (str: string) =>
   str
@@ -17,9 +18,9 @@ export const humanize = (str: string) =>
     .replace(/\b\w/g, l => l.toUpperCase())
 
 /**
- * Returns a human readable count
+ * Format a count to a human-readable string.
  */
-export const humanCount = (count: number) => {
+export const fmtCount = (count: number) => {
   switch (true) {
     case count < 1_000:
       return count.toString()
@@ -31,9 +32,9 @@ export const humanCount = (count: number) => {
 }
 
 /**
- * Returns a human readable size
+ * Format a size in bytes to a human-readable string.
  */
-export const humanSize = size => {
+export const fmtSize = size => {
   switch (true) {
     case size / 1024 < 1:
       return `${size} B`
@@ -46,7 +47,10 @@ export const humanSize = size => {
   }
 }
 
-export const humanDuration = (duration: number) => {
+/**
+ * Format a duration in seconds to a human-readable string.
+ */
+export const fmtDuration = (duration: number) => {
   const timeUnits = [
     ["day", 60 * 60 * 24],
     ["hour", 60 * 60],
@@ -56,12 +60,20 @@ export const humanDuration = (duration: number) => {
   for (const [unit, value] of timeUnits) {
     if (duration >= value) {
       return (
-        pluralize(Math.floor(duration / value), unit) + (duration % value === 0 ? "" : " " + humanDuration(duration % value))
+        pluralize(Math.floor(duration / value), unit) + (duration % value === 0 ? "" : " " + fmtDuration(duration % value))
       )
     }
   }
 
   return pluralize(duration, "second")
+}
+
+/**
+ * Format a date to a human-readable string.
+ */
+export const fmtDate = (date: number | string | Date) => {
+  if (typeof date === "number" || typeof date === "string") date = new Date(date)
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "2-digit", day: "2-digit" })
 }
 
 const pluralize = (count, noun, suffix = "s") => `${count} ${noun}${count !== 1 ? suffix : ""}`

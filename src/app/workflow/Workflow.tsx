@@ -3,7 +3,7 @@ import { useContext } from "preact/hooks"
 import { useSignal } from "@preact/signals"
 import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2 } from "lucide"
 import { Field, Form, FormGrid, Icon, IconButton, Page } from "../_components"
-import { err, humanDuration, humanize } from "../_util"
+import { err, fmtDuration, humanize } from "../_util"
 import { examples } from "./_examples"
 import { handlers, runWorkflow, stepDefaults } from "./runner"
 
@@ -114,7 +114,7 @@ type Renderers = {
 }
 
 const renderers: Renderers = {
-  wait: s => [`Wait ${humanDuration(s.duration)}`, Clock],
+  wait: s => [`Wait ${fmtDuration(s.duration)}`, Clock],
   generate: s => ["Generate", Wand2],
   instruction: s => ["Instruction", Wand2, s.instruction],
   http_request: s => ["HTTP Request", Cloud, s.url],
