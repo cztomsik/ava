@@ -76,21 +76,31 @@ export const generate = async (options: GenerateOptions, result, status, signal?
 
 export const useGenerate = (deps = [] as any[]) => {
   const ctrl = useSignal<AbortController | null>(null)
-  const abort = useCallback(() => ctrl.value?.abort(), [])
-  useEffect(() => abort, deps) // Cancel when deps change or the component is unmounted
+
+  useEffect(() => () => ctrl.value?.abort(), deps) // Cancel when deps change or the component is unmounted
 
   return useMemo(() => {
     const result = signal("")
     const status = signal<any>(null)
 
-    const gen = opts => {
-      abort()
-      ctrl.value = new AbortController()
+    return {
+      result,
 
-      return generate(opts, result, status, ctrl.value.signal)
-    }
+      generate: opts => {
+        ctrl.value?.abort()
+        ctrl.value = new AbortController()
 
-    return { generate: gen, result, status, abort } as const
+        return generate(opts, result, status, ctrl.value.signal).finally(() => (ctrl.value = null))
+      },
+
+      get status() {
+        return status.value
+      },
+
+      get abort() {
+        return ctrl.value?.abort.bind(ctrl.value)
+      },
+    } as const
   }, deps)
 }
 
