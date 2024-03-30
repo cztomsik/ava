@@ -1,5 +1,5 @@
 import { PanelRightClose, PanelRightOpen, SquarePen, Trash2, Undo } from "lucide"
-import { AutoScroll, Field, Form, GenerationProgress, IconButton, Modal, Page } from "../_components"
+import { AutoScroll, Field, Form, IconButton, Modal, Page } from "../_components"
 import { defaultSampling, useQuery, useLocalStorage, selectedModel, useGenerate } from "../_hooks"
 import { ChatPrompt } from "./ChatPrompt"
 import { ChatMessage } from "./ChatMessage"
@@ -19,7 +19,7 @@ export const ChatSession = ({ id }) => {
   // TODO: use /chat/completions
   const editing = useSignal(null)
   const generating = useSignal(null)
-  const { generate, result, ...progress } = useGenerate()
+  const { generate, result, status, abort } = useGenerate()
 
   const handleSend = async () => {
     if (!id) {
@@ -115,7 +115,7 @@ export const ChatSession = ({ id }) => {
         {messages.map((m, i) => (
           <ChatMessage
             key={m.id}
-            message={m.id === generating.value ? { ...m, content: result } : m}
+            message={m.id === generating.value ? { ...m, content: status || result } : m}
             isEditing={editing.value === m}
             onEdit={() => (editing.value = m)}
             onGenerate={s => handleGenerate(messages.slice(0, i), m, s)}
@@ -125,7 +125,6 @@ export const ChatSession = ({ id }) => {
           />
         ))}
 
-        <GenerationProgress class="container mb-10 justify-start" {...progress} />
         <AutoScroll />
       </Page.Content>
 
@@ -139,7 +138,7 @@ export const ChatSession = ({ id }) => {
       )}
 
       <Page.Footer class="pt-2">
-        <ChatInput value={input} onChange={v => (input.value = v)} onSend={handleSend} />
+        <ChatInput value={input} onChange={v => (input.value = v)} onSend={handleSend} abort={abort} />
       </Page.Footer>
     </>
   )

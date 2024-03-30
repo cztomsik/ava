@@ -2,7 +2,7 @@ import { useEffect, useId } from "preact/hooks"
 import { SendHorizontal } from "lucide"
 import { AutoGrowTextarea, Form, IconButton } from "../_components"
 
-export const ChatInput = ({ value, onChange, onSend }) => {
+export const ChatInput = ({ value, onChange, onSend, abort }) => {
   const id = useId()
 
   // Steal focus if no input is focused and a key is pressed
@@ -38,7 +38,7 @@ export const ChatInput = ({ value, onChange, onSend }) => {
         onInput={e => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
       />
-      <IconButton title="Send" icon={SendHorizontal} class="absolute bottom-[9px] right-2" submit />
+      <IconButton class="absolute bottom-[9px] right-2" title="Send" icon={SendHorizontal} abort={abort} submit />
     </Form>
   )
 }
