@@ -65,7 +65,7 @@ THE SOFTWARE.
 
 ---
 
-## llamma.cpp
+## llama.cpp
 
 MIT License
 
