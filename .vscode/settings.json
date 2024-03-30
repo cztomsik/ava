@@ -7,7 +7,5 @@
   "[swift][c][cpp]": {
     "editor.tabSize": 4
   },
-  "[sql]": {
-    "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
-  }
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -4,8 +4,8 @@ import { signal } from "@preact/signals"
 
 export interface FormProps<T> extends Omit<JSX.HTMLAttributes<HTMLFormElement>, "data" | "onSubmit" | "onChange"> {
   data?: T
-  onSubmit: (data: T) => any
-  onChange?: (data: T) => any
+  onSubmit: (data: NoInfer<T>) => any
+  onChange?: (data: NoInfer<T>) => any
 }
 
 const FormContext = createContext<ReturnType<typeof useForm>>(null as any)
