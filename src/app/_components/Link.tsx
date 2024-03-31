@@ -27,6 +27,9 @@ export const Link = props => {
  * link when the route is active.
  **/
 export const NavLink = ({ href, activeClass = "active", exact = false, ...props }) => {
+  // Touch the currentRoute to subscribe to changes
+  router.currentRoute
+
   if (router.match(exact ? href : `${href}*`)) {
     props.class = (props.class ?? props.className ?? "") + " " + activeClass
   }
