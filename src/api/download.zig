@@ -14,6 +14,10 @@ pub fn @"POST /download"(allocator: std.mem.Allocator, client: *std.http.Client,
         return res.sendJson(.{ .@"error" = try std.fmt.allocPrint(allocator, "Invalid status code: `{d}`", .{req.response.status}) });
     }
 
+    if (req.response.content_length) |size| {
+        try res.sendJson(.{ .size = size });
+    }
+
     const content_type = req.response.content_type orelse "";
     if (!std.mem.eql(u8, content_type, "binary/octet-stream")) {
         return res.sendJson(.{ .@"error" = try std.fmt.allocPrint(allocator, "Invalid content type: `{s}`", .{content_type}) });
