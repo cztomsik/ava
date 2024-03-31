@@ -19,7 +19,7 @@ export const Button = ({
       : primary
       ? "bg-primary(10 dark:11) from-primary(8 dark:9) text-sky(1 dark:4) border-primary(8 dark:10)"
       : "bg-neutral-5 from(white dark:neutral-11) text-neutral-12 border-neutral-6 shadow-thin"
-  } ${className}`
+  } active:[translate:1px_1px] ${className}`
 
   if (loading) {
     props.disabled = !abort
