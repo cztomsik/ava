@@ -2,6 +2,7 @@ import { Resizable } from "./Resizable"
 
 const gridTemplate = `
   "list header header" auto
+  "list subhead subhead" auto
   "list main details" 1fr
   "list footer details" auto / min-content 1fr min-content
 `
@@ -25,6 +26,10 @@ Page.Header = ({ title, children = null as any, ...props }) => {
     </header>
   )
 }
+
+Page.SubHead = ({ class: className = "", ...props }) => (
+  <div class={`[grid-area:subhead] bg-neutral-3 p-8 border(b neutral-6) ${className}`} {...props} />
+)
 
 Page.List = ({ class: className = "", as: Comp, sizes, ...props }) => (
   <Resizable as="nav" sizes={sizes} storageKey="TODO" class={`[grid-area:list] overflow-hidden ${className}`}>
