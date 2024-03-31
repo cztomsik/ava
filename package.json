@@ -17,13 +17,13 @@
     "printWidth": 125
   },
   "dependencies": {
-    "@preact/signals": "^1.2.2",
+    "@preact/signals": "^1.2.3",
     "@twind/core": "^1.1.3",
     "@twind/preset-radix-ui": "^1.0.7",
     "@twind/preset-tailwind": "^1.1.4",
-    "lucide": "^0.336.0",
-    "marked": "^12.0.0",
-    "preact": "^10.19.6"
+    "lucide": "^0.363.0",
+    "marked": "^12.0.1",
+    "preact": "^10.20.1"
   },
   "devDependencies": {
     "esbuild": "^0.20.1",

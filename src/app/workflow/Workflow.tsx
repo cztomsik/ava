@@ -1,7 +1,7 @@
 import { createContext } from "preact"
 import { useContext } from "preact/hooks"
 import { useSignal } from "@preact/signals"
-import { Clock, Cloud, MousePointerSquare, Play, Repeat2, TableProperties, Wand2 } from "lucide"
+import { Clock, Cloud, SquareMousePointer, Play, Repeat2, TableProperties, Wand2 } from "lucide"
 import { Field, Form, FormGrid, Icon, IconButton, Page } from "../_components"
 import { err, fmtDuration, humanize } from "../_util"
 import { examples } from "./_examples"
@@ -118,7 +118,7 @@ const renderers: Renderers = {
   generate: s => ["Generate", Wand2],
   instruction: s => ["Instruction", Wand2, s.instruction],
   http_request: s => ["HTTP Request", Cloud, s.url],
-  query_selector: s => ["Query Selector", MousePointerSquare, s.selector],
+  query_selector: s => ["Query Selector", SquareMousePointer, s.selector],
   // extract: s => ["Extract", TableProperties, s.fields.join(", ")],
   // for_each: s => ["For Each", Repeat2],
 }
