@@ -18,7 +18,7 @@ export const QuickTools = () => {
           The database schema and API may change without notice.
         </Alert>
 
-        <Table class="max-w-5xl">
+        <Table>
           <thead>
             <tr>
               <th class="w-56">Name</th>

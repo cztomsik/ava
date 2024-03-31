@@ -16,7 +16,7 @@ export const Models = () => {
         <ModelImporter />
 
         <h2 class="mt-4 mb-2 text-xl">Installed models</h2>
-        <Table class="max-w-5xl">
+        <Table>
           <thead>
             <tr>
               <th>Model</th>
