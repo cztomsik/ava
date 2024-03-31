@@ -1,7 +1,7 @@
 export { Alert } from "./Alert"
 export { AutoGrowTextarea } from "./AutoGrowTextarea"
 export { AutoScroll } from "./AutoScroll"
-export { Button, IconButton } from "./Button"
+export { Button, ButtonGroup, IconButton } from "./Button"
 export { Checkbox } from "./Checkbox"
 export { ErrorBoundary } from "./ErrorBoundary"
 export { Form, FormGroup, FormGrid, Field } from "./Form"

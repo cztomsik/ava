@@ -34,13 +34,15 @@ export const Button = ({
   return props.href ? <Link {...props} /> : <button {...props} />
 }
 
-export const IconButton = ({ class: className = "", icon, disabled = false, ...props }) => {
-  return (
-    <Button class={`text-neutral-${disabled ? 5 : 11} ${className}`} text disabled={disabled} {...props}>
-      <Icon icon={icon} />
-    </Button>
-  )
-}
+export const ButtonGroup = ({ class: className = "", ...props }) => (
+  <div class={`flex [&>*]:rounded-none ${className}`} role="group" {...props} />
+)
+
+export const IconButton = ({ class: className = "", icon, disabled = false, ...props }) => (
+  <Button class={`text-neutral-${disabled ? 5 : 11} ${className}`} text disabled={disabled} {...props}>
+    <Icon icon={icon} />
+  </Button>
+)
 
 const Spinner = () => (
   <span class="opacity-40 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current [border-inline-end-color:#0000] animate-[spin_1.5s_linear_infinite] dark:text-white" />
