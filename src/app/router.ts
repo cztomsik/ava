@@ -7,7 +7,10 @@ import { QuickTool } from "./quick-tools/QuickTool"
 import { EditTool } from "./quick-tools/EditTool"
 import { Workflows } from "./workflow/Workflows"
 import { Workflow } from "./workflow/Workflow"
-import { Models } from "./settings/Models"
+import { SearchModels } from "./models/SearchModels"
+import { DownloadManager } from "./models/DownloadManager"
+import { Models } from "./models/Models"
+import { Settings } from "./settings/Settings"
 import { System } from "./settings/System"
 import { Api } from "./settings/Api"
 import { License } from "./settings/License"
@@ -22,7 +25,10 @@ const routes = [
   NEXT && { path: "/workflows", component: Workflows },
   NEXT && { path: "/workflows/:id", component: Workflow },
   { path: "/playground", component: Playground },
-  { path: "/settings", component: Models },
+  { path: "/models", component: SearchModels },
+  { path: "/models/downloads", component: DownloadManager },
+  { path: "/models/installed", component: Models },
+  { path: "/settings", component: Settings },
   { path: "/settings/system", component: System },
   { path: "/settings/license", component: License },
   { path: "/settings/api", component: Api },
