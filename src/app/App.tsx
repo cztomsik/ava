@@ -1,4 +1,4 @@
-import { ErrorBoundary, Modal, ModelSelect, NavLink, Resizable, SearchField } from "./_components"
+import { Badge, ErrorBoundary, Modal, ModelSelect, NavLink, Resizable, SearchField } from "./_components"
 import { queue } from "./models/download"
 import { router } from "./router"
 
@@ -30,8 +30,8 @@ const Sidebar = () => (
     <SidebarLink href="/playground">Playground</SidebarLink>
 
     <SidebarHeader title="Other" class="mt-6" />
-    <SidebarLink href="/models" count={queue.value.length}>
-      Models
+    <SidebarLink href="/models">
+      Models <Badge value={queue.value.length} />
     </SidebarLink>
     <SidebarLink href="/settings">Settings</SidebarLink>
 
@@ -48,9 +48,6 @@ const SidebarHeader = ({ title, class: className = "" }) => (
   <h2 class={`pl-3 mb-2 font-bold text(xs neutral-9) ${className}`}>{title}</h2>
 )
 
-const SidebarLink = ({ children, count = 0, ...props }: any) => (
-  <NavLink class="rounded font-semibold py-1.5 pl-3 pr-1 mb-1.5 text-neutral-12" activeClass="bg-neutral-5" {...props}>
-    {children}
-    {count > 0 && <span class="ml-1 bg-neutral-6 text-neutral-11 px-2 py-1 text-xs font-bold rounded-full">{count}</span>}
-  </NavLink>
+const SidebarLink = props => (
+  <NavLink class="rounded font-semibold py-1.5 pl-3 pr-1 mb-1.5 text-neutral-12" activeClass="bg-neutral-5" {...props} />
 )

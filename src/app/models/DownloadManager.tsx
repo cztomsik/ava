@@ -46,7 +46,7 @@ const DownloadProgress = ({ url, size, progress }) => {
       </div>
 
       <div class="mt-4 h-1 w-full bg-neutral-7">
-        <div class="h-1 bg-blue-9" style={`width: ${percent}%`}></div>
+        <div class="h-1 bg-primary-9" style={`width: ${percent}%`}></div>
       </div>
 
       <div class="mt-4 flex justify-between">

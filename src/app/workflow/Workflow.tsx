@@ -57,7 +57,7 @@ const Step = ({ step }) => {
       onClick={() => select(step)}
       draggable
     >
-      <div class={`w-10 h-10 rounded-full flex items-center justify-center ${selected ? "bg-blue-5" : "bg-neutral-3"}`}>
+      <div class={`w-10 h-10 rounded-full flex items-center justify-center ${selected ? "bg-primary-5" : "bg-neutral-3"}`}>
         <Icon icon={icon} />
       </div>
       <div class="overflow-hidden">
