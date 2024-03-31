@@ -6,7 +6,7 @@ export const SettingsPage = ({ children }) => {
       <Page.Header title="Settings">
         <Tabs>
           <NavLink href="/settings" exact>
-            Models
+            General
           </NavLink>
           <NavLink href="/settings/system">System</NavLink>
           <NavLink href="/settings/api">API</NavLink>
