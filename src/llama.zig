@@ -267,12 +267,12 @@ pub const Context = struct {
         if (n_eval > 0) {
             const toks = self.tokens.items[self.n_past..];
 
-            if (c.llama_eval(
-                self.ptr,
+            if (c.llama_decode(self.ptr, c.llama_batch_get_one(
                 toks.ptr,
                 @intCast(n_eval),
                 @intCast(self.n_past),
-            ) != 0) {
+                0,
+            )) != 0) {
                 return error.FailedToEval;
             }
 
@@ -383,7 +383,7 @@ pub const Context = struct {
         if (params.temperature >= 0) {
             c.llama_sample_top_k(self.ptr, &candidates, @intCast(params.top_k), 1);
             c.llama_sample_top_p(self.ptr, &candidates, params.top_p, 1);
-            c.llama_sample_temperature(self.ptr, &candidates, params.temperature);
+            c.llama_sample_temp(self.ptr, &candidates, params.temperature);
         }
 
         const res = if (params.temperature >= 0) c.llama_sample_token(self.ptr, &candidates) else c.llama_sample_token_greedy(self.ptr, &candidates);

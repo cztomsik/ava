@@ -57,6 +57,8 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         "ggml-backend.c",
         "ggml-quants.c",
         "ggml-metal.m",
+        "unicode.cpp",
+        "unicode-data.cpp",
         "llama.cpp",
     };
 
