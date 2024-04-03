@@ -56,6 +56,9 @@ export const api = {
   updateQuickTool: (id, data) => client.put(`quick-tools/${id}`, data),
   deleteQuickTool: id => client.delete(`quick-tools/${id}`),
 
+  getConfig: () => client.query("config"),
+  updateConfig: data => client.put("config", data),
+
   getSystemInfo: () => client.query("system-info"),
   getLog: () => client.query("log"),
 }

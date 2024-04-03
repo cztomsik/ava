@@ -27,6 +27,10 @@ const globals = () => ({
     select,
     textarea,
     .form-control {
+      &[disabled] {
+        @apply bg-neutral-2 text-neutral-8;
+      }
+
       @apply inline-block appearance-none text(ellipsis neutral-12) px-2 py-[5px] bg-neutral-1 border(1 neutral-8) rounded-md resize-none;
     }
 
