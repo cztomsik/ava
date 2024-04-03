@@ -27,7 +27,7 @@ export const Models = () => {
           <tbody>
             {!models.length && (
               <tr>
-                <td colSpan={3}>No models installed. Download one from the catalog below.</td>
+                <td colSpan={3}>No models installed. You can download models in the Search tab.</td>
               </tr>
             )}
 
