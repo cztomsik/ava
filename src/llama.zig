@@ -23,15 +23,23 @@ pub const SamplingParams = struct {
     json: bool = false,
 };
 
+pub const PoolOptions = struct {
+    n_ctx: u32 = 2048,
+    n_batch: u32 = 64,
+    n_threads: ?u32 = null,
+    n_threads_batch: ?u32 = null,
+};
+
 /// A single-model, single-context, thread-safe pool.
 pub const Pool = struct {
     allocator: std.mem.Allocator = undefined,
+    options: PoolOptions,
     mutex: std.Thread.Mutex = .{},
     model: ?Model = null,
     context: ?Context = null,
 
     /// Initializes the pool.
-    pub fn init(allocator: std.mem.Allocator) Pool {
+    pub fn init(allocator: std.mem.Allocator, options: PoolOptions) Pool {
         const H = struct {
             fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
                 log.debug("{s}", .{data});
@@ -43,6 +51,7 @@ pub const Pool = struct {
 
         return .{
             .allocator = allocator,
+            .options = options,
         };
     }
 
@@ -78,11 +87,17 @@ pub const Pool = struct {
                 self.model.?.deinit();
             }
 
+            var params = c.llama_context_default_params();
+            params.n_ctx = @intCast(self.options.n_ctx);
+            params.n_batch = @intCast(self.options.n_batch);
+            params.n_threads = @intCast(self.options.n_threads orelse getPerfCpuCount());
+            params.n_threads_batch = @intCast(self.options.n_threads_batch orelse params.n_threads);
+
             self.model = try Model.loadFromFile(self.allocator, model_path);
             self.context = try Context.init(
                 self.allocator,
                 &self.model.?,
-                getPerfCpuCount(), // TODO: make this configurable (in global settings)
+                params,
             );
         }
 
@@ -191,13 +206,7 @@ pub const Context = struct {
     buf: std.ArrayList(u8),
 
     /// Initializes the context.
-    pub fn init(allocator: std.mem.Allocator, model: *Model, n_threads: usize) !Context {
-        var params = c.llama_context_default_params();
-        params.n_ctx = 2048; // TODO: make this configurable
-        params.n_batch = 64; // 512; // TODO: @min(512, xxx)
-        params.n_threads = @intCast(n_threads);
-        params.n_threads_batch = @intCast(n_threads);
-
+    pub fn init(allocator: std.mem.Allocator, model: *Model, params: c.struct_llama_context_params) !Context {
         return .{
             .model = model,
             .params = params,

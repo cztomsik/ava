@@ -24,7 +24,7 @@ pub const App = struct {
         try fr.migrate(allocator, db_file, @embedFile("db_schema.sql"));
 
         self.db_pool = try fr.Pool.init(allocator, db_file, .{ .count = 2 });
-        self.llama = llama.Pool.init(allocator);
+        self.llama = llama.Pool.init(allocator, .{});
         self.client = .{ .allocator = allocator };
 
         if (builtin.target.os.tag == .windows) {
