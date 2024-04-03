@@ -57,15 +57,26 @@ pub const Pool = struct {
 
     /// Deinitializes the pool.
     pub fn deinit(self: *Pool) void {
+        self.reset(undefined);
+        c.llama_backend_free();
+    }
+
+    /// Resets the pool.
+    pub fn reset(self: *Pool, options: PoolOptions) void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
         if (self.context) |*context| {
             context.deinit();
+            self.context = null;
         }
 
         if (self.model) |*model| {
             model.deinit();
+            self.model = null;
         }
 
-        c.llama_backend_free();
+        self.options = options;
     }
 
     /// Returns a context for the given model. The context must be released

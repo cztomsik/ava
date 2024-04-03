@@ -18,7 +18,7 @@ export const ModelSelect = ({ class: className = "" }) => {
   const handleChange = e => {
     if (e.target.value === "/download") {
       e.target.value = "" + (selectedModel.value ?? "")
-      router.navigate("/settings")
+      router.navigate("/models")
       return
     }
 

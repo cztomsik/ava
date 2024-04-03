@@ -150,6 +150,18 @@ pub const App = struct {
         return f.readToEndAlloc(allocator, std.math.maxInt(usize));
     }
 
+    pub fn updateConfig(self: *App, config: Config) !void {
+        try self.writeConfig(config);
+
+        const new = try self.readConfig(self.allocator);
+        errdefer new.deinit();
+
+        self.llama.reset(new.value.llama);
+
+        self.config.deinit();
+        self.config = new;
+    }
+
     pub fn readConfig(self: *App, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
         const file = self.openFile(CONFIG_FILE, .r) catch |e| switch (e) {
             error.FileNotFound => return std.json.parseFromSlice(Config, allocator, "{}", .{}),

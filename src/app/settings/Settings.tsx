@@ -13,8 +13,7 @@ export const Settings = () => {
     <SettingsPage>
       <Alert class="mb-8">
         <strong>This feature is in development.</strong> <br />
-        Some settings are not yet available for editing. And some of the settings may not be applied until the app is
-        restarted.
+        Validation and error handling are not yet implemented. Please be careful when changing settings.
       </Alert>
 
       <Form class="vstack" data={data} onChange={handleSubmit} onSubmit={handleSubmit}>
@@ -41,8 +40,11 @@ export const Settings = () => {
           <Field class="w-96" name="download.path" />
         </Row>
 
-        <Row title="Server Port" description="Port number to use for the local server.">
-          <Field class="w-20" name="server.port" type="number" disabled />
+        <Row
+          title="Server Port"
+          description="Port number to use for the local server. The app must be restarted for the change to take effect."
+        >
+          <Field class="w-20" name="server.port" type="number" />
         </Row>
 
         <Row title="Context Length" description="Number of tokens to use as context for the model.">
