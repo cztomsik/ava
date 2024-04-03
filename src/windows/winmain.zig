@@ -1,6 +1,6 @@
 const std = @import("std");
 const com = @import("com.zig");
-const util = @import("../util.zig");
+const ava = @import("../main.zig");
 const L = std.unicode.utf8ToUtf16LeStringLiteral;
 const c = struct {
     usingnamespace std.os.windows;
@@ -139,7 +139,7 @@ fn handleMessage(hWnd: c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPAR
 }
 
 fn createWebView() !void {
-    const data_folder = try util.getWritableHomePath(allocator, &.{"webview"});
+    const data_folder = try ava.app.?.getWritableHomePath(allocator, &.{"webview"});
     defer allocator.free(data_folder);
 
     const data_folder_w = try std.unicode.utf8ToUtf16LeWithNull(allocator, data_folder);

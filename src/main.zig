@@ -2,15 +2,25 @@ const builtin = @import("builtin");
 const std = @import("std");
 const tk = @import("tokamak");
 const llama = @import("llama.zig");
-const util = @import("util.zig");
 const App = @import("app.zig").App;
-
-pub var app: ?App = null;
 
 pub const std_options = .{
     .log_level = .debug,
-    .logFn = util.Logger.log,
+    .logFn = log,
 };
+
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+var mutex = std.Thread.Mutex{};
+
+pub var app: ?*App = null;
+
+fn log(comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
+    if (app) |inst| {
+        return inst.log(level, scope, fmt, args);
+    }
+
+    std.log.defaultLog(level, scope, fmt, args);
+}
 
 pub fn embedFile(comptime path: []const u8) []const u8 {
     return @embedFile("../" ++ path);
@@ -21,8 +31,7 @@ pub fn start() !void {
         return error.ServerAlreadyStarted;
     }
 
-    app = undefined;
-    try App.init(&app.?);
+    app = try App.init(gpa.allocator());
 }
 
 pub export fn ava_start() c_int {

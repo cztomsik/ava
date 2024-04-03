@@ -2,7 +2,6 @@ const std = @import("std");
 const fr = @import("fridge");
 const tk = @import("tokamak");
 const schema = @import("../schema.zig");
-const util = @import("../util.zig");
 
 const ModelWithSize = struct {
     id: ?u32 = null,
@@ -21,7 +20,7 @@ pub fn @"GET /models"(db: *fr.Session) ![]const ModelWithSize {
             .name = m.name,
             .path = m.path,
             .imported = m.imported,
-            .size = util.getFileSize(m.path) catch 0,
+            .size = getFileSize(m.path) catch 0,
         });
     }
 
@@ -46,4 +45,11 @@ pub fn @"DELETE /models/:id"(db: *fr.Session, id: u32) !void {
     if (!model.imported) {
         std.fs.deleteFileAbsolute(model.path) catch {};
     }
+}
+
+fn getFileSize(path: []const u8) !u64 {
+    const file = try std.fs.openFileAbsolute(path, .{ .mode = .read_only });
+    defer file.close();
+
+    return (try file.stat()).size;
 }

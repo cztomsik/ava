@@ -1,8 +1,8 @@
 const std = @import("std");
 const tk = @import("tokamak");
-const util = @import("../util.zig");
+const ava = @import("../app.zig");
 
-pub fn @"POST /download"(allocator: std.mem.Allocator, client: *std.http.Client, res: *tk.Response, params: struct { url: []const u8 }) !void {
+pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Response, params: struct { url: []const u8 }) !void {
     var head: [10 * 1024]u8 = undefined;
     var req = try client.open(.GET, try std.Uri.parse(params.url), .{ .server_header_buffer = &head });
     defer req.deinit();
@@ -11,7 +11,7 @@ pub fn @"POST /download"(allocator: std.mem.Allocator, client: *std.http.Client,
     try req.wait();
 
     if (req.response.status != .ok) {
-        return res.sendJson(.{ .@"error" = try std.fmt.allocPrint(allocator, "Invalid status code: `{d}`", .{req.response.status}) });
+        return res.sendJson(.{ .@"error" = .{ .invalid_status = req.response.status } });
     }
 
     if (req.response.content_length) |size| {
@@ -20,11 +20,11 @@ pub fn @"POST /download"(allocator: std.mem.Allocator, client: *std.http.Client,
 
     const content_type = req.response.content_type orelse "";
     if (!std.mem.eql(u8, content_type, "binary/octet-stream")) {
-        return res.sendJson(.{ .@"error" = try std.fmt.allocPrint(allocator, "Invalid content type: `{s}`", .{content_type}) });
+        return res.sendJson(.{ .@"error" = .{ .invalid_content_type = content_type } });
     }
 
-    const path = try util.getWritableHomePath(allocator, &.{ "models", std.fs.path.basename(params.url) });
-    const tmp_path = try std.fmt.allocPrint(allocator, "{s}.part", .{path});
+    const path = try app.getWritableHomePath(res.req.allocator, &.{ "models", std.fs.path.basename(params.url) });
+    const tmp_path = try std.fmt.allocPrint(res.req.allocator, "{s}.part", .{path});
     var file = try std.fs.createFileAbsolute(tmp_path, .{});
     defer file.close();
     errdefer std.fs.deleteFileAbsolute(tmp_path) catch {};
