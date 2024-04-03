@@ -9,8 +9,8 @@
         },
 
         .tokamak = .{
-            .url = "https://github.com/cztomsik/tokamak/archive/8b060ec.tar.gz",
-            .hash = "12203eb11963be423af78827f816d77e1a7f924b2a502798dc4b2513e10a5b0ac06a",
+            .url = "https://github.com/cztomsik/tokamak/archive/3615b4e.tar.gz",
+            .hash = "1220f9b669157f6b99e44f47894c39f2ee8b316d32c16089e2378d10901040217ae9",
         },
     },
     .paths = .{
