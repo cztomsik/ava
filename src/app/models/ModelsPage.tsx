@@ -11,7 +11,7 @@ export const ModelsPage = ({ children }) => {
           </NavLink>
           <NavLink href="/models/downloads">
             Downloads
-            <Badge value={queue.value.length} />
+            <Badge class="animate-pulse" value={queue.value.length} />
           </NavLink>
           <NavLink href="/models/installed">Installed</NavLink>
         </Tabs>
