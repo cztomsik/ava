@@ -11,12 +11,15 @@ pub const Config = struct {
         port: u16 = 3002,
         keep_alive: bool = false,
     } = .{},
+    download: struct {
+        path: []const u8 = "models",
+    } = .{},
 };
 
 /// Shared application state.
 pub const App = struct {
     allocator: std.mem.Allocator,
-    home: []const u8,
+    home_dir: std.fs.Dir,
     log_file: std.fs.File,
     config: std.json.Parsed(Config),
     db: fr.Pool,
@@ -24,13 +27,19 @@ pub const App = struct {
     client: std.http.Client,
     server: *tk.Server,
 
+    const HOME_ENV = "AVA_HOME";
+    const HOME_DEF = "AvaPLS";
+    const LOG_FILE = "log.txt";
+    const CONFIG_FILE = "config.json";
+    const DB_FILE = "db";
+
     pub fn init(allocator: std.mem.Allocator) !*App {
         const self = try allocator.create(App);
         self.allocator = allocator;
         errdefer allocator.destroy(self);
 
-        self.home = try std.fs.getAppDataDir(allocator, "AvaPLS");
-        errdefer allocator.free(self.home);
+        try self.initHome();
+        errdefer self.home_dir.close();
 
         try self.initLog();
         errdefer self.log_file.close();
@@ -53,63 +62,31 @@ pub const App = struct {
         return self;
     }
 
-    pub fn getHomePath(self: *App, allocator: std.mem.Allocator, paths: []const []const u8) ![:0]const u8 {
-        const arr = try allocator.alloc([]const u8, paths.len + 1);
-        defer allocator.free(arr);
-
-        arr[0] = self.home;
-        for (paths, 1..) |p, i| arr[i] = p;
-
-        return std.fs.path.joinZ(allocator, arr);
-    }
-
-    pub fn getWritableHomePath(self: *App, allocator: std.mem.Allocator, paths: []const []const u8) ![:0]const u8 {
-        const res = try self.getHomePath(allocator, paths);
-        std.fs.makeDirAbsolute(std.fs.path.dirname(res).?) catch {};
-
-        return res;
-    }
-
-    pub fn openFile(self: *App, paths: []const []const u8, flags: enum { r, w }) !std.fs.File {
-        const path = switch (flags) {
-            .r => try self.getHomePath(self.allocator, paths),
-            .w => try self.getWritableHomePath(self.allocator, paths),
-        };
+    fn initHome(self: *App) !void {
+        const path = std.process.getEnvVarOwned(self.allocator, HOME_ENV) catch try std.fs.getAppDataDir(self.allocator, HOME_DEF);
         defer self.allocator.free(path);
 
-        return switch (flags) {
-            .r => std.fs.openFileAbsolute(path, .{ .mode = .read_only }),
-            .w => std.fs.createFileAbsolute(path, .{}),
-        };
+        self.home_dir = try std.fs.cwd().makeOpenPath(path, .{});
     }
 
     fn initLog(self: *App) !void {
-        self.log_file = try self.openFile(&.{"log.txt"}, .w);
+        self.log_file = try self.openFile(LOG_FILE, .w);
     }
 
     fn initConfig(self: *App) !void {
-        const file = self.openFile(&.{"config.json"}, .r) catch |e| switch (e) {
-            error.FileNotFound => {
-                self.config = try std.json.parseFromSlice(Config, self.allocator, "{}", .{});
-                return;
-            },
-            else => return e,
-        };
-        defer file.close();
-
-        var reader = std.json.reader(self.allocator, file.reader());
-        defer reader.deinit();
-
-        self.config = try std.json.parseFromTokenSource(Config, self.allocator, &reader, .{});
+        self.config = try self.readConfig(self.allocator);
     }
 
     fn initDb(self: *App) !void {
-        const db_file = try self.getWritableHomePath(self.allocator, &.{"db"});
-        defer self.allocator.free(db_file);
+        const home_path = try self.home_dir.realpathAlloc(self.allocator, ".");
+        defer self.allocator.free(home_path);
 
-        try fr.migrate(self.allocator, db_file, @embedFile("db_schema.sql"));
+        const path = try std.fs.path.joinZ(self.allocator, &.{ home_path, DB_FILE });
+        defer self.allocator.free(path);
 
-        self.db = try fr.Pool.init(self.allocator, db_file, .{ .count = 2 });
+        try fr.migrate(self.allocator, path, @embedFile("db_schema.sql"));
+
+        self.db = try fr.Pool.init(self.allocator, path, .{ .count = 2 });
     }
 
     fn initLlama(self: *App) !void {
@@ -135,6 +112,22 @@ pub const App = struct {
         });
     }
 
+    pub fn openFile(self: *App, path: []const u8, flags: enum { r, w }) !std.fs.File {
+        if (flags == .w) {
+            if (std.fs.path.dirname(path)) |d| {
+                self.home_dir.makePath(d) catch |e| switch (e) {
+                    error.PathAlreadyExists => {},
+                    else => return e,
+                };
+            }
+        }
+
+        return switch (flags) {
+            .r => self.home_dir.openFile(path, .{ .mode = .read_only }),
+            .w => self.home_dir.createFile(path, .{}),
+        };
+    }
+
     pub fn log(self: *App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
@@ -151,10 +144,30 @@ pub const App = struct {
     }
 
     pub fn dumpLog(self: *App, allocator: std.mem.Allocator) ![]const u8 {
-        var f = try self.openFile(&.{"log.txt"}, .r);
+        var f = try self.openFile(LOG_FILE, .r);
         defer f.close();
 
         return f.readToEndAlloc(allocator, std.math.maxInt(usize));
+    }
+
+    pub fn readConfig(self: *App, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
+        const file = self.openFile(CONFIG_FILE, .r) catch |e| switch (e) {
+            error.FileNotFound => return std.json.parseFromSlice(Config, allocator, "{}", .{}),
+            else => return e,
+        };
+        defer file.close();
+
+        var reader = std.json.reader(allocator, file.reader());
+        defer reader.deinit();
+
+        return try std.json.parseFromTokenSource(Config, allocator, &reader, .{});
+    }
+
+    pub fn writeConfig(self: *App, config: Config) !void {
+        const file = try self.openFile(CONFIG_FILE, .w);
+        defer file.close();
+
+        try std.json.stringify(config, .{}, file.writer());
     }
 
     pub fn deinit(self: *App) void {
@@ -164,7 +177,7 @@ pub const App = struct {
         self.db.deinit();
         self.config.deinit();
         self.log_file.close();
-        self.allocator.free(self.home);
+        self.home_dir.close();
         self.allocator.destroy(self);
     }
 };

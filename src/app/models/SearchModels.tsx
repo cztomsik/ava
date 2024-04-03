@@ -100,9 +100,9 @@ const ModelDetails = ({ model }) => {
 
         {extractLinks(model).map(link => (
           <tr>
-            <td>{link.name}</td>
+            <td>{link.qname}</td>
             <td class="py-0.5">
-              <Button onClick={() => downloadModel(link.url)}>Download</Button>
+              <Button onClick={() => downloadModel({ path: `${model.id}/${link.file}`, url: link.url })}>Download</Button>
             </td>
           </tr>
         ))}
@@ -138,11 +138,14 @@ const searchModels = (search: string) => {
 }
 
 const extractLinks = model => {
-  const res: { name; url }[] = []
+  const res: { file; qname; url }[] = []
 
-  for (const s of model.siblings) {
-    const match = s.rfilename.match(/.*[\.\-]([qf]\w+)\.gguf$/i)
-    if (match) res.push({ name: match[1], url: `https://huggingface.co/${model.id}/resolve/main/${s.rfilename}` })
+  for (const { rfilename: file } of model.siblings) {
+    const match = file.match(/.*[\.\-]([qf]\w+)\.gguf$/i)
+
+    if (match) {
+      res.push({ file, qname: match[1], url: `https://huggingface.co/${model.id}/resolve/main/${file}` })
+    }
   }
 
   return res

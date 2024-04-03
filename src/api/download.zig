@@ -2,7 +2,16 @@ const std = @import("std");
 const tk = @import("tokamak");
 const ava = @import("../app.zig");
 
-pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Response, params: struct { url: []const u8 }) !void {
+const Params = struct {
+    path: []const u8,
+    url: []const u8,
+};
+
+pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Response, params: Params) !void {
+    if (std.mem.indexOf(u8, params.path, "..") != null) {
+        return res.sendJson(.{ .@"error" = .{ .invalid_path = params.path } });
+    }
+
     var head: [10 * 1024]u8 = undefined;
     var req = try client.open(.GET, try std.Uri.parse(params.url), .{ .server_header_buffer = &head });
     defer req.deinit();
@@ -23,11 +32,12 @@ pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Respo
         return res.sendJson(.{ .@"error" = .{ .invalid_content_type = content_type } });
     }
 
-    const path = try app.getWritableHomePath(res.req.allocator, &.{ "models", std.fs.path.basename(params.url) });
+    const path = try std.fs.path.join(res.req.allocator, &.{ app.config.value.download.path, params.path });
     const tmp_path = try std.fmt.allocPrint(res.req.allocator, "{s}.part", .{path});
-    var file = try std.fs.createFileAbsolute(tmp_path, .{});
+
+    var file = try app.openFile(tmp_path, .w);
     defer file.close();
-    errdefer std.fs.deleteFileAbsolute(tmp_path) catch {};
+    errdefer app.home_dir.deleteFile(tmp_path) catch {};
 
     var reader = req.reader();
     var writer = file.writer();
@@ -43,6 +53,8 @@ pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Respo
         try res.sendJson(.{ .progress = progress });
     } else |_| return res.sendJson(.{ .@"error" = "Failed to download the model" });
 
-    try std.fs.renameAbsolute(tmp_path, path);
-    try res.sendJson(.{ .path = path });
+    try app.home_dir.rename(tmp_path, path);
+    try res.sendJson(.{
+        .path = try app.home_dir.realpathAlloc(res.req.allocator, path),
+    });
 }

@@ -17,13 +17,28 @@ export const Settings = () => {
       </Alert>
 
       <Form class="vstack" data={data} onChange={handleSubmit} onSubmit={handleSubmit}>
-        {/* <Row title="App Home" description="Path to the app home directory.">
+        <Row
+          title="App Home"
+          description={
+            <>
+              Path to the app home directory. This can only be changed via <code>AVA_HOME</code> environment variable.
+            </>
+          }
+        >
           <Field class="w-96" name="app_home" disabled />
-        </Row> */}
+        </Row>
 
-        {/* <Row title="Model Download Path" description="Path to the directory where models are downloaded.">
-          <Field class="w-96" name="download_path" disabled />
-        </Row> */}
+        <Row
+          title="Model Download Path"
+          description={
+            <>
+              Path to the directory where models are downloaded. The path must be either absolute, or relative to the app
+              home directory.
+            </>
+          }
+        >
+          <Field class="w-96" name="download.path" />
+        </Row>
 
         <Row title="Server Port" description="Port number to use for the local server.">
           <Field class="w-20" name="server.port" type="number" disabled />

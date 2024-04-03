@@ -2,13 +2,19 @@ import { computed, effect, signal, Signal } from "@preact/signals"
 import { basename, jsonLines } from "../_util"
 import { api } from "../api"
 
-type DownloadJob = { url: string; size: number; progress: Signal<number>; ctrl: AbortController }
+type DownloadJob = {
+  path: string
+  url: string
+  size: number
+  progress: Signal<number>
+  ctrl: AbortController
+}
 
 export const queue = signal<DownloadJob[]>([])
 export const current = computed(() => queue.value[0] ?? null)
 
-export const downloadModel = (url: string) =>
-  (queue.value = [...queue.value, { url, size: 0, progress: signal(0), ctrl: new AbortController() }])
+export const downloadModel = ({ path, url }) =>
+  (queue.value = [...queue.value, { path, url, size: 0, progress: signal(0), ctrl: new AbortController() }])
 
 export const cancel = (job: DownloadJob) => {
   job.ctrl.abort()
@@ -20,10 +26,10 @@ effect(async () => {
 
   if (next) {
     try {
-      const { url, ctrl, progress } = next
+      const { path, url, ctrl, progress } = next
       const res = await fetch("/api/download", {
         method: "POST",
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ path, url }),
         signal: ctrl.signal,
       })
 
