@@ -42,8 +42,8 @@ export const FormGroup = ({ value, onChange, ...props }) => {
   const group = useMemo(() => {
     const field = name => ({
       name,
-      value: value[name],
-      onChange: e => onChange({ ...value, [name]: e instanceof Event ? e.target!.value : e }),
+      value: getIn(value, name),
+      onChange: v => onChange(setIn(value, name, v)),
     })
 
     return { ...form, field }
@@ -92,12 +92,27 @@ export const useForm = ({ data = EMPTY, onSubmit, onChange }) => {
 
     const field = name => ({
       name,
-      value: values.value[name],
-      onChange: e => (values.value = { ...values.value, [name]: e instanceof Event ? e.target!.value : e }),
+      value: getIn(values.value, name),
+      onChange: v => (values.value = setIn(values.value, name, v)),
     })
 
     const handleSubmit = _ => callbacks.current.onSubmit(values.value)
 
     return { values, field, handleSubmit }
   }, [data])
+}
+
+const getIn = (obj, path) => path.split(".").reduce((o, k) => o?.[k], obj)
+
+const setIn = (obj, path, value) => {
+  if (value instanceof Event) {
+    const el = value.target as HTMLInputElement
+    value = el.type == "number" ? el.valueAsNumber : el.value
+  }
+
+  const copy = { ...obj }
+  const keys = path.split(".")
+  const last = keys.pop()!
+  keys.reduce((o, k) => (o[k] = { ...o[k] }), copy)[last] = value
+  return copy
 }
