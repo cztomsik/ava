@@ -30,10 +30,6 @@ const styles = css`
     @apply font-italic;
   }
 
-  & code {
-    @apply text-sm font(mono semibold);
-  }
-
   & table {
     @apply w-full mb-4;
   }

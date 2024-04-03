@@ -41,6 +41,10 @@ const globals = () => ({
     th {
       text-align: left;
     }
+
+    code {
+      @apply text-sm font(mono semibold);
+    }
   `,
 })
 
