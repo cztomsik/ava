@@ -85,7 +85,9 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         exe.linkFramework("Metal");
         exe.linkFramework("MetalKit");
 
-        // Copy the *.metal file so that it can be loaded at runtime
+        // Copy the Metal shader file and the common header file to the output directory so that it can be found at runtime.
+        const copy_common_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-common.h" }, "ggml-common.h");
+        b.getInstallStep().dependOn(&copy_common_step.step);
         const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
         b.getInstallStep().dependOn(&copy_metal_step.step);
     }

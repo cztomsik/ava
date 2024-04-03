@@ -25,7 +25,7 @@ mkdir -p "${APP_PATH}/Contents/MacOS" \
 && mkdir -p "${APP_PATH}/Contents/Resources" \
 && cp ./src/macos/Info.plist "${APP_PATH}/Contents/" \
 && cp "$ZIG_OUT/bin/ava" "${APP_PATH}/Contents/MacOS/" \
-&& cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal "${APP_PATH}/Contents/Resources/"
+&& cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal ./llama.cpp/ggml-common.h "${APP_PATH}/Contents/Resources/"
 
 if [ $? -ne 0 ]; then
     echo "Copy failed"
