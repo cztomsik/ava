@@ -34,24 +34,27 @@ pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Respo
 
     const path = try std.fs.path.join(res.req.allocator, &.{ app.config.value.download.path, params.path });
     const tmp_path = try std.fmt.allocPrint(res.req.allocator, "{s}.part", .{path});
-
-    var file = try app.openFile(tmp_path, .w);
-    defer file.close();
     errdefer app.home_dir.deleteFile(tmp_path) catch {};
 
-    var reader = req.reader();
-    var writer = file.writer();
+    // .close() needs to be called before .rename() on Windows
+    {
+        var file = try app.openFile(tmp_path, .w);
+        defer file.close();
 
-    // connection buffer seems to be 80KB so let's do two reads per write
-    var buf: [160 * 1024]u8 = undefined;
-    var progress: usize = 0;
-    while (reader.readAll(&buf)) |n| {
-        try writer.writeAll(buf[0..n]);
-        if (n < buf.len) break;
+        var reader = req.reader();
+        var writer = file.writer();
 
-        progress += n;
-        try res.sendJson(.{ .progress = progress });
-    } else |_| return res.sendJson(.{ .@"error" = "Failed to download the model" });
+        // connection buffer seems to be 80KB so let's do two reads per write
+        var buf: [160 * 1024]u8 = undefined;
+        var progress: usize = 0;
+        while (reader.readAll(&buf)) |n| {
+            try writer.writeAll(buf[0..n]);
+            if (n < buf.len) break;
+
+            progress += n;
+            try res.sendJson(.{ .progress = progress });
+        } else |_| return res.sendJson(.{ .@"error" = "Failed to download the model" });
+    }
 
     try app.home_dir.rename(tmp_path, path);
     try res.sendJson(.{

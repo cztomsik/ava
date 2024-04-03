@@ -139,7 +139,10 @@ fn handleMessage(hWnd: c.HWND, message: c.UINT, wParam: c.WPARAM, lParam: c.LPAR
 }
 
 fn createWebView() !void {
-    const data_folder = try ava.app.?.getWritableHomePath(allocator, &.{"webview"});
+    const ava_home = try ava.app.?.home_dir.realpathAlloc(allocator, ".");
+    defer allocator.free(ava_home);
+
+    const data_folder = try std.fs.path.join(allocator, &.{ ava_home, "webview" });
     defer allocator.free(data_folder);
 
     const data_folder_w = try std.unicode.utf8ToUtf16LeWithNull(allocator, data_folder);
