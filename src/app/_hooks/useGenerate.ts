@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
 import { api } from "../api"
-import { jsonLines } from "../_util"
+import { dedent, jsonLines } from "../_util"
 
 export const selectedModel = signal<string | null>(localStorage.getItem("selectedModel") || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
@@ -105,19 +105,12 @@ export const useGenerate = (deps = [] as any[]) => {
 }
 
 async function* noModelSelected() {
-  const msg = `
+  const msg = dedent`
     Hey there! 👋
     It looks like you haven't selected a model yet.
     Please select a model from the dropdown in the bottom left.
 
-    In case you don't have a model yet, you can download one in the **[Settings](/settings)** tab.
-
-    In the meantime, here's a little poem for you:
-
-    > Roses are red
-    > Violets are blue
-    > I'm a bot
-    > Writing poetry for you
+    In case you don't have a model yet, you can download one in the **[Models](/models)** tab.
   `
 
   for (const content of msg.split(/\b/g)) {
