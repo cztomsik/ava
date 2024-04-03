@@ -167,7 +167,11 @@ pub const App = struct {
         const file = try self.openFile(CONFIG_FILE, .w);
         defer file.close();
 
-        try std.json.stringify(config, .{}, file.writer());
+        try std.json.stringify(
+            config,
+            .{ .whitespace = .indent_2 },
+            file.writer(),
+        );
     }
 
     pub fn deinit(self: *App) void {
