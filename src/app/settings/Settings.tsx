@@ -4,6 +4,7 @@ import { api } from "../api"
 import { SettingsPage } from "./SettingsPage"
 
 export const Settings = () => {
+  const { data: system = {} } = useQuery(api.getSystemInfo())
   const { data } = useQuery(api.getConfig())
 
   const handleSubmit = data => api.updateConfig(data)
@@ -25,7 +26,7 @@ export const Settings = () => {
             </>
           }
         >
-          <Field class="w-96" name="app_home" disabled />
+          <input class="w-96" value={system.app_home} disabled />
         </Row>
 
         <Row
@@ -79,8 +80,8 @@ export const Settings = () => {
 
 const Row = ({ title, description, children }) => (
   <div class="flex flex-wrap items-start p-4 border(b neutral-4) last:border-b-none">
-    <div class="vstack flex-1 pr-4 mr-auto">
-      <h3 class="font-semibold">{title}</h3>
+    <div class="vstack flex-1 pr-8 mr-auto">
+      <h3 class="font-semibold mb-2">{title}</h3>
       <p class="text-sm text-neutral-11">{description}</p>
     </div>
 

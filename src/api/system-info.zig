@@ -1,20 +1,33 @@
 const builtin = @import("builtin");
 const std = @import("std");
 const tk = @import("tokamak");
+const ava = @import("../app.zig");
 
-pub fn @"GET /system-info"(allocator: std.mem.Allocator, res: *tk.Response) !void {
+const SystemInfo = struct {
+    os: []const u8,
+    os_version: []const u8,
+    arch: []const u8,
+    cpu_count: usize,
+    total_system_memory: u64,
+    app_home: []const u8,
+    user_home: []const u8,
+    user_downloads: []const u8,
+};
+
+pub fn @"GET /system-info"(allocator: std.mem.Allocator, app: *ava.App) !SystemInfo {
     const user_home = try std.process.getEnvVarOwned(allocator, if (builtin.target.os.tag == .windows) "USERPROFILE" else "HOME");
     const user_downloads = try std.fs.path.join(allocator, &.{ user_home, "Downloads" });
 
-    return res.sendJson(.{
-        .os = builtin.os.tag,
+    return .{
+        .os = @tagName(builtin.os.tag),
         .os_version = try getOsVersion(allocator),
-        .arch = builtin.cpu.arch,
+        .arch = @tagName(builtin.cpu.arch),
         .cpu_count = std.Thread.getCpuCount() catch 0,
         .total_system_memory = std.process.totalSystemMemory() catch 0,
+        .app_home = try app.home_dir.realpathAlloc(allocator, "."),
         .user_home = user_home,
         .user_downloads = user_downloads,
-    });
+    };
 }
 
 fn getOsVersion(allocator: std.mem.Allocator) ![]const u8 {
