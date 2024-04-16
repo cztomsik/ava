@@ -26,13 +26,11 @@ export const Link = props => {
  * A wrapper around the Link component that adds an active class to the
  * link when the route is active.
  **/
-export const NavLink = ({ href, activeClass = "active", exact = false, ...props }) => {
+export const NavLink = ({ href, class: className = "", activeClass = "active", exact = false, ...props }) => {
   // Touch the currentRoute to subscribe to changes
   router.currentRoute
 
-  if (router.match(exact ? href : `${href}*`)) {
-    props.class = (props.class ?? props.className ?? "") + " " + activeClass
-  }
+  const active = router.match(exact ? href : `${href}*`)
 
-  return <Link href={href} {...props} />
+  return <Link class={`${className} ${active ? activeClass : ""}`} href={href} {...props} />
 }
