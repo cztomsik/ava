@@ -52,9 +52,7 @@ pub fn @"PUT /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_i
 }
 
 pub fn @"DELETE /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !void {
-    try db.exec(
-        fr.delete(schema.ChatMessage).where(.{ .id = message_id, .chat_id = id }),
-    );
+    try db.deleteBy(schema.ChatMessage, .{ .id = message_id, .chat_id = id });
 }
 
 pub fn @"DELETE /chat/:id"(db: *fr.Session, id: u32) !void {

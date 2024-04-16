@@ -16,7 +16,7 @@ pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Respo
     var req = try client.open(.GET, try std.Uri.parse(params.url), .{ .server_header_buffer = &head });
     defer req.deinit();
 
-    try req.send(.{});
+    try req.send();
     try req.wait();
 
     if (req.response.status != .ok) {
