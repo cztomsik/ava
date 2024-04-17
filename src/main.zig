@@ -22,10 +22,6 @@ fn log(comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), compt
     std.log.defaultLog(level, scope, fmt, args);
 }
 
-pub fn embedFile(comptime path: []const u8) []const u8 {
-    return @embedFile("../" ++ path);
-}
-
 pub fn start() !void {
     if (app != null) {
         return error.ServerAlreadyStarted;
