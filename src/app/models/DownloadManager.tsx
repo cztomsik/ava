@@ -7,10 +7,10 @@ export const DownloadManager = () => {
   return (
     <ModelsPage>
       <Page.Content>
-        <div class="flex flex-wrap items-start gap-4 mb-4">
+        <div class="vstack items-center gap-4 my-4">
           {current.value && <DownloadProgress {...current.value} />}
 
-          {!queue.value.length && <div>No downloads in progress.</div>}
+          {!queue.value.length && <div class="border(1 neutral-6) rounded bg-neutral-2 p-4">No downloads in progress.</div>}
 
           {queue.value.length > 1 && (
             <div>
@@ -18,7 +18,7 @@ export const DownloadManager = () => {
               <table>
                 {queue.value.slice(1).map(job => (
                   <tr>
-                    <td>{basename(job.url)}</td>
+                    <td class="pr-2">{basename(job.url)}</td>
                     <td>
                       <Button onClick={() => cancel(job)}>Cancel</Button>
                     </td>

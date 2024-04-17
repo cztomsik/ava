@@ -15,23 +15,25 @@ export const SearchModels = () => {
   return (
     <ModelsPage>
       <Page.SubHead>
-        <FormGrid>
-          <label class="block mb-1 font-medium">Search</label>
-          <input
-            class="w-full p-2 mb-1"
-            value={search}
-            onInput={e => (search.value = e.currentTarget.value)}
-            placeholder="Name or keyword"
-          />
-        </FormGrid>
+        <div class="vstack items-center mx-auto my-4">
+          <FormGrid>
+            <label class="block mb-1 font-medium">Search</label>
+            <input
+              class="w-96 p-2 mb-1"
+              value={search}
+              onInput={e => (search.value = e.currentTarget.value)}
+              placeholder="Name or keyword"
+            />
+          </FormGrid>
 
-        <div>
-          Hint: Try searching for
-          {["mistral", "mixtral", "starling", "zephyr", "westlake", "phi", "gemma", "rocket", "solar"].map(s => (
-            <a href="#" onClick={() => (search.value = s)} class="ml-1 underline">
-              {s}
-            </a>
-          ))}
+          <div>
+            Hint: Try searching for
+            {["mistral", "mixtral", "starling", "zephyr", "westlake", "phi", "gemma", "rocket", "solar"].map(s => (
+              <a href="#" onClick={() => (search.value = s)} class="ml-1 underline">
+                {s}
+              </a>
+            ))}
+          </div>
         </div>
       </Page.SubHead>
 
@@ -40,7 +42,7 @@ export const SearchModels = () => {
           <thead>
             <tr>
               <th>Model</th>
-              <th class="w-32">Last updated</th>
+              <th class="w-24">Updated</th>
               <th class="w-16">Likes</th>
               <th class="w-24">Downloads</th>
             </tr>
