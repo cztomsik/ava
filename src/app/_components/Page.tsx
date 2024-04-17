@@ -28,7 +28,7 @@ Page.Header = ({ title, children = null as any, ...props }) => {
 }
 
 Page.SubHead = ({ class: className = "", ...props }) => (
-  <div class={`[grid-area:subhead] bg-neutral-3 p-8 border(b neutral-6) ${className}`} {...props} />
+  <div class={`[grid-area:subhead] bg-neutral-2 p-8 border(b neutral-6) ${className}`} {...props} />
 )
 
 Page.List = ({ class: className = "", as: Comp, sizes, ...props }) => (
