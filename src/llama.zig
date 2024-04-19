@@ -43,7 +43,7 @@ pub const Pool = struct {
     pub fn init(allocator: std.mem.Allocator, options: PoolOptions) Pool {
         const H = struct {
             fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
-                log.debug("{s}", .{data});
+                log.debug("{s}", .{std.mem.trimRight(u8, std.mem.span(data), &.{'\n'})});
             }
         };
 
