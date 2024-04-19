@@ -163,8 +163,38 @@ pub const Model = struct {
         self.allocator.free(self.path);
     }
 
+    /// Returns the number of metadata entries.
+    pub fn metaCount(self: *const Model) usize {
+        return @intCast(c.llama_model_meta_count(self.ptr));
+    }
+
+    /// Returns the metadata key at the given index.
+    pub fn metaKey(self: *const Model, allocator: std.mem.Allocator, index: usize) !?[:0]const u8 {
+        const len = c.llama_model_meta_key_by_index(self.ptr, @intCast(index), null, 0);
+
+        if (len < 0) {
+            return null;
+        }
+
+        const buf = try allocator.allocSentinel(u8, @intCast(len), 0);
+        _ = c.llama_model_meta_key_by_index(self.ptr, @intCast(index), buf.ptr, buf.len + 1);
+        return buf;
+    }
+
+    pub fn metaValue(self: *const Model, allocator: std.mem.Allocator, key: [:0]const u8) !?[:0]const u8 {
+        const len = c.llama_model_meta_val_str(self.ptr, key.ptr, null, 0);
+
+        if (len < 0) {
+            return null;
+        }
+
+        const buf = try allocator.allocSentinel(u8, @intCast(len), 0);
+        _ = c.llama_model_meta_val_str(self.ptr, key.ptr, buf.ptr, buf.len + 1);
+        return buf;
+    }
+
     /// Returns a list of tokens for the given input.
-    pub fn tokenize(self: *Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize, add_bos: bool) !std.ArrayList(Token) {
+    pub fn tokenize(self: *const Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize, add_bos: bool) !std.ArrayList(Token) {
         var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
         errdefer tokens.deinit();
 
