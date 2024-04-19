@@ -23,7 +23,7 @@ export const Button = ({
 
   if (loading) {
     props.disabled = !abort
-    props.children = <Spinner />
+    props.children = <Icon.Spinner />
   }
 
   if (abort) {
@@ -42,8 +42,4 @@ export const IconButton = ({ class: className = "", icon, disabled = false, ...p
   <Button class={`text-neutral-${disabled ? 5 : 11} ${className}`} text disabled={disabled} {...props}>
     <Icon icon={icon} />
   </Button>
-)
-
-const Spinner = () => (
-  <span class="opacity-40 inline-block h-4 w-4 animate-spin rounded-full border-2 border-current [border-inline-end-color:#0000] animate-[spin_1.5s_linear_infinite] dark:text-white" />
 )
