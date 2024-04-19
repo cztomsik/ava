@@ -112,7 +112,7 @@ pub const App = struct {
         });
     }
 
-    pub fn openFile(self: *App, path: []const u8, flags: enum { r, w }) !std.fs.File {
+    pub fn openFile(self: *const App, path: []const u8, flags: enum { r, w }) !std.fs.File {
         if (flags == .w) {
             if (std.fs.path.dirname(path)) |d| {
                 self.home_dir.makePath(d) catch |e| switch (e) {
@@ -128,7 +128,7 @@ pub const App = struct {
         };
     }
 
-    pub fn log(self: *App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
+    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
         std.debug.getStderrMutex().lock();
@@ -143,7 +143,7 @@ pub const App = struct {
         writer.print("{:0>2}:{:0>2}:{:0>2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ fmt ++ "\n", .{ h, m, s } ++ args) catch return;
     }
 
-    pub fn dumpLog(self: *App, allocator: std.mem.Allocator) ![]const u8 {
+    pub fn dumpLog(self: *const App, allocator: std.mem.Allocator) ![]const u8 {
         var f = try self.openFile(LOG_FILE, .r);
         defer f.close();
 
@@ -151,6 +151,10 @@ pub const App = struct {
     }
 
     pub fn updateConfig(self: *App, config: Config) !void {
+        // thread-safety!
+        std.debug.getStderrMutex().lock();
+        defer std.debug.getStderrMutex().unlock();
+
         try self.writeConfig(config);
 
         const new = try self.readConfig(self.allocator);
@@ -162,7 +166,7 @@ pub const App = struct {
         self.config = new;
     }
 
-    pub fn readConfig(self: *App, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
+    pub fn readConfig(self: *const App, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
         const file = self.openFile(CONFIG_FILE, .r) catch |e| switch (e) {
             error.FileNotFound => return std.json.parseFromSlice(Config, allocator, "{}", .{}),
             else => return e,
@@ -175,7 +179,7 @@ pub const App = struct {
         return try std.json.parseFromTokenSource(Config, allocator, &reader, .{});
     }
 
-    pub fn writeConfig(self: *App, config: Config) !void {
+    pub fn writeConfig(self: *const App, config: Config) !void {
         const file = try self.openFile(CONFIG_FILE, .w);
         defer file.close();
 
