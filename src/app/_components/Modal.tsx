@@ -1,7 +1,9 @@
 import { useEffect, useMemo } from "preact/hooks"
 import { signal } from "@preact/signals"
-import { Button } from "./Button"
+import { Button, IconButton } from "./Button"
 import { Form, Field } from "./Form"
+import { X } from "lucide"
+import { Icon } from "./Icon"
 
 const count = signal(0) // TODO: not all modals are opened with Modal.open() yet, so modals.value.length is not enough
 const modals = signal([] as any)
@@ -9,7 +11,7 @@ const modals = signal([] as any)
 /**
  * Simple modal component
  */
-export const Modal = ({ title, class: className = "", children, onClose }) => {
+export const Modal = ({ title, class: className = "", loading = false, children, onClose }) => {
   useEffect(() => {
     const prevActive = document.activeElement instanceof HTMLElement ? document.activeElement : null
     prevActive?.blur()
@@ -30,13 +32,13 @@ export const Modal = ({ title, class: className = "", children, onClose }) => {
       <div class="w-full flex items-start justify-center pointer-events-none p-10">
         <div class={`rounded-lg bg-neutral-1 text-neutral-12 shadow-lg pointer-events-auto ${className}`}>
           <div class="hstack px-4 pt-4">
-            <h5 class="text-lg font-medium">{title}</h5>
-            <button type="button" class="ml-auto" onClick={onClose}>
-              {cross}
-            </button>
+            <h5 class="text-lg font-medium mr-2">{title}</h5>
+            {loading && <Icon.Spinner />}
+            <div class="flex-1"></div>
+            <IconButton class="ml-4" icon={X} onClick={onClose} />
           </div>
           <div class="p-4" onMouseDown={preventDrag}>
-            {children}
+            {loading ? "Loading..." : children}
           </div>
         </div>
       </div>
@@ -70,13 +72,6 @@ Modal.confirm = message => Modal.open(ConfirmModal, { message })
 Modal.prompt = (message, defaultValue) => Modal.open(PromptModal, { message, defaultValue })
 
 const preventDrag = e => e.stopPropagation()
-
-const cross = (
-  <svg class="stroke-neutral-12" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-    <line x1="2" y1="14" x2="14" y2="2" stroke-width="1" />
-    <line x1="2" y1="2" x2="14" y2="14" stroke-width="1" />
-  </svg>
-)
 
 /**
  * Animated backdrop with blur, this is just a visual effect, it doesn't prevent clicks or anything
