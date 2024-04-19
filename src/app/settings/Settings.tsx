@@ -52,6 +52,13 @@ export const Settings = () => {
         </Row>
 
         <Row
+          title="GPU Layers"
+          description="Number of layers to run on the GPU. If empty, all layers will run on the GPU, if available."
+        >
+          <Field class="w-16" name="llama.n_gpu_layers" type="number" min={0} />
+        </Row>
+
+        <Row
           title="CPU threads count"
           description="Number of threads to use during generation. If empty, the app will use the number of performance cores available on the system."
         >

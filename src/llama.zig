@@ -24,6 +24,7 @@ pub const SamplingParams = struct {
 };
 
 pub const PoolOptions = struct {
+    n_gpu_layers: ?u32 = null,
     n_ctx: u32 = 2048,
     n_batch: u32 = 64,
     n_threads: ?u32 = null,
@@ -98,21 +99,32 @@ pub const Pool = struct {
                 self.model.?.deinit();
             }
 
-            var params = c.llama_context_default_params();
-            params.n_ctx = @intCast(self.options.n_ctx);
-            params.n_batch = @intCast(self.options.n_batch);
-            params.n_threads = @intCast(self.options.n_threads orelse getPerfCpuCount());
-            params.n_threads_batch = @intCast(self.options.n_threads_batch orelse params.n_threads);
-
-            self.model = try Model.loadFromFile(self.allocator, model_path);
-            self.context = try Context.init(
-                self.allocator,
-                &self.model.?,
-                params,
-            );
+            self.model = try Model.loadFromFile(self.allocator, model_path, self.modelParams());
+            self.context = try Context.init(self.allocator, &self.model.?, self.contextParams());
         }
 
         return &self.context.?;
+    }
+
+    fn modelParams(self: *Pool) c.llama_model_params {
+        var params = c.llama_model_default_params();
+
+        // It seems Metal never worked on Intel-based macs.
+        // see https://github.com/ggerganov/llama.cpp/issues/3423#issuecomment-1745511586
+        params.n_gpu_layers = @intCast(if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) (self.options.n_gpu_layers orelse 999) else 0);
+
+        return params;
+    }
+
+    fn contextParams(self: *Pool) c.llama_context_params {
+        var params = c.llama_context_default_params();
+
+        params.n_ctx = @intCast(self.options.n_ctx);
+        params.n_batch = @intCast(self.options.n_batch);
+        params.n_threads = @intCast(self.options.n_threads orelse getPerfCpuCount());
+        params.n_threads_batch = @intCast(self.options.n_threads_batch orelse params.n_threads);
+
+        return params;
     }
 
     /// Releases the context so that it can be used by other threads.
@@ -130,18 +142,9 @@ pub const Model = struct {
     ptr: *c.llama_model,
 
     /// Loads a model from a file.
-    pub fn loadFromFile(allocator: std.mem.Allocator, path: []const u8) !Model {
+    pub fn loadFromFile(allocator: std.mem.Allocator, path: []const u8, params: c.struct_llama_model_params) !Model {
         const pathZ = try getShortPath(allocator, path);
         defer allocator.free(pathZ);
-        var params = c.llama_model_default_params();
-
-        // It seems Metal never worked on Intel-based macs.
-        // see https://github.com/ggerganov/llama.cpp/issues/3423#issuecomment-1745511586
-        //
-        // TODO: now even macos can do a split, so we should make it configurable (and/or detect)
-        // https://github.com/ggerganov/llama.cpp/blob/master/llama.cpp#L9643
-        params.n_gpu_layers = if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) 999 else 0;
-        log.debug("n_gpu_layers = {}", .{params.n_gpu_layers});
 
         // Load the model
         const ptr = c.llama_load_model_from_file(pathZ.ptr, params) orelse return error.InvalidModel;
