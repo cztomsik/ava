@@ -43,6 +43,8 @@ export const api = {
   deleteMessage: (chat_id, id) => client.delete(`chat/${chat_id}/messages/${id}`),
 
   listModels: () => client.query("models"),
+  getModel: id => client.query(`models/${id}`),
+  getModelMeta: id => client.query(`models/${id}/meta`),
   createModel: data => client.post("models", data),
   deleteModel: id => client.delete(`models/${id}`),
 

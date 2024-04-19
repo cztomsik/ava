@@ -1,9 +1,10 @@
 const std = @import("std");
 const fr = @import("fridge");
 const tk = @import("tokamak");
+const llama = @import("../llama.zig");
 const schema = @import("../schema.zig");
 
-const ModelWithSize = struct {
+const ModelRow = struct {
     id: ?u32 = null,
     name: []const u8,
     path: []const u8,
@@ -11,8 +12,13 @@ const ModelWithSize = struct {
     size: usize,
 };
 
-pub fn @"GET /models"(db: *fr.Session) ![]const ModelWithSize {
-    var rows = std.ArrayList(ModelWithSize).init(db.arena);
+const Meta = struct {
+    key: [:0]const u8,
+    value: [:0]const u8,
+};
+
+pub fn @"GET /models"(db: *fr.Session) ![]const ModelRow {
+    var rows = std.ArrayList(ModelRow).init(db.arena);
 
     for (try db.findAll(fr.query(schema.Model))) |m| {
         try rows.append(.{
@@ -25,6 +31,26 @@ pub fn @"GET /models"(db: *fr.Session) ![]const ModelWithSize {
     }
 
     return rows.toOwnedSlice();
+}
+
+pub fn @"GET /models/:id"(db: *fr.Session, id: u32) !schema.Model {
+    return try db.find(schema.Model, id) orelse error.NotFound;
+}
+
+pub fn @"GET /models/:id/meta"(db: *fr.Session, id: u32) ![]Meta {
+    const model = try db.find(schema.Model, id) orelse return error.NotFound;
+
+    var llama_model = try llama.Model.loadFromFile(db.arena, model.path, .{});
+    defer llama_model.deinit();
+
+    const res = try db.arena.alloc(Meta, llama_model.metaCount());
+
+    for (res, 0..) |*meta, i| {
+        meta.key = try llama_model.metaKey(db.arena, i) orelse "";
+        meta.value = try llama_model.metaValue(db.arena, meta.key) orelse "";
+    }
+
+    return res;
 }
 
 pub fn @"POST /models"(db: *fr.Session, data: schema.Model) !schema.Model {
