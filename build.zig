@@ -33,7 +33,14 @@ pub fn build(b: *std.Build) !void {
 fn buildExe(b: *std.Build, exe: anytype) !void {
     exe.addIncludePath(.{ .path = "llama.cpp" });
 
-    const tokamak = b.dependency("tokamak", .{});
+    const embed: []const []const u8 = &.{
+        "LICENSE.md",
+        "src/app/index.html",
+        "src/app/favicon.ico",
+        "zig-out/app/main.js",
+    };
+
+    const tokamak = b.dependency("tokamak", .{ .embed = embed });
     exe.root_module.addImport("tokamak", tokamak.module("tokamak"));
 
     const fridge = b.dependency("fridge", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
