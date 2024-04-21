@@ -433,9 +433,16 @@ pub const Context = struct {
             c.llama_sample_grammar(self.ptr, &candidates, self.grammar);
         }
 
-        // Apply repetition penalties.
         const last_n = @min(self.tokens.items.len, params.repeat_n_last);
-        c.llama_sample_repetition_penalties(self.ptr, &candidates, &self.tokens.items[self.tokens.items.len - last_n], @intCast(last_n), params.repeat_penalty, params.presence_penalty, params.freq_penalty);
+        c.llama_sample_repetition_penalties(
+            self.ptr,
+            &candidates,
+            &self.tokens.items[self.tokens.items.len - last_n],
+            @intCast(last_n),
+            params.repeat_penalty,
+            params.presence_penalty,
+            params.freq_penalty,
+        );
 
         if (params.temperature >= 0) {
             c.llama_sample_top_k(self.ptr, &candidates, @intCast(params.top_k), 1);
