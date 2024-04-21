@@ -14,13 +14,15 @@ and more.
 
 ---
 
-https://github.com/cztomsik/ava/assets/3526922/790dd1a2-5e59-4a63-a05a-f255b5677269
+<video src="https://github.com/cztomsik/ava/assets/3526922/790dd1a2-5e59-4a63-a05a-f255b5677269"></video>
 
-https://github.com/cztomsik/ava/assets/3526922/22dce230-3d91-476d-83b7-22ddcc41fb87
+<video src="https://github.com/cztomsik/ava/assets/3526922/22dce230-3d91-476d-83b7-22ddcc41fb87"></video>
 
-https://github.com/cztomsik/ava/assets/3526922/64f16a97-6575-4006-bb81-c46e1f5cfcaa
+<video src="https://github.com/cztomsik/ava/assets/3526922/64f16a97-6575-4006-bb81-c46e1f5cfcaa"></video>
 
-https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d964
+<video src="https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d964"></video>
+
+---
 
 ## Download latest version
 
