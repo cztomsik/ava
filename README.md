@@ -14,13 +14,13 @@ and more.
 
 ---
 
-<video src="https://github.com/cztomsik/ava/assets/3526922/790dd1a2-5e59-4a63-a05a-f255b5677269"></video>
+<video src="https://github.com/cztomsik/ava/assets/3526922/790dd1a2-5e59-4a63-a05a-f255b5677269" width="700px" controls></video>
 
-<video src="https://github.com/cztomsik/ava/assets/3526922/22dce230-3d91-476d-83b7-22ddcc41fb87"></video>
+<video src="https://github.com/cztomsik/ava/assets/3526922/22dce230-3d91-476d-83b7-22ddcc41fb87" width="700px" controls></video>
 
-<video src="https://github.com/cztomsik/ava/assets/3526922/64f16a97-6575-4006-bb81-c46e1f5cfcaa"></video>
+<video src="https://github.com/cztomsik/ava/assets/3526922/64f16a97-6575-4006-bb81-c46e1f5cfcaa" width="700px" controls></video>
 
-<video src="https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d964"></video>
+<video src="https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d964" width="700px" controls></video>
 
 ---
 
