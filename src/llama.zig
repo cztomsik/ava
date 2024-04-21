@@ -193,28 +193,28 @@ pub const Model = struct {
         return buf;
     }
 
-    /// Returns a list of tokens for the given input.
-    pub fn tokenize(self: *const Model, allocator: std.mem.Allocator, input: []const u8, max_tokens: usize, add_bos: bool) !std.ArrayList(Token) {
-        var tokens = try std.ArrayList(Token).initCapacity(allocator, max_tokens);
-        errdefer tokens.deinit();
+    /// Tokenizes the input and appends the tokens to the given list.
+    pub fn tokenize(self: *const Model, tokens: *std.ArrayList(Token), input: []const u8, add_bos: bool, special: bool) !void {
+        try tokens.ensureUnusedCapacity(input.len / 2);
+        var slice: []Token = tokens.items[tokens.items.len..];
+        slice.len = tokens.capacity - tokens.items.len;
 
         const n_tokens = c.llama_tokenize(
             self.ptr,
             input.ptr,
             @intCast(input.len),
-            tokens.items.ptr,
-            @intCast(max_tokens),
+            slice.ptr,
+            @intCast(slice.len),
             add_bos,
-            true,
+            special,
         );
 
         if (n_tokens >= 0) {
-            tokens.items.len = @intCast(n_tokens);
+            tokens.items.len += @intCast(n_tokens);
         } else {
-            return error.FailedToTokenize;
+            try tokens.ensureUnusedCapacity(@intCast(-n_tokens));
+            return self.tokenize(tokens, input, add_bos, special);
         }
-
-        return tokens;
     }
 
     fn getShortPath(allocator: std.mem.Allocator, path: []const u8) ![:0]const u8 {
@@ -280,7 +280,10 @@ pub const Context = struct {
 
     /// Prepares the context for inference.
     pub fn prepare(self: *Context, prompt: []const u8, params: *const SamplingParams) !void {
-        const tokens = try self.model.tokenize(self.tokens.allocator, prompt, @intCast(c.llama_n_ctx(self.ptr)), params.add_bos);
+        var tokens = std.ArrayList(Token).init(self.model.allocator);
+        errdefer tokens.deinit();
+
+        try self.model.tokenize(&tokens, prompt, params.add_bos, true);
         self.buf.shrinkRetainingCapacity(0);
 
         // Find the common part and set n_past accordingly.
