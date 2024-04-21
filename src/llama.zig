@@ -251,12 +251,17 @@ pub const Context = struct {
 
     /// Initializes the context.
     pub fn init(allocator: std.mem.Allocator, model: *Model, params: c.struct_llama_context_params) !Context {
+        var candidates = std.ArrayList(c.llama_token_data).init(allocator);
+        errdefer candidates.deinit();
+
+        try candidates.resize(@intCast(c.llama_n_vocab(model.ptr)));
+
         return .{
             .model = model,
             .params = params,
             .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
             .tokens = std.ArrayList(Token).init(allocator),
-            .candidates = std.ArrayList(c.llama_token_data).init(allocator),
+            .candidates = candidates,
             .buf = std.ArrayList(u8).init(allocator),
         };
     }
@@ -409,7 +414,6 @@ pub const Context = struct {
     /// Samples a token from the context.
     pub fn sampleToken(self: *Context, params: *const SamplingParams) !?Token {
         const logits = c.llama_get_logits(self.ptr);
-        try self.candidates.resize(@intCast(c.llama_n_vocab(self.model.ptr)));
 
         for (self.candidates.items, 0..) |*candidate, i| {
             candidate.* = .{
