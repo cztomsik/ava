@@ -1,11 +1,14 @@
 ---
 title: Home
+nav_order: 1
 permalink: /
 ---
 
 # Ava PLS
 
 Air-gapped Virtual Assistant / Personal Language Server
+
+[Download now](#download){: .btn .btn-primary .fs-5 }
 
 Ava PLS is an open-source desktop application for running language models
 locally on your computer. It allows you to perform various language tasks, like
@@ -24,7 +27,7 @@ and more.
 
 ---
 
-## Download latest version
+## Download
 
 - [macOS](https://s3.amazonaws.com/www.avapls.com/Ava_2024-04-21.dmg)
   - or `brew install --cask ava`
