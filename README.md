@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+nav_order: 1
+---
+
 # Ava PLS
 
 Air-gapped Virtual Assistant / Personal Language Server
