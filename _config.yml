@@ -1,0 +1,25 @@
+exclude:
+  - node_modules
+  - llama.cpp
+  - src
+  - include
+
+remote_theme: pmarsceill/just-the-docs
+markdown: gfm
+
+aux_links:
+  "GitHub":
+    - "//github.com/cztomsik/ava"
+  "Forum":
+    - "https://github.com/cztomsik/ava/discussions"
+  "Discord":
+    - "https://discord.gg/zQwyzFb"
+
+# actually, it's this + /project_name
+url: //avapls.com
+
+gh_edit_link: true
+gh_edit_link_text: "Edit this page"
+gh_edit_repository: "https://github.com/cztomsik/ava"
+gh_edit_branch: "master"
+gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
