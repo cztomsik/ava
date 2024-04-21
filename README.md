@@ -1,7 +1,13 @@
 # Ava PLS
 
-Air-gapped Virtual Assistant / Personal Language Server\
-[Website](https://avapls.com) | [Twitter](https://twitter.com/cztomsik) | [Discord](https://discord.gg/C47qUJPkkf)
+Air-gapped Virtual Assistant / Personal Language Server
+
+Ava PLS is an open-source desktop application for running language models
+locally on your computer. It allows you to perform various language tasks, like
+text generation, grammar correction, rephrasing, summarization, data extraction,
+and more.
+
+---
 
 https://github.com/cztomsik/ava/assets/3526922/790dd1a2-5e59-4a63-a05a-f255b5677269
 
