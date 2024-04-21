@@ -11,6 +11,13 @@ https://github.com/cztomsik/ava/assets/3526922/64f16a97-6575-4006-bb81-c46e1f5cf
 
 https://github.com/cztomsik/ava/assets/3526922/1dcf38a5-cfc9-4b20-9f2e-deb15145d964
 
+## Download latest version
+
+- [macOS](https://s3.amazonaws.com/www.avapls.com/Ava_2024-04-21.dmg)
+  - or `brew install --cask ava`
+- [Windows](https://s3.amazonaws.com/www.avapls.com/ava_x86_64_2024-04-21.zip)
+- [Linux](https://github.com/cztomsik/ava/actions/runs/8774096132#artifacts)
+
 ## Tech stack
 
 - Zig, C++, Swift UI, SQLite
