@@ -1,3 +1,8 @@
+title: Ava PLS
+description: Ava PLS is a desktop application for running language models locally on your computer.
+url: https://avapls.com
+repository: cztomsik/ava
+
 exclude:
   - node_modules
   - llama.cpp
@@ -14,9 +19,6 @@ aux_links:
     - "https://github.com/cztomsik/ava/discussions"
   "Discord":
     - "https://discord.gg/C47qUJPkkf"
-
-# actually, it's this + /project_name
-url: //avapls.com
 
 gh_edit_link: true
 gh_edit_link_text: "Edit this page"
