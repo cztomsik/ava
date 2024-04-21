@@ -294,6 +294,11 @@ pub const Context = struct {
             n_past = i;
         }
 
+        // Remove the past tokens from the KV cache.
+        if (!c.llama_kv_cache_seq_rm(self.ptr, 0, @intCast(n_past), -1)) {
+            _ = c.llama_kv_cache_clear(self.ptr);
+        }
+
         if (self.grammar) |g| {
             c.llama_grammar_free(g);
             self.grammar = null;
