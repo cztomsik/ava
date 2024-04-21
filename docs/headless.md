@@ -1,5 +1,4 @@
 ---
-layout: default
 title: Headless mode
 nav_order: 2
 ---
