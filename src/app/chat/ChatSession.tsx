@@ -33,7 +33,7 @@ export const ChatSession = ({ id }) => {
     const msg = await api.createMessage(id, { role: "user", content })
     const tmp = await api.createMessage(id, { role: "assistant", content: "" })
 
-    handleGenerate([...messages, msg], tmp)
+    handleGenerate([{ role: "system", content: chat.prompt ?? defaultPrompt }, ...messages, msg], tmp)
   }
 
   const handleGenerate = async (history, msg, start_with = "") => {
@@ -156,3 +156,6 @@ const NoMessages = () => (
     </div>
   </div>
 )
+
+export const defaultPrompt =
+  "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
