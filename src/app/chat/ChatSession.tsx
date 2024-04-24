@@ -37,22 +37,13 @@ export const ChatSession = ({ id }) => {
   }
 
   const handleGenerate = async (history, msg, start_with = "") => {
-    // const { choices } = await api.createCompletion({ model: selectedModel.value, messages: [...messages, msg] })
-    // await api.updateMessage(id, tmp.id, choices[0].message)
-
-    const prompt =
-      (chat.prompt ?? defaultPrompt) +
-      [...history, { ...msg, content: start_with }]
-        .reduce((res, m) => res + `${m.role.toUpperCase()}: ${m.content}\n`, "")
-        .trimEnd()
-
     editing.value = null
     generating.value = msg.id
 
     await api.updateMessage(id, msg.id, {
       ...msg,
       content: await generate({
-        prompt,
+        messages: history,
         start_with,
         trim_first: !!start_with.match(/(^|\s)$/),
         sampling: {
@@ -165,6 +156,3 @@ const NoMessages = () => (
     </div>
   </div>
 )
-
-export const defaultPrompt =
-  "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions.\n\n"
