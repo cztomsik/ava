@@ -2,7 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const log = std.log.scoped(.llama);
 
-const c = @cImport({
+pub const c = @cImport({
     @cDefine("GGML_UNREACHABLE", "unreachable");
     @cInclude("llama.h");
 });

@@ -27,8 +27,7 @@ const client = {
 export const api = {
   client,
 
-  generate: ({ signal, ...data }) => client.post("generate", data, { signal }),
-  createCompletion: data => client.post("chat/completions", data),
+  createCompletion: ({ signal, ...data }) => client.post("chat/completions", data, { signal }),
 
   listChats: () => client.query("chat"),
   createChat: data => client.post("chat", data),

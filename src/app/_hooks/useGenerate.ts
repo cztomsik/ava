@@ -47,7 +47,9 @@ export const generate = async (options: GenerateOptions, result, status, signal?
     result.value = options.start_with ?? ""
 
     const res = selectedModel.value
-      ? jsonLines((await api.generate({ model: selectedModel.value, ...options, signal })).body!.getReader())
+      ? jsonLines(
+          (await api.createCompletion({ model: selectedModel.value, stream: true, ...options, signal })).body!.getReader()
+        )
       : await noModelSelected()
 
     for await (let d of res) {
@@ -60,7 +62,11 @@ export const generate = async (options: GenerateOptions, result, status, signal?
       }
 
       if ("content" in d) {
-        result.value += d.content
+        result.value = d.content
+      }
+
+      if ("choices" in d) {
+        result.value = d.choices[0].message.content
       }
     }
   } catch (e) {
