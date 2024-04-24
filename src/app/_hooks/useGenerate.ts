@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo } from "preact/hooks"
 import { effect, signal, useSignal } from "@preact/signals"
 import { api } from "../api"
-import { dedent, jsonLines } from "../_util"
+import { dedent } from "../_util"
 
 export const selectedModel = signal<string | null>(localStorage.getItem("selectedModel") || null)
 effect(() => localStorage.setItem("selectedModel", "" + (selectedModel.value ?? "")))
@@ -116,5 +116,19 @@ async function* noModelSelected() {
   for (const content of msg.split(/\b/g)) {
     yield { content }
     await new Promise(resolve => setTimeout(resolve, 16))
+  }
+}
+
+export async function* jsonLines(reader: ReadableStreamDefaultReader<Uint8Array>) {
+  for await (const chunk of chunks(reader)) {
+    for (const line of chunk.split("\n")) {
+      if (line) yield JSON.parse(line)
+    }
+  }
+}
+
+async function* chunks(reader: ReadableStreamDefaultReader<Uint8Array>, decoder = new TextDecoder()) {
+  for (let res; !(res = await reader.read()).done; ) {
+    yield decoder.decode(res.value)
   }
 }
