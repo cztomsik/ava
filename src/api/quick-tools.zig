@@ -31,7 +31,7 @@ pub fn @"PUT /quick-tools/:id"(db: *fr.Session, id: u32, data: schema.QuickTool)
     return try db.find(schema.QuickTool, id) orelse error.NotFound;
 }
 
-pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: u32, params: GenerateParams) !completions.Completion {
+pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: u32, params: GenerateParams) !void {
     const tool = try db.find(schema.QuickTool, id) orelse return error.NotFound;
     const tpl = try template.Template.parse(ctx.allocator, tool.prompt);
     const prompt = try tpl.renderAlloc(ctx.allocator, params.data);

@@ -48,7 +48,8 @@ export const generate = async (options: GenerateOptions, result, status, signal?
 
     const res = selectedModel.value
       ? jsonLines(
-          (await api.createCompletion({ model: selectedModel.value, stream: true, ...options, signal })).body!.getReader()
+          (await api.createCompletion({ model: selectedModel.value, stream: true, ...options, signal })).body!.getReader(),
+          true
         )
       : await noModelSelected()
 
@@ -61,12 +62,8 @@ export const generate = async (options: GenerateOptions, result, status, signal?
         throw new Error(`Unexpected error: ${d.error}`)
       }
 
-      if ("content" in d) {
-        result.value += d.content
-      }
-
       if ("choices" in d) {
-        result.value = d.choices[0].message.content
+        result.value += d.choices[0].delta.content ?? ""
       }
     }
   } catch (e) {
@@ -120,7 +117,7 @@ async function* noModelSelected() {
   `
 
   for (const content of msg.split(/\b/g)) {
-    yield { content }
+    yield { choices: [{ delta: { content } }] }
     await new Promise(resolve => setTimeout(resolve, 16))
   }
 }

@@ -21,18 +21,27 @@ pub const Params = struct {
 
 pub const Completion = struct {
     choices: [1]struct {
+        finish_reason: []const u8,
         index: u32 = 0,
         message: Message,
     },
 };
 
-pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, pool: *llama.Pool, res: *tk.Response, params: Params) !Completion {
+pub const CompletionChunk = struct {
+    choices: [1]struct {
+        finish_reason: ?[]const u8 = null,
+        index: u32 = 0,
+        delta: struct {
+            content: ?[]const u8 = null,
+        } = .{},
+    },
+};
+
+pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, pool: *llama.Pool, res: *tk.Response, params: Params) !void {
     const model = try db.findBy(schema.Model, .{ .name = params.model }) orelse return error.NotFound;
 
-    // TODO: refactor
     if (params.stream) {
-        try res.setHeader("Content-Type", "application/jsonlines");
-        try res.respond();
+        try res.startSse();
         try res.sendJson(.{ .status = "Waiting for the model..." });
     }
 
@@ -54,31 +63,42 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
             _ = try cx.evalOnce();
         }
 
-        // TODO: send enums/unions
         try res.sendJson(.{ .status = "" });
     }
 
     var tokens: u32 = 0;
+    var finish_reason: []const u8 = "stop";
 
     while (try cx.generate(&params.sampling)) |chunk| {
         if (params.stream) {
-            try res.sendJson(.{
-                .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
-            });
+            try res.sendJson(CompletionChunk{ .choices = .{.{
+                .delta = .{
+                    .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
+                },
+            }} });
         }
 
         tokens += 1;
-        if (tokens >= params.max_tokens) break;
+
+        if (tokens >= params.max_tokens) {
+            finish_reason = "length";
+            break;
+        }
     }
 
-    return .{
-        .choices = .{.{
-            .message = .{
-                .role = "assistant",
-                .content = cx.buf.items,
-            },
-        }},
-    };
+    if (params.stream) {
+        return res.sendJson(CompletionChunk{ .choices = .{.{
+            .finish_reason = finish_reason,
+        }} });
+    }
+
+    try res.sendJson(Completion{ .choices = .{.{
+        .finish_reason = finish_reason,
+        .message = .{
+            .role = "assistant",
+            .content = cx.buf.items,
+        },
+    }} });
 }
 
 fn applyTemplate(allocator: std.mem.Allocator, model: *llama.Model, messages: []const Message) ![]const u8 {
