@@ -7,9 +7,9 @@ nav_order: 3
 
 Make sure you have:
 
-- [Latest Zig](https://ziglang.org/download/)
-- [Node.js 20.5.1](https://nodejs.org/)
-  - only needed for fetching dependencies
+- [Zig 0.12.0](https://ziglang.org/download/)
+- [Node.js 21.7.3](https://nodejs.org/)
+  - only needed for fetching dependencies & running tests
 - Xcode (for macOS)
 - pkg-config (`brew install pkg-config`)
 
