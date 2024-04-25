@@ -1,5 +1,5 @@
 import { computed, effect, signal, Signal } from "@preact/signals"
-import { basename } from "../_util"
+import { basename, jsonLines } from "../_util"
 import { api } from "../api"
 
 type DownloadJob = {
