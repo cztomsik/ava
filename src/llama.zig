@@ -353,7 +353,7 @@ pub const Context = struct {
         const start = self.buf.items.len;
 
         // Keep generating until we have valid chunk, but not more than 32 times.
-        for (0..32) |_| {
+        outer: for (0..32) |_| {
             const token = try self.generateToken(params) orelse return null;
             const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
 
@@ -381,14 +381,16 @@ pub const Context = struct {
                 for (params.stop) |s| {
                     // Stop if the chunk contains the stop suffix.
                     if (std.mem.indexOf(u8, chunk, s) != null) {
-                        return null;
+                        break :outer;
                     }
 
                     // Current chunk might be a start of the stop suffix, so let's generate one more token.
                     if (std.mem.startsWith(u8, s, chunk)) {
-                        break;
+                        continue :outer;
                     }
-                } else return chunk;
+                }
+
+                return chunk;
             }
         }
 
