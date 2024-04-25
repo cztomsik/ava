@@ -62,7 +62,7 @@ export const generate = async (options: GenerateOptions, result, status, signal?
       }
 
       if ("content" in d) {
-        result.value = d.content
+        result.value += d.content
       }
 
       if ("choices" in d) {

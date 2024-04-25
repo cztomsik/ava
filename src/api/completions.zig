@@ -58,17 +58,12 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
         try res.sendJson(.{ .status = "" });
     }
 
-    var buf = std.ArrayList(u8).init(allocator);
-    errdefer buf.deinit();
-
     var tokens: u32 = 0;
 
     while (try cx.generate(&params.sampling)) |chunk| {
-        try buf.appendSlice(chunk);
-
         if (params.stream) {
             try res.sendJson(.{
-                .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, buf.items, " \t\n\r") else buf.items,
+                .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
             });
         }
 
@@ -80,7 +75,7 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
         .choices = .{.{
             .message = .{
                 .role = "assistant",
-                .content = buf.items,
+                .content = cx.buf.items,
             },
         }},
     };
