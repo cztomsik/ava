@@ -13,7 +13,16 @@ const client = {
       throw err
     }
 
-    return mime === "application/json" ? res.json() : mime.startsWith("text/") ? res.text() : res
+    switch (true) {
+      case mime === "application/json":
+        return res.json()
+      case mime === "text/event-stream":
+        return res
+      case mime.startsWith("text/"):
+        return res.text()
+      default:
+        return res
+    }
   },
 
   query: (url): Query => ({ url: `${API_URL}/${url}`, fetch: () => client.get(url) }),
