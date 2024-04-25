@@ -1,4 +1,5 @@
-import { useComputed, useSignal } from "@preact/signals"
+import { useMemo } from "preact/hooks"
+import { computed, useSignal } from "@preact/signals"
 import { Play, Save, Trash2 } from "lucide"
 import { AutoScroll, Checkbox, Form, Field, IconButton, Markdown, Page, Resizable } from "../_components"
 import { Modal } from "../_components"
@@ -22,9 +23,12 @@ export const Playground = () => {
   const state = signal.value
   const { generate, result, status, abort } = useGenerate([state.prompt])
 
-  const res = useComputed(() =>
-    signal.value.showPrompt ? template(signal.value.prompt, signal.value.data) + result.value : result.value
-  )
+  // changing prompt will create new signal for result, so we need useMemo()
+  const res = useMemo(() => {
+    return computed(() =>
+      signal.value.showPrompt ? template(signal.value.prompt, signal.value.data) + result.value : result.value
+    )
+  }, [result])
 
   const selection = useSignal<any>(null)
 
