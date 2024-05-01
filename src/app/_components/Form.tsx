@@ -63,17 +63,24 @@ export const FormGrid = ({ class: className = "", ...props }) => (
 
 export const Field = ({ name, as: Comp = "input" as any, defaultValue = undefined as any, ...props }) => {
   const form = useContext(FormContext)
-  const field = form.field(name)
+  let { value, onChange } = form.field(name)
 
   if (Comp === "input" || Comp === "textarea") {
-    props.onInput = field.onChange
+    if (props.type == "number") {
+      props.onInput = e => onChange(e.target.valueAsNumber)
+    } else if (props.type == "checkbox") {
+      props.checked = !!value
+      props.onInput = e => onChange(e.target.checked)
+    } else {
+      props.onInput = e => onChange(e.target.value)
+    }
   }
 
-  if (field.value === undefined) {
-    field.value = defaultValue
+  if (value === undefined) {
+    value = defaultValue
   }
 
-  return <Comp {...field} {...props} />
+  return <Comp value={value} {...props} />
 }
 
 // Shared empty object so the useMemo() below keeps the same reference
@@ -105,14 +112,11 @@ export const useForm = ({ data = EMPTY, onSubmit, onChange }) => {
 const getIn = (obj, path) => path.split(".").reduce((o, k) => o?.[k], obj)
 
 const setIn = (obj, path, value) => {
-  if (value instanceof Event) {
-    const el = value.target as HTMLInputElement
-    value = el.type == "number" ? el.valueAsNumber : el.value
-  }
-
-  const copy = { ...obj }
+  const copy = clone(obj)
   const keys = path.split(".")
   const last = keys.pop()!
-  keys.reduce((o, k) => (o[k] = { ...o[k] }), copy)[last] = value
+  keys.reduce((o, k) => (o[k] = o[k] ?? {}), copy)[last] = value
   return copy
 }
+
+const clone = window.structuredClone ?? (obj => JSON.parse(JSON.stringify(obj)))
