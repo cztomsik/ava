@@ -18,6 +18,7 @@ pub const Config = struct {
 
 /// Shared application state.
 pub const App = struct {
+    mutex: std.Thread.Mutex,
     allocator: std.mem.Allocator,
     home_dir: std.fs.Dir,
     log_file: std.fs.File,
@@ -35,6 +36,7 @@ pub const App = struct {
 
     pub fn init(allocator: std.mem.Allocator) !*App {
         const self = try allocator.create(App);
+        self.mutex = .{};
         self.allocator = allocator;
         errdefer allocator.destroy(self);
 
@@ -152,8 +154,8 @@ pub const App = struct {
 
     pub fn updateConfig(self: *App, config: Config) !void {
         // thread-safety!
-        std.debug.getStderrMutex().lock();
-        defer std.debug.getStderrMutex().unlock();
+        self.mutex.lock();
+        defer self.mutex.unlock();
 
         try self.writeConfig(config);
 
