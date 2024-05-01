@@ -59,6 +59,13 @@ export const Settings = () => {
         </Row>
 
         <Row
+          title="Flash Attention"
+          description="Enable the use of flash attention. This is experimental and it may or may not improve performance."
+        >
+          <Field class="w-20" name="llama.flash_attn" type="checkbox" />
+        </Row>
+
+        <Row
           title="CPU threads count"
           description="Number of threads to use during generation. If empty, the app will use the number of performance cores available on the system."
         >
@@ -74,6 +81,13 @@ export const Settings = () => {
           description="Number of tokens processed simultaneously during initial prompt load. Higher values can subtly improve performance, but may result in less frequent progress updates, potentially giving the impression of the app being unresponsive."
         >
           <Field class="w-20" name="llama.n_batch" type="number" min={1} />
+        </Row>
+
+        <Row
+          title="Memory Lock"
+          description="Lock the model in memory to prevent it from being paged out. This can improve performance, but may slow down other applications."
+        >
+          <Field class="w-20" name="llama.mlock" type="checkbox" />
         </Row>
 
         {/* <Row

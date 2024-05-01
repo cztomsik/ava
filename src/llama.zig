@@ -29,6 +29,8 @@ pub const PoolOptions = struct {
     n_batch: u32 = 64,
     n_threads: ?u32 = null,
     n_threads_batch: ?u32 = null,
+    flash_attn: bool = false,
+    mlock: bool = false,
 };
 
 /// A single-model, single-context, thread-safe pool.
@@ -112,6 +114,7 @@ pub const Pool = struct {
         // It seems Metal never worked on Intel-based macs.
         // see https://github.com/ggerganov/llama.cpp/issues/3423#issuecomment-1745511586
         params.n_gpu_layers = @intCast(if (builtin.os.tag == .macos and builtin.cpu.arch == .aarch64) (self.options.n_gpu_layers orelse 999) else 0);
+        params.use_mlock = self.options.mlock;
 
         return params;
     }
@@ -123,6 +126,7 @@ pub const Pool = struct {
         params.n_batch = @intCast(self.options.n_batch);
         params.n_threads = @intCast(self.options.n_threads orelse getPerfCpuCount());
         params.n_threads_batch = @intCast(self.options.n_threads_batch orelse params.n_threads);
+        params.flash_attn = self.options.flash_attn;
 
         return params;
     }
