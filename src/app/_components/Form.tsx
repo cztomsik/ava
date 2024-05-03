@@ -74,6 +74,8 @@ export const Field = ({ name, as: Comp = "input" as any, defaultValue = undefine
     } else {
       props.onInput = e => onChange(e.target.value)
     }
+  } else {
+    props.onChange = onChange
   }
 
   if (value === undefined) {
