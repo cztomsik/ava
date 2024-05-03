@@ -16,18 +16,30 @@ pub const Params = struct {
     messages: []const Message = &.{},
     max_tokens: u32 = 2048,
     trim_first: bool = false,
+    // TODO: inline
     sampling: llama.SamplingParams = .{},
 };
 
 pub const Completion = struct {
+    id: []const u8,
     choices: [1]struct {
         finish_reason: []const u8,
         index: u32 = 0,
         message: Message,
     },
+    created: i64,
+    model: []const u8,
+    system_fingerprint: []const u8 = "fp_xxx",
+    object: []const u8 = "chat.completion",
+    usage: struct {
+        prompt_tokens: usize,
+        completion_tokens: usize,
+        total_tokens: usize,
+    },
 };
 
 pub const CompletionChunk = struct {
+    id: []const u8,
     choices: [1]struct {
         finish_reason: ?[]const u8 = null,
         index: u32 = 0,
@@ -35,6 +47,9 @@ pub const CompletionChunk = struct {
             content: ?[]const u8 = null,
         } = .{},
     },
+    created: i64,
+    model: []const u8,
+    object: []const u8 = "chat.completion.chunk",
 };
 
 pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, pool: *llama.Pool, res: *tk.Response, params: Params) !void {
@@ -56,6 +71,7 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
     }
 
     try cx.prepare(prompt, &params.sampling);
+    const prompt_tokens = cx.tokens.items.len;
 
     if (params.stream) {
         while (cx.n_past < cx.tokens.items.len) {
@@ -66,16 +82,22 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
         try res.sendJson(.{ .status = "" });
     }
 
+    const id = try std.fmt.allocPrint(allocator, "chatcmpl-{}", .{std.time.timestamp()}); // TODO: should be random
     var tokens: u32 = 0;
     var finish_reason: []const u8 = "stop";
 
     while (try cx.generate(&params.sampling)) |chunk| {
         if (params.stream) {
-            try res.sendJson(CompletionChunk{ .choices = .{.{
-                .delta = .{
-                    .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
-                },
-            }} });
+            try res.sendJson(CompletionChunk{
+                .id = id,
+                .choices = .{.{
+                    .delta = .{
+                        .content = if (tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
+                    },
+                }},
+                .created = std.time.timestamp(),
+                .model = params.model,
+            });
         }
 
         tokens += 1;
@@ -87,18 +109,33 @@ pub fn @"POST /chat/completions"(allocator: std.mem.Allocator, db: *fr.Session, 
     }
 
     if (params.stream) {
-        return res.sendJson(CompletionChunk{ .choices = .{.{
-            .finish_reason = finish_reason,
-        }} });
+        return res.sendJson(CompletionChunk{
+            .id = id,
+            .choices = .{.{
+                .finish_reason = finish_reason,
+            }},
+            .created = std.time.timestamp(),
+            .model = params.model,
+        });
     }
 
-    try res.sendJson(Completion{ .choices = .{.{
-        .finish_reason = finish_reason,
-        .message = .{
-            .role = "assistant",
-            .content = cx.buf.items,
+    try res.sendJson(Completion{
+        .id = id,
+        .choices = .{.{
+            .finish_reason = finish_reason,
+            .message = .{
+                .role = "assistant",
+                .content = cx.buf.items,
+            },
+        }},
+        .created = std.time.timestamp(),
+        .model = params.model,
+        .usage = .{
+            .prompt_tokens = prompt_tokens,
+            .completion_tokens = tokens,
+            .total_tokens = prompt_tokens + tokens,
         },
-    }} });
+    });
 }
 
 fn applyTemplate(allocator: std.mem.Allocator, model: *llama.Model, messages: []const Message) ![]const u8 {
