@@ -21,7 +21,7 @@ export const ChatPrompt = ({ chat, onSave }) => {
           </div>
         </Form>
       ) : (
-        <div class="text-neutral-9">{chat.prompt ?? defaultPrompt}</div>
+        <div class="text-neutral-9 whitespace-pre-wrap">{chat.prompt ?? defaultPrompt}</div>
       )}
     </div>
   )
