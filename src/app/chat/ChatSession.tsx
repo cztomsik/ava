@@ -16,7 +16,6 @@ export const ChatSession = ({ id }) => {
   const sidebarOpen = useLocalStorage("chat.sidebar", false)
   const input = useLocalStorage(`chat.${id}.input`, "")
 
-  // TODO: use /chat/completions
   const editing = useSignal(null)
   const generating = useSignal(null)
   const { generate, result, status, abort } = useGenerate()

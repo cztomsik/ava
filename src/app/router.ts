@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals"
+import { signal, computed } from "@preact/signals"
 import { Chat } from "./chat/Chat"
 import { Playground } from "./playground/Playground"
 import { QuickTools } from "./quick-tools/QuickTools"
@@ -16,6 +16,7 @@ import { Api } from "./settings/Api"
 import { License } from "./settings/License"
 
 const routes = [
+  { path: "/", component: () => router.navigate("/chat") },
   { path: "/chat", component: Chat },
   { path: "/chat/:id", component: Chat },
   { path: "/quick-tools", component: QuickTools },
@@ -34,45 +35,38 @@ const routes = [
   { path: "/settings/api", component: Api },
 ].filter(Boolean) as Array<{ path; component }>
 
-const current = signal({ route: routes[0], params: {} as any })
+const path = signal(location.pathname)
+addEventListener("popstate", () => (path.value = location.pathname))
+
+const current = computed(() => {
+  for (const route of routes) {
+    const match = router.match(route.path)
+    if (match) {
+      return { route, params: match.groups ?? {} }
+    }
+  }
+
+  return { route: routes[0], params: {} }
+})
 
 const patternCache: Record<string, RegExp> = {}
 
 export const router = {
   routes,
 
-  navigate(path: string, replace = false) {
-    history[replace ? "replaceState" : "pushState"]({}, "", path)
-    this.onChange()
+  navigate(newPath: string, replace = false) {
+    history[replace ? "replaceState" : "pushState"]({}, "", newPath)
+    path.value = location.pathname
   },
 
   match(pattern: string) {
     const regex =
       patternCache[pattern] ||
       (patternCache[pattern] = new RegExp(`^${pattern.replace(/:(\w+)/g, "(?<$1>[^/]+)").replace(/\*/g, "(?<all>.*)")}$`))
-    return location.pathname.match(regex)
+    return path.value.match(regex)
   },
 
-  onChange() {
-    for (const r of routes) {
-      const match = this.match(r.path)
-      if (match) {
-        current.value = { route: r, params: match.groups ?? {} }
-        return
-      }
-    }
-
-    this.navigate(routes[0].path, true)
-  },
-
-  get currentRoute() {
-    return current.value.route
-  },
-
-  get params() {
-    return current.value.params
+  get current() {
+    return current.value
   },
 }
-
-addEventListener("popstate", () => router.onChange())
-router.onChange()

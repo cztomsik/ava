@@ -6,7 +6,7 @@ export const App = () => (
   <ErrorBoundary class="text(base neutral-12)">
     <div class="grid grid-cols-[auto_1fr] h-screen">
       <Sidebar />
-      <router.currentRoute.component params={router.params} />
+      <router.current.route.component params={router.current.params} />
     </div>
 
     <Modal.Container />
