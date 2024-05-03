@@ -36,7 +36,7 @@ and more.
 
 ## Tech stack
 
-- Zig, C++, Swift UI, SQLite
+- Zig, C++ (**llama.cpp**), Swift UI, SQLite
 - Preact, Preact Signals, Twind
 
 ## License
