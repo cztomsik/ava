@@ -20,7 +20,6 @@ export interface GenerateOptions {
     presence_penalty?: number
     freq_penalty?: number
     add_bos?: boolean
-    stop_eos?: boolean
     stop?: string[]
     json: boolean
   }
@@ -36,7 +35,6 @@ export const defaultSampling: GenerateOptions["sampling"] = {
   presence_penalty: 0,
   freq_penalty: 0,
   add_bos: true,
-  stop_eos: true,
   stop: [],
   json: false,
 }

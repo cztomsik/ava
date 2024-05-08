@@ -17,7 +17,6 @@ export const SamplingOptions = ({ value, onChange }) => {
         <Field as={Range} name="freq_penalty" label="Frequency penalty" min={0} max={2} step={0.01} />
 
         <Field as={Checkbox} name="add_bos" label="Add BOS token" />
-        <Field as={Checkbox} name="stop_eos" label="Stop at EOS token" />
         <Field as={Checkbox} name="json" label="Sample JSON" />
       </div>
     </FormGroup>

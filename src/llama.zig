@@ -18,7 +18,7 @@ pub const SamplingParams = struct {
     presence_penalty: f32 = 0,
     freq_penalty: f32 = 0,
     add_bos: bool = true,
-    stop_eos: bool = true,
+    stop_eos: bool = true, // TODO: remove (db migration)
     stop: []const []const u8 = &.{},
     json: bool = false,
 };
@@ -470,7 +470,7 @@ pub const Context = struct {
             c.llama_grammar_accept_token(self.ptr, self.grammar, res);
         }
 
-        if (params.stop_eos and res == c.llama_token_eos(self.model.ptr)) {
+        if (c.llama_token_is_eog(self.model.ptr, res)) {
             return null;
         }
 
