@@ -29,6 +29,11 @@ pub fn create(owner: *std.Build, options: Options) *BuildMacos {
     });
     object.bundle_compiler_rt = true;
 
+    const compile_target = owner.fmt("{s}-apple-macosx{}", .{
+        if (options.target.result.cpu.arch == .aarch64) "arm64" else @tagName(options.target.result.cpu.arch),
+        options.target.result.os.version_range.semver.min,
+    });
+
     const swiftc = owner.addSystemCommand(&.{
         "swiftc",
         if (options.optimize == .Debug) "-Onone" else "-O",
@@ -37,7 +42,7 @@ pub fn create(owner: *std.Build, options: Options) *BuildMacos {
         "-lc++",
         "-lsqlite3",
         "-target",
-        owner.fmt("{s}-apple-macosx{}", .{ @tagName(options.target.result.cpu.arch), options.target.result.os.version_range.semver.min }),
+        compile_target,
         "-o",
     });
 
