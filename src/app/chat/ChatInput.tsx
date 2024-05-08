@@ -23,7 +23,7 @@ export const ChatInput = ({ value, onChange, onSend, abort }) => {
   const handleKeyDown = e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      onSend()
+      if (!abort) onSend()
     }
   }
 
