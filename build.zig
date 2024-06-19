@@ -1,37 +1,19 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) !void {
-    // const target_query = b.standardTargetOptionsQueryOnly(.{});
-    // if (target.query.os_tag == .macos and target.query.os_version_min == null) {
-    //     target.query.os_version_min = .{ .semver = try std.SemanticVersion.parse("12.6.0") };
-    //     std.log.debug("Setting macOS deployment target to {}", .{target.query.os_version_min.?});
-    // }
-
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
+    // const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
 
-    const options = .{
+    const exe = b.addExecutable(.{
         .name = "ava",
-        .root_source_file = .{ .path = if (headless) "_headless.zig" else "_gui.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
 
         // For some reason, linux binaries are huge. Strip them in release mode.
         .strip = optimize != .Debug,
-    };
-
-    if (headless) {
-        try buildExe(b, b.addExecutable(options));
-    } else switch (target.result.os.tag) {
-        .macos => try buildExe(b, @import("src/macos/BuildMacos.zig").create(b, options)),
-        .windows => try buildExe(b, @import("src/windows/BuildWindows.zig").create(b, options)),
-        else => return error.UnsupportedOs,
-    }
-}
-
-fn buildExe(b: *std.Build, exe: anytype) !void {
-    exe.addIncludePath(.{ .path = "llama.cpp" });
+    });
 
     const embed: []const []const u8 = &.{
         "LICENSE.md",
@@ -45,7 +27,6 @@ fn buildExe(b: *std.Build, exe: anytype) !void {
 
     const fridge = b.dependency("fridge", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("fridge", fridge.module("fridge"));
-    if (@hasField(@TypeOf(exe.*), "sdk")) fridge.module("fridge").addSystemIncludePath(.{ .path = b.fmt("{s}/usr/include", .{exe.sdk}) });
 
     try addLlama(b, exe);
 
@@ -55,6 +36,8 @@ fn buildExe(b: *std.Build, exe: anytype) !void {
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
+    exe.addIncludePath(b.path("llama.cpp"));
+
     const cflags = try flags(b, exe, &.{"-std=c11"});
     const cxxflags = try flags(b, exe, &.{"-std=c++11"});
 
@@ -80,10 +63,9 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         });
 
         o.defineCMacro("_GNU_SOURCE", null);
-        o.addIncludePath(.{ .path = "llama.cpp" });
-        o.addCSourceFile(.{ .file = .{ .path = b.pathJoin(&.{ "llama.cpp", f }) }, .flags = if (is_cpp) cxxflags else cflags });
+        o.addIncludePath(b.path("llama.cpp"));
+        o.addCSourceFile(.{ .file = b.path(b.pathJoin(&.{ "llama.cpp", f })), .flags = if (is_cpp) cxxflags else cflags });
         if (is_cpp) o.linkLibCpp() else o.linkLibC();
-        if (@hasField(@TypeOf(exe.*), "sdk")) exe.applySDK(o);
         exe.addObject(o);
     }
 
@@ -93,9 +75,9 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         exe.linkFramework("MetalKit");
 
         // Copy the Metal shader file and the common header file to the output directory so that it can be found at runtime.
-        const copy_common_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-common.h" }, "ggml-common.h");
+        const copy_common_step = b.addInstallBinFile(b.path("llama.cpp/ggml-common.h"), "ggml-common.h");
         b.getInstallStep().dependOn(&copy_common_step.step);
-        const copy_metal_step = b.addInstallBinFile(.{ .path = "llama.cpp/ggml-metal.metal" }, "ggml-metal.metal");
+        const copy_metal_step = b.addInstallBinFile(b.path("llama.cpp/ggml-metal.metal"), "ggml-metal.metal");
         b.getInstallStep().dependOn(&copy_metal_step.step);
     }
 }
@@ -103,7 +85,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
 fn flags(b: *std.Build, exe: anytype, prefix: []const []const u8) ![]const []const u8 {
     var res = std.ArrayList([]const u8).init(b.allocator);
     try res.appendSlice(prefix);
-    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
+    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-ffast-math", "-fno-finite-math-only", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
 
     if (exe.rootModuleTarget().os.tag == .macos) {
         try res.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
