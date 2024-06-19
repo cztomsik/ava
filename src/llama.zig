@@ -361,8 +361,8 @@ pub const Context = struct {
             const token = try self.generateToken(params) orelse return null;
             const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
 
-            switch (c.llama_token_get_type(self.model.ptr, token)) {
-                c.LLAMA_TOKEN_TYPE_NORMAL => {
+            switch (c.llama_token_get_attr(self.model.ptr, token)) {
+                c.LLAMA_TOKEN_ATTR_NORMAL => {
                     // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
                     if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
                         const n = std.mem.replace(u8, piece, "▁", " ", try self.buf.addManyAsSlice(piece.len));
@@ -373,8 +373,8 @@ pub const Context = struct {
                         try self.buf.appendSlice(piece);
                     }
                 },
-                c.LLAMA_TOKEN_TYPE_UNKNOWN => try self.buf.appendSlice("▅"),
-                c.LLAMA_TOKEN_TYPE_BYTE => try self.buf.append(try std.fmt.parseInt(u8, piece[3..5], 16)),
+                c.LLAMA_TOKEN_ATTR_UNKNOWN => try self.buf.appendSlice("▅"),
+                c.LLAMA_TOKEN_ATTR_BYTE => try self.buf.append(try std.fmt.parseInt(u8, piece[3..5], 16)),
                 else => {},
             }
 
