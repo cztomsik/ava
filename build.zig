@@ -36,20 +36,21 @@ pub fn build(b: *std.Build) !void {
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
-    exe.addIncludePath(b.path("llama.cpp"));
+    exe.addIncludePath(b.path("llama.cpp/ggml/include"));
+    exe.addIncludePath(b.path("llama.cpp/include"));
 
     const cflags = try flags(b, exe, &.{"-std=c11"});
     const cxxflags = try flags(b, exe, &.{"-std=c++11"});
 
     const sources: []const []const u8 = &.{
-        "ggml.c",
-        "ggml-alloc.c",
-        "ggml-backend.c",
-        "ggml-quants.c",
-        "ggml-metal.m",
-        "unicode.cpp",
-        "unicode-data.cpp",
-        "llama.cpp",
+        "ggml/src/ggml.c",
+        "ggml/src/ggml-alloc.c",
+        "ggml/src/ggml-backend.c",
+        "ggml/src/ggml-quants.c",
+        "ggml/src/ggml-metal.m",
+        "src/unicode.cpp",
+        "src/unicode-data.cpp",
+        "src/llama.cpp",
     };
 
     for (sources) |f| {
@@ -63,7 +64,8 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         });
 
         o.defineCMacro("_GNU_SOURCE", null);
-        o.addIncludePath(b.path("llama.cpp"));
+        o.addIncludePath(b.path("llama.cpp/ggml/include"));
+        o.addIncludePath(b.path("llama.cpp/include"));
         o.addCSourceFile(.{ .file = b.path(b.pathJoin(&.{ "llama.cpp", f })), .flags = if (is_cpp) cxxflags else cflags });
         if (is_cpp) o.linkLibCpp() else o.linkLibC();
         exe.addObject(o);
@@ -75,9 +77,9 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         exe.linkFramework("MetalKit");
 
         // Copy the Metal shader file and the common header file to the output directory so that it can be found at runtime.
-        const copy_common_step = b.addInstallBinFile(b.path("llama.cpp/ggml-common.h"), "ggml-common.h");
+        const copy_common_step = b.addInstallBinFile(b.path("llama.cpp/ggml/src/ggml-common.h"), "ggml-common.h");
         b.getInstallStep().dependOn(&copy_common_step.step);
-        const copy_metal_step = b.addInstallBinFile(b.path("llama.cpp/ggml-metal.metal"), "ggml-metal.metal");
+        const copy_metal_step = b.addInstallBinFile(b.path("llama.cpp/ggml/src/ggml-metal.metal"), "ggml-metal.metal");
         b.getInstallStep().dependOn(&copy_metal_step.step);
     }
 }
