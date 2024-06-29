@@ -107,10 +107,8 @@ pub const App = struct {
     }
 
     fn initServer(self: *App) !void {
-        self.server = try tk.Server.start(self.allocator, handler, .{
-            .injector = try tk.Injector.from(.{ self, &self.db, &self.llama, &self.client }),
-            .port = self.config.value.server.port,
-            .keep_alive = self.config.value.server.keep_alive,
+        self.server = try tk.Server.init(self.allocator, routes, .{
+            .injector = tk.Injector.init(self, null),
         });
     }
 
@@ -133,8 +131,8 @@ pub const App = struct {
     pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
-        std.debug.getStderrMutex().lock();
-        defer std.debug.getStderrMutex().unlock();
+        std.debug.lockStdErr();
+        defer std.debug.unlockStdErr();
 
         const t = @mod(@as(u64, @intCast(std.time.timestamp())), 86_400);
         const s = @mod(t, 60);
