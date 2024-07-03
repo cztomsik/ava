@@ -202,24 +202,22 @@ pub const App = struct {
     }
 };
 
-const handler = tk.chain(.{
-    tk.logger(.{}),
-    tk.provide(fr.Session.fromPool),
-
-    // Handle API requests
-    tk.group("/api", tk.chain(.{
-        tk.router(@import("api.zig")),
-        tk.send(error.NotFound),
-    })),
-
-    // Serve static files
-    tk.get("/LICENSE.md", tk.sendStatic("LICENSE.md")),
-    tk.get("/favicon.ico", tk.sendStatic("src/app/favicon.ico")),
-    tk.get("/app.js", tk.sendStatic("zig-out/app/main.js")),
-
-    // Disable source maps in production
-    tk.get("*.map", tk.send(@as([]const u8, "{}"))),
-
-    // HTML5 fallback
-    tk.sendStatic("src/app/index.html"),
-});
+const routes = &.{
+    tk.logger(.{}, &.{
+        tk.provide(fr.Session.fromPool, &.{
+            // Handle API requests
+            tk.group("/api", &.{
+                tk.router(@import("api.zig")),
+                .{ .handler = tk.send(error.NotFound) },
+            }),
+            // Serve static files
+            tk.get("/LICENSE.md", tk.sendStatic("LICENSE.md")),
+            tk.get("/favicon.ico", tk.sendStatic("src/app/favicon.ico")),
+            tk.get("/app.js", tk.sendStatic("zig-out/app/main.js")),
+            // Disable source maps in production
+            tk.get("/*.map", tk.send(@as([]const u8, "{}"))),
+            // HTML5 fallback
+            tk.get("/*", tk.sendStatic("src/app/index.html")),
+        }),
+    }),
+};
