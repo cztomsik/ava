@@ -44,13 +44,17 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
 
     const sources: []const []const u8 = &.{
         "ggml/src/ggml.c",
+        "ggml/src/ggml-aarch64.c",
         "ggml/src/ggml-alloc.c",
         "ggml/src/ggml-backend.c",
         "ggml/src/ggml-quants.c",
         "ggml/src/ggml-metal.m",
+        "src/llama.cpp",
+        "src/llama-grammar.cpp",
+        "src/llama-sampling.cpp",
+        "src/llama-vocab.cpp",
         "src/unicode.cpp",
         "src/unicode-data.cpp",
-        "src/llama.cpp",
     };
 
     for (sources) |f| {
@@ -87,7 +91,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
 fn flags(b: *std.Build, exe: anytype, prefix: []const []const u8) ![]const []const u8 {
     var res = std.ArrayList([]const u8).init(b.allocator);
     try res.appendSlice(prefix);
-    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-ffast-math", "-fno-finite-math-only", "-DNDEBUG", "-DGGML_USE_K_QUANTS" });
+    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-ffast-math", "-fno-finite-math-only", "-DNDEBUG", "-DGGML_USE_K_QUANTS", "-DGGML_NO_LLAMAFILE" });
 
     if (exe.rootModuleTarget().os.tag == .macos) {
         try res.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });

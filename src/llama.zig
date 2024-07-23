@@ -467,7 +467,7 @@ pub const Context = struct {
         const res = if (params.temperature >= 0) c.llama_sample_token(self.ptr, &candidates) else c.llama_sample_token_greedy(self.ptr, &candidates);
 
         if (self.grammar != null) {
-            c.llama_grammar_accept_token(self.ptr, self.grammar, res);
+            c.llama_grammar_accept_token(self.grammar, self.ptr, res);
         }
 
         if (c.llama_token_is_eog(self.model.ptr, res)) {
