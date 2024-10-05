@@ -133,7 +133,7 @@ pub const App = struct {
         };
     }
 
-    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
+    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
         std.debug.lockStdErr();
