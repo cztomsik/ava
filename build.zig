@@ -3,7 +3,7 @@ const std = @import("std");
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    // const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
+    const headless = b.option(bool, "headless", "Build headless webserver") orelse false;
 
     const exe = b.addExecutable(.{
         .name = "ava",
@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) !void {
         // For some reason, linux binaries are huge. Strip them in release mode.
         .strip = optimize != .Debug,
     });
+    b.installArtifact(exe);
 
     const embed: []const []const u8 = &.{
         "LICENSE.md",
@@ -28,11 +29,28 @@ pub fn build(b: *std.Build) !void {
     const fridge = b.dependency("fridge", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("fridge", fridge.module("fridge"));
 
+    const options = b.addOptions();
+    options.addOption(bool, "headless", headless);
+    exe.root_module.addOptions("options", options);
+
+    if (!headless) {
+        const webview = b.dependency("webview", .{});
+        exe.linkLibCpp();
+        exe.addIncludePath(webview.path(""));
+        exe.addCSourceFile(.{ .file = webview.path("webview.cc"), .flags = &.{ "-std=c++14", "-DWEBVIEW_STATIC" } });
+
+        switch (target.result.os.tag) {
+            .macos => exe.linkFramework("WebKit"),
+            else => {},
+        }
+    }
+
     try addLlama(b, exe);
 
-    const suffix = if (exe.rootModuleTarget().os.tag == .windows) ".exe" else "";
-    const bin = b.addInstallBinFile(exe.getEmittedBin(), b.fmt("ava_{s}{s}", .{ @tagName(exe.rootModuleTarget().cpu.arch), suffix }));
-    b.getInstallStep().dependOn(&bin.step);
+    const run_cmd = b.addRunArtifact(exe);
+    run_cmd.step.dependOn(b.getInstallStep());
+    const run_step = b.step("run", "Run the app");
+    run_step.dependOn(&run_cmd.step);
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
