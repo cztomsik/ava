@@ -53,7 +53,7 @@ pub fn main() !void {
         defer _ = c.webview_destroy(w);
 
         _ = c.webview_set_title(w, "Ava PLS");
-        _ = c.webview_set_size(w, 800, 600, c.WEBVIEW_HINT_NONE);
+        _ = c.webview_set_size(w, 1200, 800, c.WEBVIEW_HINT_NONE);
 
         if (comptime builtin.os.tag == .macos) {
             // TODO: fix window dragging first

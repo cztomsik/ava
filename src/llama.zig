@@ -231,13 +231,13 @@ pub const Model = struct {
                 extern "kernel32" fn GetShortPathNameW(lpszLongPath: ?[*:0]const u16, lpszShortPath: ?[*:0]u16, cchBuffer: u32) callconv(std.os.windows.WINAPI) u32;
             };
 
-            const wpath = try std.unicode.utf8ToUtf16LeWithNull(allocator, path);
+            const wpath = try std.unicode.utf8ToUtf16LeAllocZ(allocator, path);
             defer allocator.free(wpath);
 
             var buf: [260:0]u16 = undefined;
             _ = w.GetShortPathNameW(wpath, &buf, buf.len);
 
-            return std.unicode.utf16leToUtf8AllocZ(allocator, &buf);
+            return std.unicode.utf16LeToUtf8AllocZ(allocator, &buf);
         }
 
         return allocator.dupeZ(u8, path);

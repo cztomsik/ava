@@ -105,7 +105,7 @@ pub const App = struct {
         if (builtin.target.os.tag == .windows) {
             try self.client.ca_bundle.rescan(self.allocator);
             const start = self.client.ca_bundle.bytes.items.len;
-            try self.client.ca_bundle.bytes.appendSlice(self.allocator, @embedFile("windows/amazon1.cer"));
+            try self.client.ca_bundle.bytes.appendSlice(self.allocator, @embedFile("amazon1.cer"));
             try self.client.ca_bundle.parseCert(self.allocator, @intCast(start), std.time.timestamp());
         }
     }
