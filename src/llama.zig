@@ -121,11 +121,12 @@ pub const Pool = struct {
 
     fn contextParams(self: *Pool) c.llama_context_params {
         var params = c.llama_context_default_params();
+        const cpu_count = getPerfCpuCount();
 
         params.n_ctx = @intCast(self.options.n_ctx);
         params.n_batch = @intCast(self.options.n_batch);
-        params.n_threads = @intCast(self.options.n_threads orelse getPerfCpuCount());
-        params.n_threads_batch = @intCast(self.options.n_threads_batch orelse params.n_threads);
+        params.n_threads = @intCast(self.options.n_threads orelse cpu_count);
+        params.n_threads_batch = @intCast(self.options.n_threads_batch orelse self.options.n_threads orelse cpu_count);
         params.flash_attn = self.options.flash_attn;
 
         return params;
