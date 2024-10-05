@@ -14,7 +14,7 @@ const GenerateParams = struct {
 };
 
 pub fn @"GET /quick-tools"(db: *fr.Session) ![]const schema.QuickTool {
-    return db.findAll(fr.query(schema.QuickTool).orderBy(.id, .asc));
+    return db.query(schema.QuickTool).orderBy(.id, .asc).findAll();
 }
 
 pub fn @"GET /quick-tools/:id"(db: *fr.Session, id: u32) !schema.QuickTool {
@@ -25,10 +25,8 @@ pub fn @"POST /quick-tools"(db: *fr.Session, data: schema.QuickTool) !schema.Qui
     return db.create(schema.QuickTool, data);
 }
 
-pub fn @"PUT /quick-tools/:id"(db: *fr.Session, id: u32, data: schema.QuickTool) !schema.QuickTool {
+pub fn @"PUT /quick-tools/:id"(db: *fr.Session, id: u32, data: schema.QuickTool) !void {
     try db.update(schema.QuickTool, id, data);
-
-    return try db.find(schema.QuickTool, id) orelse error.NotFound;
 }
 
 pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: u32, params: GenerateParams) !void {
