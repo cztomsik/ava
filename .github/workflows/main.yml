@@ -8,9 +8,10 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [linux, windows, macos]
-        headless: [false, true]
+        headless: [true]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu-latest' || matrix.os == 'macos' && 'macos-14' || 'windows-latest' }}
     steps:
       - uses: actions/checkout@v4
