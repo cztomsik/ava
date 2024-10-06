@@ -3,61 +3,93 @@ const tk = @import("tokamak");
 const ava = @import("../app.zig");
 
 const Params = struct {
-    path: []const u8,
     url: []const u8,
+    path: []const u8,
 };
 
-pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, res: *tk.Response, params: Params) !void {
+pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, ctx: *tk.Context, params: Params) !tk.EventStream(Download) {
     if (std.mem.indexOf(u8, params.path, "..") != null) {
-        return res.sendJson(.{ .@"error" = .{ .invalid_path = params.path } });
+        return error.InvalidPath;
     }
 
-    var head: [10 * 1024]u8 = undefined;
-    var req = try client.open(.GET, try std.Uri.parse(params.url), .{ .server_header_buffer = &head });
-    defer req.deinit();
+    // TODO: redesign everything fs-related
+    const home = try app.home_dir.realpathAlloc(ctx.allocator, ".");
+    const path = try std.fs.path.join(ctx.allocator, &.{ app.config.value.download.path, params.path });
 
-    try req.send();
-    try req.wait();
+    return .{
+        .impl = .{
+            .client = client,
+            .url = params.url,
+            .path = try std.fs.path.resolve(ctx.allocator, &.{ home, path }),
+            .file = try app.openFile(path, .w),
+        },
+    };
+}
 
-    if (req.response.status != .ok) {
-        return res.sendJson(.{ .@"error" = .{ .invalid_status = req.response.status } });
+const Download = struct {
+    client: *std.http.Client,
+    url: []const u8,
+    path: []const u8,
+    file: std.fs.File,
+    req: ?std.http.Client.Request = null,
+    size: usize = 0,
+    progress: usize = 0,
+    finished: bool = false,
+
+    const Event = union(enum) { size: usize, progress: usize, path: []const u8 };
+
+    pub fn deinit(self: *Download) void {
+        if (self.req) |*r| r.deinit();
+        self.file.close();
     }
 
-    if (req.response.content_length) |size| {
-        try res.sendJson(.{ .size = size });
+    pub fn next(self: *Download) !?Event {
+        if (self.req == null) return try self.start();
+        if (self.progress < self.size) return try self.read();
+        if (!self.finished) return self.finish();
+
+        return null;
     }
 
-    const content_type = req.response.content_type orelse "";
-    if (!std.mem.eql(u8, content_type, "binary/octet-stream")) {
-        return res.sendJson(.{ .@"error" = .{ .invalid_content_type = content_type } });
+    fn start(self: *Download) !Event {
+        const uri = try std.Uri.parse(self.url);
+
+        var head: [10 * 1024]u8 = undefined;
+        var req = try self.client.open(.GET, uri, .{ .server_header_buffer = &head });
+        errdefer req.deinit();
+
+        try req.send();
+        try req.wait();
+
+        if (req.response.status != .ok) {
+            return error.NotOk;
+        }
+
+        if (!std.mem.eql(u8, req.response.content_type orelse "", "binary/octet-stream")) {
+            return error.InvalidContentType;
+        }
+
+        self.req = req;
+        self.size = req.response.content_length orelse return error.UnknownSize;
+
+        return .{ .size = self.size };
     }
 
-    const path = try std.fs.path.join(res.req.allocator, &.{ app.config.value.download.path, params.path });
-    const tmp_path = try std.fmt.allocPrint(res.req.allocator, "{s}.part", .{path});
-    errdefer app.home_dir.deleteFile(tmp_path) catch {};
-
-    // .close() needs to be called before .rename() on Windows
-    {
-        var file = try app.openFile(tmp_path, .w);
-        defer file.close();
-
-        var reader = req.reader();
-        var writer = file.writer();
+    fn read(self: *Download) !Event {
+        var reader = self.req.?.reader();
+        var writer = self.file.writer();
 
         // connection buffer seems to be 80KB so let's do two reads per write
         var buf: [160 * 1024]u8 = undefined;
-        var progress: usize = 0;
-        while (reader.readAll(&buf)) |n| {
-            try writer.writeAll(buf[0..n]);
-            if (n < buf.len) break;
+        const n = try reader.readAll(&buf);
+        try writer.writeAll(buf[0..n]);
 
-            progress += n;
-            try res.sendJson(.{ .progress = progress });
-        } else |_| return res.sendJson(.{ .@"error" = "Failed to download the model" });
+        self.progress += n;
+        return .{ .progress = self.progress };
     }
 
-    try app.home_dir.rename(tmp_path, path);
-    try res.sendJson(.{
-        .path = try app.home_dir.realpathAlloc(res.req.allocator, path),
-    });
-}
+    fn finish(self: *Download) Event {
+        self.finished = true;
+        return .{ .path = self.path };
+    }
+};
