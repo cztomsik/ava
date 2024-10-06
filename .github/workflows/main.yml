@@ -6,43 +6,11 @@ on:
       - gh-pages
 
 jobs:
-  build_gui:
+  build:
     strategy:
       matrix:
-        # windows currently does not work because WebView2Loader archive is not really a .tar so the command is failing.
-        os: [macos] #, windows]
-        # only x86_64 builds now (it might be because github worker is on MacOSX13.1.sdk?
-        # ld: unknown/unsupported architecture name for: -arch aarch64
-        arch: ["x86_64"] #, "aarch64"]
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 21.7.3
-
-      - uses: mlugg/setup-zig@v1
-        with:
-          version: master
-
-      - run: npm ci && npm run build
-
-      - run: zig build -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ava_${{ matrix.os }}_${{ matrix.arch }}
-          path: zig-out/bin/*
-
-  build_headless:
-    strategy:
-      matrix:
-        os: [linux, windows] # , macos]
-        arch: ["x86_64", "aarch64"]
+        os: [linux, windows, macos]
+        headless: [false, true]
     runs-on: ${{ matrix.os == 'linux' && 'ubuntu-latest' || matrix.os == 'macos' && 'macos-14' || 'windows-latest' }}
     steps:
       - uses: actions/checkout@v4
@@ -59,10 +27,10 @@ jobs:
 
       - run: npm ci && npm run build
 
-      - run: zig build -Dheadless=true -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
+      - run: zig build -Doptimize=ReleaseFast -Dheadless=${{ matrix.headless }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ava_headless_${{ matrix.os }}_${{ matrix.arch }}
+          name: ava_${{ matrix.headless && 'headless_' }}${{ matrix.os }}
           path: zig-out/bin/*

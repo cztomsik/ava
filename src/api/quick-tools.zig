@@ -36,12 +36,12 @@ pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: 
 
     std.log.debug("Generating with prompt: {s}", .{prompt});
 
-    return ctx.injector.call(completions.@"POST /chat/completions", .{.{
+    return ctx.send(ctx.injector.call(completions.@"POST /chat/completions", .{.{
         .model = params.model,
         .prompt = prompt,
         .max_tokens = params.max_tokens,
         .sampling = params.sampling,
-    }});
+    }}));
 }
 
 pub fn @"DELETE /quick-tools/:id"(db: *fr.Session, id: u32) !void {

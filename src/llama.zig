@@ -18,8 +18,6 @@ pub const SamplingParams = struct {
     presence_penalty: f32 = 0,
     freq_penalty: f32 = 0,
     add_bos: bool = true,
-    stop_eos: bool = true, // TODO: remove (db migration)
-    stop: []const []const u8 = &.{},
     json: bool = false,
 };
 
@@ -37,7 +35,7 @@ pub const PoolOptions = struct {
 pub const Pool = struct {
     allocator: std.mem.Allocator = undefined,
     options: PoolOptions,
-    mutex: std.Thread.Mutex = .{},
+    sem: std.Thread.Semaphore = .{ .permits = 1 },
     model: ?Model = null,
     context: ?Context = null,
 
@@ -66,8 +64,8 @@ pub const Pool = struct {
 
     /// Resets the pool.
     pub fn reset(self: *Pool, options: PoolOptions) void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
+        self.sem.wait();
+        defer self.sem.post();
 
         if (self.context) |*context| {
             context.deinit();
@@ -86,13 +84,8 @@ pub const Pool = struct {
     /// after use. This function is thread-safe. Fails if the context is busy
     /// for more than `timeout` milliseconds.
     pub fn get(self: *Pool, model_path: []const u8, timeout: u64) !*Context {
-        const start = std.time.milliTimestamp();
-
-        while (!self.mutex.tryLock()) {
-            if (std.time.milliTimestamp() - start > timeout) return error.ContextBusy;
-            std.time.sleep(100_000_000);
-        }
-        errdefer self.mutex.unlock();
+        self.sem.timedWait(timeout * std.time.ns_per_ms) catch return error.ContextBusy;
+        errdefer self.sem.post();
 
         if (self.model == null or !std.mem.eql(u8, self.model.?.path, model_path)) {
             // Reset if the model has changed.
@@ -135,7 +128,7 @@ pub const Pool = struct {
     /// Releases the context so that it can be used by other threads.
     pub fn release(self: *Pool, ctx: *Context) void {
         if (ctx == &self.context.?) {
-            self.mutex.unlock();
+            self.sem.post();
         }
     }
 };
@@ -284,7 +277,7 @@ pub const Context = struct {
     }
 
     /// Prepares the context for inference.
-    pub fn prepare(self: *Context, prompt: []const u8, params: *const SamplingParams) !void {
+    pub fn prepare(self: *Context, prompt: []const u8, params: SamplingParams) !void {
         var tokens = std.ArrayList(Token).init(self.model.allocator);
         errdefer tokens.deinit();
 
@@ -354,11 +347,12 @@ pub const Context = struct {
     }
 
     /// Generates next utf-8 valid chunk of text.
-    pub fn generate(self: *Context, params: *const SamplingParams) !?[]const u8 {
+    pub fn generate(self: *Context, params: SamplingParams) !?[]const u8 {
         const start = self.buf.items.len;
 
         // Keep generating until we have valid chunk, but not more than 32 times.
-        outer: for (0..32) |_| {
+        // outer:
+        for (0..32) |_| {
             const token = try self.generateToken(params) orelse return null;
             const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
 
@@ -383,17 +377,17 @@ pub const Context = struct {
 
             if (std.unicode.utf8ValidateSlice(chunk)) {
                 // Handle stop tokens.
-                for (params.stop) |s| {
-                    // Stop if the chunk contains the stop suffix.
-                    if (std.mem.indexOf(u8, chunk, s) != null) {
-                        break :outer;
-                    }
+                // for (params.stop) |s| {
+                //     // Stop if the chunk contains the stop suffix.
+                //     if (std.mem.indexOf(u8, chunk, s) != null) {
+                //         break :outer;
+                //     }
 
-                    // Current chunk might be a start of the stop suffix, so let's generate one more token.
-                    if (std.mem.startsWith(u8, s, chunk)) {
-                        continue :outer;
-                    }
-                }
+                //     // Current chunk might be a start of the stop suffix, so let's generate one more token.
+                //     if (std.mem.startsWith(u8, s, chunk)) {
+                //         continue :outer;
+                //     }
+                // }
 
                 return chunk;
             }
@@ -405,7 +399,7 @@ pub const Context = struct {
     }
 
     /// Generates a token using the given sampler and appends it to the context.
-    pub fn generateToken(self: *Context, params: *const SamplingParams) !?Token {
+    pub fn generateToken(self: *Context, params: SamplingParams) !?Token {
         if (self.tokens.items.len >= c.llama_n_ctx(self.ptr)) {
             // Truncate input if it's too long but keep some empty space for
             // new tokens.
@@ -427,7 +421,7 @@ pub const Context = struct {
     }
 
     /// Samples a token from the context.
-    pub fn sampleToken(self: *Context, params: *const SamplingParams) !?Token {
+    pub fn sampleToken(self: *Context, params: SamplingParams) !?Token {
         const logits = c.llama_get_logits(self.ptr);
 
         for (self.candidates.items, 0..) |*candidate, i| {

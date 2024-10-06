@@ -4,8 +4,7 @@
 
     .dependencies = .{
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#ecbe4f210a7afbb8a616b2ba4a19354e4bc7ad66",
-            .hash = "1220c7f3453a23f35f5380226ca220791754a67205da12c23b55fb11616d63d15419",
+            .path = "../fridge",
         },
         .tokamak = .{
             .path = "../tokamak",
