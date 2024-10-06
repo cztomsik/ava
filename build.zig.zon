@@ -8,13 +8,13 @@
             .url = "https://github.com/webview/webview/archive/67d1161.tar.gz",
             .hash = "1220a2228027f51755abaf52a3917523349c9669e8be20f03c7d8b1c2c6bfa60c07c",
         },
-        .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#ecbe4f210a7afbb8a616b2ba4a19354e4bc7ad66",
-            .hash = "1220c7f3453a23f35f5380226ca220791754a67205da12c23b55fb11616d63d15419",
-        },
         .tokamak = .{
             .url = "git+https://github.com/cztomsik/tokamak?ref=main#3f393902232d3d50041baa073887184e26fe62e1",
             .hash = "1220522f24a2966ccfc85cd19bc50350fcaba7097d24da06cb1cb54a6b597df59cc2",
+        },
+        .fridge = .{
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#f563a8ce610a897089ac116694ce69b3dc0c86f4",
+            .hash = "122035cc700894b43cc5caa37b4b01492c904a10b4456189da701388b47d71ec7d4d",
         },
     },
     .paths = .{

@@ -28,7 +28,7 @@ jobs:
 
       - run: npm ci && npm run build
 
-      - run: zig build -Dheadless=${{ matrix.headless }}
+      - run: zig build -Doptimize=ReleaseFast -Dheadless=${{ matrix.headless }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
