@@ -10,9 +10,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [linux, windows, macos]
-        headless: [true]
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu-latest' || matrix.os == 'macos' && 'macos-14' || 'windows-latest' }}
+        target:
+          [
+            { headless: true, os: "windows-latest" },
+            { headless: true, os: "ubuntu-latest" },
+            { headless: true, os: "macos-14" },
+          ]
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,10 +32,10 @@ jobs:
 
       - run: npm ci && npm run build
 
-      - run: zig build -Doptimize=ReleaseFast -Dheadless=${{ matrix.headless }}
+      - run: zig build -Doptimize=ReleaseFast -Dheadless=${{ matrix.target.headless }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ava_${{ matrix.headless && 'headless_' }}${{ matrix.os }}
+          name: ava-${{ matrix.target.headless && 'headless-' }}${{ matrix.target.os }}
           path: zig-out/bin/*
