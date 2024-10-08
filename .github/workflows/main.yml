@@ -10,8 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target:
-          [
+        target: [
+            # { headless: false, os: "windows-latest" },
+            { headless: false, os: "ubuntu-latest" },
+            # { headless: false, os: "macos-14" },
             { headless: true, os: "windows-latest" },
             { headless: true, os: "ubuntu-latest" },
             { headless: true, os: "macos-14" },
@@ -30,12 +32,18 @@ jobs:
         with:
           version: master
 
+      - if: runner.os == 'macOS'
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev
+
       - run: npm ci && npm run build
 
-      - run: zig build -Doptimize=ReleaseFast -Dheadless=${{ matrix.target.headless }}
+      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ava-${{ matrix.target.headless && 'headless-' }}${{ matrix.target.os }}
+          name: ava-${{ matrix.target.headless && 'headless-' || '' }}${{ matrix.target.os }}
           path: zig-out/bin/*

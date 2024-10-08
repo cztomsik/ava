@@ -34,15 +34,7 @@ pub fn build(b: *std.Build) !void {
     exe.root_module.addOptions("options", options);
 
     if (!headless) {
-        const webview = b.dependency("webview", .{});
-        exe.linkLibCpp();
-        exe.addIncludePath(webview.path(""));
-        exe.addCSourceFile(.{ .file = webview.path("webview.cc"), .flags = &.{ "-std=c++14", "-DWEBVIEW_STATIC" } });
-
-        switch (target.result.os.tag) {
-            .macos => exe.linkFramework("WebKit"),
-            else => {},
-        }
+        try addWebview(b, exe);
     }
 
     try addLlama(b, exe);
@@ -51,6 +43,22 @@ pub fn build(b: *std.Build) !void {
     run_cmd.step.dependOn(b.getInstallStep());
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
+}
+
+fn addWebview(b: *std.Build, exe: anytype) !void {
+    const webview = b.dependency("webview", .{});
+    exe.linkLibCpp();
+    exe.addIncludePath(webview.path(""));
+    exe.addCSourceFile(.{ .file = webview.path("webview.cc"), .flags = &.{ "-std=c++14", "-DWEBVIEW_STATIC" } });
+
+    switch (exe.rootModuleTarget().os.tag) {
+        .macos => exe.linkFramework("WebKit"),
+        .linux => {
+            exe.linkSystemLibrary("gtk+-3.0");
+            exe.linkSystemLibrary("webkit2gtk-4.1");
+        },
+        else => {},
+    }
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
