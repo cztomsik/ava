@@ -15,9 +15,17 @@ pub const Params = struct {
     prompt: ?[]const u8 = null, // legacy
     messages: []const Message = &.{},
     max_tokens: u32 = 2048,
-    trim_first: bool = false,
-    // TODO: inline
-    sampling: llama.SamplingParams = .{},
+
+    // Copy-pasted from llama.SamplingParams
+    seed: u32 = 0,
+    top_k: u32 = 40,
+    top_p: f32 = 0.5,
+    temperature: f32 = 0.7,
+    repeat_n_last: usize = 256,
+    repeat_penalty: f32 = 1.05,
+    presence_penalty: f32 = 0,
+    frequency_penalty: f32 = 0,
+    json: bool = false,
 };
 
 pub const Completion = struct {
@@ -66,7 +74,17 @@ pub fn @"POST /chat/completions"(db: *fr.Session, pool: *llama.Pool, params: Par
     const id = try std.fmt.allocPrint(db.arena, "chatcmpl-{}", .{std.time.timestamp()}); // TODO: should be random
     const prompt = params.prompt orelse try applyTemplate(db.arena, cx.model, params.messages);
 
-    try cx.prepare(prompt, params.sampling);
+    try cx.prepare(prompt, .{
+        .seed = params.seed,
+        .top_k = params.top_k,
+        .top_p = params.top_p,
+        .temperature = params.temperature,
+        .repeat_n_last = params.repeat_n_last,
+        .repeat_penalty = params.repeat_penalty,
+        .presence_penalty = params.presence_penalty,
+        .frequency_penalty = params.frequency_penalty,
+        .json = params.json,
+    });
 
     return .{
         .pool = pool,
@@ -88,7 +106,6 @@ const CompletionOrStream = struct {
         var stream = CompletionStream{
             .pool = self.pool,
             .cx = self.cx,
-            .sampling = self.params.sampling,
             .id = self.id,
             .model = self.params.model,
             .prompt_tokens = self.cx.tokens.items.len,
@@ -124,7 +141,6 @@ const CompletionOrStream = struct {
 const CompletionStream = struct {
     pool: *llama.Pool,
     cx: *llama.Context,
-    sampling: llama.SamplingParams,
     id: []const u8,
     model: []const u8,
     prompt_tokens: usize,
@@ -143,14 +159,14 @@ const CompletionStream = struct {
 
         if (self.tokens >= self.max_tokens) {
             self.finish_reason = .length;
-        } else if (try self.cx.generate(self.sampling)) |chunk| {
+        } else if (try self.cx.generate()) |chunk| {
             self.tokens += 1;
 
             return .{
                 .id = self.id,
                 .choices = .{.{
                     .delta = .{
-                        .content = chunk, // if (self.tokens == 0 and params.trim_first) std.mem.trimLeft(u8, chunk, " \t\n\r") else chunk,
+                        .content = chunk,
                     },
                 }},
                 .created = std.time.timestamp(),

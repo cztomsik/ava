@@ -10,7 +10,17 @@ const GenerateParams = struct {
     model: []const u8,
     data: std.json.Value,
     max_tokens: u32 = 2048,
-    sampling: llama.SamplingParams = .{},
+
+    // Copy-pasted from llama.SamplingParams
+    seed: u32 = 0,
+    top_k: u32 = 40,
+    top_p: f32 = 0.5,
+    temperature: f32 = 0.7,
+    repeat_n_last: usize = 256,
+    repeat_penalty: f32 = 1.05,
+    presence_penalty: f32 = 0,
+    frequency_penalty: f32 = 0,
+    json: bool = false,
 };
 
 pub fn @"GET /quick-tools"(db: *fr.Session) ![]const schema.QuickTool {
@@ -40,7 +50,16 @@ pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: 
         .model = params.model,
         .prompt = prompt,
         .max_tokens = params.max_tokens,
-        .sampling = params.sampling,
+
+        .seed = params.seed,
+        .top_k = params.top_k,
+        .top_p = params.top_p,
+        .temperature = params.temperature,
+        .repeat_n_last = params.repeat_n_last,
+        .repeat_penalty = params.repeat_penalty,
+        .presence_penalty = params.presence_penalty,
+        .frequency_penalty = params.frequency_penalty,
+        .json = params.json,
     }}));
 }
 
