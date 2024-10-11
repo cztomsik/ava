@@ -3,14 +3,33 @@
     .version = "0.0.1",
 
     .dependencies = .{
+        .llama_cpp = .{
+            .url = "https://github.com/ggerganov/llama.cpp/archive/0e9f760.tar.gz",
+            .hash = "1220be8455d0fce9723e3b864ab57db0ed4ebfb2a834cc0f3765da6a4d77a6b0e9c2",
+        },
+        .llama_cpp_macos = .{
+            .optional = true,
+            .url = "https://github.com/cztomsik/llama.cpp-dylib/releases/download/b3908/llama-dylib-macos-arm64.zip",
+            .hash = "12209a19afcc165ef53cf2df1901aba44f49025b3c03f5495f19556aa065ebe947c7",
+        },
+        .llama_cpp_windows = .{
+            .optional = true,
+            .url = "https://github.com/cztomsik/llama.cpp-dylib/releases/download/b3908/llama-dylib-win-avx2-x64.zip",
+            .hash = "1220667b7cc07001d702da7b9c4780a099c2fd5895b9d11311679884ecfa4558a150",
+        },
+        .llama_cpp_linux = .{
+            .optional = true,
+            .url = "https://github.com/cztomsik/llama.cpp-dylib/releases/download/b3908/llama-dylib-ubuntu-x64.zip",
+            .hash = "1220a8c4288caece09dda6c7cf2c8b578fadd7cce747334d1be90c2091282310d2ce",
+        },
         .webview = .{
             .optional = true,
             .url = "https://github.com/webview/webview/archive/67d1161.tar.gz",
             .hash = "1220a2228027f51755abaf52a3917523349c9669e8be20f03c7d8b1c2c6bfa60c07c",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=main#3f393902232d3d50041baa073887184e26fe62e1",
-            .hash = "1220522f24a2966ccfc85cd19bc50350fcaba7097d24da06cb1cb54a6b597df59cc2",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=main#9df551920f8d3af9a404ca2d5ff0d02c0cdf5c30",
+            .hash = "1220e5e7634ef15051808a64e5a2c98207b27a0975f1e72ae3de65a308a521b5cf1d",
         },
         .fridge = .{
             .url = "git+https://github.com/cztomsik/fridge?ref=main#f563a8ce610a897089ac116694ce69b3dc0c86f4",

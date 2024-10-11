@@ -62,66 +62,22 @@ fn addWebview(b: *std.Build, exe: anytype) !void {
 }
 
 fn addLlama(b: *std.Build, exe: anytype) !void {
-    exe.addIncludePath(b.path("llama.cpp/ggml/include"));
-    exe.addIncludePath(b.path("llama.cpp/include"));
+    const target = exe.root_module.resolved_target.?;
+    const dep = b.dependency("llama_cpp", .{});
 
-    const cflags = try flags(b, exe, &.{"-std=c11"});
-    const cxxflags = try flags(b, exe, &.{"-std=c++11"});
+    const llama_cpp = b.addTranslateC(.{
+        .root_source_file = dep.path("include/llama.h"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .link_libc = true,
+    });
 
-    const sources: []const []const u8 = &.{
-        "ggml/src/ggml.c",
-        "ggml/src/ggml-aarch64.c",
-        "ggml/src/ggml-alloc.c",
-        "ggml/src/ggml-backend.c",
-        "ggml/src/ggml-quants.c",
-        "ggml/src/ggml-metal.m",
-        "src/llama.cpp",
-        "src/llama-grammar.cpp",
-        "src/llama-sampling.cpp",
-        "src/llama-vocab.cpp",
-        "src/unicode.cpp",
-        "src/unicode-data.cpp",
-    };
+    llama_cpp.addIncludePath(dep.path("include"));
+    llama_cpp.addIncludePath(dep.path("ggml/include"));
 
-    for (sources) |f| {
-        const is_cpp = std.mem.endsWith(u8, f, ".cpp");
-        if (std.mem.endsWith(u8, f, ".m") and exe.rootModuleTarget().os.tag != .macos) continue;
+    const bin = b.dependency(b.fmt("llama_cpp_{s}", .{@tagName(target.result.os.tag)}), .{});
+    exe.addLibraryPath(bin.path("."));
+    exe.linkSystemLibrary("llama");
 
-        const o = b.addObject(.{
-            .name = std.fs.path.basename(f),
-            .target = exe.root_module.resolved_target.?,
-            .optimize = .ReleaseFast, // always optimize llama.cpp
-        });
-
-        o.defineCMacro("_GNU_SOURCE", null);
-        o.addIncludePath(b.path("llama.cpp/ggml/include"));
-        o.addIncludePath(b.path("llama.cpp/include"));
-        o.addCSourceFile(.{ .file = b.path(b.pathJoin(&.{ "llama.cpp", f })), .flags = if (is_cpp) cxxflags else cflags });
-        if (is_cpp) o.linkLibCpp() else o.linkLibC();
-        exe.addObject(o);
-    }
-
-    if (exe.rootModuleTarget().os.tag == .macos) {
-        exe.linkFramework("Foundation");
-        exe.linkFramework("Metal");
-        exe.linkFramework("MetalKit");
-
-        // Copy the Metal shader file and the common header file to the output directory so that it can be found at runtime.
-        const copy_common_step = b.addInstallBinFile(b.path("llama.cpp/ggml/src/ggml-common.h"), "ggml-common.h");
-        b.getInstallStep().dependOn(&copy_common_step.step);
-        const copy_metal_step = b.addInstallBinFile(b.path("llama.cpp/ggml/src/ggml-metal.metal"), "ggml-metal.metal");
-        b.getInstallStep().dependOn(&copy_metal_step.step);
-    }
-}
-
-fn flags(b: *std.Build, exe: anytype, prefix: []const []const u8) ![]const []const u8 {
-    var res = std.ArrayList([]const u8).init(b.allocator);
-    try res.appendSlice(prefix);
-    try res.appendSlice(&.{ "-fPIC", "-Ofast", "-ffast-math", "-fno-finite-math-only", "-DNDEBUG", "-DGGML_USE_K_QUANTS", "-DGGML_NO_LLAMAFILE" });
-
-    if (exe.rootModuleTarget().os.tag == .macos) {
-        try res.appendSlice(&.{ "-DGGML_USE_METAL", "-DGGML_METAL_NDEBUG" });
-    }
-
-    return res.items;
+    exe.root_module.addImport("llama_cpp", llama_cpp.createModule());
 }
