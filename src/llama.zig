@@ -2,22 +2,19 @@ const std = @import("std");
 const builtin = @import("builtin");
 const log = std.log.scoped(.llama);
 
-pub const c = @cImport({
-    @cDefine("GGML_UNREACHABLE", "unreachable");
-    @cInclude("llama.h");
-});
+pub const c = @import("llama_cpp");
 
 pub const Token = c.llama_token;
 
 pub const SamplingParams = struct {
+    seed: u32 = 0,
     top_k: u32 = 40,
     top_p: f32 = 0.5,
     temperature: f32 = 0.7,
     repeat_n_last: usize = 256,
     repeat_penalty: f32 = 1.05,
     presence_penalty: f32 = 0,
-    freq_penalty: f32 = 0,
-    add_bos: bool = true,
+    frequency_penalty: f32 = 0,
     json: bool = false,
 };
 
@@ -192,7 +189,7 @@ pub const Model = struct {
     }
 
     /// Tokenizes the input and appends the tokens to the given list.
-    pub fn tokenize(self: *const Model, tokens: *std.ArrayList(Token), input: []const u8, add_bos: bool, special: bool) !void {
+    pub fn tokenize(self: *const Model, tokens: *std.ArrayList(Token), input: []const u8, special: bool) !void {
         try tokens.ensureUnusedCapacity(input.len / 2);
         var slice: []Token = tokens.items[tokens.items.len..];
         slice.len = tokens.capacity - tokens.items.len;
@@ -203,7 +200,7 @@ pub const Model = struct {
             @intCast(input.len),
             slice.ptr,
             @intCast(slice.len),
-            add_bos,
+            c.llama_add_bos_token(self.ptr),
             special,
         );
 
@@ -211,7 +208,7 @@ pub const Model = struct {
             tokens.items.len += @intCast(n_tokens);
         } else {
             try tokens.ensureUnusedCapacity(@intCast(-n_tokens));
-            return self.tokenize(tokens, input, add_bos, special);
+            return self.tokenize(tokens, input, special);
         }
     }
 
@@ -241,7 +238,7 @@ pub const Context = struct {
     model: *Model,
     params: c.llama_context_params,
     ptr: *c.llama_context,
-    grammar: ?*c.llama_grammar = null,
+    sampler: *c.llama_sampler,
     tokens: std.ArrayList(Token),
     n_past: usize = 0,
     candidates: std.ArrayList(c.llama_token_data),
@@ -258,6 +255,7 @@ pub const Context = struct {
             .model = model,
             .params = params,
             .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
+            .sampler = c.llama_sampler_chain_init(c.llama_sampler_chain_default_params()),
             .tokens = std.ArrayList(Token).init(allocator),
             .candidates = candidates,
             .buf = std.ArrayList(u8).init(allocator),
@@ -266,10 +264,7 @@ pub const Context = struct {
 
     /// Deinitializes the context.
     pub fn deinit(self: *Context) void {
-        if (self.grammar) |g| {
-            c.llama_grammar_free(g);
-        }
-
+        c.llama_sampler_free(self.sampler);
         c.llama_free(self.ptr);
         self.tokens.deinit();
         self.candidates.deinit();
@@ -281,7 +276,7 @@ pub const Context = struct {
         var tokens = std.ArrayList(Token).init(self.model.allocator);
         errdefer tokens.deinit();
 
-        try self.model.tokenize(&tokens, prompt, params.add_bos, true);
+        try self.model.tokenize(&tokens, prompt, true);
         self.buf.shrinkRetainingCapacity(0);
 
         // Find the common part and set n_past accordingly.
@@ -297,16 +292,17 @@ pub const Context = struct {
             _ = c.llama_kv_cache_clear(self.ptr);
         }
 
-        if (self.grammar) |g| {
-            c.llama_grammar_free(g);
-            self.grammar = null;
-        }
-
-        if (params.json) {
-            self.grammar = c.llama_grammar_init(@constCast(grammar.JSON_RULES.ptr), grammar.JSON_RULES.len, 0);
-        }
-
         log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
+
+        c.llama_sampler_free(self.sampler);
+        self.sampler = c.llama_sampler_chain_init(c.llama_sampler_chain_default_params());
+        // TODO: grammar
+        // TODO: penalties
+        // c.llama_sampler_chain_add(self.sampler, c.llama_sampler_init_penalties(n_vocab: i32, special_eos_id: llama_token, linefeed_id: llama_token, params.repeat_n_last, params.repeat_penalty, params.frequency_penalty, params.presence_penalty, false, false));
+        c.llama_sampler_chain_add(self.sampler, c.llama_sampler_init_top_k(@intCast(params.top_k)));
+        c.llama_sampler_chain_add(self.sampler, c.llama_sampler_init_top_p(params.top_p, 1));
+        c.llama_sampler_chain_add(self.sampler, c.llama_sampler_init_temp(params.temperature));
+        c.llama_sampler_chain_add(self.sampler, c.llama_sampler_init_dist(@intCast(params.seed)));
 
         self.tokens.deinit();
         self.tokens = tokens;
@@ -346,60 +342,24 @@ pub const Context = struct {
         return n_eval;
     }
 
-    /// Generates next utf-8 valid chunk of text.
-    pub fn generate(self: *Context, params: SamplingParams) !?[]const u8 {
-        const start = self.buf.items.len;
+    /// Generates next chunk of text.
+    pub fn generate(self: *Context) !?[]const u8 {
+        const token = try self.generateToken() orelse return null;
 
-        // Keep generating until we have valid chunk, but not more than 32 times.
-        // outer:
-        for (0..32) |_| {
-            const token = try self.generateToken(params) orelse return null;
-            const piece = std.mem.span(c.llama_token_get_text(self.model.ptr, token));
+        var buf: [128]u8 = undefined;
+        const n = c.llama_token_to_piece(self.model.ptr, token, &buf, @intCast(buf.len), 0, true);
 
-            switch (c.llama_token_get_attr(self.model.ptr, token)) {
-                c.LLAMA_TOKEN_ATTR_NORMAL => {
-                    // Replace \xe2\x96\x81 (Lower One Eighth Block) with space
-                    if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_SPM) {
-                        const n = std.mem.replace(u8, piece, "▁", " ", try self.buf.addManyAsSlice(piece.len));
-                        self.buf.items.len -= n * 2; // ▁ is 3 bytes, space is 1 byte, so we need to remove 2 bytes
-                    } else if (c.llama_vocab_type(self.model.ptr) == c.LLAMA_VOCAB_TYPE_BPE) {
-                        try appendBPE(&self.buf, piece);
-                    } else {
-                        try self.buf.appendSlice(piece);
-                    }
-                },
-                c.LLAMA_TOKEN_ATTR_UNKNOWN => try self.buf.appendSlice("▅"),
-                c.LLAMA_TOKEN_ATTR_BYTE => try self.buf.append(try std.fmt.parseInt(u8, piece[3..5], 16)),
-                else => {},
-            }
-
-            const chunk = self.buf.items[start..];
-
-            if (std.unicode.utf8ValidateSlice(chunk)) {
-                // Handle stop tokens.
-                // for (params.stop) |s| {
-                //     // Stop if the chunk contains the stop suffix.
-                //     if (std.mem.indexOf(u8, chunk, s) != null) {
-                //         break :outer;
-                //     }
-
-                //     // Current chunk might be a start of the stop suffix, so let's generate one more token.
-                //     if (std.mem.startsWith(u8, s, chunk)) {
-                //         continue :outer;
-                //     }
-                // }
-
-                return chunk;
-            }
+        if (n < 0) {
+            return error.UnexpectedError;
         }
 
-        // Discard the invalid chunk.
-        self.buf.shrinkRetainingCapacity(start);
-        return null;
+        const start = self.buf.items.len;
+        try self.buf.appendSlice(buf[0..@intCast(n)]);
+        return self.buf.items[start..];
     }
 
     /// Generates a token using the given sampler and appends it to the context.
-    pub fn generateToken(self: *Context, params: SamplingParams) !?Token {
+    fn generateToken(self: *Context) !?Token {
         if (self.tokens.items.len >= c.llama_n_ctx(self.ptr)) {
             // Truncate input if it's too long but keep some empty space for
             // new tokens.
@@ -415,80 +375,20 @@ pub const Context = struct {
 
         try self.eval();
 
-        const token = try self.sampleToken(params) orelse return null;
+        const token = try self.sampleToken() orelse return null;
         try self.tokens.append(token);
         return token;
     }
 
     /// Samples a token from the context.
-    pub fn sampleToken(self: *Context, params: SamplingParams) !?Token {
-        const logits = c.llama_get_logits(self.ptr);
+    pub fn sampleToken(self: *Context) !?Token {
+        const token = c.llama_sampler_sample(self.sampler, self.ptr, -1);
 
-        for (self.candidates.items, 0..) |*candidate, i| {
-            candidate.* = .{
-                .id = @intCast(i),
-                .logit = logits[i],
-                .p = 0,
-            };
-        }
-
-        var candidates: c.llama_token_data_array = .{
-            .data = self.candidates.items.ptr,
-            .size = self.candidates.items.len,
-            .sorted = false,
-        };
-
-        if (self.grammar != null) {
-            c.llama_sample_grammar(self.ptr, &candidates, self.grammar);
-        }
-
-        const last_n = @min(self.tokens.items.len, params.repeat_n_last);
-        c.llama_sample_repetition_penalties(
-            self.ptr,
-            &candidates,
-            &self.tokens.items[self.tokens.items.len - last_n],
-            @intCast(last_n),
-            params.repeat_penalty,
-            params.presence_penalty,
-            params.freq_penalty,
-        );
-
-        if (params.temperature >= 0) {
-            c.llama_sample_top_k(self.ptr, &candidates, @intCast(params.top_k), 1);
-            c.llama_sample_top_p(self.ptr, &candidates, params.top_p, 1);
-            c.llama_sample_temp(self.ptr, &candidates, params.temperature);
-        }
-
-        const res = if (params.temperature >= 0) c.llama_sample_token(self.ptr, &candidates) else c.llama_sample_token_greedy(self.ptr, &candidates);
-
-        if (self.grammar != null) {
-            c.llama_grammar_accept_token(self.grammar, self.ptr, res);
-        }
-
-        if (c.llama_token_is_eog(self.model.ptr, res)) {
+        if (c.llama_token_is_eog(self.model.ptr, token)) {
             return null;
         }
 
-        return res;
-    }
-
-    /// Appends a BPE piece to the buffer.
-    pub fn appendBPE(buf: *std.ArrayList(u8), piece: []const u8) !void {
-        try buf.ensureUnusedCapacity(piece.len);
-        var iter = (try std.unicode.Utf8View.init(piece)).iterator();
-
-        while (iter.nextCodepoint()) |cp| {
-            try buf.append(@intCast(switch (cp) {
-                '!'...'~', '¡'...'¬', '®'...'ÿ' => cp,
-                'Ā'...'Ġ' => cp - 256,
-                'ġ'...'ł' => cp - 162,
-                'Ń' => 173,
-                else => {
-                    log.debug("Invalid BPE? {s} cp: {}", .{ piece, cp });
-                    continue;
-                },
-            }));
-        }
+        return token;
     }
 };
 
