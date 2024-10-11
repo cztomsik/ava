@@ -10,10 +10,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [
-            # { headless: false, os: "windows-latest" },
+        target:
+          [
+            { headless: false, os: "windows-latest" },
             { headless: false, os: "ubuntu-latest" },
-            # { headless: false, os: "macos-14" },
+            { headless: false, os: "macos-14" },
             { headless: true, os: "windows-latest" },
             { headless: true, os: "ubuntu-latest" },
             { headless: true, os: "macos-14" },

@@ -32,8 +32,8 @@
             .hash = "1220e5e7634ef15051808a64e5a2c98207b27a0975f1e72ae3de65a308a521b5cf1d",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#f563a8ce610a897089ac116694ce69b3dc0c86f4",
-            .hash = "122035cc700894b43cc5caa37b4b01492c904a10b4456189da701388b47d71ec7d4d",
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#61ea6dd3d6cf5ba58303348d896cd9b02f690c0f",
+            .hash = "12204f25ee8f4c13b143cce56a3fb34868b8bd88b50a9337b622051173a1d0f0a5fe",
         },
     },
     .paths = .{
