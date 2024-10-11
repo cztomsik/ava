@@ -34,7 +34,7 @@ export const DownloadManager = () => {
 }
 
 const DownloadProgress = ({ url, size, progress }) => {
-  const percent = size && (progress.value / size) * 100
+  const percent = size.value && (progress.value / size.value) * 100
 
   return (
     <div class="w-[30rem] p-4 rounded-md bg(sky-2) border(1 sky-8) text-sky(12)">
@@ -51,7 +51,7 @@ const DownloadProgress = ({ url, size, progress }) => {
 
       <div class="mt-4 flex justify-between">
         <span>
-          {fmtSize(progress.value)} / {fmtSize(size)}
+          {fmtSize(progress.value)} / {fmtSize(size.value)}
         </span>
         <Button onClick={() => cancel(current.value)}>Cancel</Button>
       </div>

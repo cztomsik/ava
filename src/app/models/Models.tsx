@@ -31,7 +31,7 @@ export const Models = () => {
           <tbody>
             {!models.length && (
               <tr>
-                <td colSpan={3}>No models installed. You can download models in the Search tab.</td>
+                <td colSpan={4}>No models installed. You can download models in the Search tab.</td>
               </tr>
             )}
 

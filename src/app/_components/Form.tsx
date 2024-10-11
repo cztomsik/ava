@@ -65,7 +65,7 @@ export const Field = ({ name, as: Comp = "input" as any, defaultValue = undefine
   const form = useContext(FormContext)
   let { value, onChange } = form.field(name)
 
-  if (Comp === "input" || Comp === "textarea") {
+  if (Comp === "input" || Comp === "textarea" || Comp === "select") {
     if (props.type == "number") {
       props.onInput = e => onChange(e.target.valueAsNumber)
     } else if (props.type == "checkbox") {

@@ -1,4 +1,5 @@
 const builtin = @import("builtin");
+const options = @import("options");
 const std = @import("std");
 const tk = @import("tokamak");
 const llama = @import("llama.zig");
@@ -9,12 +10,9 @@ pub const std_options = .{
     .logFn = log,
 };
 
-var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-var mutex = std.Thread.Mutex{};
-
 pub var app: ?*App = null;
 
-fn log(comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
+fn log(comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
     if (app) |inst| {
         return inst.log(level, scope, fmt, args);
     }
@@ -22,31 +20,65 @@ fn log(comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), compt
     std.log.defaultLog(level, scope, fmt, args);
 }
 
-pub fn start() !void {
-    if (app != null) {
-        return error.ServerAlreadyStarted;
-    }
+pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
 
     app = try App.init(gpa.allocator());
+    defer app.?.deinit();
+
+    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{app.?.server});
+    defer thread.join();
+
+    if (comptime options.headless) {
+        const banner =
+            \\
+            \\  /\ \  / /\             Server running
+            \\ /--\ \/ /--\            http://127.0.0.1:{}
+            \\ _____________________________________________
+            \\
+            \\
+        ;
+
+        std.debug.print(banner, .{
+            app.?.config.value.server.port,
+        });
+    } else {
+        const c = @cImport({
+            @cInclude("stddef.h");
+            @cInclude("webview.h");
+        });
+
+        const w = c.webview_create(if (builtin.mode == .Debug) 1 else 0, null);
+        defer _ = c.webview_destroy(w);
+
+        _ = c.webview_set_title(w, "Ava PLS");
+        _ = c.webview_set_size(w, 1200, 800, c.WEBVIEW_HINT_NONE);
+
+        if (comptime builtin.os.tag == .macos) {
+            // TODO: fix window dragging first
+            // _ = objc.send1(void, c.webview_get_window(w), "setStyleMask:", @as(c_int, 1 | 2 | 4 | 8 | (1 << 15)));
+            // _ = objc.send1(void, c.webview_get_window(w), "setTitleVisibility:", @as(c_int, 1));
+            // _ = objc.send1(void, c.webview_get_window(w), "setTitlebarAppearsTransparent:", @as(c_char, 1));
+        }
+
+        // TODO: wait
+        _ = c.webview_navigate(w, "http://127.0.0.1:3002");
+        _ = c.webview_run(w);
+
+        app.?.server.stop();
+    }
 }
 
-pub export fn ava_start() c_int {
-    start() catch |e| {
-        std.log.err("Unexpected error: {}", .{e});
-        return 1;
-    };
+const objc = struct {
+    const o = @cImport({
+        @cInclude("objc/runtime.h");
+        @cInclude("objc/message.h");
+    });
 
-    return 0;
-}
-
-pub export fn ava_get_port() c_int {
-    return if (app == null) -1 else app.?.server.net.listen_address.getPort();
-}
-
-pub export fn ava_stop() c_int {
-    if (app == null) return 1;
-
-    app.?.deinit();
-    app = null;
-    return 0;
-}
+    fn send1(comptime R: type, target: anytype, sel: [*:0]const u8, arg: anytype) void {
+        const s = o.sel_registerName(sel);
+        const f: *const fn (@TypeOf(target), @TypeOf(s), @TypeOf(arg)) callconv(.C) R = @ptrCast(&o.objc_msgSend);
+        return f(target, s, arg);
+    }
+};

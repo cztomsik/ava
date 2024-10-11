@@ -5,7 +5,7 @@ import { api } from "../api"
 type DownloadJob = {
   path: string
   url: string
-  size: number
+  size: Signal<number>
   progress: Signal<number>
   ctrl: AbortController
 }
@@ -14,7 +14,7 @@ export const queue = signal<DownloadJob[]>([])
 export const current = computed(() => queue.value[0] ?? null)
 
 export const downloadModel = ({ path, url }) =>
-  (queue.value = [...queue.value, { path, url, size: 0, progress: signal(0), ctrl: new AbortController() }])
+  (queue.value = [...queue.value, { path, url, size: signal(0), progress: signal(0), ctrl: new AbortController() }])
 
 export const cancel = (job: DownloadJob) => {
   job.ctrl.abort()
@@ -26,20 +26,20 @@ effect(async () => {
 
   if (next) {
     try {
-      const { path, url, ctrl, progress } = next
+      const { path, url, ctrl, size, progress } = next
       const res = await fetch("/api/download", {
         method: "POST",
         body: JSON.stringify({ path, url }),
         signal: ctrl.signal,
       })
 
-      for await (const d of jsonLines(res.body!.getReader())) {
+      for await (const d of jsonLines(res.body!.getReader(), true)) {
         if ("error" in d) {
           throw new Error(`Unexpected error: ${d.error}`)
         }
 
         if ("size" in d) {
-          next.size = d.size
+          size.value = d.size
         }
 
         if ("progress" in d) {

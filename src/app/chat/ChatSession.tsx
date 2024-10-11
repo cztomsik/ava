@@ -45,10 +45,7 @@ export const ChatSession = ({ id }) => {
         messages: history,
         start_with,
         trim_first: !!start_with.match(/(^|\s)$/),
-        sampling: {
-          ...chat.sampling,
-          stop: [`USER:`, `ASSISTANT:`],
-        },
+        sampling: chat.sampling,
       }),
     })
 

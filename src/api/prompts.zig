@@ -3,7 +3,7 @@ const fr = @import("fridge");
 const schema = @import("../schema.zig");
 
 pub fn @"GET /prompts"(db: *fr.Session) ![]const schema.Prompt {
-    return db.findAll(fr.query(schema.Prompt).orderBy(.id, .asc));
+    return db.query(schema.Prompt).orderBy(.id, .asc).findAll();
 }
 
 pub fn @"POST /prompts"(db: *fr.Session, data: schema.Prompt) !schema.Prompt {

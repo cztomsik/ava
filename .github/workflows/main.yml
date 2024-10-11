@@ -6,63 +6,45 @@ on:
       - gh-pages
 
 jobs:
-  build_gui:
+  build:
     strategy:
+      fail-fast: false
       matrix:
-        # windows currently does not work because WebView2Loader archive is not really a .tar so the command is failing.
-        os: [macos] #, windows]
-        # only x86_64 builds now (it might be because github worker is on MacOSX13.1.sdk?
-        # ld: unknown/unsupported architecture name for: -arch aarch64
-        arch: ["x86_64"] #, "aarch64"]
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu' || matrix.os }}-latest
+        target:
+          [
+            { headless: false, os: "windows-latest" },
+            { headless: false, os: "ubuntu-latest" },
+            { headless: false, os: "macos-14" },
+            { headless: true, os: "windows-latest" },
+            { headless: true, os: "ubuntu-latest" },
+            { headless: true, os: "macos-14" },
+          ]
+    runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 21.7.3
 
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v1
         with:
-          version: 0.12.0
+          version: master
+
+      - if: runner.os == 'macOS'
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev
 
       - run: npm ci && npm run build
 
-      - run: zig build -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
+      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ava_${{ matrix.os }}_${{ matrix.arch }}
-          path: zig-out/bin/*
-
-  build_headless:
-    strategy:
-      matrix:
-        os: [linux, windows] # , macos]
-        arch: ["x86_64", "aarch64"]
-    runs-on: ${{ matrix.os == 'linux' && 'ubuntu-latest' || matrix.os == 'macos' && 'macos-14' || 'windows-latest' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 21.7.3
-
-      - uses: goto-bus-stop/setup-zig@v2
-        with:
-          version: 0.12.0
-
-      - run: npm ci && npm run build
-
-      - run: zig build -Dheadless=true -Dtarget=${{matrix.arch}}-${{matrix.os}} -Doptimize=ReleaseFast
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ava_headless_${{ matrix.os }}_${{ matrix.arch }}
+          name: ava-${{ matrix.target.headless && 'headless-' || '' }}${{ matrix.target.os }}
           path: zig-out/bin/*

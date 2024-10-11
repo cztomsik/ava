@@ -2,7 +2,7 @@
 
 # Variables
 APP_NAME="Ava"
-ZIG_OUT="$(dirname "$0")/../../zig-out"
+ZIG_OUT="$(dirname "$0")/../zig-out"
 APP_PATH="$ZIG_OUT/${APP_NAME}.app"
 DMG_TMP_PATH="$ZIG_OUT/${APP_NAME}_tmp.dmg"
 DMG_FINAL_PATH="$ZIG_OUT/${APP_NAME}_$(date +%Y-%m-%d).dmg"
@@ -11,10 +11,7 @@ DMG_FINAL_PATH="$ZIG_OUT/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 rm -rf "$ZIG_OUT"
 
 # Build JS, x86_64, aarch64, and universal binary
-npm run build \
-&& zig build -Doptimize=ReleaseSafe -Dtarget=x86_64-macos.12.6 \
-&& zig build -Doptimize=ReleaseSafe -Dtarget=aarch64-macos.12.6 \
-&& lipo -create "$ZIG_OUT/bin/ava_aarch64" "$ZIG_OUT/bin/ava_x86_64" -output "$ZIG_OUT/bin/ava"
+npm run build && zig build -Doptimize=ReleaseSafe
 
 if [ $? -ne 0 ]; then
     echo "Build failed"
@@ -23,14 +20,48 @@ fi
 
 mkdir -p "${APP_PATH}/Contents/MacOS" \
 && mkdir -p "${APP_PATH}/Contents/Resources" \
-&& cp ./src/macos/Info.plist "${APP_PATH}/Contents/" \
 && cp "$ZIG_OUT/bin/ava" "${APP_PATH}/Contents/MacOS/" \
-&& cp ./src/app/favicon.ico ./llama.cpp/ggml-metal.metal ./llama.cpp/ggml-common.h "${APP_PATH}/Contents/Resources/"
+&& cp ./src/app/favicon.ico ./llama.cpp/ggml/src/ggml-metal.metal ./llama.cpp/ggml/src/ggml-common.h "${APP_PATH}/Contents/Resources/"
 
 if [ $? -ne 0 ]; then
     echo "Copy failed"
     exit 1;
 fi
+
+cat << EOF > "${APP_PATH}/Contents/Info.plist"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>ava</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.avapls.Ava-PLS</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Ava PLS</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSupportedPlatforms</key>
+	<array>
+		<string>MacOSX</string>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+  <key>CFBundleIconFile</key>
+  <string>favicon.ico</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>
+EOF
 
 # Sign app
 # Note it still needs to be notarized

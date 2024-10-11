@@ -1,7 +1,6 @@
-const tk = @import("tokamak");
+const std = @import("std");
 const ava = @import("../app.zig");
 
-pub fn @"GET /log"(ctx: *tk.Context, app: *ava.App) !void {
-    try ctx.res.setHeader("Content-Type", "text/plain");
-    try ctx.res.send(try app.dumpLog(ctx.allocator));
+pub fn @"GET /log"(allocator: std.mem.Allocator, app: *ava.App) ![]const u8 {
+    return app.dumpLog(allocator);
 }

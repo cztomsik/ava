@@ -7,10 +7,9 @@ const llama = @import("llama.zig");
 /// Application configuration.
 pub const Config = struct {
     llama: llama.PoolOptions = .{},
-    server: struct {
-        port: u16 = 3002,
-        keep_alive: bool = false,
-    } = .{},
+    server: tk.ListenOptions = .{
+        .port = 3002,
+    },
     download: struct {
         path: []const u8 = "models",
     } = .{},
@@ -23,7 +22,8 @@ pub const App = struct {
     home_dir: std.fs.Dir,
     log_file: std.fs.File,
     config: std.json.Parsed(Config),
-    db: fr.Pool,
+    db_opts: fr.SQLite3.Options,
+    db_pool: fr.Pool,
     llama: llama.Pool,
     client: std.http.Client,
     server: *tk.Server,
@@ -50,7 +50,10 @@ pub const App = struct {
         errdefer self.config.deinit();
 
         try self.initDb();
-        errdefer self.db.deinit();
+        errdefer {
+            self.db_pool.deinit();
+            self.allocator.free(self.db_opts.filename);
+        }
 
         try self.initLlama();
         errdefer self.llama.deinit();
@@ -83,12 +86,13 @@ pub const App = struct {
         const home_path = try self.home_dir.realpathAlloc(self.allocator, ".");
         defer self.allocator.free(home_path);
 
+        // NOTE: db_opts needs to stay alive together with db_pool
         const path = try std.fs.path.joinZ(self.allocator, &.{ home_path, DB_FILE });
-        defer self.allocator.free(path);
+        errdefer self.allocator.free(path);
 
         try fr.migrate(self.allocator, path, @embedFile("db_schema.sql"));
-
-        self.db = try fr.Pool.init(self.allocator, path, .{ .count = 2 });
+        self.db_opts = .{ .filename = path };
+        self.db_pool = try fr.Pool.init(fr.SQLite3, self.allocator, 2, &self.db_opts);
     }
 
     fn initLlama(self: *App) !void {
@@ -101,16 +105,15 @@ pub const App = struct {
         if (builtin.target.os.tag == .windows) {
             try self.client.ca_bundle.rescan(self.allocator);
             const start = self.client.ca_bundle.bytes.items.len;
-            try self.client.ca_bundle.bytes.appendSlice(self.allocator, @embedFile("windows/amazon1.cer"));
+            try self.client.ca_bundle.bytes.appendSlice(self.allocator, @embedFile("amazon1.cer"));
             try self.client.ca_bundle.parseCert(self.allocator, @intCast(start), std.time.timestamp());
         }
     }
 
     fn initServer(self: *App) !void {
-        self.server = try tk.Server.start(self.allocator, handler, .{
-            .injector = try tk.Injector.from(.{ self, &self.db, &self.llama, &self.client }),
-            .port = self.config.value.server.port,
-            .keep_alive = self.config.value.server.keep_alive,
+        self.server = try tk.Server.init(self.allocator, routes, .{
+            .listen = self.config.value.server,
+            .injector = tk.Injector.init(self, null),
         });
     }
 
@@ -130,11 +133,11 @@ pub const App = struct {
         };
     }
 
-    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.EnumLiteral), comptime fmt: []const u8, args: anytype) void {
+    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
-        std.debug.getStderrMutex().lock();
-        defer std.debug.getStderrMutex().unlock();
+        std.debug.lockStdErr();
+        defer std.debug.unlockStdErr();
 
         const t = @mod(@as(u64, @intCast(std.time.timestamp())), 86_400);
         const s = @mod(t, 60);
@@ -178,7 +181,7 @@ pub const App = struct {
         var reader = std.json.reader(allocator, file.reader());
         defer reader.deinit();
 
-        return try std.json.parseFromTokenSource(Config, allocator, &reader, .{});
+        return try std.json.parseFromTokenSource(Config, allocator, &reader, .{ .ignore_unknown_fields = true });
     }
 
     pub fn writeConfig(self: *const App, config: Config) !void {
@@ -196,7 +199,8 @@ pub const App = struct {
         self.server.deinit();
         self.client.deinit();
         self.llama.deinit();
-        self.db.deinit();
+        self.db_pool.deinit();
+        self.allocator.free(self.db_opts.filename);
         self.config.deinit();
         self.log_file.close();
         self.home_dir.close();
@@ -204,24 +208,29 @@ pub const App = struct {
     }
 };
 
-const handler = tk.chain(.{
-    tk.logger(.{}),
-    tk.provide(fr.Session.fromPool),
-
-    // Handle API requests
-    tk.group("/api", tk.chain(.{
-        tk.router(@import("api.zig")),
-        tk.send(error.NotFound),
-    })),
-
-    // Serve static files
-    tk.get("/LICENSE.md", tk.sendStatic("LICENSE.md")),
-    tk.get("/favicon.ico", tk.sendStatic("src/app/favicon.ico")),
-    tk.get("/app.js", tk.sendStatic("zig-out/app/main.js")),
-
-    // Disable source maps in production
-    tk.get("*.map", tk.send(@as([]const u8, "{}"))),
-
-    // HTML5 fallback
-    tk.sendStatic("src/app/index.html"),
+const api: tk.Route = .group("/api", &.{
+    .router(@import("api.zig")),
+    .send(error.NotFound),
 });
+
+const routes = &.{
+    tk.logger(.{}, &.{
+        tk.provide(fr.Pool.getSession, &.{
+            // Handle API requests
+            api,
+            .get("/openapi.json", tk.swagger.json(.{
+                .info = .{ .title = "Ava API" },
+                .routes = &.{api},
+            })),
+            .get("/swagger-ui", tk.swagger.ui(.{ .url = "/openapi.json" })),
+            // Serve static files
+            .get("/LICENSE.md", tk.static.file("LICENSE.md")),
+            .get("/favicon.ico", tk.static.file("src/app/favicon.ico")),
+            .get("/app.js", tk.static.file("zig-out/app/main.js")),
+            // Disable source maps in production
+            .get("/*.map", tk.send(@as([]const u8, "{}"))),
+            // HTML5 fallback
+            tk.static.file("src/app/index.html"),
+        }),
+    }),
+};
