@@ -4,16 +4,11 @@ nav_order: 1
 permalink: /
 ---
 
-# Ava PLS
+# Ava
 
-Air-gapped Virtual Assistant / Personal Language Server
-
-[Download now](#download){: .btn .btn-primary .fs-5 }
-
-Ava PLS is an open-source desktop application for running language models
-locally on your computer. It allows you to perform various language tasks, like
-text generation, grammar correction, rephrasing, summarization, data extraction,
-and more.
+Ava is an open-source desktop application for running language models locally on
+your computer. It's batteries-included GUI for
+[llama.cpp](https://github.com/ggerganov/llama.cpp)
 
 ---
 
@@ -27,22 +22,16 @@ and more.
 
 ---
 
-## Download
+## Download / Build
 
-- [macOS](https://s3.amazonaws.com/www.avapls.com/Ava_2024-04-21.dmg)
-  - or `brew install --cask ava`
-- [Windows](https://s3.amazonaws.com/www.avapls.com/ava_x86_64_2024-04-21.zip)
-- [Linux](https://github.com/cztomsik/ava/actions/runs/8774096132#artifacts)
+- [Download latest artifacts from Github Actions](https://github.com/cztomsik/ava/actions/runs/11298440735)
+- or build it yourself with `zig build run` or `zig build run -Dheadless=true`.
 
 ## Tech stack
 
-- Zig, C++ (**llama.cpp**), Swift UI, SQLite
+- Zig, C++ (**llama.cpp**), SQLite
 - Preact, Preact Signals, Twind
 
 ## License
 
 MIT
-
-## Contributing
-
-Bug reports and pull requests are welcome but if you want to do a bigger change, please open an issue first to discuss it.
