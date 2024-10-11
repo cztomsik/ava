@@ -36,12 +36,15 @@ jobs:
       - if: runner.os == 'macOS'
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
+      - if: runner.os == 'windows' # TODO: hopefully, build.zig.zon will once support using nuget directly
+        run: nuget install Microsoft.Web.WebView2 -Version 1.0.2792.45
+
       - if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev
 
       - run: npm ci && npm run build
 
-      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }}
+      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }} ${{ runner.os == 'windows' && '--search-prefix .\Microsoft.Web.WebView2.1.0.2792.45\build\native' || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
