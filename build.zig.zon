@@ -14,8 +14,8 @@
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/cztomsik/llama.cpp-dylib/releases/download/b3908/llama-dylib-win-avx2-x64.zip",
-            .hash = "1220667b7cc07001d702da7b9c4780a099c2fd5895b9d11311679884ecfa4558a150",
+            .url = "https://github.com/cztomsik/llama.cpp-dylib/releases/download/b3908/llama-dylib-win-x64.zip",
+            .hash = "12207028e2c931d7c3c78b90a0159f9e6f54cad9080333c5e2494a88806f46d8f85c",
         },
         .llama_cpp_linux = .{
             .optional = true,

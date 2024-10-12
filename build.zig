@@ -57,6 +57,11 @@ fn addWebview(b: *std.Build, exe: anytype) !void {
             exe.linkSystemLibrary("gtk+-3.0");
             exe.linkSystemLibrary("webkit2gtk-4.1");
         },
+        .windows => {
+            exe.linkSystemLibrary("ole32");
+            exe.linkSystemLibrary("version");
+            exe.linkSystemLibrary("shlwapi");
+        },
         else => {},
     }
 }
