@@ -5,8 +5,6 @@ import { QuickTools } from "./quick-tools/QuickTools"
 import { CreateTool } from "./quick-tools/CreateTool"
 import { QuickTool } from "./quick-tools/QuickTool"
 import { EditTool } from "./quick-tools/EditTool"
-import { Workflows } from "./workflow/Workflows"
-import { Workflow } from "./workflow/Workflow"
 import { SearchModels } from "./models/SearchModels"
 import { DownloadManager } from "./models/DownloadManager"
 import { Models } from "./models/Models"
@@ -23,8 +21,6 @@ const routes = [
   { path: "/quick-tools/new", component: CreateTool },
   { path: "/quick-tools/:id", component: QuickTool },
   { path: "/quick-tools/:id/edit", component: EditTool },
-  NEXT && { path: "/workflows", component: Workflows },
-  NEXT && { path: "/workflows/:id", component: Workflow },
   { path: "/playground", component: Playground },
   { path: "/models", component: SearchModels },
   { path: "/models/downloads", component: DownloadManager },

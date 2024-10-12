@@ -35,10 +35,6 @@ const Sidebar = () => (
     </SidebarLink>
     <SidebarLink href="/settings">Settings</SidebarLink>
 
-    <SidebarHeader title="Get in touch" class="mt-6" />
-    <SidebarLink href="https://twitter.com/cztomsik">Twitter</SidebarLink>
-    <SidebarLink href="https://discord.com/invite/C47qUJPkkf">Discord</SidebarLink>
-
     <SidebarHeader title="Model" class="mt-auto" />
     <ModelSelect />
   </Resizable>
