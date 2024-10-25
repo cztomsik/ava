@@ -41,14 +41,16 @@ pub fn @"PUT /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_i
     return try db.query(schema.ChatMessage)
         .where(.chat_id, id)
         .where(.id, message_id)
-        .update(data);
+        .update(data)
+        .exec();
 }
 
 pub fn @"DELETE /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !void {
     return try db.query(schema.ChatMessage)
         .where(.chat_id, id)
         .where(.id, message_id)
-        .delete();
+        .delete()
+        .exec();
 }
 
 pub fn @"DELETE /chat/:id"(db: *fr.Session, id: u32) !void {
