@@ -14,7 +14,7 @@ export const SamplingOptions = ({ value, onChange }) => {
         <Field as={Range} name="repeat_penalty" label="Repeat penalty" min={0} max={2} step={0.01} />
 
         <Field as={Range} name="presence_penalty" label="Presence penalty" min={0} max={2} step={0.01} />
-        <Field as={Range} name="freq_penalty" label="Frequency penalty" min={0} max={2} step={0.01} />
+        <Field as={Range} name="frequency_penalty" label="Frequency penalty" min={0} max={2} step={0.01} />
 
         <Field as={Checkbox} name="add_bos" label="Add BOS token" />
         <Field as={Checkbox} name="json" label="Sample JSON" />
