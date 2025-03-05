@@ -19,7 +19,7 @@ pub const Template = struct {
                 .section_open => |section| try stack.append(.{ tokens.items.len, section.name }),
 
                 .section_close => |name| {
-                    const index, const open = stack.popOrNull() orelse return error.MissingSectionOpen;
+                    const index, const open = stack.pop() orelse return error.MissingSectionOpen;
 
                     if (!std.mem.eql(u8, open, name)) {
                         return error.MismatchedSection;

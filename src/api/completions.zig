@@ -199,8 +199,9 @@ fn applyTemplate(allocator: std.mem.Allocator, model: *llama.Model, messages: []
         chat[i].content = try allocator.dupeZ(u8, msg.content);
     }
 
-    const len = llama.c.llama_chat_apply_template(model.ptr, null, chat.ptr, chat.len, true, null, 0);
+    const tpl = llama.c.llama_model_chat_template(model.ptr, null);
+    const len = llama.c.llama_chat_apply_template(tpl, chat.ptr, chat.len, true, null, 0);
     const res = try allocator.allocSentinel(u8, @intCast(len), 0);
-    _ = llama.c.llama_chat_apply_template(model.ptr, null, chat.ptr, @intCast(chat.len), true, res.ptr, @intCast(res.len + 1));
+    _ = llama.c.llama_chat_apply_template(tpl, chat.ptr, @intCast(chat.len), true, res.ptr, @intCast(res.len + 1));
     return res;
 }

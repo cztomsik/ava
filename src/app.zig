@@ -26,7 +26,7 @@ pub const App = struct {
     db_pool: fr.Pool,
     llama: llama.Pool,
     client: std.http.Client,
-    server: *tk.Server,
+    server: tk.Server,
 
     const HOME_ENV = "AVA_HOME";
     const HOME_DEF = "AvaPLS";
@@ -215,7 +215,7 @@ const api: tk.Route = .group("/api", &.{
 
 const routes = &.{
     tk.logger(.{}, &.{
-        tk.provide(fr.Pool.getSession, &.{
+        .provide(fr.Pool.getSession, &.{
             // Handle API requests
             api,
             .get("/openapi.json", tk.swagger.json(.{

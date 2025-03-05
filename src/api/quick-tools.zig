@@ -46,7 +46,7 @@ pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: 
 
     std.log.debug("Generating with prompt: {s}", .{prompt});
 
-    return ctx.send(ctx.injector.call(completions.@"POST /chat/completions", .{.{
+    return ctx.send(ctx.injector.call(completions.@"POST /chat/completions", .{completions.Params{
         .model = params.model,
         .prompt = prompt,
         .max_tokens = params.max_tokens,

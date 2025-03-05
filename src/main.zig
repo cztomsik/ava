@@ -5,7 +5,7 @@ const tk = @import("tokamak");
 const llama = @import("llama.zig");
 const App = @import("app.zig").App;
 
-pub const std_options = .{
+pub const std_options: std.Options = .{
     .log_level = .debug,
     .logFn = log,
 };
@@ -27,7 +27,7 @@ pub fn main() !void {
     app = try App.init(gpa.allocator());
     defer app.?.deinit();
 
-    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{app.?.server});
+    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{&app.?.server});
     defer thread.join();
 
     if (comptime options.headless) {

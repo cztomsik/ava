@@ -195,12 +195,12 @@ pub const Model = struct {
         slice.len = tokens.capacity - tokens.items.len;
 
         const n_tokens = c.llama_tokenize(
-            self.ptr,
+            c.llama_model_get_vocab(self.ptr),
             input.ptr,
             @intCast(input.len),
             slice.ptr,
             @intCast(slice.len),
-            c.llama_add_bos_token(self.ptr),
+            c.llama_add_bos_token(c.llama_model_get_vocab(self.ptr)),
             special,
         );
 
@@ -249,7 +249,7 @@ pub const Context = struct {
         var candidates = std.ArrayList(c.llama_token_data).init(allocator);
         errdefer candidates.deinit();
 
-        try candidates.resize(@intCast(c.llama_n_vocab(model.ptr)));
+        try candidates.resize(@intCast(c.llama_vocab_n_tokens(c.llama_model_get_vocab(model.ptr))));
 
         return .{
             .model = model,
@@ -325,14 +325,7 @@ pub const Context = struct {
         );
 
         if (n_eval > 0) {
-            const toks = self.tokens.items[self.n_past..];
-
-            if (c.llama_decode(self.ptr, c.llama_batch_get_one(
-                toks.ptr,
-                @intCast(n_eval),
-                @intCast(self.n_past),
-                0,
-            )) != 0) {
+            if (c.llama_decode(self.ptr, c.llama_batch_get_one(&self.tokens.items[self.n_past], @intCast(n_eval))) != 0) {
                 return error.FailedToEval;
             }
 
@@ -347,7 +340,7 @@ pub const Context = struct {
         const token = try self.generateToken() orelse return null;
 
         var buf: [128]u8 = undefined;
-        const n = c.llama_token_to_piece(self.model.ptr, token, &buf, @intCast(buf.len), 0, true);
+        const n = c.llama_token_to_piece(c.llama_model_get_vocab(self.model.ptr), token, &buf, @intCast(buf.len), 0, true);
 
         if (n < 0) {
             return error.UnexpectedError;
@@ -384,7 +377,7 @@ pub const Context = struct {
     pub fn sampleToken(self: *Context) !?Token {
         const token = c.llama_sampler_sample(self.sampler, self.ptr, -1);
 
-        if (c.llama_token_is_eog(self.model.ptr, token)) {
+        if (c.llama_token_is_eog(c.llama_model_get_vocab(self.model.ptr), token)) {
             return null;
         }
 
