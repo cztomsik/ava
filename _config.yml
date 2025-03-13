@@ -5,7 +5,6 @@ repository: cztomsik/ava
 
 exclude:
   - node_modules
-  - llama.cpp
   - src
   - include
 
