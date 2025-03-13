@@ -81,7 +81,10 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     llama_cpp.addIncludePath(dep.path("ggml/include"));
 
     const bin = b.dependency(b.fmt("llama_cpp_{s}", .{@tagName(target.result.os.tag)}), .{});
-    exe.addLibraryPath(bin.path("."));
+    exe.addLibraryPath(bin.path(switch (target.result.os.tag) {
+        .windows => ".",
+        else => "bin",
+    }));
     exe.linkSystemLibrary("llama");
 
     exe.root_module.addImport("llama_cpp", llama_cpp.createModule());
