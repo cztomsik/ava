@@ -14,7 +14,7 @@ const SystemInfo = struct {
     user_downloads: []const u8,
 };
 
-pub fn @"GET /system-info"(allocator: std.mem.Allocator, app: *ava.App) !SystemInfo {
+pub fn @"GET /system-info"(allocator: std.mem.Allocator, home: *ava.Home) !SystemInfo {
     const user_home = try std.process.getEnvVarOwned(allocator, if (builtin.target.os.tag == .windows) "USERPROFILE" else "HOME");
     const user_downloads = try std.fs.path.join(allocator, &.{ user_home, "Downloads" });
 
@@ -24,7 +24,7 @@ pub fn @"GET /system-info"(allocator: std.mem.Allocator, app: *ava.App) !SystemI
         .arch = @tagName(builtin.cpu.arch),
         .cpu_count = std.Thread.getCpuCount() catch 0,
         .total_system_memory = std.process.totalSystemMemory() catch 0,
-        .app_home = try app.home_dir.realpathAlloc(allocator, "."),
+        .app_home = try home.dir.realpathAlloc(allocator, "."),
         .user_home = user_home,
         .user_downloads = user_downloads,
     };
