@@ -16,7 +16,6 @@ pub const Config = struct {
 };
 
 pub const Home = struct {
-    allocator: std.mem.Allocator,
     dir: std.fs.Dir,
     path: []const u8,
 
@@ -28,15 +27,14 @@ pub const Home = struct {
         errdefer allocator.free(path);
 
         return .{
-            .allocator = allocator,
             .path = path,
             .dir = try std.fs.cwd().makeOpenPath(path, .{}),
         };
     }
 
-    pub fn deinit(self: *Home) void {
+    pub fn deinit(self: *Home, allocator: std.mem.Allocator) void {
         self.dir.close();
-        self.allocator.free(self.path);
+        allocator.free(self.path);
     }
 
     pub fn openFile(self: Home, path: []const u8, flags: enum { r, w }) !std.fs.File {
@@ -116,11 +114,8 @@ pub const App = struct {
     const DB_FILE = "db";
 
     pub fn initDb(home: *Home, allocator: std.mem.Allocator, db_opts: *fr.SQLite3.Options) !fr.Pool {
-        const home_path = try home.dir.realpathAlloc(allocator, ".");
-        defer allocator.free(home_path);
-
         // TODO: db_opts needs to stay alive together with db_pool
-        const path = try std.fs.path.joinZ(allocator, &.{ home_path, DB_FILE });
+        const path = try std.fs.path.joinZ(allocator, &.{ home.path, DB_FILE });
         errdefer allocator.free(path);
 
         try fr.migrate(allocator, path, @embedFile("db_schema.sql"));
@@ -141,7 +136,7 @@ pub const App = struct {
 
         try writeConfig(&self.home, config);
 
-        const new = try readConfig(&self.home, self.home.allocator);
+        const new = try readConfig(&self.home, self.config.arena.child_allocator);
         errdefer new.deinit();
 
         self.llama.reset(new.value.llama);

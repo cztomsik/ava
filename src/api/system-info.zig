@@ -24,7 +24,7 @@ pub fn @"GET /system-info"(allocator: std.mem.Allocator, home: *ava.Home) !Syste
         .arch = @tagName(builtin.cpu.arch),
         .cpu_count = std.Thread.getCpuCount() catch 0,
         .total_system_memory = std.process.totalSystemMemory() catch 0,
-        .app_home = try home.dir.realpathAlloc(allocator, "."),
+        .app_home = home.path,
         .user_home = user_home,
         .user_downloads = user_downloads,
     };

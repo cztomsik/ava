@@ -13,14 +13,13 @@ pub fn @"POST /download"(home: *ava.Home, cfg: @FieldType(ava.Config, "download"
     }
 
     // TODO: redesign everything fs-related
-    const home_dir = try home.dir.realpathAlloc(ctx.allocator, ".");
     const path = try std.fs.path.join(ctx.allocator, &.{ cfg.path, params.path });
 
     return .{
         .impl = .{
             .client = client,
             .url = params.url,
-            .path = try std.fs.path.resolve(ctx.allocator, &.{ home_dir, path }),
+            .path = try std.fs.path.resolve(ctx.allocator, &.{ home.path, path }),
             .file = try home.openFile(path, .w),
         },
     };
