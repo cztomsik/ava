@@ -26,15 +26,13 @@
         .webview = .{
             .optional = true,
             .url = "https://github.com/webview/webview/archive/67d1161.tar.gz",
-            .hash = "1220a2228027f51755abaf52a3917523349c9669e8be20f03c7d8b1c2c6bfa60c07c",
+            .hash = "N-V-__8AAB1GBQCiIoAn9RdVq69So5F1IzSclmnoviDwPH2L",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=main#c9491b312eabbd5683bc236950fd2455c7b07752",
-            .hash = "tokamak-2.0.0-FbnSeSbfAQAIiCUmj1RRpAio0RAHWvRoMFozHcnbeeMb",
+            .path = "../tokamak",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#a7eb9f1bc827e127e9e69f878622b40adff93bbb",
-            .hash = "fridge-0.9.5-AAAAADYtAQCeLNMTUAq6PLObjLITAr47_pJXZhAinrND",
+            .path = "../fridge",
         },
     },
     .paths = .{

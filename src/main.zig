@@ -3,31 +3,31 @@ const options = @import("options");
 const std = @import("std");
 const tk = @import("tokamak");
 const llama = @import("llama.zig");
-const App = @import("app.zig").App;
+const ava = @import("app.zig");
 
 pub const std_options: std.Options = .{
     .log_level = .debug,
     .logFn = log,
 };
 
-pub var app: ?*App = null;
-
 fn log(comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
-    if (app) |inst| {
-        return inst.log(level, scope, fmt, args);
+    if (ava.Logger.inst) |inst| {
+        inst.log(level, scope, fmt, args);
+    } else {
+        std.log.defaultLog(level, scope, fmt, args);
     }
-
-    std.log.defaultLog(level, scope, fmt, args);
 }
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    app = try App.init(gpa.allocator());
-    defer app.?.deinit();
+    const ct = try tk.Container.init(gpa.allocator(), &.{ava.App});
+    defer ct.deinit();
 
-    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{&app.?.server});
+    const server = try ct.injector.get(*tk.Server);
+
+    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{server});
     defer thread.join();
 
     if (comptime options.headless) {
@@ -40,9 +40,7 @@ pub fn main() !void {
             \\
         ;
 
-        std.debug.print(banner, .{
-            app.?.config.value.server.port,
-        });
+        std.debug.print(banner, .{server.http.config.port.?});
     } else {
         const c = @cImport({
             @cInclude("stddef.h");
@@ -66,7 +64,7 @@ pub fn main() !void {
         _ = c.webview_navigate(w, "http://127.0.0.1:3002");
         _ = c.webview_run(w);
 
-        app.?.server.stop();
+        server.stop();
     }
 }
 
