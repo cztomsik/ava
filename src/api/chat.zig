@@ -20,7 +20,7 @@ pub fn @"PUT /chat/:id"(db: *fr.Session, id: u32, data: schema.Chat) !void {
 }
 
 pub fn @"GET /chat/:id/messages"(db: *fr.Session, id: u32) ![]const schema.ChatMessage {
-    return db.query(schema.ChatMessage).where(.chat_id, id).orderBy(.id, .asc).findAll();
+    return db.query(schema.ChatMessage).where("chat_id", id).orderBy(.id, .asc).findAll();
 }
 
 pub fn @"POST /chat/:id/messages"(db: *fr.Session, id: u32, data: schema.ChatMessage) !schema.ChatMessage {
@@ -33,22 +33,22 @@ pub fn @"POST /chat/:id/messages"(db: *fr.Session, id: u32, data: schema.ChatMes
 
 pub fn @"GET /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !schema.ChatMessage {
     return try db.query(schema.ChatMessage)
-        .where(.chat_id, id)
-        .findBy(.id, message_id) orelse error.NotFound;
+        .where("chat_id", id)
+        .findBy("id", message_id) orelse error.NotFound;
 }
 
 pub fn @"PUT /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32, data: schema.ChatMessage) !void {
     return try db.query(schema.ChatMessage)
-        .where(.chat_id, id)
-        .where(.id, message_id)
+        .where("chat_id", id)
+        .where("id", message_id)
         .update(data)
         .exec();
 }
 
 pub fn @"DELETE /chat/:id/messages/:message_id"(db: *fr.Session, id: u32, message_id: u32) !void {
     return try db.query(schema.ChatMessage)
-        .where(.chat_id, id)
-        .where(.id, message_id)
+        .where("chat_id", id)
+        .where("id", message_id)
         .delete()
         .exec();
 }

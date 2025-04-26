@@ -66,7 +66,7 @@ const Usage = struct {
 };
 
 pub fn @"POST /chat/completions"(db: *fr.Session, pool: *llama.Pool, params: Params) !CompletionOrStream {
-    const model = try db.query(schema.Model).findBy(.name, params.model) orelse return error.NotFound;
+    const model = try db.query(schema.Model).findBy("name", params.model) orelse return error.NotFound;
 
     var cx = try pool.get(model.path, 60_000);
     errdefer pool.release(cx);
