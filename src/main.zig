@@ -28,8 +28,11 @@ pub fn main() !void {
     const server = try ct.injector.get(*tk.Server);
     const port = server.http.config.port.?;
 
-    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{server});
-    defer thread.join();
+    const thread = try server.http.listenInNewThread();
+    defer {
+        server.stop();
+        thread.join();
+    }
 
     if (comptime options.headless) {
         const banner =
@@ -64,11 +67,8 @@ pub fn main() !void {
         const url = try std.fmt.allocPrintZ(gpa.allocator(), "http://127.0.0.1:{}", .{port});
         defer gpa.allocator().free(url);
 
-        // TODO: wait
         _ = c.webview_navigate(w, url);
         _ = c.webview_run(w);
-
-        server.stop();
     }
 }
 
