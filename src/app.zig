@@ -180,7 +180,7 @@ pub const App = struct {
         }
     }
 
-    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: tk.Injector) !void {
+    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: *tk.Injector) !void {
         target.* = try tk.Server.init(allocator, routes, .{
             .listen = cfg,
             .injector = injector,
