@@ -26,6 +26,7 @@ pub fn main() !void {
     defer ct.deinit();
 
     const server = try ct.injector.get(*tk.Server);
+    const port = server.http.config.port.?;
 
     const thread = try std.Thread.spawn(.{}, tk.Server.start, .{server});
     defer thread.join();
@@ -40,7 +41,7 @@ pub fn main() !void {
             \\
         ;
 
-        std.debug.print(banner, .{server.http.config.port.?});
+        std.debug.print(banner, .{port});
     } else {
         const c = @cImport({
             @cInclude("stddef.h");
@@ -60,8 +61,11 @@ pub fn main() !void {
             // _ = objc.send1(void, c.webview_get_window(w), "setTitlebarAppearsTransparent:", @as(c_char, 1));
         }
 
+        const url = try std.fmt.allocPrintZ(gpa.allocator(), "http://127.0.0.1:{}", .{port});
+        defer gpa.allocator().free(url);
+
         // TODO: wait
-        _ = c.webview_navigate(w, "http://127.0.0.1:3002");
+        _ = c.webview_navigate(w, url);
         _ = c.webview_run(w);
 
         server.stop();
