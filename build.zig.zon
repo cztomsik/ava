@@ -29,10 +29,12 @@
             .hash = "N-V-__8AAB1GBQCiIoAn9RdVq69So5F1IzSclmnoviDwPH2L",
         },
         .tokamak = .{
-            .path = "../tokamak",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=main#c364e4c45e24439040f1b3b465bf62622dcf2c0d",
+            .hash = "tokamak-2.0.0-FbnSefntAQAJ47JfvbRwYsaj8YXlZniXoiPYhzLxRsdW",
         },
         .fridge = .{
-            .path = "../fridge",
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#c1499d75400ee91061c19c51b0d9a03c87c62c8c",
+            .hash = "fridge-0.9.5-3GyIijxTAQBXUulnUR08MIbox7dI_tCPIVWY6VIFuoo7",
         },
     },
     .paths = .{
