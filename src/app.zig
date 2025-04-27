@@ -15,112 +15,32 @@ pub const Config = struct {
     } = .{},
 };
 
-/// Shared application state.
-pub const App = struct {
-    mutex: std.Thread.Mutex,
-    allocator: std.mem.Allocator,
-    home_dir: std.fs.Dir,
-    log_file: std.fs.File,
-    config: std.json.Parsed(Config),
-    db_opts: fr.SQLite3.Options,
-    db_pool: fr.Pool,
-    llama: llama.Pool,
-    client: std.http.Client,
-    server: tk.Server,
+pub const Home = struct {
+    dir: std.fs.Dir,
+    path: []const u8,
 
     const HOME_ENV = "AVA_HOME";
     const HOME_DEF = "AvaPLS";
-    const LOG_FILE = "log.txt";
-    const CONFIG_FILE = "config.json";
-    const DB_FILE = "db";
 
-    pub fn init(allocator: std.mem.Allocator) !*App {
-        const self = try allocator.create(App);
-        self.mutex = .{};
-        self.allocator = allocator;
-        errdefer allocator.destroy(self);
+    pub fn init(allocator: std.mem.Allocator) !Home {
+        const path = std.process.getEnvVarOwned(allocator, HOME_ENV) catch try std.fs.getAppDataDir(allocator, HOME_DEF);
+        errdefer allocator.free(path);
 
-        try self.initHome();
-        errdefer self.home_dir.close();
-
-        try self.initLog();
-        errdefer self.log_file.close();
-
-        try self.initConfig();
-        errdefer self.config.deinit();
-
-        try self.initDb();
-        errdefer {
-            self.db_pool.deinit();
-            self.allocator.free(self.db_opts.filename);
-        }
-
-        try self.initLlama();
-        errdefer self.llama.deinit();
-
-        try self.initClient();
-        errdefer self.client.deinit();
-
-        try self.initServer();
-        errdefer self.server.deinit();
-
-        return self;
+        return .{
+            .path = path,
+            .dir = try std.fs.cwd().makeOpenPath(path, .{}),
+        };
     }
 
-    fn initHome(self: *App) !void {
-        const path = std.process.getEnvVarOwned(self.allocator, HOME_ENV) catch try std.fs.getAppDataDir(self.allocator, HOME_DEF);
-        defer self.allocator.free(path);
-
-        self.home_dir = try std.fs.cwd().makeOpenPath(path, .{});
+    pub fn deinit(self: *Home, allocator: std.mem.Allocator) void {
+        self.dir.close();
+        allocator.free(self.path);
     }
 
-    fn initLog(self: *App) !void {
-        self.log_file = try self.openFile(LOG_FILE, .w);
-    }
-
-    fn initConfig(self: *App) !void {
-        self.config = try self.readConfig(self.allocator);
-    }
-
-    fn initDb(self: *App) !void {
-        const home_path = try self.home_dir.realpathAlloc(self.allocator, ".");
-        defer self.allocator.free(home_path);
-
-        // NOTE: db_opts needs to stay alive together with db_pool
-        const path = try std.fs.path.joinZ(self.allocator, &.{ home_path, DB_FILE });
-        errdefer self.allocator.free(path);
-
-        try fr.migrate(self.allocator, path, @embedFile("db_schema.sql"));
-        self.db_opts = .{ .filename = path };
-        self.db_pool = try fr.Pool.init(fr.SQLite3, self.allocator, 2, &self.db_opts);
-    }
-
-    fn initLlama(self: *App) !void {
-        self.llama = llama.Pool.init(self.allocator, self.config.value.llama);
-    }
-
-    fn initClient(self: *App) !void {
-        self.client = .{ .allocator = self.allocator };
-
-        if (builtin.target.os.tag == .windows) {
-            try self.client.ca_bundle.rescan(self.allocator);
-            const start = self.client.ca_bundle.bytes.items.len;
-            try self.client.ca_bundle.bytes.appendSlice(self.allocator, @embedFile("amazon1.cer"));
-            try self.client.ca_bundle.parseCert(self.allocator, @intCast(start), std.time.timestamp());
-        }
-    }
-
-    fn initServer(self: *App) !void {
-        self.server = try tk.Server.init(self.allocator, routes, .{
-            .listen = self.config.value.server,
-            .injector = tk.Injector.init(self, null),
-        });
-    }
-
-    pub fn openFile(self: *const App, path: []const u8, flags: enum { r, w }) !std.fs.File {
+    pub fn openFile(self: Home, path: []const u8, flags: enum { r, w }) !std.fs.File {
         if (flags == .w) {
             if (std.fs.path.dirname(path)) |d| {
-                self.home_dir.makePath(d) catch |e| switch (e) {
+                self.dir.makePath(d) catch |e| switch (e) {
                     error.PathAlreadyExists => {},
                     else => return e,
                 };
@@ -128,12 +48,34 @@ pub const App = struct {
         }
 
         return switch (flags) {
-            .r => self.home_dir.openFile(path, .{ .mode = .read_only }),
-            .w => self.home_dir.createFile(path, .{}),
+            .r => self.dir.openFile(path, .{ .mode = .read_only }),
+            .w => self.dir.createFile(path, .{}),
         };
     }
+};
 
-    pub fn log(self: *const App, comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
+pub const Logger = struct {
+    home: *Home,
+    file: std.fs.File,
+
+    const LOG_FILE = "log.txt";
+
+    pub var inst: ?*Logger = null;
+
+    pub fn init(target: *Logger, home: *Home) !void {
+        target.* = .{
+            .home = home,
+            .file = try home.openFile(LOG_FILE, .w),
+        };
+        inst = target;
+    }
+
+    pub fn deinit(self: *Logger) void {
+        inst = null;
+        self.file.close();
+    }
+
+    pub fn log(self: Logger, comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
         if (comptime builtin.mode == .Debug) std.log.defaultLog(level, scope, fmt, args);
 
         std.debug.lockStdErr();
@@ -144,15 +86,47 @@ pub const App = struct {
         const m = @divTrunc(@mod(t, 3_600), 60);
         const h = @divTrunc(t, 3_600);
 
-        const writer = self.log_file.writer();
+        const writer = self.file.writer();
         writer.print("{:0>2}:{:0>2}:{:0>2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ fmt ++ "\n", .{ h, m, s } ++ args) catch return;
     }
 
-    pub fn dumpLog(self: *const App, allocator: std.mem.Allocator) ![]const u8 {
-        var f = try self.openFile(LOG_FILE, .r);
+    pub fn dump(self: Logger, allocator: std.mem.Allocator) ![]const u8 {
+        var f = try self.home.openFile(LOG_FILE, .r);
         defer f.close();
 
         return f.readToEndAlloc(allocator, std.math.maxInt(usize));
+    }
+};
+
+/// Shared application state.
+pub const App = struct {
+    mutex: std.Thread.Mutex = .{},
+    home: Home,
+    logger: Logger,
+    config: std.json.Parsed(Config),
+    db_opts: fr.SQLite3.Options = .{ .filename = "" },
+    db_pool: fr.Pool,
+    llama: llama.Pool,
+    client: std.http.Client,
+    server: tk.Server,
+
+    const CONFIG_FILE = "config.json";
+    const DB_FILE = "db";
+
+    pub fn initDb(home: *Home, allocator: std.mem.Allocator, db_opts: *fr.SQLite3.Options) !fr.Pool {
+        // TODO: db_opts needs to stay alive together with db_pool
+        const path = try std.fs.path.joinZ(allocator, &.{ home.path, DB_FILE });
+        errdefer allocator.free(path);
+
+        try fr.migrate(allocator, path, @embedFile("db_schema.sql"));
+        db_opts.filename = path;
+        return try fr.Pool.init(fr.SQLite3, allocator, 2, db_opts);
+    }
+
+    pub fn initConfig(target: *std.json.Parsed(Config), ct: *tk.Container) !void {
+        target.* = try ct.injector.call(readConfig, .{});
+        try ct.register(&target.value);
+        inline for (std.meta.fields(Config)) |f| try ct.register(&@field(target.value, f.name));
     }
 
     pub fn updateConfig(self: *App, config: Config) !void {
@@ -160,9 +134,9 @@ pub const App = struct {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        try self.writeConfig(config);
+        try writeConfig(&self.home, config);
 
-        const new = try self.readConfig(self.allocator);
+        const new = try readConfig(&self.home, self.config.arena.child_allocator);
         errdefer new.deinit();
 
         self.llama.reset(new.value.llama);
@@ -171,8 +145,8 @@ pub const App = struct {
         self.config = new;
     }
 
-    pub fn readConfig(self: *const App, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
-        const file = self.openFile(CONFIG_FILE, .r) catch |e| switch (e) {
+    pub fn readConfig(home: *Home, allocator: std.mem.Allocator) !std.json.Parsed(Config) {
+        const file = home.openFile(CONFIG_FILE, .r) catch |e| switch (e) {
             error.FileNotFound => return std.json.parseFromSlice(Config, allocator, "{}", .{}),
             else => return e,
         };
@@ -184,8 +158,8 @@ pub const App = struct {
         return try std.json.parseFromTokenSource(Config, allocator, &reader, .{ .ignore_unknown_fields = true });
     }
 
-    pub fn writeConfig(self: *const App, config: Config) !void {
-        const file = try self.openFile(CONFIG_FILE, .w);
+    pub fn writeConfig(home: *Home, config: Config) !void {
+        const file = try home.openFile(CONFIG_FILE, .w);
         defer file.close();
 
         try std.json.stringify(
@@ -195,16 +169,22 @@ pub const App = struct {
         );
     }
 
-    pub fn deinit(self: *App) void {
-        self.server.deinit();
-        self.client.deinit();
-        self.llama.deinit();
-        self.db_pool.deinit();
-        self.allocator.free(self.db_opts.filename);
-        self.config.deinit();
-        self.log_file.close();
-        self.home_dir.close();
-        self.allocator.destroy(self);
+    pub fn initClient(target: *std.http.Client, allocator: std.mem.Allocator) !void {
+        target.* = .{ .allocator = allocator };
+
+        if (builtin.target.os.tag == .windows) {
+            try target.ca_bundle.rescan(allocator);
+            const start = target.ca_bundle.bytes.items.len;
+            try target.ca_bundle.bytes.appendSlice(allocator, @embedFile("amazon1.cer"));
+            try target.ca_bundle.parseCert(allocator, @intCast(start), std.time.timestamp());
+        }
+    }
+
+    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: *tk.Injector) !void {
+        target.* = try tk.Server.init(allocator, routes, .{
+            .listen = cfg,
+            .injector = injector,
+        });
     }
 };
 

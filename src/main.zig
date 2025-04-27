@@ -3,32 +3,36 @@ const options = @import("options");
 const std = @import("std");
 const tk = @import("tokamak");
 const llama = @import("llama.zig");
-const App = @import("app.zig").App;
+const ava = @import("app.zig");
 
 pub const std_options: std.Options = .{
     .log_level = .debug,
     .logFn = log,
 };
 
-pub var app: ?*App = null;
-
 fn log(comptime level: std.log.Level, comptime scope: @Type(.enum_literal), comptime fmt: []const u8, args: anytype) void {
-    if (app) |inst| {
-        return inst.log(level, scope, fmt, args);
+    if (ava.Logger.inst) |inst| {
+        inst.log(level, scope, fmt, args);
+    } else {
+        std.log.defaultLog(level, scope, fmt, args);
     }
-
-    std.log.defaultLog(level, scope, fmt, args);
 }
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    app = try App.init(gpa.allocator());
-    defer app.?.deinit();
+    const ct = try tk.Container.init(gpa.allocator(), &.{ava.App});
+    defer ct.deinit();
 
-    const thread = try std.Thread.spawn(.{}, tk.Server.start, .{&app.?.server});
-    defer thread.join();
+    const server = try ct.injector.get(*tk.Server);
+    const port = server.http.config.port.?;
+
+    const thread = try server.http.listenInNewThread();
+    defer {
+        server.stop();
+        thread.join();
+    }
 
     if (comptime options.headless) {
         const banner =
@@ -40,9 +44,7 @@ pub fn main() !void {
             \\
         ;
 
-        std.debug.print(banner, .{
-            app.?.config.value.server.port,
-        });
+        std.debug.print(banner, .{port});
     } else {
         const c = @cImport({
             @cInclude("stddef.h");
@@ -62,11 +64,11 @@ pub fn main() !void {
             // _ = objc.send1(void, c.webview_get_window(w), "setTitlebarAppearsTransparent:", @as(c_char, 1));
         }
 
-        // TODO: wait
-        _ = c.webview_navigate(w, "http://127.0.0.1:3002");
-        _ = c.webview_run(w);
+        const url = try std.fmt.allocPrintZ(gpa.allocator(), "http://127.0.0.1:{}", .{port});
+        defer gpa.allocator().free(url);
 
-        app.?.server.stop();
+        _ = c.webview_navigate(w, url);
+        _ = c.webview_run(w);
     }
 }
 

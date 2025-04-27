@@ -7,21 +7,20 @@ const Params = struct {
     path: []const u8,
 };
 
-pub fn @"POST /download"(app: *ava.App, client: *std.http.Client, ctx: *tk.Context, params: Params) !tk.EventStream(Download) {
+pub fn @"POST /download"(home: *ava.Home, cfg: @FieldType(ava.Config, "download"), client: *std.http.Client, ctx: *tk.Context, params: Params) !tk.EventStream(Download) {
     if (std.mem.indexOf(u8, params.path, "..") != null) {
         return error.InvalidPath;
     }
 
     // TODO: redesign everything fs-related
-    const home = try app.home_dir.realpathAlloc(ctx.allocator, ".");
-    const path = try std.fs.path.join(ctx.allocator, &.{ app.config.value.download.path, params.path });
+    const path = try std.fs.path.join(ctx.allocator, &.{ cfg.path, params.path });
 
     return .{
         .impl = .{
             .client = client,
             .url = params.url,
-            .path = try std.fs.path.resolve(ctx.allocator, &.{ home, path }),
-            .file = try app.openFile(path, .w),
+            .path = try std.fs.path.resolve(ctx.allocator, &.{ home.path, path }),
+            .file = try home.openFile(path, .w),
         },
     };
 }
