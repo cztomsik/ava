@@ -5,28 +5,28 @@
 
     .dependencies = .{
         .llama_cpp = .{
-            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b4882.tar.gz",
-            .hash = "N-V-__8AAM_RFQSnbtFVNYzm8weALaVnMtn5FFzxqJ9_Q_Sy",
+            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b5207.tar.gz",
+            .hash = "N-V-__8AAEg4JAQntcb5eKJw5YmA7SBy-QXiZIzYCLZ6TgoW",
         },
         .llama_cpp_macos = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b4882/llama-b4882-bin-macos-arm64.zip",
-            .hash = "N-V-__8AAMsrkgS45IAeu51jtAqQrRE7ryl-7xIAd66pdVf5",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-macos-arm64.zip",
+            .hash = "N-V-__8AAPUfOQSyCQfMF0ycEmHq765r6d-fWDVrfBiuPpuc",
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b4882/llama-b4882-bin-win-avx2-x64.zip",
-            .hash = "N-V-__8AACWshQLg20fliy53CSEVohiRvFgjeDy08qK8KLmc",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-win-avx2-x64.zip",
+            .hash = "N-V-__8AAEj6ugJo_DfPYTT6QA9pU6T3fj-iEU1I0zY6HRkS",
         },
         .llama_cpp_linux = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b4882/llama-b4882-bin-ubuntu-x64.zip",
-            .hash = "N-V-__8AAD7c3AQHTnb03Wd0GsOgZxiC8fKrAfXMvyTebCrr",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-ubuntu-x64.zip",
+            .hash = "N-V-__8AAChScgSmZq7Q2WM0hJKfllPA46Mji99kQIWDoT3B",
         },
         .webview = .{
             .optional = true,
-            .url = "https://github.com/webview/webview/archive/67d1161.tar.gz",
-            .hash = "N-V-__8AAB1GBQCiIoAn9RdVq69So5F1IzSclmnoviDwPH2L",
+            .url = "https://github.com/webview/webview/archive/f1a9d6b.tar.gz",
+            .hash = "N-V-__8AAFXpCgDf9CFaoMSic23MgE7_O01X9Nz6JGTh2AY3",
         },
         .tokamak = .{
             .url = "git+https://github.com/cztomsik/tokamak?ref=main#52801a78a23f501fe3f1794da730d4ca2afe53bc",

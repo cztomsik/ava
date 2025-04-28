@@ -48,8 +48,8 @@ pub fn build(b: *std.Build) !void {
 fn addWebview(b: *std.Build, exe: anytype) !void {
     const webview = b.dependency("webview", .{});
     exe.linkLibCpp();
-    exe.addIncludePath(webview.path(""));
-    exe.addCSourceFile(.{ .file = webview.path("webview.cc"), .flags = &.{ "-std=c++14", "-DWEBVIEW_STATIC" } });
+    exe.addIncludePath(webview.path("core/include"));
+    exe.addCSourceFile(.{ .file = webview.path("core/src/webview.cc"), .flags = &.{ "-std=c++14", "-DWEBVIEW_STATIC" } });
 
     switch (exe.rootModuleTarget().os.tag) {
         .macos => exe.linkFramework("WebKit"),
