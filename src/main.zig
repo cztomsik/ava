@@ -29,10 +29,7 @@ pub fn main() !void {
     const port = server.http.config.port.?;
 
     const thread = try server.http.listenInNewThread();
-    defer {
-        server.stop();
-        thread.join();
-    }
+    defer thread.join();
 
     if (comptime options.headless) {
         const banner =
@@ -69,6 +66,7 @@ pub fn main() !void {
 
         _ = c.webview_navigate(w, url);
         _ = c.webview_run(w);
+        server.stop();
     }
 }
 
