@@ -44,7 +44,7 @@ jobs:
 
       - run: npm ci && npm run build
 
-      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }} ${{ runner.os == 'windows' && '--search-prefix .\Microsoft.Web.WebView2.1.0.2792.45\build\native' || '' }}
+      - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }} ${{ runner.os == 'windows' && '--search-prefix .\Microsoft.Web.WebView2.1.0.2792.45\build\native\include' || '' }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
