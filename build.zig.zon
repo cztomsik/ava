@@ -5,8 +5,8 @@
 
     .dependencies = .{
         .llama_cpp = .{
-            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b5207.tar.gz",
-            .hash = "N-V-__8AAEg4JAQntcb5eKJw5YmA7SBy-QXiZIzYCLZ6TgoW",
+            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b5223.tar.gz",
+            .hash = "N-V-__8AACaGJAScvd5tTU6cY3_dN_J-kZaOo6ZamCR-G3cm",
         },
         .llama_cpp_macos = .{
             .optional = true,
