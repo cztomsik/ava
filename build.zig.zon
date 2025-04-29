@@ -10,18 +10,18 @@
         },
         .llama_cpp_macos = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-macos-arm64.zip",
-            .hash = "N-V-__8AAPUfOQSyCQfMF0ycEmHq765r6d-fWDVrfBiuPpuc",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-macos-arm64.zip",
+            .hash = "N-V-__8AAFXGFwQYbE12yX1iRZHf5PRC-jOeF8eqfIufKnJf",
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-win-avx2-x64.zip",
-            .hash = "N-V-__8AAEj6ugJo_DfPYTT6QA9pU6T3fj-iEU1I0zY6HRkS",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-win-avx2-x64.zip",
+            .hash = "N-V-__8AAEi2pAKlcGARxW8xx8XtWVbSY2q6jRRe39ReAauA",
         },
         .llama_cpp_linux = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5207/llama-b5207-bin-ubuntu-x64.zip",
-            .hash = "N-V-__8AAChScgSmZq7Q2WM0hJKfllPA46Mji99kQIWDoT3B",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-ubuntu-x64.zip",
+            .hash = "N-V-__8AABCbTgQWuhq1cE3rBTSyHSYhgB06eaS7yu6eQGxd",
         },
         .webview = .{
             .optional = true,
@@ -33,8 +33,8 @@
             .hash = "tokamak-2.0.0-FbnSeePtAQCeozIDZxTCIJB-J3IC2md8S4Z7AbzWygFr",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#c1499d75400ee91061c19c51b0d9a03c87c62c8c",
-            .hash = "fridge-0.9.5-3GyIijxTAQBXUulnUR08MIbox7dI_tCPIVWY6VIFuoo7",
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#f90a16747b537b1b1221b891b06356b2cb0bb9d5",
+            .hash = "fridge-0.9.5-3GyIiixYAQAIxCifCXB1_pgf3195u8umzhHs8Ko56tud",
         },
     },
     .paths = .{

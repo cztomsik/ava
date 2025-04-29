@@ -6,6 +6,11 @@ const llama = @import("llama.zig");
 
 /// Application configuration.
 pub const Config = struct {
+    db: fr.SQLite3.Options = .{
+        .dir = null, // defaults to Home.path
+        .filename = "db",
+    },
+    db_pool: fr.PoolOptions = .{},
     llama: llama.PoolOptions = .{},
     server: tk.ListenOptions = .{
         .port = 3002,
@@ -104,27 +109,17 @@ pub const App = struct {
     home: Home,
     logger: Logger,
     config: std.json.Parsed(Config),
-    db_opts: fr.SQLite3.Options = .{ .filename = "" },
-    db_pool: fr.Pool,
+    db_pool: fr.Pool(fr.SQLite3),
     llama: llama.Pool,
     client: std.http.Client,
     server: tk.Server,
 
     const CONFIG_FILE = "config.json";
-    const DB_FILE = "db";
 
-    pub fn initDb(home: *Home, allocator: std.mem.Allocator, db_opts: *fr.SQLite3.Options) !fr.Pool {
-        // TODO: db_opts needs to stay alive together with db_pool
-        const path = try std.fs.path.joinZ(allocator, &.{ home.path, DB_FILE });
-        errdefer allocator.free(path);
-
-        try fr.migrate(allocator, path, @embedFile("db_schema.sql"));
-        db_opts.filename = path;
-        return try fr.Pool.init(fr.SQLite3, allocator, 2, db_opts);
-    }
-
-    pub fn initConfig(target: *std.json.Parsed(Config), ct: *tk.Container) !void {
+    pub fn initConfig(target: *std.json.Parsed(Config), home: *Home, ct: *tk.Container) !void {
         target.* = try ct.injector.call(readConfig, .{});
+        target.value.db.dir = target.value.db.dir orelse home.path;
+
         try ct.register(&target.value);
         inline for (std.meta.fields(Config)) |f| try ct.register(&@field(target.value, f.name));
     }
@@ -195,7 +190,7 @@ const api: tk.Route = .group("/api", &.{
 
 const routes = &.{
     tk.logger(.{}, &.{
-        .provide(fr.Pool.getSession, &.{
+        .provide(fr.Pool(fr.SQLite3).getSession, &.{
             // Handle API requests
             api,
             .get("/openapi.json", tk.swagger.json(.{
