@@ -22,7 +22,7 @@ pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
-    const ct = try tk.Container.init(gpa.allocator(), &.{ava.App});
+    const ct = try tk.Container.init(gpa.allocator(), &.{ ava.App, tk.app.Base });
     defer ct.deinit();
 
     const server = try ct.injector.get(*tk.Server);
