@@ -1,4 +1,5 @@
 const std = @import("std");
+const tokamak = @import("tokamak");
 
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -16,15 +17,14 @@ pub fn build(b: *std.Build) !void {
     });
     b.installArtifact(exe);
 
-    const embed: []const []const u8 = &.{
-        "LICENSE.md",
-        "src/app/index.html",
-        "src/app/favicon.ico",
-        "zig-out/app/main.js",
-    };
-
-    const tokamak = b.dependency("tokamak", .{ .embed = embed });
-    exe.root_module.addImport("tokamak", tokamak.module("tokamak"));
+    tokamak.setup(exe, .{
+        .embed = &.{
+            "LICENSE.md",
+            "src/app/index.html",
+            "src/app/favicon.ico",
+            "zig-out/app/main.js",
+        },
+    });
 
     const fridge = b.dependency("fridge", .{ .bundle = exe.rootModuleTarget().os.tag != .macos });
     exe.root_module.addImport("fridge", fridge.module("fridge"));
