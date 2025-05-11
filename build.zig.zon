@@ -5,23 +5,23 @@
 
     .dependencies = .{
         .llama_cpp = .{
-            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b5223.tar.gz",
-            .hash = "N-V-__8AACaGJAScvd5tTU6cY3_dN_J-kZaOo6ZamCR-G3cm",
+            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b5345.tar.gz",
+            .hash = "N-V-__8AAEx2KATH-qfrp6WtvlYuqk6wem14l61Ikw05KrPP",
         },
         .llama_cpp_macos = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-macos-arm64.zip",
-            .hash = "N-V-__8AAFXGFwQYbE12yX1iRZHf5PRC-jOeF8eqfIufKnJf",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5345/llama-b5345-bin-macos-arm64.zip",
+            .hash = "N-V-__8AANBvtAHbqQO_YzVwCzWisQDurWDtot_HuWQaiD4S",
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-win-avx2-x64.zip",
-            .hash = "N-V-__8AAEi2pAKlcGARxW8xx8XtWVbSY2q6jRRe39ReAauA",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5345/llama-b5345-bin-win-avx2-x64.zip",
+            .hash = "N-V-__8AAEAqyAHTDwsOHDyDEcuxr_jt5eXBJU88IUHFElAO",
         },
         .llama_cpp_linux = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5223/llama-b5223-bin-ubuntu-x64.zip",
-            .hash = "N-V-__8AABCbTgQWuhq1cE3rBTSyHSYhgB06eaS7yu6eQGxd",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5345/llama-b5345-bin-ubuntu-x64.zip",
+            .hash = "N-V-__8AAEAqyAHTDwsOHDyDEcuxr_jt5eXBJU88IUHFElAO",
         },
         .webview = .{
             .optional = true,
@@ -29,12 +29,12 @@
             .hash = "N-V-__8AAFXpCgDf9CFaoMSic23MgE7_O01X9Nz6JGTh2AY3",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=main#52801a78a23f501fe3f1794da730d4ca2afe53bc",
-            .hash = "tokamak-2.0.0-FbnSeePtAQCeozIDZxTCIJB-J3IC2md8S4Z7AbzWygFr",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=main#5a29143a0c1fabea38baf3613a4691979b6e09c0",
+            .hash = "tokamak-2.0.0-FbnSed8qAgCBLRx8zc19crztQ7tfnS0wvGAUnQJ55qql",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#f90a16747b537b1b1221b891b06356b2cb0bb9d5",
-            .hash = "fridge-0.9.5-3GyIiixYAQAIxCifCXB1_pgf3195u8umzhHs8Ko56tud",
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#11305fd8c3ee58512494c2412e9a84ab92aa82a2",
+            .hash = "fridge-0.9.5-3GyIikVYAQAo_R8sHa31-wARIkSRO0DQFHdnWENsvY3B",
         },
     },
     .paths = .{
