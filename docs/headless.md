@@ -16,5 +16,5 @@ Actions](https://github.com/cztomsik/ava/actions) page or you can build it
 yourself.
 
 ```bash
-zig build -Dheadless=true && ./zig-out/bin/ava_aarch64 # or ./zig-out/bin/ava_x86_64
+zig build run -Dheadless=true
 ```
