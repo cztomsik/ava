@@ -110,8 +110,8 @@ pub const App = struct {
     logger: Logger,
     config: std.json.Parsed(Config),
     db_pool: fr.Pool(fr.SQLite3),
-    llama: llama.Pool,
-    client: std.http.Client,
+    llama: llama.Pool, // TODO: extract to standalone module
+    client: std.http.Client, // TODO: switch to tk.Client
     server: tk.Server,
 
     const CONFIG_FILE = "config.json";
@@ -122,6 +122,27 @@ pub const App = struct {
 
         try ct.register(&target.value);
         inline for (std.meta.fields(Config)) |f| try ct.register(&@field(target.value, f.name));
+    }
+
+    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: *tk.Injector) !void {
+        target.* = try tk.Server.init(allocator, routes, .{
+            .listen = cfg,
+            .injector = injector,
+        });
+    }
+
+    pub fn afterAppInit(allocator: std.mem.Allocator, db_pool: *fr.Pool(fr.SQLite3), client: *std.http.Client) !void {
+        var db = try db_pool.getSession(allocator);
+        defer db.deinit();
+
+        try fr.migrate(db, @embedFile("db_schema.sql"));
+
+        if (comptime builtin.target.os.tag == .windows) {
+            try client.ca_bundle.rescan(allocator);
+            const start = client.ca_bundle.bytes.items.len;
+            try client.ca_bundle.bytes.appendSlice(allocator, @embedFile("amazon1.cer"));
+            try client.ca_bundle.parseCert(allocator, @intCast(start), std.time.timestamp());
+        }
     }
 
     pub fn updateConfig(self: *App, config: Config) !void {
@@ -162,24 +183,6 @@ pub const App = struct {
             .{ .whitespace = .indent_2 },
             file.writer(),
         );
-    }
-
-    pub fn initClient(target: *std.http.Client, allocator: std.mem.Allocator) !void {
-        target.* = .{ .allocator = allocator };
-
-        if (builtin.target.os.tag == .windows) {
-            try target.ca_bundle.rescan(allocator);
-            const start = target.ca_bundle.bytes.items.len;
-            try target.ca_bundle.bytes.appendSlice(allocator, @embedFile("amazon1.cer"));
-            try target.ca_bundle.parseCert(allocator, @intCast(start), std.time.timestamp());
-        }
-    }
-
-    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: *tk.Injector) !void {
-        target.* = try tk.Server.init(allocator, routes, .{
-            .listen = cfg,
-            .injector = injector,
-        });
     }
 };
 
