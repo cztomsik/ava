@@ -15,7 +15,7 @@
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5345/llama-b5345-bin-win-avx2-x64.zip",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b5345/llama-b5345-bin-win-cpu-x64.zip",
             .hash = "N-V-__8AAEAqyAHTDwsOHDyDEcuxr_jt5eXBJU88IUHFElAO",
         },
         .llama_cpp_linux = .{
