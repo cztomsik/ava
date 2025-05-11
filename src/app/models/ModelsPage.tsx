@@ -12,13 +12,13 @@ export const ModelsPage = ({ children }) => {
 
         <Tabs>
           <NavLink href="/models" exact>
-            Search
+            Installed
           </NavLink>
+          <NavLink href="/models/search">Search</NavLink>
           <NavLink href="/models/downloads">
             Downloads
             <Badge class="animate-pulse" value={queue.value.length} />
           </NavLink>
-          <NavLink href="/models/installed">Installed</NavLink>
         </Tabs>
       </Page.Header>
 
