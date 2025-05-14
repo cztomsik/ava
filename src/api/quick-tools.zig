@@ -3,7 +3,6 @@ const tk = @import("tokamak");
 const fr = @import("fridge");
 const schema = @import("../schema.zig");
 const llama = @import("../llama.zig");
-const template = @import("../template.zig");
 const completions = @import("completions.zig");
 
 const GenerateParams = struct {
@@ -41,7 +40,7 @@ pub fn @"PUT /quick-tools/:id"(db: *fr.Session, id: u32, data: schema.QuickTool)
 
 pub fn @"POST /quick-tools/:id/generate"(ctx: *tk.Context, db: *fr.Session, id: u32, params: GenerateParams) !void {
     const tool = try db.find(schema.QuickTool, id) orelse return error.NotFound;
-    const tpl = try template.Template.parse(ctx.allocator, tool.prompt);
+    const tpl = try tk.tpl.Template.parse(ctx.allocator, tool.prompt);
     const prompt = try tpl.renderAlloc(ctx.allocator, params.data);
 
     std.log.debug("Generating with prompt: {s}", .{prompt});
