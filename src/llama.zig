@@ -288,8 +288,8 @@ pub const Context = struct {
         }
 
         // Remove the past tokens from the KV cache.
-        if (!c.llama_kv_cache_seq_rm(self.ptr, 0, @intCast(n_past), -1)) {
-            _ = c.llama_kv_cache_clear(self.ptr);
+        if (!c.llama_kv_self_seq_rm(self.ptr, 0, @intCast(n_past), -1)) {
+            _ = c.llama_kv_self_clear(self.ptr);
         }
 
         log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });
