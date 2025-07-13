@@ -29,8 +29,8 @@
             .hash = "N-V-__8AAFXpCgDf9CFaoMSic23MgE7_O01X9Nz6JGTh2AY3",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=main#5a29143a0c1fabea38baf3613a4691979b6e09c0",
-            .hash = "tokamak-2.0.0-FbnSed8qAgCBLRx8zc19crztQ7tfnS0wvGAUnQJ55qql",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=feat/ct2#7e404eb1de48e95f2ea417785bfbf0a1e05d4c32",
+            .hash = "tokamak-2.0.0-FbnSeUBSBAAbhtYy1ATTE4SibbbRv48L4NuyDk_81PrZ",
         },
         .fridge = .{
             .url = "git+https://github.com/cztomsik/fridge?ref=main#11305fd8c3ee58512494c2412e9a84ab92aa82a2",

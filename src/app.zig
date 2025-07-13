@@ -116,27 +116,34 @@ pub const App = struct {
 
     const CONFIG_FILE = "config.json";
 
-    pub fn initConfig(target: *std.json.Parsed(Config), home: *Home, ct: *tk.Container) !void {
-        target.* = try ct.injector.call(readConfig, .{});
-        target.value.db.dir = target.value.db.dir orelse home.path;
+    pub fn configure(bundle: *tk.Bundle) void {
+        // We can't use `routes: [] = ...` field default because we need to reference api again for swagger
+        bundle.addInstance([]const tk.Route, .value(routes));
 
-        try ct.register(&target.value);
-        inline for (std.meta.fields(Config)) |f| try ct.register(&@field(target.value, f.name));
+        // TODO: Maybe the default for fields should be .anyhow?
+        bundle.addOverride(std.json.Parsed(Config), .factory(readConfig));
+
+        // Make all config.xxx fields available for injection
+        bundle.addFieldRef(std.json.Parsed(Config), "value");
+        inline for (std.meta.fields(Config)) |f| bundle.addFieldRef(Config, f.name);
+
+        bundle.addInitHook(setDefaultDbPath);
+        bundle.addInitHook(migrateDb);
+        bundle.addInitHook(loadCerts);
     }
 
-    pub fn initServer(target: *tk.Server, allocator: std.mem.Allocator, cfg: @FieldType(Config, "server"), injector: *tk.Injector) !void {
-        target.* = try tk.Server.init(allocator, routes, .{
-            .listen = cfg,
-            .injector = injector,
-        });
+    fn setDefaultDbPath(db_opts: *fr.SQLite3.Options, home: *Home) !void {
+        db_opts.dir = db_opts.dir orelse home.path;
     }
 
-    pub fn afterAppInit(allocator: std.mem.Allocator, db_pool: *fr.Pool(fr.SQLite3), client: *std.http.Client) !void {
+    fn migrateDb(allocator: std.mem.Allocator, db_pool: *fr.Pool(fr.SQLite3)) !void {
         var db = try db_pool.getSession(allocator);
         defer db.deinit();
 
-        try fr.migrate(db, @embedFile("db_schema.sql"));
+        try fr.migrate(&db, @embedFile("db_schema.sql"));
+    }
 
+    fn loadCerts(allocator: std.mem.Allocator, client: *std.http.Client) !void {
         if (comptime builtin.target.os.tag == .windows) {
             try client.ca_bundle.rescan(allocator);
             const start = client.ca_bundle.bytes.items.len;

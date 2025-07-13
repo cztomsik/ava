@@ -85,6 +85,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
         .windows => ".",
         else => "bin",
     }));
+    // TODO: can we somehow favor a locally pulled llama.cpp over the one which is installed via brew?
     exe.linkSystemLibrary("llama");
 
     exe.root_module.addImport("llama_cpp", llama_cpp.createModule());
