@@ -118,7 +118,7 @@ pub const App = struct {
 
     pub fn configure(bundle: *tk.Bundle) void {
         // We can't use `routes: [] = ...` field default because we need to reference api again for swagger
-        bundle.addInstance([]const tk.Route, .value(routes));
+        bundle.add([]const tk.Route, .value(routes));
 
         // TODO: Maybe the default for fields should be .anyhow?
         bundle.addOverride(std.json.Parsed(Config), .factory(readConfig));
