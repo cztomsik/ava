@@ -10,7 +10,7 @@ export const Variables = ({ variableNames, value, onChange }) => {
 
         {variableNames.map(name => (
           <div class="flex">
-            <div class="p-[5px] px-3 bg-neutral-2 border(1 neutral-8 r-0) rounded-l-md">{name}</div>
+            <div class="p-[5px] px-3 bg-neutral-2 border border-neutral-8 border-r-0 rounded-l-md">{name}</div>
             <Field name={name} class="w-full !rounded-none !rounded-r-md" />
           </div>
         ))}

@@ -12,6 +12,7 @@ import { Settings } from "./settings/Settings"
 import { System } from "./settings/System"
 import { Api } from "./settings/Api"
 import { License } from "./settings/License"
+import { LibraryPage } from "./_library"
 
 const routes = [
   { path: "/", component: () => router.navigate("/chat") },
@@ -29,6 +30,7 @@ const routes = [
   { path: "/settings/system", component: System },
   { path: "/settings/license", component: License },
   { path: "/settings/api", component: Api },
+  { path: "/_library", component: LibraryPage },
 ].filter(Boolean) as Array<{ path; component }>
 
 const path = signal(location.pathname)

@@ -40,7 +40,7 @@ export const QuickTool = ({ params: { id } }) => {
 
         <Page.DetailsPane sizes={[400, 500, 800]}>
           <div class="vstack overflow-hidden">
-            <h3 class="px-4 py-2 uppercase font-medium text(sm neutral-11)">Result</h3>
+            <h3 class="px-4 py-2 uppercase font-medium text-sm text-neutral-11">Result</h3>
             <div class="px-4 py-2 overflow-auto">
               <Markdown class="peer" input={status || result} />
               <p class="hidden peer-empty:block text-neutral-11">Click generate to see the result</p>

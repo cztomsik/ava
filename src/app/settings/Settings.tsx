@@ -102,7 +102,7 @@ export const Settings = () => {
 }
 
 const Row = ({ title, description, children }) => (
-  <div class="flex flex-wrap items-start p-4 border(b neutral-4) last:border-b-none">
+  <div class="flex flex-wrap items-start p-4 border-b border-neutral-4 last:border-b-none">
     <div class="vstack flex-1 pr-8 mr-auto">
       <h3 class="font-semibold mb-2">{title}</h3>
       <p class="text-sm text-neutral-11">{description}</p>

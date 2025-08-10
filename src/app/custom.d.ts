@@ -15,9 +15,8 @@ interface EventTarget {
   checked: boolean
 }
 
-// feature flags
+// flags
 var DEV: boolean
-var NEXT: boolean
 
 // preact factory
 var h

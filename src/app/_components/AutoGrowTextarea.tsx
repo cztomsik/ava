@@ -1,3 +1,5 @@
+import { useState } from "preact/hooks"
+
 export const AutoGrowTextarea = ({ class: className = "", value, onChange, ...props }) => (
   <div class="vstack relative">
     <textarea class={`!absolute !inset-0 ${className}`} value={value} onInput={e => onChange(e.target!.value)} {...props} />
@@ -8,3 +10,13 @@ export const AutoGrowTextarea = ({ class: className = "", value, onChange, ...pr
     />
   </div>
 )
+
+export const AutoGrowTextareaExample = () => {
+  const [text, setText] = useState("")
+
+  return (
+    <div>
+      <AutoGrowTextarea value={text} onChange={setText} placeholder="Line-growing textarea" />
+    </div>
+  )
+}

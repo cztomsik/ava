@@ -11,7 +11,7 @@ export const System = () => {
     <SettingsPage>
       <h3 class="my-3 text-lg">System info</h3>
 
-      <div class="grid grid-cols(3 lg:4 xl:5 2xl:6) gap-3 mb-4">
+      <div class="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 mb-4">
         <Value label="Operating system" value={`${system?.os} ${system?.os_version}`} />
         <Value label="CPU Arch" value={system?.arch} />
         <Value label="CPU count" value={system?.cpu_count} />
@@ -19,7 +19,7 @@ export const System = () => {
       </div>
 
       <h3 class="my-3 text-lg">Log</h3>
-      <pre class="p-4 border(1 neutral-6) rounded-md overflow-auto shadow-inner">{log}</pre>
+      <pre class="p-4 border border-neutral-6 rounded-md overflow-auto shadow-inner">{log}</pre>
     </SettingsPage>
   )
 }

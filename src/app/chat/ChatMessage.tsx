@@ -3,7 +3,7 @@ import { AutoGrowTextarea, Button, Form, Field, IconButton, Markdown, Modal } fr
 import { RoleAvatar } from "./RoleAvatar"
 
 export const ChatMessage = ({ message, isEditing, onEdit, onGenerate, onSave, onCancel, onDelete }) => (
-  <div class={`odd:(border(y neutral-6) bg-neutral-2)`} onDblClick={onEdit}>
+  <div class={`odd:border-y odd:border-neutral-6 odd:bg-neutral-2`} onDblClick={onEdit}>
     <div class="container flex relative">
       <RoleAvatar class="mr-3" role={message.role} />
       {isEditing ? (

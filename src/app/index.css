@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+@custom-variant thumb (&::-webkit-slider-thumb);
+
+:root {
+  color-scheme: light dark;
+}
+
+/* NOTE: We are using only some of the radix-ui colors and their dark variants are not even similar to the official plugin... */
+@theme {
+  --font-script: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --text-xs: 12px;
+  --text-xs--line-height: 1rem;
+  --text-sm: 13px;
+  --text-sm--line-height: 1rem;
+  --text-base: 14px;
+  --text-base--line-height: 1.25rem;
+  --text-lg: 16px;
+  --text-lg--line-height: 1.5rem;
+  --text-xl: 18px;
+  --text-xl--line-height: 1.5rem;
+  --text-2xl: 20px;
+  --text-2xl--line-height: 1.5rem;
+
+  --color-blue-1: #fbfdff;
+  --color-blue-2: #f5faff;
+  --color-blue-3: #edf6ff;
+  --color-blue-4: #e1f0ff;
+  --color-blue-5: #cee7fe;
+  --color-blue-6: #b7d9f8;
+  --color-blue-7: #96c7f2;
+  --color-blue-8: #5eb0ef;
+  --color-blue-9: #0090ff;
+  --color-blue-10: #0081f1;
+  --color-blue-11: #006adc;
+  --color-blue-12: #00254d;
+
+  --color-yellow-1: #fdfdf9;
+  --color-yellow-2: #fffce8;
+  --color-yellow-3: #fffbd1;
+  --color-yellow-4: #fff8bb;
+  --color-yellow-5: #fef2a4;
+  --color-yellow-6: #f9e68c;
+  --color-yellow-7: #efd36c;
+  --color-yellow-8: #ebbc00;
+  --color-yellow-9: #f5d90a;
+  --color-yellow-10: #f7ce00;
+  --color-yellow-11: #946800;
+  --color-yellow-12: #35290f;
+
+  --color-sky-1: #f9feff;
+  --color-sky-2: #f1fcff;
+  --color-sky-3: #e4f9ff;
+  --color-sky-4: #d5f4fd;
+  --color-sky-5: #c1ecf9;
+  --color-sky-6: #a4dff1;
+  --color-sky-7: #79cfea;
+  --color-sky-8: #2ebde5;
+  --color-sky-9: #68ddfd;
+  --color-sky-10: #5fd4f4;
+  --color-sky-11: #0078a1;
+  --color-sky-12: #003242;
+
+  --color-primary-1: var(--color-blue-1);
+  --color-primary-2: var(--color-blue-2);
+  --color-primary-3: var(--color-blue-3);
+  --color-primary-4: var(--color-blue-4);
+  --color-primary-5: var(--color-blue-5);
+  --color-primary-6: var(--color-blue-6);
+  --color-primary-7: var(--color-blue-7);
+  --color-primary-8: var(--color-blue-8);
+  --color-primary-9: var(--color-blue-9);
+  --color-primary-10: var(--color-blue-10);
+  --color-primary-11: var(--color-blue-11);
+  --color-primary-12: var(--color-blue-12);
+
+  --color-warning-1: var(--color-yellow-1);
+  --color-warning-2: var(--color-yellow-2);
+  --color-warning-3: var(--color-yellow-3);
+  --color-warning-4: var(--color-yellow-4);
+  --color-warning-5: var(--color-yellow-5);
+  --color-warning-6: var(--color-yellow-6);
+  --color-warning-7: var(--color-yellow-7);
+  --color-warning-8: var(--color-yellow-8);
+  --color-warning-9: var(--color-yellow-9);
+  --color-warning-10: var(--color-yellow-10);
+  --color-warning-11: var(--color-yellow-11);
+  --color-warning-12: var(--color-yellow-12);
+
+  /* sand */
+  --color-neutral-1: #fdfdfc;
+  --color-neutral-2: #f9f9f8;
+  --color-neutral-3: #f3f3f2;
+  --color-neutral-4: #eeeeec;
+  --color-neutral-5: #e9e9e6;
+  --color-neutral-6: #e3e3e0;
+  --color-neutral-7: #dbdbd7;
+  --color-neutral-8: #c8c7c1;
+  --color-neutral-9: #90908c;
+  --color-neutral-10: #868682;
+  --color-neutral-11: #706f6c;
+  --color-neutral-12: #1b1b18;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-blue-1: #0f1720;
+    --color-blue-2: #0f1b2d;
+    --color-blue-3: #10243e;
+    --color-blue-4: #102a4c;
+    --color-blue-5: #0f3058;
+    --color-blue-6: #0d3868;
+    --color-blue-7: #0a4481;
+    --color-blue-8: #0954a5;
+    --color-blue-9: #0090ff;
+    --color-blue-10: #369eff;
+    --color-blue-11: #52a9ff;
+    --color-blue-12: #eaf6ff;
+
+    --color-yellow-1: #1c1500;
+    --color-yellow-2: #221a00;
+    --color-yellow-3: #2c2100;
+    --color-yellow-4: #352800;
+    --color-yellow-5: #3e3000;
+    --color-yellow-6: #493c00;
+    --color-yellow-7: #594a05;
+    --color-yellow-8: #705d00;
+    --color-yellow-9: #f5d90a;
+    --color-yellow-10: #ffef5c;
+    --color-yellow-11: #f0c000;
+    --color-yellow-12: #fffad1;
+
+    --color-sky-1: #0c1820;
+    --color-sky-2: #071d2a;
+    --color-sky-3: #082636;
+    --color-sky-4: #082d41;
+    --color-sky-5: #08354c;
+    --color-sky-6: #083e59;
+    --color-sky-7: #064b6b;
+    --color-sky-8: #005d85;
+    --color-sky-9: #68ddfd;
+    --color-sky-10: #8ae8ff;
+    --color-sky-11: #2ec8ee;
+    --color-sky-12: #eaf8ff;
+
+    /* slate */
+    --color-neutral-1: #151718;
+    --color-neutral-2: #1a1d1e;
+    --color-neutral-3: #202425;
+    --color-neutral-4: #26292b;
+    --color-neutral-5: #2b2f31;
+    --color-neutral-6: #313538;
+    --color-neutral-7: #3a3f42;
+    --color-neutral-8: #4c5155;
+    --color-neutral-9: #697177;
+    --color-neutral-10: #787f85;
+    --color-neutral-11: #9ba1a6;
+    --color-neutral-12: #ecedee;
+  }
+}
+
+@layer base {
+
+  input:not([type="checkbox"]):not([type="range"]),
+  select,
+  textarea,
+  .form-control {
+    &[disabled] {
+      @apply bg-neutral-2 text-neutral-8;
+    }
+
+    @apply inline-block appearance-none text-ellipsis text-neutral-12 px-2 py-[5px] bg-neutral-1 border border-neutral-8 rounded-md resize-none;
+  }
+
+  :focus {
+    @apply !border-transparent outline outline-3 outline-primary-7;
+  }
+
+  th {
+    text-align: left;
+  }
+
+  code {
+    @apply text-sm font-mono font-semibold;
+  }
+}
+
+@layer components {
+  .hstack {
+    @apply flex flex-row items-center;
+  }
+
+  .vstack {
+    @apply flex flex-col;
+  }
+
+  .shadow-thin {
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3)
+  }
+
+  .markdown {
+    h1 {
+      @apply font-bold text-2xl mt-6 mb-4 first:mt-0;
+    }
+
+    h2 {
+      @apply font-bold text-xl mt-5 mb-3 first:mt-0;
+    }
+
+    h3 {
+      @apply font-bold text-lg mt-4 mb-2 first:mt-0;
+    }
+
+    h4 {
+      @apply font-bold text-base mt-3 mb-2 first:mt-0;
+    }
+
+    h5 {
+      @apply font-bold text-sm mt-3 mb-1 first:mt-0;
+    }
+
+    h6 {
+      @apply font-bold text-sm mt-3 mb-1 first:mt-0;
+    }
+
+    hr {
+      @apply my-4 border-t border-neutral-8;
+    }
+
+    p {
+      @apply mb-3 leading-relaxed;
+    }
+
+    strong {
+      @apply font-bold;
+    }
+
+    em {
+      @apply italic;
+    }
+
+    table {
+      @apply w-full mb-4;
+    }
+
+    table th,
+    table td {
+      @apply p-2 border-b border-neutral-7;
+    }
+
+    a {
+      cursor: pointer;
+      @apply text-blue-11;
+    }
+
+    pre {
+      @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-3 text-neutral-12 dark:bg-neutral-3 dark:text-neutral-11 dark:border dark:border-neutral-6;
+    }
+
+    ul {
+      @apply list-disc mb-3 pl-6;
+    }
+
+    ul li {
+      @apply mb-1;
+    }
+
+    ol {
+      @apply list-decimal mb-3 pl-6;
+    }
+
+    ol li {
+      @apply mb-1;
+    }
+
+    &,
+    & * {
+      cursor: text;
+      user-select: auto;
+    }
+  }
+}

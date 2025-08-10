@@ -10,7 +10,7 @@ export const DownloadManager = () => {
         <div class="vstack items-center gap-4 my-4">
           {current.value && <DownloadProgress {...current.value} />}
 
-          {!queue.value.length && <div class="border(1 neutral-6) rounded bg-neutral-2 p-4">No downloads in progress.</div>}
+          {!queue.value.length && <div class="border border-neutral-6 rounded bg-neutral-2 p-4">No downloads in progress.</div>}
 
           {queue.value.length > 1 && (
             <div>
@@ -37,7 +37,7 @@ const DownloadProgress = ({ url, size, progress }) => {
   const percent = size.value && (progress.value / size.value) * 100
 
   return (
-    <div class="w-[30rem] p-4 rounded-md bg(sky-2) border(1 sky-8) text-sky(12)">
+    <div class="w-[30rem] p-4 rounded-md bg-sky-2 border border-sky-8 text-sky-12">
       <strong>Download in progress</strong>
 
       <div class="flex justify-between">

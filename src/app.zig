@@ -211,7 +211,8 @@ const routes = &.{
             // Serve static files
             .get("/LICENSE.md", tk.static.file("LICENSE.md")),
             .get("/favicon.ico", tk.static.file("src/app/favicon.ico")),
-            .get("/app.js", tk.static.file("zig-out/app/main.js")),
+            .get("/index.css", tk.static.file("zig-out/app/index.css")),
+            .get("/index.js", tk.static.file("zig-out/app/index.js")),
             // Disable source maps in production
             .get("/*.map", tk.send(@as([]const u8, "{}"))),
             // HTML5 fallback

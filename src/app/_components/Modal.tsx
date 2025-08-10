@@ -78,7 +78,7 @@ const preventDrag = e => e.stopPropagation()
  */
 export const ModalBackdrop = ({ show }) => (
   <div
-    class={`fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm transition-opacity ${
+    class={`fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity ${
       show ? "opacity-100" : "opacity-0 pointer-events-none"
     }`}
   ></div>

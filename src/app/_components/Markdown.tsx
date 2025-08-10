@@ -1,5 +1,4 @@
 import { Marked } from "marked"
-import { css } from "@twind/core"
 import { useEffect, useRef } from "preact/hooks"
 import { effect } from "@preact/signals"
 
@@ -9,64 +8,42 @@ const marked = new Marked({
   },
 })
 
-const headings = ["text-2xl", "text-xl", "text-lg", "text-base", "text-base", "text-base"]
-
-const styles = css`
-  ${headings.map((h, i) => `& h${i + 1} { @apply font-bold ${h}; }`).join("\n")}
-
-  & hr {
-    @apply my-4 border-t border-neutral-8;
-  }
-
-  & p {
-    @apply mb-2;
-  }
-
-  & strong {
-    @apply font-bold;
-  }
-
-  & em {
-    @apply font-italic;
-  }
-
-  & table {
-    @apply w-full mb-4;
-  }
-
-  & table th,
-  & table td {
-    @apply p-2 border(b-1 neutral-7);
-  }
-
-  & a {
-    cursor: pointer;
-    @apply text-blue-11;
-  }
-
-  & pre {
-    @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:(bg-neutral-12 text-neutral-2 border(& neutral-10);
-  }
-
-  & ul {
-    @apply list-disc py-2 pl-5;
-  }
-
-  & ol {
-    @apply list-decimal py-2 pl-5;
-  }
-
-  &,
-  & * {
-    cursor: text;
-    user-select: auto;
-  }
-`
-
 export const Markdown = ({ input, class: className = "", ...props }) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => effect(() => (ref.current!.innerHTML = marked.parse("" + input) as string)), [input])
 
-  return <div ref={ref} class={`overflow-x-hidden ${styles} ${className}`} {...props} />
+  return <div ref={ref} class={`overflow-x-hidden markdown ${className}`} {...props} />
+}
+
+const sampleMd = `
+# Heading 1
+## Heading 2
+### Heading 3
+
+Some text with **bold** and *italic text*.
+
+- Item 1
+- Item 2
+- Item 3
+
+1. Numbered 1
+2. Numbered 2
+3. Numbered 3
+
+> This is a blockquote
+
+\`\`\`javascript
+const greeting = "Hello, World!";
+console.log(greeting);
+\`\`\`
+
+[Link](https://github.com/cztomsik/ava)`
+
+export const MarkdownExample = () => {
+  return (
+    <div class="border border-neutral-6 rounded p-4">
+      <Markdown input={sampleMd} />
+    </div>
+  )
 }

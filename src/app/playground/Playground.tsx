@@ -69,7 +69,7 @@ export const Playground = () => {
               <Field as="textarea" name="prompt" class="flex-1" placeholder="Type your prompt here..." rows={16} />
             </div>
 
-            <Resizable rtl sizes={[300, 400, 800]} class="border(l neutral-6) p-3 vstack overflow-x-hidden overflow-y-auto">
+            <Resizable rtl sizes={[300, 400, 800]} class="border-l border-neutral-6 p-3 vstack overflow-x-hidden overflow-y-auto">
               <h3 class="mb-2 text-neutral-10 text-sm uppercase font-medium">Result</h3>
 
               <div class="flex mb-2">
@@ -77,7 +77,7 @@ export const Playground = () => {
               </div>
 
               <div class="flex-1 overflow-auto">
-                <Markdown class="p-4 mb-2 border(1 neutral-6) rounded-md empty:hidden" input={status || res} />
+                <Markdown class="p-4 mb-2 border border-neutral-6 rounded-md empty:hidden" input={status || res} />
                 <AutoScroll />
               </div>
             </Resizable>
