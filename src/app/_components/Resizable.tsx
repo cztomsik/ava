@@ -15,7 +15,7 @@ export const Resizable = ({
     <Comp class={`relative ${clz}`} style={style} {...props}>
       {children}
 
-      <div class={`absolute ${rtl ? "left" : "right"}-0 inset-y-0 w-2 cursor-col-resize`} onMouseDown={onMouseDown} />
+      <div class={`absolute ${rtl ? "left-0" : "right-0"} inset-y-0 w-2 cursor-col-resize`} onMouseDown={onMouseDown} />
     </Comp>
   )
 }
