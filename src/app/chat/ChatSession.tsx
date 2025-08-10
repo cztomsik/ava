@@ -94,7 +94,7 @@ export const ChatSession = ({ id }) => {
         />
       </Page.Header>
 
-      <Page.Content class="!p-0 [&_.container]:(px-4 py-6 w-full max-w-3xl mx-auto)">
+      <Page.Content class="!p-0 [&_.container]:px-4 [&_.container]:py-6 [&_.container]:w-full [&_.container]:max-w-3xl [&_.container]:mx-auto">
         <ChatPrompt chat={chat} onSave={handleUpdate} />
 
         {(!id || messages.length === 0) && <NoMessages />}
@@ -132,7 +132,7 @@ export const ChatSession = ({ id }) => {
 }
 
 const NoMessages = () => (
-  <div class="text-sky-12 bg-sky-2 px-4 py-2 border(y-1 sky-6)">
+  <div class="text-sky-12 bg-sky-2 px-4 py-2 border-y border-sky-6">
     <div class="container">
       <strong>The conversation is empty.</strong>
       <ul class="list-disc mt-2 ml-4">

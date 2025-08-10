@@ -22,7 +22,8 @@ pub fn build(b: *std.Build) !void {
             "LICENSE.md",
             "src/app/index.html",
             "src/app/favicon.ico",
-            "zig-out/app/main.js",
+            "zig-out/app/index.css",
+            "zig-out/app/index.js",
         },
     });
 

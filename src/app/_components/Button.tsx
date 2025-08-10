@@ -13,12 +13,14 @@ export const Button = ({
 }) => {
   props.type = submit ? "submit" : "button"
 
-  props.class = `h-8 border rounded-md inline-flex items-center justify-center px-${text ? 1 : 3} text-sm bg-gradient-to-b ${
+  props.class = `h-8 border rounded-md inline-flex items-center justify-center ${
+    text ? "px-1" : "px-3"
+  } text-sm bg-gradient-to-b ${
     text
       ? "border-transparent"
       : primary
-      ? "bg-primary(10 dark:11) from-primary(8 dark:9) text-sky(1 dark:4) border-primary(8 dark:10)"
-      : "bg-neutral-5 from(white dark:neutral-11) text-neutral-12 border-neutral-6 shadow-thin"
+      ? "bg-primary-10 dark:bg-primary-11 from-primary-8 dark:from-primary-9 text-sky-1 dark:text-sky-4 border-primary-8 dark:border-primary-10"
+      : "bg-neutral-5 from-white dark:from-neutral-9 text-neutral-12 border-neutral-6 shadow-thin"
   } active:[translate:1px_1px] ${className}`
 
   if (loading) {
@@ -35,7 +37,7 @@ export const Button = ({
 }
 
 export const ButtonGroup = ({ class: className = "", ...props }) => (
-  <div class={`flex [&>*]:rounded-none ${className}`} role="group" {...props} />
+  <div class={`flex *:rounded-none ${className}`} role="group" {...props} />
 )
 
 export const IconButton = ({ class: className = "", icon, disabled = false, ...props }) => (

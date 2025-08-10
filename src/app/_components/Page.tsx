@@ -16,11 +16,11 @@ const Page = ({ children }) => (
 Page.Header = ({ title, children = null as any, ...props }) => {
   return (
     <header
-      class="[grid-area:header] h-12 flex items-center gap-2 pl-4 pr-3 border(b neutral-6) min-w-0"
+      class="[grid-area:header] h-12 flex items-center gap-2 pl-4 pr-3 border-b border-neutral-6 min-w-0"
       data-drag-window
       {...props}
     >
-      <h2 class="mt-0.5 flex-1 text(lg primary-12) font-medium truncate">{title}</h2>
+      <h2 class="mt-0.5 flex-1 text-lg text-primary-12 font-medium truncate">{title}</h2>
 
       {children}
     </header>
@@ -28,7 +28,7 @@ Page.Header = ({ title, children = null as any, ...props }) => {
 }
 
 Page.SubHead = ({ class: className = "", ...props }) => (
-  <div class={`[grid-area:subhead] bg-neutral-2 p-8 border(b neutral-6) ${className}`} {...props} />
+  <div class={`[grid-area:subhead] bg-neutral-2 p-8 border-b border-neutral-6 ${className}`} {...props} />
 )
 
 Page.List = ({ class: className = "", as: Comp, sizes, ...props }) => (
@@ -45,7 +45,7 @@ Page.DetailsPane = ({ class: className = "", sizes, ...props }) => (
   <Resizable
     rtl
     sizes={sizes}
-    class={`[grid-area:details] border(l neutral-6) vstack overflow-x-hidden overflow-y-auto ${className}`}
+    class={`[grid-area:details] border-l border-neutral-6 vstack overflow-x-hidden overflow-y-auto ${className}`}
     {...props}
   />
 )

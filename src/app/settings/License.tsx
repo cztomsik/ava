@@ -17,7 +17,7 @@ export const License = () => {
         This Software, incorporates and uses open-source software components. The use of these components is acknowledged,
         and their respective licenses are included in the LICENSES.md file which is shown below.
       </p>
-      <div class="flex-1 p-4 border(1 neutral-6) rounded-md overflow-auto shadow-inner my-4">
+      <div class="flex-1 p-4 border border-neutral-6 rounded-md overflow-auto shadow-inner my-4">
         <Markdown class="max-w-2xl" input={license}></Markdown>
       </div>
     </SettingsPage>
