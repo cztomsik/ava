@@ -201,27 +201,27 @@
 
   .markdown {
     h1 {
-      @apply font-bold text-2xl;
+      @apply font-bold text-2xl mt-6 mb-4 first:mt-0;
     }
 
     h2 {
-      @apply font-bold text-xl;
+      @apply font-bold text-xl mt-5 mb-3 first:mt-0;
     }
 
     h3 {
-      @apply font-bold text-lg;
+      @apply font-bold text-lg mt-4 mb-2 first:mt-0;
     }
 
     h4 {
-      @apply font-bold text-base;
+      @apply font-bold text-base mt-3 mb-2 first:mt-0;
     }
 
     h5 {
-      @apply font-bold text-base;
+      @apply font-bold text-sm mt-3 mb-1 first:mt-0;
     }
 
     h6 {
-      @apply font-bold text-base;
+      @apply font-bold text-sm mt-3 mb-1 first:mt-0;
     }
 
     hr {
@@ -229,7 +229,7 @@
     }
 
     p {
-      @apply mb-2;
+      @apply mb-3 leading-relaxed;
     }
 
     strong {
@@ -255,15 +255,23 @@
     }
 
     pre {
-      @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-12 text-neutral-2 dark:bg-neutral-12 dark:text-neutral-2 dark:border dark:border-neutral-10;
+      @apply overflow-auto text-sm font-mono rounded p-2 my-2 bg-neutral-3 text-neutral-12 dark:bg-neutral-3 dark:text-neutral-11 dark:border dark:border-neutral-6;
     }
 
     ul {
-      @apply list-disc py-2 pl-5;
+      @apply list-disc mb-3 pl-6;
+    }
+
+    ul li {
+      @apply mb-1;
     }
 
     ol {
-      @apply list-decimal py-2 pl-5;
+      @apply list-decimal mb-3 pl-6;
+    }
+
+    ol li {
+      @apply mb-1;
     }
 
     &,
