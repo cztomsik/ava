@@ -1,3 +1,5 @@
+import { useState } from "preact/hooks"
+
 export const Select = ({ class: className = "", ...props }) => (
   <div class={`relative ${className}`}>
     <select class="block w-full overflow-hidden pr-6" {...props} />
@@ -8,3 +10,18 @@ export const Select = ({ class: className = "", ...props }) => (
     </div>
   </div>
 )
+
+export const SelectExample = () => {
+  const [value, setValue] = useState("option2")
+
+  return (
+    <div class="space-y-4">
+      <Select value={value} onChange={e => setValue(e.target.value)}>
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <p class="text-sm text-neutral-11">Selected: {value}</p>
+    </div>
+  )
+}

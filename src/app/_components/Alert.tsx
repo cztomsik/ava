@@ -5,3 +5,5 @@ export const Alert = ({ class: className = "", children }) => {
     </div>
   )
 }
+
+export const AlertExample = () => <Alert>Hello World!</Alert>

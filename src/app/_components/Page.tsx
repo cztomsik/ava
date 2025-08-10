@@ -7,8 +7,8 @@ const gridTemplate = `
   "list footer details" auto / min-content 1fr min-content
 `
 
-const Page = ({ children }) => (
-  <div class="grid h-screen" style={{ gridTemplate }}>
+const Page = ({ children, class: className = "" }) => (
+  <div class={`grid h-screen ${className}`} style={{ gridTemplate }}>
     {children}
   </div>
 )

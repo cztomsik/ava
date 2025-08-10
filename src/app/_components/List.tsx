@@ -1,3 +1,4 @@
+import { useState } from "preact/hooks"
 import { useAriaList } from "../_hooks"
 
 const List = ({ class: className = "", children, ...props }) => {
@@ -38,3 +39,20 @@ export { List }
 List.Item = ListItem
 ListItem.Title = ListItemTitle
 ListItem.Subtitle = ListItemSubtitle
+
+export const ListExample = () => {
+  const [selected, setSelected] = useState(1)
+
+  return (
+    <div class="h-64">
+      <List>
+        {[1, 2, 3, 4, 5].map(i => (
+          <List.Item key={i} selected={selected === i} onClick={() => setSelected(i)}>
+            <ListItem.Title>Item {i}</ListItem.Title>
+            <ListItem.Subtitle>Subtitle</ListItem.Subtitle>
+          </List.Item>
+        ))}
+      </List>
+    </div>
+  )
+}

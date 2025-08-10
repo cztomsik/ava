@@ -7,3 +7,42 @@ export const Tabs = ({ class: className = "", children }) => {
     </div>
   )
 }
+
+// This is still TODO
+export const TabsExample = () => {
+  const [activeTab, setActiveTab] = useState("home")
+
+  return (
+    <div class="space-y-4">
+      <Tabs>
+        <a
+          href="#"
+          class={activeTab === "home" ? "active" : ""}
+          onClick={e => {
+            e.preventDefault()
+            setActiveTab("home")
+          }}
+        >
+          Home
+        </a>
+        <a
+          href="#"
+          class={activeTab === "settings" ? "active" : ""}
+          onClick={e => {
+            e.preventDefault()
+            setActiveTab("settings")
+          }}
+        >
+          Settings
+        </a>
+      </Tabs>
+
+      <div class="p-4 border border-neutral-6 rounded">
+        {activeTab === "home" && <p>Home goes here...</p>}
+        {activeTab === "settings" && <p>Settings goes here...</p>}
+      </div>
+    </div>
+  )
+}
+
+import { useState } from "preact/hooks"

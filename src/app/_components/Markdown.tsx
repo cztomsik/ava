@@ -15,3 +15,35 @@ export const Markdown = ({ input, class: className = "", ...props }) => {
 
   return <div ref={ref} class={`overflow-x-hidden markdown ${className}`} {...props} />
 }
+
+const sampleMd = `
+# Heading 1
+## Heading 2
+### Heading 3
+
+Some text with **bold** and *italic text*.
+
+- Item 1
+- Item 2
+- Item 3
+
+1. Numbered 1
+2. Numbered 2
+3. Numbered 3
+
+> This is a blockquote
+
+\`\`\`javascript
+const greeting = "Hello, World!";
+console.log(greeting);
+\`\`\`
+
+[Link](https://github.com/cztomsik/ava)`
+
+export const MarkdownExample = () => {
+  return (
+    <div class="border border-neutral-6 rounded p-4">
+      <Markdown input={sampleMd} />
+    </div>
+  )
+}

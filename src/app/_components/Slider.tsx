@@ -1,3 +1,5 @@
+import { useState } from "preact/hooks"
+
 // TODO: until this gets fixed the :focus does not really work for ranges in Safari (and macos webview)
 //       https://bugs.webkit.org/show_bug.cgi?id=234516
 
@@ -14,6 +16,16 @@ export const Slider = ({ label, onChange, ...props }) => {
         onChange={e => onChange(+e.target!.value)}
         {...props}
       />
+    </div>
+  )
+}
+
+export const SliderExample = () => {
+  const [volume, setVolume] = useState(0.5)
+
+  return (
+    <div class="space-y-4 max-w-md">
+      <Slider label="Volume" value={volume} onChange={setVolume} min={0} max={1} step={0.1} />
     </div>
   )
 }
