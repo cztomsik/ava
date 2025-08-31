@@ -61,7 +61,7 @@ pub fn main() !void {
             // _ = objc.send1(void, c.webview_get_window(w), "setTitlebarAppearsTransparent:", @as(c_char, 1));
         }
 
-        const url = try std.fmt.allocPrintZ(gpa.allocator(), "http://127.0.0.1:{}", .{port});
+        const url = try std.fmt.allocPrintSentinel(gpa.allocator(), "http://127.0.0.1:{}", .{port}, 0);
         defer gpa.allocator().free(url);
 
         _ = c.webview_navigate(w, url);

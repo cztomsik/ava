@@ -4,7 +4,7 @@ const tk = @import("tokamak");
 const ModelPath = struct { path: []const u8, size: ?u64 };
 
 pub fn @"POST /find-models"(allocator: std.mem.Allocator, params: struct { path: []const u8 }) ![]ModelPath {
-    var models_found = std.ArrayList(ModelPath).init(allocator);
+    var models_found = std.array_list.Managed(ModelPath).init(allocator);
 
     var dir = try std.fs.openDirAbsolute(params.path, .{ .iterate = true });
     defer dir.close();

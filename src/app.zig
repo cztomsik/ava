@@ -91,8 +91,8 @@ pub const Logger = struct {
         const m = @divTrunc(@mod(t, 3_600), 60);
         const h = @divTrunc(t, 3_600);
 
-        const writer = self.file.writer();
-        writer.print("{:0>2}:{:0>2}:{:0>2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ fmt ++ "\n", .{ h, m, s } ++ args) catch return;
+        var fw = self.file.writer(&.{});
+        fw.interface.print("{:0>2}:{:0>2}:{:0>2} " ++ level.asText() ++ " " ++ @tagName(scope) ++ ": " ++ fmt ++ "\n", .{ h, m, s } ++ args) catch return;
     }
 
     pub fn dump(self: Logger, allocator: std.mem.Allocator) ![]const u8 {
@@ -175,26 +175,23 @@ pub const App = struct {
         };
         defer file.close();
 
-        var reader = std.json.reader(allocator, file.reader());
-        defer reader.deinit();
+        const contents = try file.readToEndAlloc(allocator, 16 * 1024);
+        defer allocator.free(contents);
 
-        return try std.json.parseFromTokenSource(Config, allocator, &reader, .{ .ignore_unknown_fields = true });
+        return try std.json.parseFromSlice(Config, allocator, contents, .{ .allocate = .alloc_always, .ignore_unknown_fields = true });
     }
 
     pub fn writeConfig(home: *Home, config: Config) !void {
         const file = try home.openFile(CONFIG_FILE, .w);
         defer file.close();
 
-        try std.json.stringify(
-            config,
-            .{ .whitespace = .indent_2 },
-            file.writer(),
-        );
+        var fw = file.writer(&.{});
+        try std.json.fmt(config, .{}).format(&fw.interface);
     }
 };
 
 const api: tk.Route = .group("/api", &.{
-    .router(@import("api.zig")),
+    @import("api.zig").root,
     .send(error.NotFound),
 });
 

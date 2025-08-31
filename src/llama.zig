@@ -39,7 +39,7 @@ pub const Pool = struct {
     /// Initializes the pool.
     pub fn init(allocator: std.mem.Allocator, options: PoolOptions) Pool {
         const H = struct {
-            fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.C) void {
+            fn trampoline(_: c.enum_ggml_log_level, data: [*c]const u8, _: ?*anyopaque) callconv(.c) void {
                 log.debug("{s}", .{std.mem.trimRight(u8, std.mem.span(data), &.{'\n'})});
             }
         };
@@ -189,7 +189,7 @@ pub const Model = struct {
     }
 
     /// Tokenizes the input and appends the tokens to the given list.
-    pub fn tokenize(self: *const Model, tokens: *std.ArrayList(Token), input: []const u8, special: bool) !void {
+    pub fn tokenize(self: *const Model, tokens: *std.array_list.Managed(Token), input: []const u8, special: bool) !void {
         try tokens.ensureUnusedCapacity(input.len / 2);
         var slice: []Token = tokens.items[tokens.items.len..];
         slice.len = tokens.capacity - tokens.items.len;
@@ -239,14 +239,14 @@ pub const Context = struct {
     params: c.llama_context_params,
     ptr: *c.llama_context,
     sampler: *c.llama_sampler,
-    tokens: std.ArrayList(Token),
+    tokens: std.array_list.Managed(Token),
     n_past: usize = 0,
-    candidates: std.ArrayList(c.llama_token_data),
-    buf: std.ArrayList(u8),
+    candidates: std.array_list.Managed(c.llama_token_data),
+    buf: std.array_list.Managed(u8),
 
     /// Initializes the context.
     pub fn init(allocator: std.mem.Allocator, model: *Model, params: c.struct_llama_context_params) !Context {
-        var candidates = std.ArrayList(c.llama_token_data).init(allocator);
+        var candidates = std.array_list.Managed(c.llama_token_data).init(allocator);
         errdefer candidates.deinit();
 
         try candidates.resize(@intCast(c.llama_vocab_n_tokens(c.llama_model_get_vocab(model.ptr))));
@@ -256,9 +256,9 @@ pub const Context = struct {
             .params = params,
             .ptr = c.llama_new_context_with_model(model.ptr, params) orelse return error.UnexpectedError,
             .sampler = c.llama_sampler_chain_init(c.llama_sampler_chain_default_params()),
-            .tokens = std.ArrayList(Token).init(allocator),
+            .tokens = std.array_list.Managed(Token).init(allocator),
             .candidates = candidates,
-            .buf = std.ArrayList(u8).init(allocator),
+            .buf = std.array_list.Managed(u8).init(allocator),
         };
     }
 
@@ -273,7 +273,7 @@ pub const Context = struct {
 
     /// Prepares the context for inference.
     pub fn prepare(self: *Context, prompt: []const u8, params: SamplingParams) !void {
-        var tokens = std.ArrayList(Token).init(self.model.allocator);
+        var tokens = std.array_list.Managed(Token).init(self.model.allocator);
         errdefer tokens.deinit();
 
         try self.model.tokenize(&tokens, prompt, true);

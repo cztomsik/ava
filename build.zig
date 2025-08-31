@@ -8,12 +8,14 @@ pub fn build(b: *std.Build) !void {
 
     const exe = b.addExecutable(.{
         .name = "ava",
-        .root_source_file = b.path("src/main.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/main.zig"),
+            .target = target,
+            .optimize = optimize,
 
-        // For some reason, linux binaries are huge. Strip them in release mode.
-        .strip = optimize != .Debug,
+            // For some reason, linux binaries are huge. Strip them in release mode.
+            .strip = optimize != .Debug,
+        }),
     });
     b.installArtifact(exe);
 

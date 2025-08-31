@@ -18,7 +18,7 @@ const Meta = struct {
 };
 
 pub fn @"GET /models"(db: *fr.Session) ![]const ModelRow {
-    var rows = std.ArrayList(ModelRow).init(db.arena);
+    var rows = std.array_list.Managed(ModelRow).init(db.arena);
 
     for (try db.query(schema.Model).findAll()) |m| {
         try rows.append(.{

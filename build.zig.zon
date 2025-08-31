@@ -29,12 +29,12 @@
             .hash = "N-V-__8AAFXpCgDf9CFaoMSic23MgE7_O01X9Nz6JGTh2AY3",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=main#f768d71262ba62240cf7e26ab5e486a4bb46d74f",
-            .hash = "tokamak-2.0.0-FbnSeUemBAAiCuaC10z3vQisDyaQ33iAuq17GqaQgFQ_",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=feat/zig15#d75bc1399753ac92639ab143c95c63493d4bb34a",
+            .hash = "tokamak-2.0.0-FbnSeWsSBgDrqii6nE966SvGPuphAEsTgXJpEye09cnA",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=main#0ff3f700228b879695d98fa054a0c6e49d06c214",
-            .hash = "fridge-0.9.5-3GyIip6PAQBk67No4W0T6Do4qtqj1tsU5uJn1FnjJ15g",
+            .url = "git+https://github.com/cztomsik/fridge?ref=feat/zig15#a25feff881766f12d25448be18348c49faff36f6",
+            .hash = "fridge-0.9.5-3GyIiimqAQDuhQxY5w2Q-bMNwwppvRFWoPi_RzvF63SG",
         },
     },
     .paths = .{
