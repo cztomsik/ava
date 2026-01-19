@@ -46,8 +46,24 @@ jobs:
 
       - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }} ${{ runner.os == 'windows' && '--search-prefix .\Microsoft.Web.WebView2.1.0.2792.45\build\native' || '' }}
 
+      - name: Import codesign certificate
+        if: runner.os == 'macOS' && matrix.target.headless == false && env.MACOS_CERTIFICATE != ''
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+        run: |
+          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
+          rm certificate.p12
+
       - name: Create DMG
         if: runner.os == 'macOS' && matrix.target.headless == false
+        env:
+          CODESIGN_IDENTITY: ${{ secrets.CODESIGN_IDENTITY }}
         run: ./scripts/create_dmg.sh --skip-build
 
       - name: Upload artifacts
