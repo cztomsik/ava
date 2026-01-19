@@ -84,12 +84,23 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     llama_cpp.addIncludePath(dep.path("ggml/include"));
 
     const bin = b.dependency(b.fmt("llama_cpp_{s}", .{@tagName(target.result.os.tag)}), .{});
-    exe.addLibraryPath(bin.path(switch (target.result.os.tag) {
+    const bin_path = bin.path(switch (target.result.os.tag) {
         .windows => ".",
         else => "bin",
-    }));
-    // TODO: can we somehow favor a locally pulled llama.cpp over the one which is installed via brew?
-    exe.linkSystemLibrary("llama");
+    });
+
+    // Link libraries directly from the dependency to avoid conflicts with system-installed versions
+    const libs: []const []const u8 = switch (target.result.os.tag) {
+        .windows => &.{ "llama.dll", "ggml.dll", "ggml-base.dll" },
+        .macos => &.{ "libllama.dylib", "libggml.dylib", "libggml-base.dylib" },
+        else => &.{ "libllama.so", "libggml.so", "libggml-base.so" },
+    };
+    for (libs) |lib| {
+        exe.addObjectFile(bin_path.path(b, lib));
+    }
+
+    // Add RPATH so the executable can find the libraries at runtime
+    exe.addRPath(bin_path);
 
     exe.root_module.addImport("llama_cpp", llama_cpp.createModule());
 }

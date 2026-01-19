@@ -118,14 +118,14 @@ pub const App = struct {
 
     pub fn configure(bundle: *tk.Bundle) void {
         // We can't use `routes: [] = ...` field default because we need to reference api again for swagger
-        bundle.add([]const tk.Route, .value(routes));
+        bundle.provide([]const tk.Route, .value(routes));
 
         // TODO: Maybe the default for fields should be .anyhow?
-        bundle.addOverride(std.json.Parsed(Config), .factory(readConfig));
+        bundle.override(std.json.Parsed(Config), .factory(readConfig));
 
         // Make all config.xxx fields available for injection
-        bundle.addFieldRef(std.json.Parsed(Config), "value");
-        inline for (std.meta.fields(Config)) |f| bundle.addFieldRef(Config, f.name);
+        bundle.expose(std.json.Parsed(Config), "value");
+        inline for (std.meta.fields(Config)) |f| bundle.expose(Config, f.name);
 
         bundle.addInitHook(setDefaultDbPath);
         bundle.addInitHook(migrateDb);

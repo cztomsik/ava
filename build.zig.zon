@@ -29,13 +29,19 @@
             .hash = "N-V-__8AAFXpCgDf9CFaoMSic23MgE7_O01X9Nz6JGTh2AY3",
         },
         .tokamak = .{
-            .url = "git+https://github.com/cztomsik/tokamak?ref=feat/zig15#d75bc1399753ac92639ab143c95c63493d4bb34a",
-            .hash = "tokamak-2.0.0-FbnSeWsSBgDrqii6nE966SvGPuphAEsTgXJpEye09cnA",
+            .url = "git+https://github.com/cztomsik/tokamak?ref=main#8777b2ee1763124f06e2d2043e31fb8af38b30df",
+            .hash = "tokamak-2.0.0-FbnSeQXVBgB1AJB1_v-chRAcnVeWaQB5f0cU6KvCaTyJ",
         },
         .fridge = .{
-            .url = "git+https://github.com/cztomsik/fridge?ref=feat/zig15#a25feff881766f12d25448be18348c49faff36f6",
-            .hash = "fridge-0.9.5-3GyIiimqAQDuhQxY5w2Q-bMNwwppvRFWoPi_RzvF63SG",
+            .url = "git+https://github.com/cztomsik/fridge?ref=main#d2b20b912a6b001eef6607848cd722e44e0900a6",
+            .hash = "fridge-0.9.5-3GyIigC7AQDCgjNxJiKbpqLPZvF1LTAKK28B7dE-NsbL",
         },
+        // .tokamak = .{
+        //     .path = "../tokamak",
+        // },
+        // .fridge = .{
+        //     .path = "../fridge",
+        // },
     },
     .paths = .{
         "",
