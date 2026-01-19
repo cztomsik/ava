@@ -92,7 +92,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     // Link libraries directly from the dependency to avoid conflicts with system-installed versions
     const libs: []const []const u8 = switch (target.result.os.tag) {
         .windows => &.{ "llama.dll", "ggml.dll", "ggml-base.dll", "ggml-cpu-x64.dll" },
-        .macos => &.{ "libllama.dylib", "libggml.dylib", "libggml-base.dylib", "libggml-cpu.dylib", "libggml-metal.dylib" },
+        .macos => &.{ "libllama.0.dylib", "libggml.0.dylib", "libggml-base.0.dylib", "libggml-cpu.0.dylib", "libggml-metal.0.dylib", "libggml-blas.0.dylib", "libggml-rpc.0.dylib" },
         else => &.{ "libllama.so", "libggml.so", "libggml-base.so", "libggml-cpu-x64.so" },
     };
     for (libs) |lib| {
@@ -101,7 +101,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     }
 
     // Add RPATH so the executable can find the libraries at runtime
-    exe.addRPath(bin_path);
+    exe.addRPath(.{ .cwd_relative = "@executable_path" });
 
     exe.root_module.addImport("llama_cpp", llama_cpp.createModule());
 }
