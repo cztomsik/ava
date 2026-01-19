@@ -97,6 +97,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     };
     for (libs) |lib| {
         exe.addObjectFile(bin_path.path(b, lib));
+        b.getInstallStep().dependOn(&b.addInstallBinFile(bin_path.path(b, lib), lib).step);
     }
 
     // Add RPATH so the executable can find the libraries at runtime
