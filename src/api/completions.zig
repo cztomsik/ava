@@ -159,21 +159,30 @@ const CompletionStream = struct {
 
         if (self.tokens >= self.max_tokens) {
             self.finish_reason = .length;
-        } else if (try self.cx.generate()) |chunk| {
-            self.tokens += 1;
-
-            return .{
-                .id = self.id,
-                .choices = .{.{
-                    .delta = .{
-                        .content = chunk,
-                    },
-                }},
-                .created = std.time.timestamp(),
-                .model = self.model,
-            };
         } else {
-            self.finish_reason = .stop;
+            const start = self.cx.buf.items.len;
+
+            // TODO: the chunk itself is unused so maybe we should also consider changing the API?
+            while (try self.cx.generate()) |_| {
+                self.tokens += 1;
+                const content = self.cx.buf.items[start..];
+
+                // TODO: this is not perfect, it can still .stop in the middle of text chunk but it's probably ok and better than what we did before
+                if (!std.unicode.utf8ValidateSlice(content)) continue;
+
+                return .{
+                    .id = self.id,
+                    .choices = .{.{
+                        .delta = .{
+                            .content = content,
+                        },
+                    }},
+                    .created = std.time.timestamp(),
+                    .model = self.model,
+                };
+            } else {
+                self.finish_reason = .stop;
+            }
         }
 
         return .{

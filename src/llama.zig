@@ -336,10 +336,11 @@ pub const Context = struct {
         return n_eval;
     }
 
-    /// Generates next chunk of text.
+    /// Generates next chunk of bytes.
     pub fn generate(self: *Context) !?[]const u8 {
         const token = try self.generateToken() orelse return null;
 
+        // TODO: try self.buf.ensureXxxCapacity() with enough space, but also aligned to some reasonable multiple so that we don't allocate in every step
         var buf: [128]u8 = undefined;
         const n = c.llama_token_to_piece(c.llama_model_get_vocab(self.model.ptr), token, &buf, @intCast(buf.len), 0, true);
 
