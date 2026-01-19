@@ -127,6 +127,9 @@ pub const App = struct {
         bundle.expose(std.json.Parsed(Config), "value");
         inline for (std.meta.fields(Config)) |f| bundle.expose(Config, f.name);
 
+        // Auto-create ServerOptions using default values and what we already have available in the config
+        bundle.provide(tk.ServerOptions, .auto);
+
         bundle.addInitHook(setDefaultDbPath);
         bundle.addInitHook(migrateDb);
         bundle.addInitHook(loadCerts);
