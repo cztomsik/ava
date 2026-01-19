@@ -7,21 +7,40 @@ APP_PATH="$ZIG_OUT/${APP_NAME}.app"
 DMG_TMP_PATH="$ZIG_OUT/${APP_NAME}_tmp.dmg"
 DMG_FINAL_PATH="$ZIG_OUT/${APP_NAME}_$(date +%Y-%m-%d).dmg"
 
-# Clean
-rm -rf "$ZIG_OUT"
+# Parse arguments
+SKIP_BUILD=false
+NOTARIZE=false
+for arg in "$@"; do
+    case $arg in
+        --skip-build) SKIP_BUILD=true ;;
+        --notarize) NOTARIZE=true ;;
+    esac
+done
 
-# Build JS, x86_64, aarch64, and universal binary
-npm run build && zig build -Doptimize=ReleaseSafe
+if [ "$SKIP_BUILD" = false ]; then
+    # Clean
+    rm -rf "$ZIG_OUT"
 
-if [ $? -ne 0 ]; then
-    echo "Build failed"
-    exit 1;
+    # Build JS, x86_64, aarch64, and universal binary
+    npm run build && zig build -Doptimize=ReleaseSafe
+
+    if [ $? -ne 0 ]; then
+        echo "Build failed"
+        exit 1;
+    fi
+fi
+
+# Verify binary exists
+if [ ! -f "$ZIG_OUT/bin/ava" ]; then
+    echo "Error: $ZIG_OUT/bin/ava not found. Run without --skip-build or build first."
+    exit 1
 fi
 
 mkdir -p "${APP_PATH}/Contents/MacOS" \
 && mkdir -p "${APP_PATH}/Contents/Resources" \
 && cp "$ZIG_OUT/bin/ava" "${APP_PATH}/Contents/MacOS/" \
-&& cp ./src/app/favicon.ico ./llama.cpp/ggml/src/ggml-metal.metal ./llama.cpp/ggml/src/ggml-common.h "${APP_PATH}/Contents/Resources/"
+&& cp "$ZIG_OUT/bin/"*.dylib "${APP_PATH}/Contents/MacOS/" \
+&& cp ./src/app/favicon.ico "${APP_PATH}/Contents/Resources/"
 
 if [ $? -ne 0 ]; then
     echo "Copy failed"
@@ -63,9 +82,15 @@ cat << EOF > "${APP_PATH}/Contents/Info.plist"
 </plist>
 EOF
 
-# Sign app
-# Note it still needs to be notarized
-codesign -fs "Developer ID Application: KAMIL TOMSIK (RYT4H286GA)" --deep --options=runtime --timestamp "${APP_PATH}"
+# Sign app (ad-hoc by default, set CODESIGN_IDENTITY env var for proper signing)
+CODESIGN_IDENTITY="${CODESIGN_IDENTITY:--}"
+if [ "$CODESIGN_IDENTITY" = "-" ]; then
+    echo "Using ad-hoc code signing (set CODESIGN_IDENTITY for proper signing)"
+    codesign -fs - --deep "${APP_PATH}"
+else
+    echo "Signing with identity: $CODESIGN_IDENTITY"
+    codesign -fs "$CODESIGN_IDENTITY" --deep --options=runtime --timestamp "${APP_PATH}"
+fi
 
 if [ $? -ne 0 ]; then
     echo "Signing failed"
@@ -103,6 +128,11 @@ rm "${DMG_TMP_PATH}"
 
 echo "DMG created at ${DMG_FINAL_PATH}"
 
-# Notarize (if run with --notarize)
-if [ "$1" != "--notarize" ]; then exit 0; fi
-xcrun notarytool submit --wait --keychain-profile "KAMIL TOMSIK" "${DMG_FINAL_PATH}"
+# Notarize (if run with --notarize and NOTARIZE_PROFILE is set)
+if [ "$NOTARIZE" = false ]; then exit 0; fi
+if [ -z "$NOTARIZE_PROFILE" ]; then
+    echo "Error: NOTARIZE_PROFILE environment variable not set"
+    echo "Create a profile with: xcrun notarytool store-credentials"
+    exit 1
+fi
+xcrun notarytool submit --wait --keychain-profile "$NOTARIZE_PROFILE" "${DMG_FINAL_PATH}"

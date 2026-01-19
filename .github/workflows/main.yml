@@ -46,8 +46,14 @@ jobs:
 
       - run: zig build -Doptimize=ReleaseSafe -Dheadless=${{ matrix.target.headless }} ${{ runner.os == 'windows' && '--search-prefix .\Microsoft.Web.WebView2.1.0.2792.45\build\native' || '' }}
 
+      - name: Create DMG
+        if: runner.os == 'macOS' && matrix.target.headless == false
+        run: ./scripts/create_dmg.sh --skip-build
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ava-${{ matrix.target.headless && 'headless-' || '' }}${{ matrix.target.os }}
-          path: zig-out/bin/*
+          path: |
+            zig-out/bin/*
+            zig-out/*.dmg
