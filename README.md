@@ -24,7 +24,7 @@ your computer. It's batteries-included GUI for
 
 ## Download / Build
 
-- [Download latest artifacts from Github Actions](https://github.com/cztomsik/ava/actions/runs/11298440735)
+- [Download latest artifacts from Github Actions](https://github.com/cztomsik/ava/actions)
 - or build it yourself with `zig build run` or `zig build run -Dheadless=true`.
 
 ## Tech stack
