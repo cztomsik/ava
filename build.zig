@@ -86,14 +86,14 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     const bin = b.dependency(b.fmt("llama_cpp_{s}", .{@tagName(target.result.os.tag)}), .{});
     const bin_path = bin.path(switch (target.result.os.tag) {
         .windows => ".",
-        else => "bin",
+        else => "llama-b7772",
     });
 
     // Link libraries directly from the dependency to avoid conflicts with system-installed versions
     const libs: []const []const u8 = switch (target.result.os.tag) {
-        .windows => &.{ "llama.dll", "ggml.dll", "ggml-base.dll" },
-        .macos => &.{ "libllama.dylib", "libggml.dylib", "libggml-base.dylib" },
-        else => &.{ "libllama.so", "libggml.so", "libggml-base.so" },
+        .windows => &.{ "llama.dll", "ggml.dll", "ggml-base.dll", "ggml-cpu-x64.dll" },
+        .macos => &.{ "libllama.dylib", "libggml.dylib", "libggml-base.dylib", "libggml-cpu.dylib", "libggml-metal.dylib" },
+        else => &.{ "libllama.so", "libggml.so", "libggml-base.so", "libggml-cpu-x64.so" },
     };
     for (libs) |lib| {
         exe.addObjectFile(bin_path.path(b, lib));

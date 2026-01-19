@@ -117,7 +117,7 @@ pub const Pool = struct {
         params.n_batch = @intCast(self.options.n_batch);
         params.n_threads = @intCast(self.options.n_threads orelse cpu_count);
         params.n_threads_batch = @intCast(self.options.n_threads_batch orelse self.options.n_threads orelse cpu_count);
-        params.flash_attn = self.options.flash_attn;
+        params.flash_attn_type = if (self.options.flash_attn) c.LLAMA_FLASH_ATTN_TYPE_ENABLED else c.LLAMA_FLASH_ATTN_TYPE_DISABLED;
 
         return params;
     }
@@ -288,8 +288,9 @@ pub const Context = struct {
         }
 
         // Remove the past tokens from the KV cache.
-        if (!c.llama_kv_self_seq_rm(self.ptr, 0, @intCast(n_past), -1)) {
-            _ = c.llama_kv_self_clear(self.ptr);
+        const mem = c.llama_get_memory(self.ptr);
+        if (!c.llama_memory_seq_rm(mem, 0, @intCast(n_past), -1)) {
+            c.llama_memory_clear(mem, true);
         }
 
         log.debug("{} tokens, n_past = {}", .{ tokens.items.len, n_past });

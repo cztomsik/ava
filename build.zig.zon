@@ -5,23 +5,23 @@
 
     .dependencies = .{
         .llama_cpp = .{
-            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b6002.tar.gz",
-            .hash = "N-V-__8AAMWaQgXk97gzpE71KGq7RIvsrEWhVCgWR621VkXp",
+            .url = "https://github.com/ggml-org/llama.cpp/archive/refs/tags/b7772.tar.gz",
+            .hash = "N-V-__8AAJVwpAdXrUpogOFjzfXHiHQboSAVW_HwZ26owZSz",
         },
         .llama_cpp_macos = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b6002/llama-b6002-bin-macos-arm64.zip",
-            .hash = "N-V-__8AANdGwQE3tZiwfPLLwVFltAbyiJMJjTo72dH0o4tC",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b7772/llama-b7772-bin-macos-arm64.tar.gz",
+            .hash = "N-V-__8AAGYRLgWOkdQ8RE7mPQtfBauC7sqUDKQXEOiGgwpH",
         },
         .llama_cpp_windows = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b6002/llama-b6002-bin-win-cpu-x64.zip",
-            .hash = "N-V-__8AAA8vSAImlPH7bkikszi_NYbml94isS2iiNpspAed",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b7772/llama-b7772-bin-win-cpu-x64.zip",
+            .hash = "N-V-__8AADgqGAUoU0q5HPWVpIMTcRFDOzX54E8EOIyQAAis",
         },
         .llama_cpp_linux = .{
             .optional = true,
-            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b6002/llama-b6002-bin-ubuntu-x64.zip",
-            .hash = "N-V-__8AAHg28wHQY3lFcwWaXL17jUk_SwlZQu9fnxpFO0Dc",
+            .url = "https://github.com/ggml-org/llama.cpp/releases/download/b7772/llama-b7772-bin-ubuntu-x64.tar.gz",
+            .hash = "N-V-__8AAK4h3QNEyu8y10T0Ym-UCDD-cqYCHVaOGJo7sWBl",
         },
         .webview = .{
             .optional = true,
