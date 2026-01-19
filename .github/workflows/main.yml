@@ -29,9 +29,9 @@ jobs:
         with:
           node-version: 21.7.3
 
-      - uses: mlugg/setup-zig@v1
+      - uses: mlugg/setup-zig@v2.0.5
         with:
-          version: 0.14.0
+          version: 0.15.2
 
       - if: runner.os == 'macOS'
         run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
