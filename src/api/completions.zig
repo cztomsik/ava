@@ -201,6 +201,8 @@ const CompletionStream = struct {
     }
 };
 
+// TODO: This DOES NOT use the --jinja templating, AFAIK this is only implemented in llama-server & llama-cli
+//       -> many of the recent models are unusable because of that...
 fn applyTemplate(allocator: std.mem.Allocator, model: *llama.Model, messages: []const Message) ![]const u8 {
     const chat = try allocator.alloc(llama.c.llama_chat_message, messages.len);
     for (messages, 0..) |msg, i| {
