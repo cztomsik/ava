@@ -33,7 +33,7 @@ licenses.
 1. [Zig language](https://ziglang.org/) - MIT
 2. [llama.cpp](https://github.com/ggerganov/llama.cpp) - MIT
 3. [Preact](https://preactjs.com/) - MIT
-4. [Twind](https://twind.style/) - MIT
+4. [Tailwind CSS](https://tailwindcss.com/) - MIT
 5. [Lucide](https://github.com/lucide-icons/lucide) - MIT
 6. [Marked](https://github.com/markedjs/marked) - MIT
 
@@ -117,11 +117,11 @@ SOFTWARE.
 
 ---
 
-## Twind
+## Tailwind CSS
 
 MIT License
 
-Copyright (c) 2022 [these people](https://github.com/tw-in-js/twind/graphs/contributors)
+Copyright (c) Tailwind Labs, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -30,7 +30,7 @@ your computer. It's batteries-included GUI for
 ## Tech stack
 
 - Zig, C++ (**llama.cpp**), SQLite
-- Preact, Preact Signals, Twind
+- Preact, Preact Signals, Tailwind CSS
 
 ## License
 
