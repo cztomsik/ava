@@ -86,7 +86,7 @@ fn addLlama(b: *std.Build, exe: anytype) !void {
     const bin = b.dependency(b.fmt("llama_cpp_{s}", .{@tagName(target.result.os.tag)}), .{});
     const bin_path = bin.path(switch (target.result.os.tag) {
         .windows => ".",
-        else => "llama-b7772",
+        else => "llama-b8390",
     });
 
     // Link libraries directly from the dependency to avoid conflicts with system-installed versions
